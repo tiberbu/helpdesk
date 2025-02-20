@@ -92,14 +92,14 @@
   {
    "default": "Open",
    "fieldname": "status",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
    "no_copy": 1,
    "oldfieldname": "status",
    "oldfieldtype": "Select",
-   "options": "Open\nReplied\nResolved\nClosed",
+   "options": "HD Status",
    "search_index": 1
   },
   {
@@ -410,7 +410,7 @@
  "icon": "fa fa-issue",
  "idx": 61,
  "links": [],
- "modified": "2024-10-22 01:28:37.126589",
+ "modified": "2025-02-20 14:25:49.976309",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Ticket",
