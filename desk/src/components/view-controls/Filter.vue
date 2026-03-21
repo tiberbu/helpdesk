@@ -1,18 +1,19 @@
 <template>
-  <NestedPopover>
-    <template #target>
+  <Popover placement="bottom-end">
+    <template #target="{ togglePopover, close }">
       <div class="flex items-center w-fit">
         <Button
           :label="'Filter'"
           :class="filters?.size ? 'rounded-r-none' : ''"
+          @click="togglePopover"
         >
           <template #prefix><FilterIcon class="h-4" /></template>
           <template v-if="filters?.size" #suffix>
-            <div
-              class="flex h-5 w-5 items-center justify-center rounded bg-gray-900 pt-[1px] text-2xs font-medium text-white"
+            <span
+              class="flex h-5 w-5 items-center justify-center rounded-[5px] bg-surface-white pt-px text-xs font-medium text-ink-gray-8 shadow-sm"
             >
               {{ filters.size }}
-            </div>
+            </span>
           </template>
         </Button>
         <Tooltip v-if="filters?.size" :text="'Clear all Filter'">
@@ -20,7 +21,7 @@
             <Button
               class="rounded-l-none border-l"
               icon="x"
-              @click.stop="clearfilter(false)"
+              @click.stop="clearfilter(close)"
             />
           </div>
         </Tooltip>
@@ -49,10 +50,10 @@
                 />
               </div>
               <div id="fieldname" class="w-full">
-                <AutocompleteNew
-                  :value="f.field.fieldname"
+                <Autocomplete
+                  v-model="f.field.fieldname"
                   :options="filterableFields.data"
-                  @change="(e) => updateFilter(e, i)"
+                  @update:modelValue="(e) => updateFilter(e, i)"
                   :placeholder="'First Name'"
                 />
               </div>
@@ -68,22 +69,23 @@
               <div id="value" class="w-full">
                 <component
                   :is="getValueControl(f)"
-                  v-model="f.value"
-                  @change.stop="(v) => updateValue(v, f)"
+                  :model-value="f.value"
+                  @update:modelValue="(v) => updateValue(v, f)"
+                  @change="(v) => updateValue(v, f)"
                   :placeholder="'John Doe'"
                 />
               </div>
             </div>
             <div v-else class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-1">
                 <div class="w-13 pl-2 text-end text-base text-gray-600">
                   {{ i == 0 ? "Where" : "And" }}
                 </div>
                 <div id="fieldname" class="!min-w-[140px]">
-                  <AutocompleteNew
-                    :value="f.field.fieldname"
+                  <Autocomplete
+                    v-model="f.field.fieldname"
                     :options="filterableFields.data"
-                    @change="(e) => updateFilter(e, i)"
+                    @update:modelValue="(e) => updateFilter(e, i)"
                     :placeholder="'First Name'"
                   />
                 </div>
@@ -98,11 +100,12 @@
                     :placeholder="'Equals'"
                   />
                 </div>
-                <div id="value" class="!min-w-[140px]">
+                <div id="value" class="!min-w-[140px] flex-1">
                   <component
                     :is="getValueControl(f)"
-                    v-model="f.value"
+                    :model-value="f.value"
                     @change="(v) => updateValue(v, f)"
+                    @update:modelValue="(v) => updateValue(v, f)"
                     :placeholder="'John Doe'"
                   />
                 </div>
@@ -122,10 +125,9 @@
             {{ "Empty - Choose a field to filter by" }}
           </div>
           <div class="flex items-center justify-between gap-2">
-            <AutocompleteNew
-              value=""
+            <Autocomplete
               :options="filterableFields.data"
-              @change="(e) => setfilter(e)"
+              @update:modelValue="(e) => setfilter(e)"
               :placeholder="'First name'"
             >
               <template #target="{ togglePopover }">
@@ -140,7 +142,7 @@
                   </template>
                 </Button>
               </template>
-            </AutocompleteNew>
+            </Autocomplete>
             <Button
               v-if="filters?.size"
               class="!text-gray-600"
@@ -152,21 +154,24 @@
         </div>
       </div>
     </template>
-  </NestedPopover>
+  </Popover>
 </template>
 <script setup>
-import { h, computed, inject } from "vue";
-import {
-  FormControl,
-  Tooltip,
-  DatePicker,
-  DateTimePicker,
-  DateRangePicker,
-  NestedPopover,
-} from "frappe-ui";
-import { AutocompleteNew, Link } from "@/components";
-import { useScreenSize } from "@/composables/screen";
+import { Link, StarRating } from "@/components";
 import FilterIcon from "@/components/icons/FilterIcon.vue";
+import { useScreenSize } from "@/composables/screen";
+import {
+  Autocomplete,
+  Button,
+  DatePicker,
+  DateRangePicker,
+  DateTimePicker,
+  FeatherIcon,
+  FormControl,
+  Popover,
+  Tooltip,
+} from "frappe-ui";
+import { computed, h, inject } from "vue";
 
 const props = defineProps({
   default_filters: {
@@ -184,6 +189,7 @@ const typeNumber = ["Float", "Int", "Currency", "Percent"];
 const typeSelect = ["Select"];
 const typeString = ["Data", "Long Text", "Small Text", "Text Editor", "Text"];
 const typeDate = ["Date", "Datetime"];
+const typeRating = ["Rating"];
 
 const listViewData = inject("listViewData");
 const listViewActions = inject("listViewActions");
@@ -207,7 +213,9 @@ function convertFilters(data, allFilters) {
         value = ["equals", value[1] ? "Yes" : "No"];
       }
     }
-
+    if (typeof value[1] === "number") {
+      value[1] = value[1].toString();
+    }
     if (field) {
       f.push({
         field,
@@ -313,6 +321,19 @@ function getOperators(fieldtype, fieldname) {
       ]
     );
   }
+  if (typeRating.includes(fieldtype)) {
+    options.push(
+      ...[
+        { label: "Equals", value: "equals" },
+        { label: "Not Equals", value: "not equals" },
+        { label: "Is", value: "is" },
+        { label: ">", value: ">" },
+        { label: "<", value: "<" },
+        { label: ">=", value: ">=" },
+        { label: "<=", value: "<=" },
+      ]
+    );
+  }
   return options;
 }
 
@@ -364,6 +385,13 @@ function getValueControl(f) {
       value: f.value,
       iconLeft: "",
     });
+  } else if (typeRating.includes(fieldtype)) {
+    return h(StarRating, {
+      rating: f.value || 0,
+      static: false,
+      class: "truncate",
+      "onUpdate:modelValue": (v) => updateValue(v, f),
+    });
   } else {
     return h(FormControl, { type: "text" });
   }
@@ -379,10 +407,16 @@ function getDefaultValue(field) {
   if (typeDate.includes(field.fieldtype)) {
     return null;
   }
+  if (typeRating.includes(field.fieldtype)) {
+    return 0;
+  }
   return "";
 }
 
-function getDefaultOperator(fieldtype) {
+function getDefaultOperator(fieldtype, fieldname = null) {
+  if (fieldname === "_assign") {
+    return "like";
+  }
   if (typeSelect.includes(fieldtype)) {
     return "equals";
   }
@@ -393,6 +427,9 @@ function getDefaultOperator(fieldtype) {
     return "between";
   }
   if (typeLink.includes(fieldtype)) {
+    return "equals";
+  }
+  if (typeRating.includes(fieldtype)) {
     return "equals";
   }
   return "like";
@@ -412,7 +449,7 @@ function setfilter(data) {
       options: data.options,
     },
     fieldname: data.value,
-    operator: getDefaultOperator(data.fieldtype),
+    operator: getDefaultOperator(data.fieldtype, data.fieldname),
     value: getDefaultValue(data),
   });
   apply();
@@ -488,30 +525,32 @@ function isSameTypeOperator(oldOperator, newOperator) {
 }
 
 function apply() {
-  let _filters = [];
+  const _filters = [];
   filters.value.forEach((f) => {
     _filters.push({
       fieldname: f.fieldname,
       operator: f.operator,
       value: f.value,
+      toBoolean: f.field.fieldtype === "Check",
     });
   });
   listViewActions.applyFilters(parseFilters(_filters));
 }
 
 function parseFilters(filters) {
-  const filtersArray = Array.from(filters);
-  const obj = filtersArray.map(transformIn).reduce((p, c) => {
+  return filters.map(transformIn).reduce((p, c) => {
     if (["equals", "="].includes(c.operator)) {
-      p[c.fieldname] =
-        c.value == "Yes" ? true : c.value == "No" ? false : c.value;
+      if (c.toBoolean) {
+        p[c.fieldname] =
+          c.value === "Yes" ? true : c.value === "No" ? false : c.value;
+      } else {
+        p[c.fieldname] = c.value;
+      }
     } else {
       p[c.fieldname] = [operatorMap[c.operator.toLowerCase()], c.value];
     }
     return p;
   }, {});
-  const merged = { ...obj };
-  return merged;
 }
 
 function transformIn(f) {

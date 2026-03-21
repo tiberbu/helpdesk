@@ -1,19 +1,17 @@
 <template>
-  <div v-if="normalActions.length">
+  <div v-if="normalActions.length" class="flex gap-2">
     <Button
       v-for="action in normalActions"
       :key="action.label"
       :label="action.label"
       @click="action.onClick()"
+      v-bind="action"
     >
       <template v-if="action.icon" #prefix>
         <FeatherIcon :name="action.icon" class="h-4 w-4" />
       </template>
     </Button>
   </div>
-  <Dropdown v-if="groupedActions.length" :options="groupedActions">
-    <Button icon="more-horizontal" />
-  </Dropdown>
   <div v-if="groupedWithLabelActions.length">
     <div v-for="g in groupedWithLabelActions" :key="g.label">
       <Dropdown v-slot="{ open }" :options="g.action">
@@ -28,11 +26,14 @@
       </Dropdown>
     </div>
   </div>
+  <Dropdown v-if="groupedActions.length" :options="groupedActions">
+    <Button icon="more-horizontal" variant="ghost" />
+  </Dropdown>
 </template>
 
 <script setup>
-import { computed, h } from "vue";
 import { Dropdown } from "frappe-ui";
+import { computed } from "vue";
 
 const props = defineProps({
   actions: {

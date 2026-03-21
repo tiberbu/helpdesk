@@ -6,17 +6,18 @@ from frappe import _
 from frappe.model.document import Document
 
 from helpdesk.consts import DEFAULT_TICKET_TEMPLATE
+from helpdesk.utils import capture_event
 
 
 class HDTicketTemplate(Document):
     def validate(self):
         self.verify_field_exists()
-
-    def on_trash(self):
-        self.prevent_default_delete()
+        self.validate_unallowed_fields()
 
     def verify_field_exists(self):
         for f in self.fields:
+            if not f.fieldname:
+                continue
             exists = self.docfield_exists(f.fieldname) or self.custom_field_exists(
                 f.fieldname
             )
@@ -33,6 +34,15 @@ class HDTicketTemplate(Document):
             }
         )
 
+    def validate_unallowed_fields(self):
+        unallowed_fields = ["status", "agreement_status"]
+        for f in self.fields:
+            if f.fieldname in unallowed_fields:
+                text = _("Field `{0}` is not allowed in Ticket Template").format(
+                    f.fieldname
+                )
+                frappe.throw(text)
+
     def custom_field_exists(self, fieldname: str):
         return frappe.db.exists(
             {
@@ -41,6 +51,12 @@ class HDTicketTemplate(Document):
                 "dt": "HD Ticket",
             }
         )
+
+    def on_update(self):
+        capture_event("ticket_template_updated")
+
+    def on_trash(self):
+        self.prevent_default_delete()
 
     def prevent_default_delete(self):
         if self.name == DEFAULT_TICKET_TEMPLATE:

@@ -1,18 +1,131 @@
-import { Component } from "vue";
+import { Dayjs } from "dayjs";
+import { Component, ComputedRef, InjectionKey, Ref } from "vue";
+import type { AssignmentRule, HDTicket } from "./types/doctypes";
 
-export interface Resource<T = unknown> {
-  auto: boolean;
+interface ResourceOptions<T = any> {
+  method?: string;
+  url: string;
+  initialData?: T;
+  auto?: boolean;
+  cache?: string | string[];
+  debounce?: number;
+  params?: any;
+  makeParams?: (params: any) => any;
+  onFetch?: (params: any) => void;
+  beforeSubmit?: (params: any) => void;
+  validate?: (params: any) => string | void;
+  onError?: (error: Error) => void;
+  onSuccess?: (data: T) => void;
+  onData?: (data: T) => void;
+  transform?: (data: any) => T;
+  resourceFetcher?: (options: any) => Promise<any>;
+}
+
+interface Resource<T = any> {
+  method: string | undefined;
+  url: string;
+  data: T | null;
+  previousData: T | null;
   loading: boolean;
-  data: T;
-  pageLength: number;
-  totalCount: number;
-  hasNextPage: boolean;
-  list: {
-    loading: boolean;
+  fetched: boolean;
+  error: Error | null;
+  promise: Promise<T> | null;
+  auto: boolean;
+  params: any;
+  fetch: (
+    params?: any,
+    tempOptions?: Partial<ResourceOptions<T>>
+  ) => Promise<T>;
+  reload: (
+    params?: any,
+    tempOptions?: Partial<ResourceOptions<T>>
+  ) => Promise<T>;
+  submit: (
+    params?: any,
+    tempOptions?: Partial<ResourceOptions<T>>
+  ) => Promise<T>;
+  reset: () => void;
+  update: (options: {
+    method?: string;
+    url?: string;
+    params?: any;
+    auto?: boolean;
+  }) => void;
+  setData: (data: T | ((currentData: T) => T)) => void;
+}
+
+export interface ListResourceOptions {
+  doctype: string;
+  fields?: string[];
+  filters?: Record<string, any>;
+  orFilters?: Record<string, any>;
+  orderBy?: string;
+  start?: number;
+  pageLength?: number;
+  groupBy?: string;
+  parent?: string;
+  debug?: number;
+  auto?: boolean;
+  url?: string;
+  cache?: any;
+  realtime?: boolean;
+  onSuccess?: (data: any) => void;
+  onError?: (error: any) => void;
+  onData?: (data: any) => void;
+  transform?: (data: any) => any;
+  fetchOne?: {
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
   };
+  insert?: {
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+  };
+  setValue?: {
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+  };
+  delete?: {
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+  };
+  runDocMethod?: {
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+  };
+}
+
+export interface ListResource<T = any> {
+  doctype: string;
+  fields?: string[];
+  filters?: Record<string, any>;
+  orFilters?: Record<string, any>;
+  orderBy?: string;
+  start: number;
+  pageLength: number;
+  groupBy?: string;
+  parent?: string;
+  debug: number;
+  originalData: T[] | null;
+  dataMap: Record<string, T>;
+  data: T[] | null;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  auto?: boolean;
+  list: Resource<T[]>;
+  fetchOne: Resource<T>;
+  insert: Resource<T>;
+  setValue: Resource<T>;
+  delete: Resource<T>;
+  runDocMethod: Resource<T>;
+  update: (updatedOptions: Partial<ListResourceOptions>) => void;
+  fetch: () => void;
+  reload: () => Promise<T[]>;
+  setData: (data: T[] | ((data: T[]) => T[])) => void;
+  transform: (data: T[]) => T[];
+  getRow: (name: string) => T;
+  previous: () => void;
   next: () => void;
-  reload: () => void;
-  update: (r: unknown) => void;
 }
 
 export interface Error {
@@ -85,6 +198,7 @@ export interface Ticket {
   response_by: string;
   first_responded_on: string;
   resolution_date: string;
+  resolution_time: number;
   status: string;
   subject: string;
   ticket_type: string;
@@ -92,7 +206,6 @@ export interface Ticket {
   agreement_status: string;
   creation: string;
   feedback_rating?: number;
-  feedback_text?: string;
   feedback_extra?: string;
   contact: Contact;
   comments: Comment[];
@@ -100,6 +213,9 @@ export interface Ticket {
   history: Activity[];
   template: Template;
   views: ViewLog[];
+  _customActions: Function[];
+  is_merged?: boolean;
+  status_category: "Open" | "Paused" | "Resolved";
 }
 
 export interface DocField {
@@ -126,15 +242,22 @@ export interface AutoCompleteItem {
 export interface Field {
   fieldname: string;
   fieldtype: string;
-  hide_from_customer: 0 | 1;
+  hide_from_customer?: 0 | 1;
   label: string;
   options: string;
   required: 0 | 1;
   description?: null;
   url_method?: string;
+  link_filters?: string;
+  filters?: string;
+  display_via_depends_on?: string;
+  mandatory_via_depends_on?: string;
+  disabled?: boolean;
+  placeholder?: string | null;
+  readonly?: boolean;
 }
 
-export type FieldValue = string | number | boolean;
+export type FieldValue = string | number | boolean | null | undefined | Dayjs;
 
 export interface Template {
   about: string;
@@ -209,7 +332,7 @@ export interface EmailAccount {
   default_incoming?: boolean;
 }
 
-export type TicketTab = "activity" | "email" | "comment" | "details";
+export type TicketTab = "activity" | "email" | "comment" | "details" | "call";
 
 export interface TabObject {
   name: TicketTab;
@@ -257,15 +380,30 @@ export interface Category {
   children?: Article[];
 }
 
-// Badge
-export interface BadgeStatus {
-  label: string;
-  theme: string;
+export interface View {
+  filters: string;
+  order_by: string;
+  columns: string;
+  rows: string;
+  dt?: string;
+  type?: string;
+  route_name?: string;
+  user?: string;
+  icon?: string;
+  label?: string;
+  is_default?: boolean;
+  pinned?: boolean;
+  public?: boolean;
+  group_by_field?: string;
+  name?: string;
+  is_customer_portal?: boolean;
+  is_standard?: boolean;
 }
 
-export interface View {
+export interface ViewType {
   view_type: string;
   group_by_field: string;
+  name: string;
 }
 
 export interface Breadcrumb {
@@ -295,9 +433,11 @@ export interface EmailActivity extends BaseActivity {
   attachments: FileAttachment;
   bcc: string;
   cc: string;
+  name: string;
   sender: { full_name: string; name: string };
   subject: string;
   to: string;
+  isFirstEmail: boolean;
 }
 
 export interface CommentActivity extends BaseActivity {
@@ -308,10 +448,270 @@ export interface CommentActivity extends BaseActivity {
   attachments: FileAttachment[];
 }
 
-export type TicketActivity = HistoryActivity | EmailActivity | CommentActivity;
+export interface CallActivity extends BaseActivity {
+  type: "call";
+  name: string;
+  caller: string;
+  calledBy: string;
+  attachments: FileAttachment[];
+  call_type: "Incoming" | "Outgoing";
+}
+
+export interface FeedbackActivity {
+  type: "feedback";
+  feedback_rating: number;
+  feedback: string; // option seletor
+  feedback_extra?: string; // free flow text
+  sender: { name: string; full_name: string };
+  key: string;
+}
+
+export type TicketActivity =
+  | HistoryActivity
+  | EmailActivity
+  | CommentActivity
+  | CallActivity
+  | FeedbackActivity;
 
 interface FileAttachment {
   name: string;
   file_name: string;
   file_url: string;
+}
+
+export interface FieldCriteriaState {
+  selectedParentField: string;
+  selectedChildField: string;
+  childFields: any[];
+  parentFieldValues: any[];
+  childFieldValues: any[];
+  currentParentSelection: string;
+  childSelections: any;
+  initialChildSelections: any;
+  parentSearch: string;
+  childSearch: string;
+  enabled: boolean;
+}
+
+interface ResourceBase {
+  data: any;
+  error: any;
+  fetched: boolean;
+  loading: boolean;
+  params: any;
+  previousData: any;
+  promise: Promise<any> | null;
+  submit: (params?: any) => void;
+}
+
+interface DocumentResourceOptions<T = unknown> {
+  doctype: string;
+  name: string;
+  auto?: boolean;
+  whitelistedMethods?: Record<string, string>;
+  onError?: (error: any) => void;
+  onSuccess?: (data: T) => void;
+  transform?: (doc: T) => T;
+  delete?: {
+    onSuccess?: () => void;
+    onError?: (error: any) => void;
+  };
+  setValue?: {
+    onSuccess?: () => void;
+    onError?: (error: any) => void;
+  };
+}
+
+export interface DocumentResource<T = unknown> {
+  // Configuration
+  auto: boolean;
+  doctype: string;
+  name: string;
+  isDirty: boolean;
+  promise: Promise<void> | null;
+
+  // Main document data
+  doc: T;
+  originalDoc: T;
+
+  // Core methods
+  reload(): void;
+  update(options: Partial<DocumentResourceOptions<T>>): void;
+
+  // Sub-resources
+  get: ResourceBase & {
+    data: T;
+    params: {
+      doctype: string;
+      name: string;
+    };
+  };
+
+  setValue: ResourceBase & {
+    submit: (
+      values: Partial<T>,
+      options?: { onSuccess?: () => void; onError?: (error: any) => void }
+    ) => void;
+  };
+
+  setValueDebounced: ResourceBase & {
+    submit: (values: Partial<T>) => void;
+  };
+
+  save: ResourceBase;
+  delete: ResourceBase;
+
+  // Dynamic whitelisted methods
+  [methodName: string]: any;
+}
+
+export interface Customizations {
+  custom_fields: {
+    fieldname: string;
+    required: number;
+    placeholder: string;
+    url_method: string;
+  }[];
+  _form_script: string[];
+  _customActions?: any;
+  _customOnChange?: any;
+}
+
+export interface TicketContact {
+  name: string;
+  email_id: string;
+  phone: string;
+  mobile_no: string;
+  image: string;
+}
+
+export type RecentTicket = Record<
+  "subject" | "status" | "priority" | "name",
+  string | number
+>;
+export type SimilarTicket = Record<
+  "subject" | "status" | "priority" | "name",
+  string | number
+>;
+export interface RecentSimilarTicket {
+  recent_tickets: RecentTicket[];
+  similar_tickets: SimilarTicket[];
+}
+
+export interface TicketActivities {
+  comments: Comment[];
+  communications: Communication[];
+  history: Activity[];
+  views: ViewLog[];
+}
+
+export interface HDSettings {
+  brandName: string;
+  brandLogo: string;
+  favicon: string;
+  autoCloseAfterDays: string;
+  autoCloseStatus: string;
+  autoCloseTickets: string;
+  assignWithinTeam: boolean;
+  doNotRestrictTicketsWithoutAnAgentGroup: boolean;
+  restrictTicketsByAgentGroup: boolean;
+  updateStatusTo: string;
+  autoUpdateStatus: boolean;
+  isFeedbackMandatory: boolean;
+  allowAnyoneToCreateTickets: boolean;
+  defaultTicketType: string;
+  preferKnowledgeBase: boolean;
+  skipEmailWorkflow: boolean;
+  disableSavedRepliesGlobalScope: boolean;
+  enableOutsideHoursBanner: boolean;
+  outsideWorkingHoursBannerMessage: string;
+}
+
+export interface HolidayList {
+  name: string;
+  description: string;
+}
+
+export interface SlaPolicy {
+  name: string;
+  description: string;
+  default_sla: boolean;
+  enabled: boolean;
+}
+
+export interface Team {
+  name: string;
+  team: string;
+}
+
+export interface SavedReply {
+  name: string;
+  title: string;
+  message: string;
+  scope: string;
+  teams: Team[];
+  owner: string;
+}
+
+export type APIOptions = DropdownOption[] | string[] | [];
+
+export type DropdownOption = {
+  label: string;
+  value: string | number;
+};
+
+// symbols
+export const TicketSymbol: InjectionKey<
+  ComputedRef<DocumentResource<HDTicket>>
+> = Symbol("ticket");
+export const AssigneeSymbol: InjectionKey<
+  ComputedRef<Resource<Record<"name", string>[]>>
+> = Symbol("assignees");
+
+export const CustomizationSymbol: InjectionKey<
+  ComputedRef<Resource<Customizations>>
+> = Symbol("customizations");
+
+export const TicketContactSymbol: InjectionKey<
+  ComputedRef<Resource<TicketContact>>
+> = Symbol("ticketContact");
+
+export const RecentSimilarTicketsSymbol: InjectionKey<
+  ComputedRef<Resource<RecentSimilarTicket>>
+> = Symbol("recentSimilarTickets");
+
+export const ActivitiesSymbol: InjectionKey<
+  ComputedRef<Resource<TicketActivities>>
+> = Symbol("activities");
+
+export const AssignmentRuleListResourceSymbol: InjectionKey<
+  Resource<AssignmentRule[]>
+> = Symbol("assignmentRuleListResource");
+
+export const HDSettingsSymbol: InjectionKey<Ref<HDSettings>> =
+  Symbol("hdSettings");
+
+export const HolidayListResourceSymbol: InjectionKey<
+  ListResource<HolidayList>
+> = Symbol("holidayListResource");
+
+export const SlaPolicyListResourceSymbol: InjectionKey<
+  ListResource<SlaPolicy>
+> = Symbol("slaPolicyListResource");
+
+export const TeamListResourceSymbol: InjectionKey<ListResource<Team>> =
+  Symbol("teamListResource");
+
+export const SavedReplyListResourceSymbol: InjectionKey<
+  ListResource<SavedReply>
+> = Symbol("savedReplyListResource");
+
+declare global {
+  interface Window {
+    is_fc_site: boolean;
+    date_format: string;
+    time_format: string;
+    session_user: string;
+    timezone: Record<"user" | "system", string>;
+  }
 }

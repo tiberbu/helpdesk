@@ -1,25 +1,37 @@
+import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
+import frappeui from "frappe-ui/vite";
 import path from "path";
 import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import frappeui from "frappe-ui/vite";
-import Icons from "unplugin-icons/vite";
-import Components from "unplugin-vue-components/vite";
-import IconsResolver from "unplugin-icons/resolver";
-import { FileSystemIconLoader } from "unplugin-icons/loaders";
-import { SVG, cleanupSVG, parseColors } from "@iconify/tools";
-import LucideIcons from "./lucide";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
-    frappeui(),
-    vue(),
-    Components({
-      resolvers: IconsResolver({
-        prefix: false,
-        enabledCollections: ["lucide"],
-      }),
+    frappeui({
+      frappeProxy: true,
+      lucideIcons: true,
+      jinjaBootData: true,
+      buildConfig: {
+        outDir: `../helpdesk/public/desk`,
+        emptyOutDir: true,
+        indexHtmlPath: "../helpdesk/www/helpdesk/index.html",
+      },
+      frappeTypes: {
+        input: {
+          helpdesk: [
+            "hd_ticket_status",
+            "hd_ticket",
+            "hd_service_holiday_list",
+            "hd_service_level_agreement",
+            "hd_agent",
+          ],
+          frappe: ["assignment_rule"],
+        },
+      },
     }),
+
+    vue(),
+    vueJsx(),
     VitePWA({
       registerType: "autoUpdate",
       devOptions: {
@@ -27,6 +39,7 @@ export default defineConfig({
       },
       workbox: {
         cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       manifest: {
         display: "standalone",
@@ -63,44 +76,25 @@ export default defineConfig({
         ],
       },
     }),
-    Icons({
-      compiler: "vue3",
-      customCollections: {
-        lucide: LucideIcons,
-        espresso: FileSystemIconLoader("./src/assets/icons", async (svg) => {
-          const r = new SVG(svg);
-
-          await cleanupSVG(r);
-          await parseColors(r, {
-            callback: () => "currentColor",
-          });
-
-          return r.toMinifiedString();
-        }),
-        logos: FileSystemIconLoader("./src/assets/logos", async (svg) => {
-          const r = new SVG(svg);
-          await cleanupSVG(r);
-          return r.toMinifiedString();
-        }),
-      },
-    }),
   ],
+  server: {
+    allowedHosts: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
       "tailwind.config.js": path.resolve(__dirname, "tailwind.config.js"),
     },
   },
-  build: {
-    outDir: `../helpdesk/public/desk`,
-    emptyOutDir: true,
-    target: "es2021",
-    sourcemap: true,
-    commonjsOptions: {
-      include: [/tailwind.config.js/, /node_modules/],
-    },
-  },
   optimizeDeps: {
-    include: ["feather-icons", "showdown", "tailwind.config.js"],
+    include: [
+      "feather-icons",
+      "tailwind.config.js",
+      "prosemirror-state",
+      "prosemirror-view",
+      "lowlight",
+      "interactjs",
+    ],
+    exclude: ["frappe-ui"],
   },
 });

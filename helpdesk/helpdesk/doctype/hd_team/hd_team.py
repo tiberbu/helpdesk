@@ -8,6 +8,8 @@ from frappe.exceptions import DoesNotExistError
 from frappe.model.document import Document
 from frappe.model.naming import append_number_if_name_exists
 
+from helpdesk.utils import capture_event
+
 
 class HDTeam(Document):
     @frappe.whitelist()
@@ -15,7 +17,6 @@ class HDTeam(Document):
         self.rename(new_name)
 
     def after_insert(self):
-        # nosemgrep
         self.create_assignment_rule()
         assignment_rule_doc = frappe.get_doc("Assignment Rule", self.assignment_rule)
 
@@ -29,11 +30,21 @@ class HDTeam(Document):
             assignment_rule_doc.disabled = False
         assignment_rule_doc.save()
 
+        self.capture_team_creation_event()
+
+    def capture_team_creation_event(self):
+        should_capture = self.name not in ["Product Experts", "Billing"]
+        if should_capture:
+            capture_event("team_created")
+
     def after_rename(self, olddn, newdn, merge=False):
         # Update the condition for the linked assignment rule
         rule = self.get_assignment_rule()
         rule_doc = frappe.get_doc("Assignment Rule", rule)
         rule_doc.assign_condition = f"status == 'Open' and agent_group == '{newdn}'"
+        rule_doc.assign_condition_json = (
+            f'[["status", "==", "Open"], "and", ["agent_group", "==", "{newdn}"]]'
+        )
         rule_doc.save(ignore_permissions=True)
 
     def on_update(self):
@@ -68,6 +79,9 @@ class HDTeam(Document):
         )
         rule_doc.document_type = "HD Ticket"
         rule_doc.assign_condition = f"status == 'Open' and agent_group == '{self.name}'"
+        rule_doc.assign_condition_json = (
+            f'[["status","==","Open"],"and",["agent_group","==","{self.name}"]]'
+        )
         rule_doc.priority = 1
         rule_doc.disabled = True  # Disable the rule by default, when agents are added to the group, the rule will be enabled
 
@@ -163,26 +177,11 @@ class HDTeam(Document):
                 assignment_rule_doc.disabled = True
                 assignment_rule_doc.save()
 
-    @staticmethod
-    def default_list_data():
-        columns = [
-            {
-                "label": "Name",
-                "key": "name",
-                "width": "17rem",
-                "type": "Data",
-            },
-            {
-                "label": "Assignment rule",
-                "key": "assignment_rule",
-                "width": "24rem",
-                "type": "Data",
-            },
-            {
-                "label": "Created On",
-                "key": "creation",
-                "width": "8rem",
-                "type": "Datetime",
-            },
-        ]
-        return {"columns": columns}
+
+@frappe.whitelist()
+def get_team_members(team: str):
+    """
+    Returns the team members for the given team name
+    """
+    members = frappe.get_all("HD Team Member", filters={"parent": team}, pluck="user")
+    return members

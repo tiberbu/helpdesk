@@ -3,14 +3,16 @@
     <LayoutHeader>
       <template #left-header>
         <div class="flex gap-1 items-center crumbs truncate">
-          <Breadcrumbs :items="breadcrumbs" />
+          <Breadcrumbs :items="breadcrumbs" class="-ml-0.5" />
         </div>
       </template>
       <template #right-header v-if="!isCustomerPortal">
         <!-- Default Buttons -->
         <div class="flex gap-2" v-if="!editable">
           <Button
-            :label="article.data?.status === 'Draft' ? 'Publish' : 'Unpublish'"
+            :label="
+              article.data?.status === 'Draft' ? __('Publish') : __('Unpublish')
+            "
             :iconLeft="article.data?.status !== 'Published' && 'globe'"
             @click="toggleStatus()"
           />
@@ -45,7 +47,7 @@
               </div>
               <IconDot class="h-4 w-4 text-gray-600" />
               <div class="text-xs text-gray-500">
-                {{ dayjs(article.data.modified).short() }}
+                {{ dayjsLocal(article.data.modified).format("MMM D, h:mm A") }}
               </div>
             </div>
             <Dropdown
@@ -61,12 +63,12 @@
             <div class="flex gap-2" v-if="editable">
               <DiscardButton
                 :hide-dialog="!isDirty"
-                title="Discard changes?"
-                message="Are you sure you want to discard changes?"
+                :title="__('Discard changes?')"
+                :message="__('Are you sure you want to discard changes?')"
                 @discard="handleDiscard"
               />
 
-              <Button label="Save" @click="handleSave" variant="solid" />
+              <Button :label="__('Save')" @click="handleSave" variant="solid" />
             </div>
           </div>
           <!-- Title -->
@@ -74,7 +76,7 @@
             ref="titleRef"
             class="w-full resize-none border-0 text-3xl font-bold placeholder-ink-gray-3 p-0 pb-3 border-b border-gray-200 focus:ring-0 focus:border-gray-200 overflow-hidden"
             v-model="title"
-            placeholder="Title"
+            :placeholder="__('Title')"
             rows="1"
             wrap="soft"
             maxlength="140"
@@ -87,12 +89,12 @@
           ref="editorRef"
           :editor-class="editorClass"
           :content="textEditorContentWithIDs"
-          :extensions="[PreserveIds]"
+          :extensions="[ComponentUtils]"
           :editable="editable"
           @change="(event:string) => {
 			      content = event;
 		      }"
-          placeholder="Write your article here..."
+          :placeholder="__('Write your article here...')"
         >
           <template #bottom v-if="editable">
             <TextEditorFixedMenu
@@ -111,48 +113,52 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, h, watch, onMounted } from "vue";
-import {
-  Breadcrumbs,
-  debounce,
-  createResource,
-  Avatar,
-  TextEditor,
-  TextEditorFixedMenu,
-  Dropdown,
-  Button,
-  confirmDialog,
-} from "frappe-ui";
-import { useRouter, useRoute } from "vue-router";
-import { dayjs } from "@/dayjs";
-import {
-  updateRes as updateArticle,
-  deleteRes as deleteArticle,
-  moveToCategory,
-  incrementView,
-} from "@/stores/knowledgeBase";
-import { useAuthStore } from "@/stores/auth";
-import LayoutHeader from "@/components/LayoutHeader.vue";
-import MoveToCategoryModal from "@/components/knowledge-base/MoveToCategoryModal.vue";
 import DiscardButton from "@/components/DiscardButton.vue";
+import LayoutHeader from "@/components/LayoutHeader.vue";
 import ArticleFeedback from "@/components/knowledge-base/ArticleFeedback.vue";
-import { Resource, Article, FeedbackAction, Error, Breadcrumb } from "@/types";
+import MoveToCategoryModal from "@/components/knowledge-base/MoveToCategoryModal.vue";
+import { dayjs } from "@/dayjs";
+import { useAuthStore } from "@/stores/auth";
+import { globalStore } from "@/stores/globalStore";
 import {
-  createToast,
-  textEditorMenuButtons,
+  deleteRes as deleteArticle,
+  incrementView,
+  moveToCategory,
+  updateRes as updateArticle,
+} from "@/stores/knowledgeBase";
+import { capture } from "@/telemetry";
+import { ComponentUtils } from "@/tiptap-extensions";
+import { Article, Breadcrumb, Error, FeedbackAction, Resource } from "@/types";
+import {
   copyToClipboard,
   isCustomerPortal,
+  textEditorMenuButtons,
 } from "@/utils";
-import { capture } from "@/telemetry";
-import { PreserveIds } from "@/tiptap-extensions";
-import IconMoreHorizontal from "~icons/lucide/more-horizontal";
+import {
+  Avatar,
+  Breadcrumbs,
+  Button,
+  createResource,
+  debounce,
+  Dropdown,
+  TextEditor,
+  TextEditorFixedMenu,
+  toast,
+  dayjsLocal,
+} from "frappe-ui";
+import { computed, h, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import IconDot from "~icons/lucide/dot";
+import IconMoreHorizontal from "~icons/lucide/more-horizontal";
+import { __ } from "@/translation";
 const props = defineProps({
   articleId: {
     type: String,
     required: true,
   },
 });
+
+const { $dialog } = globalStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -252,18 +258,11 @@ function handleMoveToCategory(category: string) {
       onSuccess: () => {
         article.reload();
         moveToModal.value = false;
-        createToast({
-          title: "Articles moved successfully",
-          icon: "check",
-          iconClasses: "text-green-600",
-        });
+        toast.success(__("Article moved"));
       },
       onError: (error: Error) => {
-        createToast({
-          title: error?.messages?.[0] || error.message,
-          icon: "x",
-          iconClasses: "text-red-600",
-        });
+        let msg = error?.messages?.[0] || error.message;
+        toast.error(msg);
         moveToModal.value = false;
       },
     }
@@ -305,11 +304,7 @@ function handleArticleUpdate() {
             category: props.articleId,
           },
         });
-        createToast({
-          title: "Article updated successfully",
-          icon: "check",
-          iconClasses: "text-green-600",
-        });
+        toast.success(__("Article updated"));
         isDirty.value = false;
         article.reload();
       },
@@ -318,30 +313,32 @@ function handleArticleUpdate() {
 }
 
 function handleDelete() {
-  confirmDialog({
-    title: "Delete Article",
-    message: "Are you sure you want to delete this article?",
-    onConfirm: ({ hideDialog }: { hideDialog: Function }) => {
-      deleteArticle.submit(
-        {
-          doctype: "HD Article",
-          name: article.data.name,
+  $dialog({
+    title: __("Delete Article"),
+    message: __("Are you sure you want to delete this article?"),
+    actions: [
+      {
+        label: __("Confirm"),
+        variant: "solid",
+        onClick({ close }) {
+          deleteArticle.submit(
+            {
+              doctype: "HD Article",
+              name: article.data.name,
+            },
+            {
+              onSuccess: () => {
+                toast.success(__("Article deleted"));
+                router.push({
+                  name: "AgentKnowledgeBase",
+                });
+              },
+            }
+          );
+          close();
         },
-        {
-          onSuccess: () => {
-            createToast({
-              title: "Article deleted successfully",
-              icon: "check",
-              iconClasses: "text-green-600",
-            });
-            router.push({
-              name: "AgentKnowledgeBase",
-            });
-          },
-        }
-      );
-      hideDialog();
-    },
+      },
+    ],
   });
 }
 
@@ -391,34 +388,34 @@ const editorClass = computed(() => {
 
 const articleActions = computed(() => [
   {
-    label: "Edit",
+    label: __("Edit"),
     icon: "edit",
     onClick: () => {
       handleEditMode();
     },
   },
   {
-    label: "Move To",
+    label: __("Move To"),
     icon: "corner-up-right",
     onClick: () => (moveToModal.value = true),
   },
   {
-    label: "Share",
+    label: __("Share"),
     icon: "link",
     onClick: () => {
       const url = new URL(window.location.href);
       url.pathname = `/helpdesk/kb-public/articles/${props.articleId}`;
-      copyToClipboard(url.href, article.data.title);
+      copyToClipboard(url.toString(), __("Article link copied to clipboard"));
     },
   },
   {
-    group: "Danger",
+    group: __("Danger"),
     hideLabel: true,
     items: [
       {
-        label: "Delete",
+        label: __("Delete"),
         component: h(Button, {
-          label: "Delete",
+          label: __("Delete"),
           variant: "ghost",
           iconLeft: "trash-2",
           theme: "red",
@@ -433,7 +430,7 @@ const articleActions = computed(() => [
 const breadcrumbs = computed(() => {
   const items: Breadcrumb[] = [
     {
-      label: "Knowledge Base",
+      label: __("Knowledge Base"),
       route: {
         name: isCustomerPortal.value
           ? "CustomerKnowledgeBase"

@@ -42,7 +42,7 @@ Managing issues from our customers was a big challenge for us. We were using the
 
 - **Knowledge Base**: Learn how to create and manage help articles to empower users and reduce tickets.
 
-- **Canned Responses**: Pre-written replies for common queries to ensure quick and consistent communication.
+- **Saved Replies**: Pre-written replies for common queries to ensure quick and consistent communication.
 
 <details open>
 <summary >View Screenshots</summary>
@@ -165,8 +165,10 @@ To setup the repository locally follow the steps mentioned below:
 1. Start the server by running `bench start`
 1. In a separate terminal window, create a new site by running `bench new-site helpdesk.test`
 1. Map your site to localhost with the command `bench --site helpdesk.test add-to-hosts`
+1. Get the Telephony app. Run `bench get-app https://github.com/frappe/telephony`
 1. Get the Helpdesk app. Run `bench get-app https://github.com/frappe/helpdesk`
 1. Run `bench --site helpdesk.test install-app helpdesk`.
+1. Run `bench build --app helpdesk`
 1. Now open the URL `http://helpdesk.test:8000/helpdesk` in your browser, you should see the app running
 
 
@@ -180,11 +182,28 @@ To setup the repository locally follow the steps mentioned below:
 
 **Note:** You'll find all the code related to Helpdesk's frontend inside `frappe-bench/apps/helpdesk/desk`
 
+
+## Compatibility matrix 
+
+| Helpdesk Branch | Compatible Frappe Framework Version |
+|-----------------|-------------------------------------|
+| main            | version-15                          |
+| main            | version-16                          |
+| develop         | develop branch                      |
+
+
 ## Learn and connect
 
 - [Telegram Public Group](https://t.me/frappedesk)
 - [Discuss Forum](https://discuss.frappe.io/c/frappehelpdesk/69)
 - [Documentation](https://docs.frappe.io/helpdesk)
+
+## Contributing
+
+1. [Issue Guidelines](https://github.com/frappe/erpnext/wiki/Issue-Guidelines)
+1. [Report Security Vulnerabilities](https://frappe.io/security)
+1. [Pull Request Requirements](https://github.com/frappe/erpnext/wiki/Contribution-Guidelines)
+2. [Translations](https://crowdin.com/project/frappe)
 
 <br>
 <br>

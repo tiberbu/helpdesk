@@ -1,3 +1,5 @@
+import re
+
 import frappe
 from textblob import TextBlob
 from textblob.exceptions import MissingCorpusError
@@ -20,8 +22,10 @@ def get_noun_phrases(blob: TextBlob):
         return []
 
 
-def search_with_enough_results(prev_res: list, query: str) -> tuple[list, bool]:
-    out = hd_search(query, only_articles=True)
+def search_with_enough_results(
+    prev_res: list, query: str, qtype="and"
+) -> tuple[list, bool]:
+    out = hd_search(query, only_articles=True, qtype=qtype)
     if not out:
         return prev_res, len(prev_res) == NUM_RESULTS
     items = prev_res + out[0].get("items", [])
@@ -29,27 +33,33 @@ def search_with_enough_results(prev_res: list, query: str) -> tuple[list, bool]:
     return items, len(items) == NUM_RESULTS
 
 
+def sanitize_query(query: str) -> str:
+    q = query.strip().lower()
+    q = re.sub(r"[^a-z0-9\s]", " ", q)
+    # Collapse multiple spaces into one
+    q = re.sub(r"\s+", " ", q)
+    return q.strip()
+
+
 @frappe.whitelist()
 def search(query: str) -> list:
-    query = query.strip().lower()
+    query = sanitize_query(query)
     ret, enough = search_with_enough_results([], query)
     if enough:
         return ret
     blob = TextBlob(query)  # fallback
     if noun_phrases := get_noun_phrases(blob):
-        and_query = " ".join(noun_phrases)
-        ret, enough = search_with_enough_results(ret, and_query)
+        query = " ".join(noun_phrases)
+        ret, enough = search_with_enough_results(ret, query)
         if enough:
             return ret
-        or_query = "|".join(noun_phrases)
-        ret, enough = search_with_enough_results(ret, or_query)
+        ret, enough = search_with_enough_results(ret, query, qtype="or")
         if enough:
             return ret
     if nouns := get_nouns(blob):
-        and_query = " ".join(nouns)
-        ret, enough = search_with_enough_results(ret, and_query)
+        query = " ".join(nouns)
+        ret, enough = search_with_enough_results(ret, query)
         if enough:
             return ret
-        or_query = "|".join(nouns)
-        ret, enough = search_with_enough_results(ret, or_query)
+        ret, enough = search_with_enough_results(ret, query, qtype="or")
     return ret

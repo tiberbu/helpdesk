@@ -14,11 +14,11 @@
             class="flex gap-1 items-center flex-1 mr-7 max-w-fit overflow-hidden"
           >
             <UserAvatar :name="user.name" :expand="true" />
-            <span>in</span>
+            <span>{{ __("in") }}</span>
             <Link
               class="form-control"
               doctype="HD Article Category"
-              placeholder="Select Category"
+              :placeholder="__('Select Category')"
               v-model="categoryId"
               :pageLength="100"
               :hide-clear-button="true"
@@ -26,9 +26,9 @@
           </div>
           <!-- Action Buttons -->
           <div class="flex gap-2">
-            <Button label="Discard" @click="handleArticleDiscard" />
+            <Button :label="__('Discard')" @click="handleArticleDiscard" />
             <Button
-              label="Create"
+              :label="__('Create')"
               variant="solid"
               @click="handleCreateArticle"
             />
@@ -38,7 +38,7 @@
         <textarea
           class="w-full resize-none border-0 text-3xl font-bold placeholder-ink-gray-3 p-0 pb-3 border-b border-gray-200 focus:ring-0 focus:border-gray-200"
           v-model="title"
-          placeholder="Title"
+          :placeholder="__('Title')"
           rows="1"
           wrap="soft"
           maxlength="140"
@@ -54,7 +54,7 @@
         <TextEditor
           :content="content"
           @change="content = $event"
-          placeholder="Write your article here..."
+          :placeholder="__('Write your article here...')"
           editor-class="rounded-b-lg max-w-[unset] prose-sm h-[calc(100vh-340px)] sm:h-[calc(100vh-250px)] overflow-auto"
         >
           <template #bottom>
@@ -70,25 +70,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
 import {
-  usePageMeta,
+  Breadcrumbs,
   TextEditor,
   TextEditorFixedMenu,
-  confirmDialog,
-  Breadcrumbs,
+  toast,
+  usePageMeta,
 } from "frappe-ui";
-import { useRouter, useRoute } from "vue-router";
+import { useOnboarding } from "frappe-ui/frappe";
+import { computed, ref } from "vue";
+import { __ } from "@/translation";
+
+import { LayoutHeader, UserAvatar } from "@/components";
+import { useAuthStore } from "@/stores/auth";
+import { globalStore } from "@/stores/globalStore";
 import { newArticle } from "@/stores/knowledgeBase";
 import { useUserStore } from "@/stores/user";
-import { LayoutHeader, UserAvatar } from "@/components";
-import { createToast, textEditorMenuButtons } from "@/utils";
 import { Article } from "@/types";
+import { textEditorMenuButtons } from "@/utils";
+import { useRoute, useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const user = userStore.getUser();
+const { $dialog } = globalStore();
 const router = useRouter();
 const route = useRoute();
+const { updateOnboardingStep } = useOnboarding("helpdesk");
+const { isManager } = useAuthStore();
 
 const title = ref("");
 const content = ref("");
@@ -108,11 +116,10 @@ function handleCreateArticle() {
     { title: title.value, content: content.value, category: categoryId.value },
     {
       onSuccess: (article: Article) => {
-        createToast({
-          title: "Article created successfully",
-          icon: "check",
-          iconClasses: "text-green-600",
-        });
+        toast.success(__("Article created"));
+        if (isManager) {
+          updateOnboardingStep("first_article");
+        }
         resetState();
         router.push({
           name: "Article",
@@ -122,11 +129,7 @@ function handleCreateArticle() {
         });
       },
       onError: (error: string) => {
-        createToast({
-          title: error,
-          icon: "x",
-          iconClasses: "text-red-600",
-        });
+        toast.error(error);
       },
     }
   );
@@ -138,16 +141,22 @@ function handleArticleDiscard() {
     });
     return;
   }
-  confirmDialog({
-    title: "Discard Article",
-    message: "Are you sure you want to discard this article?",
-    onConfirm: ({ hideDialog }: { hideDialog: Function }) => {
-      router.push({
-        name: "AgentKnowledgeBase",
-      });
-      resetState();
-      hideDialog();
-    },
+  $dialog({
+    title: __("Discard Article"),
+    message: __("Are you sure you want to discard this article?"),
+    actions: [
+      {
+        label: __("Confirm"),
+        variant: "solid",
+        onClick(close: Function) {
+          router.push({
+            name: "AgentKnowledgeBase",
+          });
+          resetState();
+          close();
+        },
+      },
+    ],
   });
 }
 
@@ -159,7 +168,7 @@ function resetState() {
 const breadcrumbs = computed(() => {
   const options: Array<{ label: string; route?: { name: string } }> = [
     {
-      label: "Knowledge Base",
+      label: __("Knowledge Base"),
       route: { name: "AgentKnowledgeBase" },
     },
   ];
@@ -170,14 +179,14 @@ const breadcrumbs = computed(() => {
     });
   }
   options.push({
-    label: "New Article",
+    label: __("New Article"),
   });
   return options;
 });
 
 usePageMeta(() => {
   return {
-    title: "New Article",
+    title: __("New Article"),
   };
 });
 </script>

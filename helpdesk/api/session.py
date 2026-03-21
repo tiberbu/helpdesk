@@ -1,17 +1,11 @@
 import frappe
-from frappe import _
 
-from helpdesk.utils import is_agent
+from helpdesk.utils import agent_only
 
 
 @frappe.whitelist()
+@agent_only
 def get_users():
-    if not is_agent():
-        frappe.throw(_("Access denied"), exc=frappe.PermissionError)
-
-    if frappe.session.user == "Guest":
-        frappe.throw(frappe._("Authentication failed"), exc=frappe.AuthenticationError)
-
     users = frappe.qb.get_query(
         "User",
         fields=["name", "email", "enabled", "user_image", "full_name", "user_type"],
@@ -20,6 +14,13 @@ def get_users():
     ).run(as_dict=1)
 
     for user in users:
+        roles = frappe.get_roles(user.name)
+        if "Agent Manager" in roles:
+            user.role = "Manager"
+        elif "Agent" in roles:
+            user.role = "Agent"
+        elif "Guest" in roles:
+            user.role = "Guest"
         if frappe.session.user == user.name:
             user.session_user = True
 

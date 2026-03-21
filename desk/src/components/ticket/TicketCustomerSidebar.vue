@@ -22,7 +22,9 @@
           <div class="flex gap-1.5" v-if="!ticket.data.feedback_rating">
             <Tooltip :text="ticket.data.contact.email_id">
               <Button class="h-7 w-7" @click="emit('open')">
-                <EmailIcon class="h-4 w-4" />
+                <template #icon>
+                  <EmailIcon class="h-4 w-4" />
+                </template>
               </Button>
             </Tooltip>
           </div>
@@ -35,8 +37,11 @@
         v-for="field in ticketBasicInfo"
       >
         <span class="w-[126px] text-sm text-gray-600">{{ field.label }}</span>
-        <span class="text-base text-gray-800 flex-1">
-          {{ field.value }}
+        <span
+          class="text-base text-gray-800 flex-1"
+          :class="!field.value && 'text-ink-gray-4'"
+        >
+          {{ field.value || "—" }}
         </span>
       </div>
 
@@ -47,10 +52,27 @@
         class="flex items-center text-base"
       >
         <div class="w-[126px] text-gray-600 text-sm">{{ data.title }}</div>
-
-        <div class="break-words text-base text-gray-800">
-          <Tooltip :text="dayjs(data.value).long()">
-            <Badge :label="data.label" :theme="data.theme" variant="outline" />
+        <div
+          class="break-words text-base text-gray-800 flex items-center gap-2"
+        >
+          <Tooltip :text="dateFormat(data.value, dateTooltipFormat)">
+            <Badge :label="data.label" :theme="data.theme" variant="subtle" />
+          </Tooltip>
+          <!-- SLA explanation icon -->
+          <Tooltip
+            v-if="
+              dayjs(data.value).diff(dayjs(), 'day', true) > 4 &&
+              data.title === 'Resolution'
+            "
+            :text="
+              __(
+                'This date is calculated based on configured SLAs, working hours, and holidays.'
+              )
+            "
+          >
+            <lucide-circle-question-mark
+              class="h-4 w-4 text-ink-gray-6 cursor-pointer"
+            />
           </Tooltip>
         </div>
       </div>
@@ -58,17 +80,26 @@
     <!-- feedback component -->
     <TicketFeedback
       v-if="ticket.data.feedback_rating"
-      class="border-b px-6 py-3 text-base text-gray-600"
+      class="border-b text-base text-gray-600"
       :ticket="ticket.data"
     />
-    <div class="flex flex-col gap-4 pt-0 px-5 py-3">
+    <div class="flex flex-col gap-4 pt-0 px-5 py-3 overflow-y-scroll">
       <div
         class="flex items-center text-base leading-5"
         v-for="field in ticketAdditionalInfo"
+        :key="field.fieldname"
       >
         <span class="w-[126px] text-sm text-gray-600">{{ field.label }}</span>
-        <span class="text-base text-gray-800 flex-1">
-          {{ field.value }}
+        <span
+          class="text-base text-gray-800 flex-1"
+          :class="!field.value && 'text-ink-gray-4'"
+        >
+          <template v-if="field.value && dayjs(field.value).isValid()">
+            {{ dateFormat(field.value, dateTooltipFormat) }}
+          </template>
+          <template v-else>
+            {{ field.value || "—" }}
+          </template>
         </span>
       </div>
     </div>
@@ -76,12 +107,12 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed } from "vue";
-import { ITicket } from "@/pages/ticket/symbols";
-import { Tooltip, Avatar } from "frappe-ui";
 import { dayjs } from "@/dayjs";
-import { formatTime } from "@/utils";
+import { ITicket } from "@/pages/ticket/symbols";
 import { Field } from "@/types";
+import { dateFormat, dateTooltipFormat, formatTime } from "@/utils";
+import { Avatar, Tooltip } from "frappe-ui";
+import { computed, inject } from "vue";
 
 const emit = defineEmits(["open"]);
 
@@ -153,15 +184,10 @@ function resolutionData() {
       )}`,
       color: "orange",
     };
-  } else if (
-    dayjs(ticket.data.resolution_date).isBefore(ticket.data.resolution_by)
-  ) {
+  } else if (ticket.data.agreement_status === "Fulfilled") {
     resolution = {
       label: `Fulfilled in ${formatTime(
-        dayjs(ticket.data.resolution_date).diff(
-          dayjs(ticket.data.creation),
-          "s"
-        )
+        dayjs(ticket.data.resolution_time, "s")
       )}`,
       color: "green",
     };
@@ -181,7 +207,7 @@ const ticketBasicInfo = computed(() => [
   },
   {
     label: "Status",
-    value: transformStatus(ticket.data.status),
+    value: ticket.data.status,
     bold: true,
   },
 ]);
@@ -189,14 +215,17 @@ const ticketBasicInfo = computed(() => [
 const ticketAdditionalInfo = computed(() => {
   const fields = [
     {
+      fieldname: "subject",
       label: "Subject",
       value: ticket.data.subject,
     },
     {
+      fieldname: "team",
       label: "Team",
       value: ticket.data.agent_group || "-",
     },
     {
+      fieldname: "priority",
       label: "Priority",
       value: ticket.data.priority,
     },
@@ -207,21 +236,27 @@ const ticketAdditionalInfo = computed(() => {
         !field.hide_from_customer &&
         ["subject", "team", "priority"].indexOf(field.fieldname) === -1
     )
-    .map((field: Field) => ({
-      label: field.label,
-      value: ticket.data[field.fieldname],
-    }));
+    .map((field: Field) => {
+      const option = {
+        label: field.label,
+        value: ticket.data[field.fieldname],
+      };
+      if (field.fieldtype === "Date") {
+        option.value = dayjs(option.value).format(
+          window.date_format.toUpperCase()
+        );
+      }
+      if (field.fieldtype === "Datetime") {
+        // window.time_format
+        option.value = dayjs(option.value).format(
+          `${window.date_format.toUpperCase()} ${window.time_format}`
+        );
+      }
+      return option;
+    });
 
   return [...fields, ...custom_fields];
 });
-function transformStatus(status: string) {
-  switch (status) {
-    case "Replied":
-      return "Awaiting reply";
-    default:
-      return status;
-  }
-}
 </script>
 
 <style scoped></style>

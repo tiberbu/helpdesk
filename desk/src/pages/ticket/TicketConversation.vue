@@ -1,27 +1,31 @@
 <template>
   <div
-    class="md:mx-5 md:my-8 mb-4 mt-8 flex items-center justify-between h-8 text-xl font-semibold text-gray-800"
+    class="mx-6 md:mx-10 md:my-2 flex items-center justify-between text-lg font-medium mb-4 !mt-6 md:h-8 md:text-xl md:font-semibold md:text-gray-800"
   >
     Activity
   </div>
-  <div class="overflow-auto px-5 pb-20 grow">
+  <div class="overflow-auto px-6 md:px-10 grow">
     <div
-      v-for="c in communications"
+      v-for="(c, i) in communications"
       :id="c.name"
       :key="c.name"
-      class="mt-4 flex items-between justify-center gap-4 relative"
+      class="flex items-between justify-center gap-4 relative"
+      :class="i === 0 && 'mt-4'"
     >
       <div
-        class="w-full activity grid grid-cols-[30px_minmax(auto,_1fr)] gap-2 sm:gap-4"
+        class="w-full activity grid grid-cols-[30px_minmax(auto,_1fr)] gap-2 sm:gap-4 h-full"
       >
         <div
-          class="relative flex justify-center after:absolute after:left-[50%] after:top-[12%] after:-z-10 after:border-l after:border-gray-200 after:h-full"
+          class="relative flex justify-center after:absolute after:left-[50%] after:top-3 after:-z-10 after:border-l after:border-gray-200"
+          :class="[
+            i != communications.length - 1 ? 'after:h-full' : 'after:h-5',
+          ]"
         >
           <Avatar
             size="lg"
             :label="c.user.name"
             :image="c.user.image"
-            class="mt-1 relative"
+            class="mt-1.5 relative"
           />
         </div>
         <TicketCommunication
@@ -39,12 +43,10 @@
 </template>
 
 <script setup lang="ts">
+import { isElementInViewport } from "@/utils";
+import { Avatar } from "frappe-ui";
 import { computed, inject, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useElementVisibility } from "@vueuse/core";
-import { Avatar } from "frappe-ui";
-import { orderBy } from "lodash";
-import { dayjs } from "@/dayjs";
 import TicketCommunication from "./TicketCommunication.vue";
 import { ITicket } from "./symbols";
 
@@ -59,14 +61,15 @@ const route = useRoute();
 const ticket = inject(ITicket);
 const communications = computed(() => {
   const _communications = ticket.data.communications || [];
-  return orderBy(_communications, (c) => dayjs(c.creation));
+  return _communications.sort(
+    (a, b) => new Date(a.creation) - new Date(b.creation)
+  );
 });
 
 function scroll(id: string) {
   const e = document.getElementById(id);
-  if (!useElementVisibility(e).value) {
-    e.scrollIntoView({ behavior: "smooth" });
-    e.focus();
+  if (!isElementInViewport(e)) {
+    e.scrollIntoViewIfNeeded();
   }
 }
 

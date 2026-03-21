@@ -1,21 +1,22 @@
-import { computed, ref } from "vue";
-import { defineStore } from "pinia";
-import { createResource, createListResource } from "frappe-ui";
 import { useAuthStore } from "@/stores/auth";
-import { useError } from "@/composables/error";
-import { Notification, Resource } from "@/types";
+import { ListResource, Notification } from "@/types";
+import { isCustomerPortal } from "@/utils";
+import { createListResource, createResource } from "frappe-ui";
+import { defineStore } from "pinia";
+import { computed, ref, watch } from "vue";
+import { globalStore } from "./globalStore";
 
 export const useNotificationStore = defineStore("notification", () => {
   const authStore = useAuthStore();
+  const { $socket } = globalStore();
+
   const visible = ref(false);
-  const resource: Resource<Array<Notification>> = createListResource({
+  const resource: ListResource<Notification> = createListResource({
     doctype: "HD Notification",
     cache: "Notifications",
-    filters: {
-      user_to: ["=", authStore.userId],
-    },
     fields: [
       "creation",
+      "message",
       "name",
       "notification_type",
       "read",
@@ -24,25 +25,22 @@ export const useNotificationStore = defineStore("notification", () => {
       "user_from",
       "user_to",
     ],
-    orderBy: "creation desc",
-    auto: true,
+    orderBy: "modified desc",
   });
   const clear = createResource({
     url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear",
     auto: false,
     onSuccess: () => resource.reload(),
-    onError: useError(),
   });
 
-  const read = (ticket) => {
+  const read = (ticket: string) => {
     createResource({
       url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear",
       auto: true,
       params: {
-        ticket: ticket,
+        ticket,
       },
       onSuccess: () => resource.reload(),
-      onError: useError(),
     });
   };
 
@@ -53,6 +51,22 @@ export const useNotificationStore = defineStore("notification", () => {
     visible.value = !visible.value;
   }
 
+  watch(
+    () => authStore.hasDeskAccess,
+    (newVal) => {
+      if (!newVal) return;
+      resource.filters = {
+        user_to: ["=", authStore.userId],
+      };
+      resource.reload();
+    },
+    { immediate: true }
+  );
+  $socket.on("helpdesk:comment-reaction-update", () => {
+    if (isCustomerPortal.value) return;
+    resource.reload();
+  });
+
   return {
     clear,
     data,
@@ -60,5 +74,6 @@ export const useNotificationStore = defineStore("notification", () => {
     read,
     unread,
     visible,
+    resource,
   };
 });

@@ -4,6 +4,7 @@
       {{ attrs.label }}
     </label>
     <Autocomplete
+      class="w-full"
       ref="autocomplete"
       :options="options.data"
       v-model="value"
@@ -11,6 +12,7 @@
       :variant="attrs.variant"
       :placeholder="attrs.placeholder"
       :filterable="false"
+      :disabled="attrs.disabled"
     >
       <template #target="{ open, togglePopover }">
         <slot name="target" v-bind="{ open, togglePopover }" />
@@ -25,7 +27,22 @@
       </template>
 
       <template #item-label="{ active, selected, option }">
-        <slot name="item-label" v-bind="{ active, selected, option }" />
+        <slot name="item-label" v-bind="{ active, selected, option }">
+          <div
+            v-if="option.description && showDescription"
+            class="flex flex-col gap-1"
+          >
+            <div class="flex-1 font-semibold truncate text-ink-gray-7">
+              {{ option.label }}
+            </div>
+            <div class="flex-1 text-sm truncate text-ink-gray-5">
+              {{ option.description }}
+            </div>
+          </div>
+          <div v-else class="flex-1 truncate text-ink-gray-7">
+            {{ option.label }}
+          </div>
+        </slot>
       </template>
 
       <template #footer="{ value, close }" v-if="!hideClearButton">
@@ -59,10 +76,10 @@
 </template>
 
 <script setup>
-import { useAttrs, computed, ref } from "vue";
-import { createResource } from "frappe-ui";
-import Autocomplete from "./Autocomplete.vue";
 import { watchDebounced } from "@vueuse/core";
+import { createResource } from "frappe-ui";
+import { computed, ref, useAttrs, watch } from "vue";
+import Autocomplete from "./Autocomplete.vue";
 
 const props = defineProps({
   doctype: {
@@ -70,8 +87,8 @@ const props = defineProps({
     required: true,
   },
   filters: {
-    type: Array,
-    default: () => [],
+    type: Object,
+    default: null,
   },
   modelValue: {
     type: String,
@@ -86,6 +103,10 @@ const props = defineProps({
     default: 10,
   },
   hideClearButton: {
+    type: Boolean,
+    default: false,
+  },
+  showDescription: {
     type: Boolean,
     default: false,
   },
@@ -127,6 +148,22 @@ watchDebounced(
   { debounce: 300, immediate: true }
 );
 
+watch(
+  () => props?.filters,
+  (newVal) => {
+    options.update({
+      params: {
+        txt: text.value,
+        doctype: props.doctype,
+        filters: newVal,
+        page_length: props.pageLength,
+      },
+    });
+    options.reload();
+  },
+  { deep: true }
+);
+
 const options = createResource({
   url: "frappe.desk.search.search_link",
   cache: [props.doctype, text.value, props.hideMe],
@@ -142,14 +179,19 @@ const options = createResource({
       return {
         value: option.value,
         label: option?.label || option.value,
+        description: option?.description,
       };
     });
-    // if (!props.hideMe && props.doctype == 'User') {
-    //   allData.unshift({
-    //     label: '@me',
-    //     value: '@me',
-    //   })
-    // }
+
+    if (
+      !props.hideMe &&
+      (props.doctype == "User" || props.doctype == "HD Agent")
+    ) {
+      allData.unshift({
+        label: "@me",
+        value: "@me",
+      });
+    }
     return allData;
   },
 });
@@ -185,6 +227,9 @@ const labelClasses = computed(() => {
       md: "text-base",
     }[attrs.size || "sm"],
     "text-gray-600",
+    ...(attrs.required
+      ? ["after:content-['*']", "after:ml-0.5", "after:text-red-500"]
+      : []),
   ];
 });
 </script>

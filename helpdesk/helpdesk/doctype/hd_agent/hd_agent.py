@@ -7,6 +7,24 @@ from frappe.model.document import Document
 
 class HDAgent(Document):
     def before_save(self):
+        old_doc = self.get_doc_before_save()
+        if old_doc and old_doc.agent_name != self.agent_name:
+            if self.agent_name:
+                agent_name = self.agent_name.split()
+                frappe.set_value(
+                    "User",
+                    self.user,
+                    {
+                        "first_name": agent_name[0],
+                        "last_name": " ".join(agent_name[1:]),
+                    },
+                )
+            else:
+                self.agent_name = frappe.get_value("User", self.user, "full_name")
+
+        if old_doc and old_doc.user_image != self.user_image:
+            frappe.set_value("User", self.user, "user_image", self.user_image)
+
         if self.name == self.user:
             return
 
@@ -17,55 +35,22 @@ class HDAgent(Document):
         user = frappe.get_doc("User", self.user)
         for role in ["Agent"]:
             user.append("roles", {"role": role})
-        user.save()
-
-    @staticmethod
-    def default_list_data():
-        columns = [
-            {
-                "label": "Agent Name",
-                "key": "agent_name",
-                "width": "17rem",
-                "type": "Data",
-            },
-            {
-                "label": "Email",
-                "key": "user.email as email",
-                "width": "24rem",
-                "type": "Data",
-            },
-            {
-                "label": "Created On",
-                "key": "creation",
-                "width": "8rem",
-                "type": "Datetime",
-            },
-        ]
-        rows = ["modified", "user.user_image"]
-        # modified row is needed because
-        # we have a link table for HD Agent to User
-        # and sql gets confused which modified to take from those 2 tables
-        # hence throws ambiguous error
-        return {"columns": columns, "rows": rows}
+        user.save(ignore_permissions=True)
 
 
 @frappe.whitelist()
-def create_hd_agent(first_name, last_name, email, signature, team):
-    if frappe.db.exists("User", email):
-        user = frappe.get_doc("User", email)
-    else:
-        user = frappe.get_doc(
-            {
-                "doctype": "User",
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": email,
-                "email_signature": signature,
-            }
-        ).insert()
+def update_agent_role(user: str, new_role: str):
+    """
+    Update the role of the user to Agent
+    """
 
-        user.send_welcome_mail_to_user()
+    user_doc = frappe.get_doc("User", user)
 
-    return frappe.get_doc(
-        {"doctype": "HD Agent", "user": user.name, "group": team}
-    ).insert()
+    if new_role == "Manager":
+        user_doc.append_roles("Agent Manager", "System Manager")
+    if new_role == "Agent":
+        user_doc.append_roles("Agent")
+        if "Agent Manager" in frappe.get_roles(user_doc.name):
+            user_doc.remove_roles("Agent Manager", "System Manager")
+
+    user_doc.save()

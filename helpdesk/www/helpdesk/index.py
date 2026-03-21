@@ -1,20 +1,15 @@
 import frappe
 from frappe import _
+from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
+from frappe.utils import cint, get_system_timezone
 from frappe.utils.telemetry import capture
-
-from helpdesk import __version__
 
 no_cache = 1
 
 
 def get_context(context):
-    context.csrf_token = frappe.sessions.get_csrf_token()
-    context.frappe_version = frappe.__version__
-    context.helpdesk_version = __version__
-    context.site_name = frappe.local.site
-    # website favicon
-    context.favicon = get_favicon()
     frappe.db.commit()
+    context.boot = get_boot()
 
     # telemetry
     if frappe.session.user != "Guest":
@@ -32,22 +27,23 @@ def get_context_for_dev():
 def get_boot():
     return frappe._dict(
         {
-            "frappe_version": frappe.__version__,
             "default_route": get_default_route(),
             "site_name": frappe.local.site,
             "read_only_mode": frappe.flags.read_only,
             "csrf_token": frappe.sessions.get_csrf_token(),
-            "favicon": get_favicon(),
+            "setup_complete": cint(frappe.get_system_settings("setup_complete")),
+            "is_fc_site": is_fc_site(),
+            "session_user": frappe.session.user,
+            "date_format": frappe.get_system_settings("date_format"),
+            "time_format": frappe.get_system_settings("time_format"),
+            "timezone": {
+                "system": get_system_timezone(),
+                "user": frappe.db.get_value("User", frappe.session.user, "time_zone")
+                or get_system_timezone(),
+            },
         }
     )
 
 
 def get_default_route():
     return "/helpdesk"
-
-
-def get_favicon():
-    return (
-        frappe.db.get_single_value("Website Settings", "favicon")
-        or "/assets/helpdesk/desk/favicon.svg"
-    )

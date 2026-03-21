@@ -1,10 +1,13 @@
 <template>
-  <div class="rounded p-3 shadow">
+  <div class="rounded p-3 shadow w-full">
     <FTextEditor
       ref="e"
-      :extensions="[PreserveVideoControls]"
+      :extensions="[ComponentUtils, HandleExcelPaste]"
       v-bind="$attrs"
-      editor-class="prose-f max-h-64 max-w-none overflow-auto my-4 min-h-[5rem]"
+      :editor-class="[
+        'prose-f max-h-64 max-w-none  overflow-auto my-4 min-h-[5rem]',
+        getFontFamily(modelValue),
+      ]"
       bubble-menu
       :content="modelValue"
       @change="$emit('update:modelValue', $event)"
@@ -29,7 +32,7 @@
           <div
             class="flex flex-col space-y-1.5 overflow-auto sm:flex-row sm:justify-between"
           >
-            <div class="flex items-center gap-1">
+            <div class="flex items-center">
               <TextEditorFixedMenu :buttons="fixedMenu" />
               <slot name="bottom-left" />
             </div>
@@ -54,11 +57,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue";
-import { TextEditor as FTextEditor, TextEditorFixedMenu } from "frappe-ui";
-import { useAuthStore } from "@/stores/auth";
 import { UserAvatar } from "@/components";
-import { PreserveVideoControls } from "@/tiptap-extensions";
+import { useAuthStore } from "@/stores/auth";
+import { ComponentUtils, HandleExcelPaste } from "@/tiptap-extensions";
+import { getFontFamily } from "@/utils";
+import { TextEditor as FTextEditor, TextEditorFixedMenu } from "frappe-ui";
+import { computed, nextTick, ref } from "vue";
 
 interface P {
   modelValue: string;

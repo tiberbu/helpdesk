@@ -13,17 +13,20 @@
   "raised_by",
   "status",
   "priority",
+  "status_category",
   "cb00",
   "ticket_type",
   "agent_group",
-  "ticket_split_from",
+  "summary",
   "sb_details",
   "description",
   "template",
+  "key",
   "sla_tab",
   "service_level_section",
   "sla",
   "response_by",
+  "raised_outside_working_hours",
   "cb",
   "agreement_status",
   "resolution_by",
@@ -36,6 +39,8 @@
   "first_responded_on",
   "column_break_26",
   "avg_response_time",
+  "last_agent_response",
+  "last_customer_response",
   "resolution_tab",
   "section_break_19",
   "resolution_details",
@@ -54,13 +59,15 @@
   "via_customer_portal",
   "attachment",
   "content_type",
+  "split_and_merge_section",
+  "is_merged",
+  "merged_with",
+  "ticket_split_from",
   "feedback_tab",
   "customer_feedback_section",
   "feedback_rating",
-  "feedback_text",
   "feedback",
-  "feedback_extra",
-  "meta_tab"
+  "feedback_extra"
  ],
  "fields": [
   {
@@ -79,7 +86,6 @@
   },
   {
    "bold": 1,
-   "depends_on": "eval:doc.__islocal",
    "fieldname": "raised_by",
    "fieldtype": "Data",
    "in_global_search": 1,
@@ -90,23 +96,20 @@
    "options": "Email"
   },
   {
-   "default": "Open",
    "fieldname": "status",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Status",
    "no_copy": 1,
    "oldfieldname": "status",
    "oldfieldtype": "Select",
-   "options": "HD Status",
+   "options": "HD Ticket Status",
    "search_index": 1
   },
   {
    "fieldname": "priority",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "in_standard_filter": 1,
    "label": "Priority",
    "options": "HD Ticket Priority"
   },
@@ -118,12 +121,13 @@
    "fieldname": "ticket_type",
    "fieldtype": "Link",
    "label": "Ticket Type",
+   "link_filters": "[[\"HD Ticket Type\",\"disabled\",\"=\",0]]",
    "options": "HD Ticket Type"
   },
   {
    "fieldname": "agent_group",
    "fieldtype": "Link",
-   "label": "Agent Group",
+   "label": "Team",
    "options": "HD Team"
   },
   {
@@ -167,7 +171,7 @@
    "options": "HD Service Level Agreement"
   },
   {
-   "depends_on": "eval: doc.status != 'Replied' && doc.sla;",
+   "depends_on": "eval: doc.status_category != 'Paused' && doc.sla;",
    "fieldname": "response_by",
    "fieldtype": "Datetime",
    "label": "Response By",
@@ -189,7 +193,7 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval: doc.status != 'Replied' && doc.sla;",
+   "depends_on": "eval: doc.status_category != 'Paused' && doc.sla;",
    "fieldname": "resolution_by",
    "fieldtype": "Datetime",
    "label": "Resolution By",
@@ -229,7 +233,8 @@
   {
    "fieldname": "first_responded_on",
    "fieldtype": "Datetime",
-   "label": "First Responded On"
+   "label": "First Responded On",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_26",
@@ -320,6 +325,7 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_standard_filter": 1,
    "label": "Customer",
    "options": "HD Customer"
   },
@@ -358,23 +364,21 @@
   {
    "fieldname": "feedback_extra",
    "fieldtype": "Long Text",
-   "label": "Feedback (Extra)"
+   "label": "Feedback (Extra)",
+   "read_only": 1
   },
   {
    "fieldname": "feedback",
    "fieldtype": "Link",
    "label": "Feedback (Option)",
-   "options": "HD Ticket Feedback Option"
+   "options": "HD Ticket Feedback Option",
+   "read_only": 1
   },
   {
    "fieldname": "feedback_rating",
    "fieldtype": "Rating",
-   "label": "Rating"
-  },
-  {
-   "fieldname": "feedback_text",
-   "fieldtype": "Data",
-   "label": "Feedback (Text)"
+   "label": "Rating",
+   "read_only": 1
   },
   {
    "fieldname": "sla_tab",
@@ -402,15 +406,70 @@
    "label": "Feedback"
   },
   {
-   "fieldname": "meta_tab",
-   "fieldtype": "Tab Break",
-   "label": "Meta"
+   "fieldname": "summary",
+   "fieldtype": "Text Editor",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "split_and_merge_section",
+   "fieldtype": "Section Break",
+   "label": "Split and Merge"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_merged",
+   "fieldtype": "Check",
+   "label": "Ticket Merged",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_merged",
+   "fieldname": "merged_with",
+   "fieldtype": "Link",
+   "label": "Merged With",
+   "options": "HD Ticket",
+   "read_only": 1
+  },
+  {
+   "fieldname": "key",
+   "fieldtype": "Data",
+   "label": "Key",
+   "read_only": 1,
+   "set_only_once": 1
+  },
+  {
+   "fetch_from": "status.category",
+   "fieldname": "status_category",
+   "fieldtype": "Data",
+   "label": "Status Category",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_agent_response",
+   "fieldtype": "Datetime",
+   "label": "Last Agent Response",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_customer_response",
+   "fieldtype": "Datetime",
+   "label": "Last Customer Response",
+   "read_only": 1
+  },
+  {
+   "default": "False",
+   "fieldname": "raised_outside_working_hours",
+   "fieldtype": "Check",
+   "label": "Ticket raised outside working hours",
+   "read_only": 1,
+   "set_only_once": 1
   }
  ],
+ "grid_page_length": 50,
  "icon": "fa fa-issue",
  "idx": 61,
  "links": [],
- "modified": "2025-02-20 14:25:49.976309",
+ "modified": "2026-02-27 16:42:43.292656",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Ticket",
@@ -451,11 +510,26 @@
    "role": "All",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent Manager",
+   "share": 1,
+   "write": 1
   }
  ],
  "quick_entry": 1,
+ "recipient_account_field": "email_account",
+ "row_format": "Dynamic",
  "search_fields": "status,subject,raised_by",
  "sender_field": "raised_by",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

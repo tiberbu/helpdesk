@@ -16,7 +16,7 @@
             <button
               class="flex w-full items-center justify-between focus:outline-none"
               :class="inputClasses"
-              @click="() => togglePopover()"
+              @click="() => !disabled && togglePopover()"
             >
               <div class="flex items-center">
                 <slot name="prefix" />
@@ -40,7 +40,7 @@
         </slot>
       </template>
       <template #body="{ isOpen }">
-        <div v-show="isOpen">
+        <div v-show="isOpen" class="min-w-[--reka-popper-anchor-width]">
           <div class="mt-1 rounded-lg bg-white py-1 text-base shadow-2xl">
             <div class="relative px-1.5 pt-0.5">
               <ComboboxInput
@@ -137,7 +137,7 @@ import { ref, computed, useAttrs, useSlots, watch, nextTick } from "vue";
 
 const props = defineProps({
   modelValue: {
-    type: String,
+    type: [String, Object],
     default: "",
   },
   options: {
@@ -225,7 +225,7 @@ function filterOptions(options) {
 }
 
 function displayValue(option) {
-  if (typeof option === "string") {
+  if (typeof option === "string" || typeof option === "number") {
     let allOptions = groups.value.flatMap((group) => group.items);
     let selectedOption = allOptions.find((o) => o.value === option);
     return selectedOption?.label || option;

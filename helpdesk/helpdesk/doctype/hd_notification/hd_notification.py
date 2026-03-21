@@ -1,8 +1,6 @@
 import frappe
 from frappe.model.document import Document
 
-from helpdesk.utils import refetch_resource
-
 
 class HDNotification(Document):
     def format_message(self):
@@ -52,6 +50,13 @@ class HDNotification(Document):
 
     def after_insert(self):
         if self.notification_type == "Mention":
+            skip_email_workflow = frappe.db.get_single_value(
+                "HD Settings", "skip_email_workflow"
+            )
+
+            if skip_email_workflow:
+                return
+
             frappe.sendmail(
                 recipients=self.user_to,
                 subject="New notification",
@@ -59,6 +64,3 @@ class HDNotification(Document):
                 template="notification",
                 args=self.get_args(),
             )
-
-    def on_update(self):
-        refetch_resource("Notifications")

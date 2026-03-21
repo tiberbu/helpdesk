@@ -1,25 +1,29 @@
-import { createApp } from "vue";
-import { createPinia } from "pinia";
+import { createApp, h } from "vue";
 import {
-  frappeRequest,
-  resourcesPlugin,
-  setConfig,
   Badge,
   Button,
   Dialog,
   ErrorMessage,
   FeatherIcon,
   FormControl,
+  frappeRequest,
+  FrappeUI,
   Input,
-  Tooltip,
+  setConfig,
   TextInput,
+  toast,
+  Tooltip,
 } from "frappe-ui";
+import { createPinia } from "pinia";
 import App from "./App.vue";
+import { createDialog } from "./components/dialogs";
 import "./index.css";
 import { router } from "./router";
-import { socket } from "./socket";
-import { createToast } from "@/utils";
-import { posthogPlugin } from "./telemetry";
+import { telemetryPlugin } from "frappe-ui/frappe";
+import { isCustomerPortal } from "@/utils";
+import { translationPlugin } from "./translation";
+import CircleAlert from "~icons/lucide/circle-alert";
+import { initSocket } from "./socket";
 
 const globalComponents = {
   Badge,
@@ -34,29 +38,45 @@ const globalComponents = {
 };
 
 setConfig("resourceFetcher", frappeRequest);
-setConfig("fallbackErrorHandler", (error) => {
-  createToast({
-    title: error.exc_type || "Error",
-    text: (error.messages || []).join(", "),
-    icon: "alert-triangle",
-    iconClasses: "text-red-500",
+setConfig("serverMessagesHandler", (msgs) => {
+  if (isCustomerPortal.value) {
+    return;
+  }
+  msgs.forEach((msg) => {
+    msg = JSON.parse(msg);
+    if (msg && msg.message == "Feedback email has been sent to the customer") {
+      toast.success(msg.message);
+      return;
+    }
+    toast.create({
+      message: msg.message,
+      icon: h(CircleAlert, { class: "text-blue-500" }),
+    });
   });
+});
+setConfig("fallbackErrorHandler", (error) => {
+  const msg = error.exc_type
+    ? (error.messages || error.message || []).join(", ")
+    : error.message;
+  toast.error(msg);
 });
 
 const pinia = createPinia();
 const app = createApp(App);
 
-app.use(resourcesPlugin);
+app.use(FrappeUI);
 app.use(pinia);
 app.use(router);
-app.use(posthogPlugin);
+app.use(translationPlugin);
+app.use(telemetryPlugin, { app_name: "helpdesk" });
+
 for (const c in globalComponents) {
   app.component(c, globalComponents[c]);
 }
 
-app.config.globalProperties.$socket = socket;
-app.config.globalProperties.$toast = createToast;
+app.config.globalProperties.$dialog = createDialog;
 
+let socket;
 if (import.meta.env.DEV) {
   frappeRequest({
     url: "/api/method/helpdesk.www.helpdesk.index.get_context_for_dev",
@@ -64,8 +84,12 @@ if (import.meta.env.DEV) {
     for (let key in values) {
       window[key] = values[key];
     }
+    socket = initSocket();
+    app.config.globalProperties.$socket = socket;
     app.mount("#app");
   });
 } else {
+  socket = initSocket();
+  app.config.globalProperties.$socket = socket;
   app.mount("#app");
 }

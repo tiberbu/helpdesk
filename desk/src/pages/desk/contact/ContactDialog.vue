@@ -3,11 +3,11 @@
     <template #body-main>
       <div class="flex flex-col items-center gap-4 p-6">
         <div class="text-xl font-medium text-gray-900">
-          {{ contact.doc?.name }}
+          {{ contact.doc?.full_name }}
         </div>
         <Avatar
           size="2xl"
-          :label="contact.doc?.name"
+          :label="contact.doc?.full_name"
           :image="contact.doc?.image"
           class="cursor-pointer hover:opacity-80"
         />
@@ -18,7 +18,9 @@
           >
             <template #default="{ uploading, openFileSelector }">
               <Button
-                :label="contact.doc?.image ? 'Change photo' : 'Upload photo'"
+                :label="
+                  contact.doc?.image ? __('Change photo') : __('Upload photo')
+                "
                 :loading="uploading"
                 @click="openFileSelector"
               />
@@ -26,13 +28,19 @@
           </FileUploader>
           <Button
             v-if="contact.doc?.image"
-            label="Remove photo"
+            :label="__('Remove photo')"
             @click="updateImage(null)"
+          />
+          <Button
+            v-if="!contact.doc?.user && isManager"
+            :label="__('Invite as user')"
+            @click="inviteContact"
+            :loading="isLoading"
           />
         </div>
         <div class="w-full space-y-2 text-sm text-gray-700">
           <div class="space-y-1">
-            <div class="text-xs">Emails</div>
+            <div class="text-xs">{{ __("Emails") }}</div>
             <MultiSelect
               v-model:items="emails"
               placeholder="john.doe@example.com"
@@ -40,11 +48,21 @@
             />
           </div>
           <div class="space-y-1">
-            <div class="text-xs">Phone Nos</div>
+            <div class="text-xs">{{ __("Phone Nos") }}</div>
             <MultiSelect
               v-model:items="phones"
               placeholder="+91 98765 43210"
               :validate="validatePhone"
+            />
+          </div>
+          <div class="space-y-1">
+            <div class="text-xs">{{ __("Customer") }}</div>
+            <Link
+              doctype="HD Customer"
+              class="form-control flex-1"
+              :placeholder="__('Link to a customer')"
+              v-model="selectedCustomer"
+              :hide-me="true"
             />
           </div>
         </div>
@@ -54,19 +72,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import type { Ref } from "vue";
 import {
-  createDocumentResource,
   Avatar,
+  call,
+  createDocumentResource,
+  createListResource,
   Dialog,
   FileUploader,
+  toast,
 } from "frappe-ui";
+import { useOnboarding } from "frappe-ui/frappe";
+import type { Ref } from "vue";
+import { computed, ref } from "vue";
 import zod from "zod";
-import { createToast } from "@/utils";
-import { useError } from "@/composables/error";
+import { __ } from "@/translation";
+
+import Link from "@/components/frappe-ui/Link.vue";
 import MultiSelect from "@/components/MultiSelect.vue";
-import { File, AutoCompleteItem } from "@/types";
+import { useAuthStore } from "@/stores/auth";
+import { AutoCompleteItem, File } from "@/types";
 
 interface Props {
   name: {
@@ -104,11 +128,7 @@ const emails = computed({
   },
   set(newVal) {
     if (newVal.length === 0) {
-      createToast({
-        title: "At least one email is required",
-        icon: "x",
-        iconClasses: "text-red-600",
-      });
+      toast.error(__("At least one email is required"));
       return;
     }
     if (newVal.length !== contact.doc.email_ids.length) {
@@ -138,17 +158,72 @@ const phones = computed({
   },
 });
 
+const selectedCustomer = computed({
+  get() {
+    const customerLink = contact.doc?.links?.find(
+      (link) => link.link_doctype === "HD Customer"
+    );
+    return customerLink?.link_name || null;
+  },
+  set(value) {
+    const currentCustomer = contact.doc?.links?.find(
+      (link) => link.link_doctype === "HD Customer"
+    )?.link_name;
+
+    if (value !== currentCustomer) {
+      if (value) {
+        const existingCustomerLinkIndex = contact.doc.links?.findIndex(
+          (link) => link.link_doctype === "HD Customer"
+        );
+        if (existingCustomerLinkIndex !== -1) {
+          contact.doc.links[existingCustomerLinkIndex].link_name = value;
+        } else {
+          contact.doc.links.push({
+            link_doctype: "HD Customer",
+            link_name: value,
+          });
+        }
+      } else {
+        contact.doc.links = contact.doc.links?.filter(
+          (link) => link.link_doctype !== "HD Customer"
+        );
+      }
+      isDirty.value = true;
+    }
+  },
+});
+
+const customerResource = createListResource({
+  doctype: "HD Customer",
+  fields: ["name"],
+  cache: "customers",
+  transform: (data) => {
+    return data.map((option) => ({
+      label: option.name,
+      value: option.name,
+    }));
+  },
+  auto: true,
+});
+
+function handleCustomerChange(item: AutoCompleteItem | null) {
+  if (!item || item.label === "No label") {
+    selectedCustomer.value = null;
+  } else {
+    selectedCustomer.value = item.value;
+  }
+}
+
+const { updateOnboardingStep } = useOnboarding("helpdesk");
+const { isManager } = useAuthStore();
+
 const contact = createDocumentResource({
   doctype: "Contact",
   name: props.name,
-  cache: [`contact-${props.name}`, props.name],
   auto: true,
   setValue: {
     onSuccess() {
       emit("contactUpdated");
-    },
-    onError() {
-      useError({ title: "Error updating contact" });
     },
   },
 });
@@ -157,7 +232,7 @@ const options = computed(() => ({
   title: contact.doc?.name,
   actions: [
     {
-      label: "Save",
+      label: __("Save"),
       theme: "gray",
       variant: "solid",
       onClick: () => update(),
@@ -167,11 +242,7 @@ const options = computed(() => ({
 
 function update(): void {
   if (!isDirty.value) {
-    createToast({
-      title: "No changes to save",
-      icon: "x",
-      iconClasses: "text-red-600",
-    });
+    toast.error(__("No changes to save"));
     return;
   }
   contact.setValue.submit({
@@ -184,7 +255,10 @@ function update(): void {
       is_primary_phone: phoneNum.value === contact.doc.phone,
       is_primary_mobile: phoneNum.value === contact.doc.phone,
     })),
+    links: contact.doc.links,
   });
+  isDirty.value = false;
+  emit("contactUpdated");
 }
 
 function updateImage(file: File): void {
@@ -196,7 +270,7 @@ function updateImage(file: File): void {
 
 function validateEmail(input: AutoCompleteItem): string | void {
   const success = zod.string().email().safeParse(input.value).success;
-  if (!success) return "Invalid email";
+  if (!success) return __("Invalid email");
 }
 
 function validatePhone(input: AutoCompleteItem): string | void {
@@ -206,18 +280,44 @@ function validatePhone(input: AutoCompleteItem): string | void {
     .min(10)
     .max(15)
     .safeParse(input.value).success;
-  if (!success) return "Invalid phone number";
+  if (!success) return __("Invalid phone number");
 }
 
 function validateFile(file: File): string | void {
   let extn = file.name.split(".").pop().toLowerCase();
   if (!["png", "jpg", "jpeg"].includes(extn)) {
-    createToast({
-      title: "Invalid file type, only PNG and JPG images are allowed",
-      icon: "x",
-      iconClasses: "text-red-600",
+    toast.error(__("Invalid file type, only PNG and JPG images are allowed"));
+    return __("Invalid file type, only PNG and JPG images are allowed");
+  }
+}
+
+const isLoading = ref(false);
+async function inviteContact(): Promise<void> {
+  try {
+    isLoading.value = true;
+    const user = await call(
+      "frappe.contacts.doctype.contact.contact.invite_user",
+      {
+        contact: contact.doc.name,
+      }
+    );
+    toast.success(__("Contact invited successfully"));
+    await contact.setValue.submit({
+      user: user,
     });
-    return "Invalid file type, only PNG and JPG images are allowed";
+    updateOnboardingStep("add_invite_contact");
+  } catch (error) {
+    isLoading.value = false;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(
+      error.messages?.[0] || error.message,
+      "text/html"
+    );
+
+    const errMsg = doc.body.innerText;
+    toast.error(errMsg);
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>

@@ -1,15 +1,19 @@
 <template>
   <Combobox v-slot="{ open: isComboboxOpen }" v-model="selectedValue" nullable>
-    <Popover v-model:show="showOptions" class="w-full">
+    <Popover v-model:show="showOptions">
       <template #target="{ open: openPopover, togglePopover }">
         <slot name="target" v-bind="{ open: openPopover, togglePopover }">
-          <div class="w-full">
+          <div class="w-full -ml-0.5">
             <button
               class="flex w-full items-center justify-between focus:outline-none"
               :class="inputClasses"
-              @click="() => togglePopover()"
+              @click="
+                () => {
+                  !disabled && togglePopover();
+                }
+              "
             >
-              <div class="flex items-center">
+              <div class="flex items-center truncate">
                 <slot name="prefix" />
                 <span
                   v-if="selectedValue"
