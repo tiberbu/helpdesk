@@ -1,0 +1,64 @@
+[
+ {
+  "doctype": "HD Incident Model",
+  "name": "Password Reset",
+  "model_name": "Password Reset",
+  "description": "User cannot log in and requires a password reset.",
+  "default_priority": "Low",
+  "checklist_items": [
+   {"item": "Verify user identity via secondary authentication", "is_mandatory": 1},
+   {"item": "Reset password and notify user via secure channel", "is_mandatory": 1},
+   {"item": "Confirm user can log in successfully", "is_mandatory": 1}
+  ]
+ },
+ {
+  "doctype": "HD Incident Model",
+  "name": "System Outage",
+  "model_name": "System Outage",
+  "description": "Critical system or service is unavailable affecting multiple users.",
+  "default_priority": "Urgent",
+  "checklist_items": [
+   {"item": "Notify stakeholders and management of outage", "is_mandatory": 1},
+   {"item": "Identify root cause and document initial findings", "is_mandatory": 1},
+   {"item": "Apply fix or initiate rollback procedure", "is_mandatory": 1},
+   {"item": "Verify service restoration and monitor for 15 minutes", "is_mandatory": 1}
+  ]
+ },
+ {
+  "doctype": "HD Incident Model",
+  "name": "Access Request",
+  "model_name": "Access Request",
+  "description": "Request to grant new system, application, or data access.",
+  "default_priority": "Medium",
+  "checklist_items": [
+   {"item": "Obtain manager or data owner approval", "is_mandatory": 1},
+   {"item": "Provision access in the relevant system", "is_mandatory": 1},
+   {"item": "Notify requestor and confirm access is working", "is_mandatory": 1}
+  ]
+ },
+ {
+  "doctype": "HD Incident Model",
+  "name": "Hardware Failure",
+  "model_name": "Hardware Failure",
+  "description": "Physical device (laptop, printer, server component) has failed or malfunctioned.",
+  "default_priority": "High",
+  "checklist_items": [
+   {"item": "Diagnose failure and document symptoms", "is_mandatory": 1},
+   {"item": "Arrange replacement or loaner equipment if needed", "is_mandatory": 0},
+   {"item": "Recover or backup user data where possible", "is_mandatory": 1},
+   {"item": "Confirm user can continue work on replacement device", "is_mandatory": 1}
+  ]
+ },
+ {
+  "doctype": "HD Incident Model",
+  "name": "Software Bug",
+  "model_name": "Software Bug",
+  "description": "Application is behaving unexpectedly or producing errors.",
+  "default_priority": "Medium",
+  "checklist_items": [
+   {"item": "Reproduce the issue and capture error details / screenshots", "is_mandatory": 1},
+   {"item": "Identify and document workaround for affected users", "is_mandatory": 0},
+   {"item": "Log bug report with development team or vendor reference number", "is_mandatory": 1}
+  ]
+ }
+]

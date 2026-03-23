@@ -21,6 +21,7 @@
   "agent_group",
   "category",
   "sub_category",
+  "incident_model",
   "summary",
   "sb_details",
   "description",
@@ -78,7 +79,8 @@
   "major_incident_section",
   "root_cause_summary",
   "corrective_actions",
-  "prevention_measures"
+  "prevention_measures",
+  "ticket_checklist"
  ],
  "fields": [
   {
@@ -547,6 +549,19 @@
    "fieldname": "prevention_measures",
    "fieldtype": "Text Editor",
    "label": "Prevention Measures"
+  },
+  {
+   "fieldname": "incident_model",
+   "fieldtype": "Link",
+   "label": "Incident Model",
+   "options": "HD Incident Model"
+  },
+  {
+   "fieldname": "ticket_checklist",
+   "fieldtype": "Table",
+   "label": "Checklist",
+   "options": "HD Ticket Checklist Item",
+   "hidden": 0
   }
  ],
  "grid_page_length": 50,

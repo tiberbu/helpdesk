@@ -94,6 +94,35 @@ class HDTicket(Document):
         self.validate_feedback()
         self.validate_priority_matrix()
         self.validate_category()
+        self.validate_checklist_before_resolution()
+
+    def validate_checklist_before_resolution(self):
+        """Prevent resolution/closure when mandatory checklist items are incomplete.
+
+        Story 1.9: AC #8 — server-side authoritative guard.
+        """
+        if self.status_category not in ("Resolved",):
+            return
+
+        checklist = self.get("ticket_checklist", [])
+        if not checklist:
+            return
+
+        incomplete_mandatory = [
+            row.item
+            for row in checklist
+            if row.is_mandatory and not row.is_completed
+        ]
+
+        if incomplete_mandatory:
+            item_list = ", ".join(f'"{i}"' for i in incomplete_mandatory)
+            frappe.throw(
+                _(
+                    "Cannot resolve ticket: {0} mandatory checklist item(s) must be "
+                    "completed first: {1}"
+                ).format(len(incomplete_mandatory), item_list),
+                frappe.ValidationError,
+            )
 
     def validate_priority_matrix(self):
         """Calculate priority from Impact x Urgency matrix when ITIL Mode is enabled.

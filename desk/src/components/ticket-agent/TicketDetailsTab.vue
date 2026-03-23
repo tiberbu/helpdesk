@@ -63,6 +63,14 @@
       v-if="ticket?.doc?.name"
       :ticket-id="String(ticket.doc.name)"
     />
+
+    <!-- Incident Checklist panel -->
+    <TicketChecklist
+      v-if="ticket?.doc?.name && ticket.doc.ticket_checklist?.length"
+      :ticket-name="String(ticket.doc.name)"
+      :checklist="ticket.doc.ticket_checklist"
+      @item-toggled="onChecklistItemToggled"
+    />
   </div>
 </template>
 
@@ -80,8 +88,10 @@ import {
   TicketSymbol,
 } from "@/types";
 import { computed, inject, ref } from "vue";
+import { createResource, toast } from "frappe-ui";
 import TicketField from "../TicketField.vue";
 import RelatedTickets from "../ticket/RelatedTickets.vue";
+import TicketChecklist from "../ticket/TicketChecklist.vue";
 import AssignTo from "./AssignTo.vue";
 import TicketContact from "./TicketContact.vue";
 
@@ -169,12 +179,57 @@ function getFieldInFormat(fieldTemplate, fieldMeta) {
   };
 }
 
+// --- Incident Model auto-populate ---
+const applyModelResource = createResource({
+  url: "helpdesk.api.incident_model.apply_incident_model",
+});
+
+function applyIncidentModel(model: string) {
+  applyModelResource.submit(
+    { ticket: ticket.value.doc.name, model },
+    {
+      onSuccess(data: any) {
+        // Merge applied fields into the reactive ticket doc
+        if (data.fields_applied) {
+          Object.assign(ticket.value.doc, data.fields_applied);
+        }
+        ticket.value.ticket.reload();
+        activities.value.reload();
+        toast.success(__("Incident model applied"));
+      },
+      onError(err: any) {
+        const msg =
+          err?.messages?.[0] || __("Failed to apply incident model.");
+        toast.error(msg);
+      },
+    }
+  );
+}
+
 function handleFieldUpdate(
   fieldname: string,
   value: FieldValue,
   isCoreFieldUpdated = false
 ) {
   if (ticket.value.doc[fieldname] == value) return;
+
+  // Client-side resolution guard: block if mandatory checklist items are incomplete
+  if (
+    fieldname === "status" &&
+    (value === "Resolved" || value === "Closed")
+  ) {
+    const checklist: any[] = ticket.value.doc.ticket_checklist ?? [];
+    const incomplete = checklist.filter(
+      (item: any) => item.is_mandatory && !item.is_completed
+    );
+    if (incomplete.length > 0) {
+      toast.warning(
+        __("Complete all mandatory checklist items before resolving.")
+      );
+      return;
+    }
+  }
+
   if (isCoreFieldUpdated) {
     const label = getField(fieldname)?.label || fieldname;
     notifyTicketUpdate(label, value as string);
@@ -183,16 +238,25 @@ function handleFieldUpdate(
     { [fieldname]: value },
     {
       onSuccess: () => {
-        // TODO: emit the event for notification to listeners
         if (fieldname === "agent_group") {
           assignees.value.reload();
+        }
+        // Trigger auto-populate when incident_model is set
+        if (fieldname === "incident_model" && value) {
+          applyIncidentModel(value as string);
         }
         activities.value.reload();
       },
     }
-
-    //show error toast
   );
+}
+
+function onChecklistItemToggled(itemName: string, isCompleted: boolean) {
+  const checklist: any[] = ticket.value.doc.ticket_checklist ?? [];
+  const row = checklist.find((r: any) => r.name === itemName);
+  if (row) {
+    row.is_completed = isCompleted ? 1 : 0;
+  }
 }
 
 const fieldRefs = ref<Record<string, any>>({});

@@ -1,6 +1,6 @@
 # Story 1.9: Incident Models / Templates
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -1137,16 +1137,51 @@ so that common incident types are logged consistently.
 
 ### Agent Model Used
 
-Claude Sonnet 4.5 (create-story workflow)
+Claude Sonnet 4.6 (dev-story workflow)
 
 ### Debug Log References
 
-_None — story creation phase_
+- HD Ticket.name is autoincrement int — test calls cast with `str(ticket.name)` to satisfy type-annotated API (require_type_annotated_api_methods = True in hooks.py)
+- Fixture records require explicit `name` field (matching `model_name`) for Frappe `import_file_by_path` to resolve the document
+- Resolution validation uses `status_category == "Resolved"` (not raw status string) to correctly detect the resolved state via the computed fetch field
 
 ### Completion Notes List
 
-_To be filled by implementing dev agent_
+- Created 3 new DocTypes: HD Incident Model, HD Incident Checklist Item (model template), HD Ticket Checklist Item (per-ticket copy with completion state)
+- Added `incident_model` (Link) and `ticket_checklist` (Table) fields to HD Ticket JSON
+- API module `helpdesk/api/incident_model.py`: `apply_incident_model` + `complete_checklist_item`
+- Resolution validation added directly to `HDTicket.validate()` as `validate_checklist_before_resolution()`
+- Frontend: `TicketChecklist.vue` component with progress bar, required badges, toggle; integrated into `TicketDetailsTab.vue` below RelatedTickets; `incident_model` field change triggers auto-populate via `applyModelResource`; client-side resolution guard in `handleFieldUpdate`
+- 5 default fixture models loaded via `helpdesk/fixtures/hd_incident_model.json` + `hooks.py` fixtures entry
+- Migration patch registered in `patches.txt`
+- 11 unit tests: all pass (apply model, checklist toggle, resolution validation)
+- Bench migrate ran successfully; gunicorn reloaded; frontend build successful
 
 ### File List
 
-_To be filled by implementing dev agent upon completion_
+**Backend — new files:**
+- `helpdesk/helpdesk/doctype/hd_incident_checklist_item/__init__.py`
+- `helpdesk/helpdesk/doctype/hd_incident_checklist_item/hd_incident_checklist_item.json`
+- `helpdesk/helpdesk/doctype/hd_incident_checklist_item/hd_incident_checklist_item.py`
+- `helpdesk/helpdesk/doctype/hd_incident_model/__init__.py`
+- `helpdesk/helpdesk/doctype/hd_incident_model/hd_incident_model.json`
+- `helpdesk/helpdesk/doctype/hd_incident_model/hd_incident_model.py`
+- `helpdesk/helpdesk/doctype/hd_ticket_checklist_item/__init__.py`
+- `helpdesk/helpdesk/doctype/hd_ticket_checklist_item/hd_ticket_checklist_item.json`
+- `helpdesk/helpdesk/doctype/hd_ticket_checklist_item/hd_ticket_checklist_item.py`
+- `helpdesk/api/incident_model.py`
+- `helpdesk/fixtures/hd_incident_model.json`
+- `helpdesk/patches/v1_phase1/add_incident_model_doctypes.py`
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py`
+
+**Backend — modified files:**
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.json` — added `incident_model` + `ticket_checklist` fields
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` — added `validate_checklist_before_resolution()`
+- `helpdesk/hooks.py` — added `fixtures` list
+- `helpdesk/patches.txt` — registered new patch
+
+**Frontend — new files:**
+- `desk/src/components/ticket/TicketChecklist.vue`
+
+**Frontend — modified files:**
+- `desk/src/components/ticket-agent/TicketDetailsTab.vue` — TicketChecklist integration, applyIncidentModel, resolution guard
