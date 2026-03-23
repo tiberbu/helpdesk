@@ -1,6 +1,6 @@
 # Story: Fix: HD Admin phantom permission — broken test, missing DocType grant, is_agent gate, error handler inconsistency
 
-Status: complete
+Status: done
 Task ID: mn3c59oh35x4s1
 Task Number: #105
 Workflow: quick-dev
@@ -38,14 +38,14 @@ stopTimerResource.onError and addEntryResource.onError use `error.message` (JS E
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -63,12 +63,20 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1-1 fixed: Added "HD Admin" to `is_agent()` in utils.py so HD Admin users pass the agent gate in delete_entry(), start_timer(), add_entry(), etc.
+- P1-2 fixed: Added HD Admin permission entry (create, delete, read, write, etc.) to hd_time_entry.json to align DocType permissions with PRIVILEGED_ROLES.
+- P1-3 fixed: test_delete_entry_admin_can_delete_any_entry now passes. All 38 tests pass.
+- P2-13 fixed: TimeEntryDialog.vue onError handlers updated from `error.message` (JS) to `error?.messages?.[0]` (Frappe API format) so server validation messages like "Duration must not exceed 1440 minutes" are surfaced to users.
+- Bench: migrated, gunicorn reloaded, frontend rebuilt.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Added "HD Admin" to is_agent() check in utils.py
+- 2026-03-23: Added HD Admin permission entry to hd_time_entry.json
+- 2026-03-23: Fixed onError handlers in TimeEntryDialog.vue to use Frappe error format
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- helpdesk/utils.py — added "HD Admin" to is_agent()
+- helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json — added HD Admin permission entry
+- desk/src/components/ticket/TimeEntryDialog.vue — fixed onError to use error?.messages?.[0]

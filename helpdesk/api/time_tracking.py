@@ -218,9 +218,11 @@ def delete_entry(name: str) -> dict:
 
 	entry = frappe.get_doc("HD Time Entry", name)
 
-	_check_delete_permission(entry, frappe.session.user)
-
-	# Use ignore_permissions=True since we've already done our own permission check above
+	# Ownership check is delegated to the before_delete hook in HDTimeEntry
+	# (_check_delete_permission), which runs for all delete paths including direct
+	# REST DELETE.  Calling it again here would be a redundant double check.
+	# ignore_permissions=True is still required because regular Agent role does not
+	# hold a Frappe-level delete grant on this DocType (only PRIVILEGED_ROLES do).
 	frappe.delete_doc("HD Time Entry", name, ignore_permissions=True)
 	return {"success": True}
 

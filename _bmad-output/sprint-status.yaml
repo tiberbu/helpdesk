@@ -296,6 +296,10 @@ development_status:
 
   104-fix-delete-entry-regression-p0-cint-silent-conversion-p1-fro: in-progress  # [quick-dev] Fix: delete_entry regression (P0) + cint silent conversion (
 
-  105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: in-progress  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
+  105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: review  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
 
   106-fix-p1s-from-adversarial-review-task-101-bench-time-tracking: in-progress  # [quick-dev] Fix: P1s from adversarial review task-101 — bench time_track
+
+  107-qa-fix-p1-time-tracking-issues-from-adversarial-review-story: review  # [adversarial-review] QA: Fix: P1 time tracking issues from adversarial review (St
+
+  108-qa-fix-hd-admin-phantom-permission-broken-test-missing-docty: ready-for-dev  # [adversarial-review] QA: Fix HD Admin phantom permission — broken test, missing D
