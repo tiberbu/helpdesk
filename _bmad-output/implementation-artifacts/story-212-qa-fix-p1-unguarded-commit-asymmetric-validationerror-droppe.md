@@ -1,6 +1,6 @@
 # Story: QA: Fix P1 unguarded commit() + asymmetric ValidationError + dropped F-06
 
-Status: in-progress
+Status: done
 Task ID: mn3fyujucumun0
 Task Number: #212
 Workflow: adversarial-review
@@ -35,19 +35,19 @@ Adversarial code review of story-207 fixes to _autoclose_savepoint and close_tic
 
 ## Acceptance Criteria
 
-- [ ] Read hd_ticket.py around _autoclose_savepoint (lines ~1507-1640) and verify all 6 fixes applied correctly
-- [ ] Read test_close_tickets.py and verify new test (h) covers the fallback path properly
-- [ ] Run: bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_close_tickets
-- [ ] Verify all 8 tests pass
-- [ ] Check for edge cases or regressions — no browser testing needed (backend-only changes)
+- [x] Read hd_ticket.py around _autoclose_savepoint (lines ~1507-1640) and verify all 6 fixes applied correctly
+- [x] Read test_close_tickets.py and verify new test (h) covers the fallback path properly
+- [x] Run: bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_close_tickets
+- [x] Verify all 8 tests pass
+- [x] Check for edge cases or regressions — no browser testing needed (backend-only changes)
 
 ## Tasks / Subtasks
 
-- [ ] Read hd_ticket.py around _autoclose_savepoint (lines ~1507-1640) and verify all 6 fixes applied correctly
-- [ ] Read test_close_tickets.py and verify new test (h) covers the fallback path properly
-- [ ] Run: bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_close_tickets
-- [ ] Verify all 8 tests pass
-- [ ] Check for edge cases or regressions — no browser testing needed (backend-only changes)
+- [x] Read hd_ticket.py around _autoclose_savepoint (lines ~1507-1640) and verify all 6 fixes applied correctly
+- [x] Read test_close_tickets.py and verify new test (h) covers the fallback path properly
+- [x] Run: bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_close_tickets
+- [x] Verify all 8 tests pass
+- [x] Check for edge cases or regressions — no browser testing needed (backend-only changes)
 
 ## Dev Notes
 
@@ -65,12 +65,12 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+Adversarial review of story-207 complete. All 6 declared fixes (F-01 through F-06) are correctly applied. All 8 tests pass (Ran 8 tests in 2.347s OK). Files are synced between dev and bench copies. 14 findings identified ranging from P1 (no test for commit-failure path, stale traceback capture, undefined transaction state after commit failure) to P2/P3 (code duplication, no LIMIT clause, nondeterministic ordering, misleading completion claims). See review output for full findings list.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Adversarial review performed — 14 findings documented. No code changes made (review-only task).
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe.md` (updated: status, checklist, completion notes)

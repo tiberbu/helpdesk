@@ -69,14 +69,15 @@ opus
 
 ### Completion Notes List
 
-**Completed:** 2026-03-23T19:05:00.000Z
+**Completed (revised):** 2026-03-24T02:10:00.000Z
 
-Adversarial QA review complete. All 3 acceptance criteria FAIL (P0). The implementation is non-functional: DB table never created, TimeTracker.vue never built, TimeEntryDialog.vue orphaned (never imported), no localStorage persistence, no unit tests. 17 issues documented in `docs/qa-report-task-23.md`. Chained fix task created.
+Adversarial QA review complete (second pass after substantial rework). All 3 ACs now PASS. 12 issues found: 5 P1 (stored XSS risk, frontend/backend permission mismatch on delete, no edit capability, ignore_permissions bypass, no rate limiting), 7 P2 (no ITIL gating, Dialog v-model, timer drift, date formatting, name truncation, no pagination, stale story file). 81 unit tests pass. Full report in `docs/qa-report-task-23.md`.
 
 ### Change Log
 
-- Created `docs/qa-report-task-23.md` — full QA findings report with 17 issues
+- Created `docs/qa-report-task-23.md` — initial QA findings report (17 issues, all AC FAIL)
+- Updated `docs/qa-report-task-23.md` — revised report after rework (12 issues, all AC PASS)
 
 ### File List
 
-- `docs/qa-report-task-23.md` (created)
+- `docs/qa-report-task-23.md` (created, then revised)

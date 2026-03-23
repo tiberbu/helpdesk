@@ -1,113 +1,91 @@
 # QA Report: Task #23 — Story 1.7: Per-Ticket Time Tracking
 
 **Reviewer:** Adversarial QA (Opus)
-**Date:** 2026-03-23
-**Verdict:** FAIL — Implementation is non-functional. The feature was never wired up end-to-end.
+**Date:** 2026-03-23 (revised 2026-03-24)
+**Verdict:** CONDITIONAL PASS — Core functionality works. 10+ issues found, mostly P1/P2.
 
 ---
 
 ## Executive Summary
 
-Story 1.7 claims completion ("Status: done") but the implementation is fundamentally broken. The database table was never created, the DocType was never registered, the frontend component is an orphan (imported by nothing), the required `TimeTracker.vue` sidebar component was never built, there is no timer UI, no localStorage persistence, no unit tests, and every API endpoint except `start_timer` throws server errors. This is not a case of "rough edges" — the feature does not exist in any usable form.
+The implementation has been substantially reworked since the initial (non-functional) commit. The backend API, DocType, unit tests (81 passing), and frontend components (TimeTracker.vue, TimeEntryDialog.vue) all exist and are integrated into the ticket sidebar. The APIs work end-to-end via curl. However, the adversarial review reveals persistent stored XSS via unsanitized description, a frontend/backend permission model mismatch for delete visibility, no ITIL feature flag gating, and several code quality issues.
 
 ---
 
 ## Acceptance Criteria Results
 
 ### AC-1: Timer Start/Stop with Visible Counter
-**Status:** FAIL (P0 — Feature does not exist)
+**Status:** PASS (with caveats)
 
 | Criterion | Result |
 |---|---|
-| Agent sees "Start timer" button on ticket | FAIL — No TimeTracker.vue component exists. No timer UI anywhere in the codebase. |
-| Timer counts visibly with monospace font | FAIL — No timer rendering code exists. |
-| Timer persists in localStorage | FAIL — No localStorage code exists in any new file. The word "localStorage" appears zero times in the diff. |
-| Stop creates HD Time Entry with calculated duration | FAIL — `stop_timer` API throws `ImportError` because the DocType table/record does not exist in the database. |
+| Agent sees "Start timer" button on ticket | PASS — `TimeTracker.vue:52-62` renders "Start Timer" button, integrated at `TicketDetailsTab.vue:79-82` |
+| Timer counts visibly with monospace font | PASS — `font-mono text-lg tabular-nums` class at line 22, `formattedElapsed` computed with HH:MM:SS format |
+| Timer persists in localStorage | PASS — `localStorage.setItem/getItem` with `hd_timer_${ticketId}` key, `loadTimer()` restores on mount |
+| Stop creates HD Time Entry with calculated duration | PASS — `stopTimer()` opens TimeEntryDialog with `stop-timer` mode, calls `stop_timer` API which creates entry |
 
-**Evidence:**
-- `Glob("**/TimeTracker.vue")` returns zero results
-- `grep -r localStorage` in the diff returns zero results
-- API test: `POST /api/method/helpdesk.api.time_tracking.stop_timer` returns `ImportError: Module import failed for HD Time Entry, the DocType you're trying to open might be deleted.`
+**Caveats:**
+- Cross-ticket timer detection iterates all `localStorage` keys (line 242-255) — O(n) scan on every mount
 
 ### AC-2: Manual Time Entry
-**Status:** FAIL (P0 — Feature does not exist)
+**Status:** PASS
 
 | Criterion | Result |
 |---|---|
-| Agent can enter duration/description/billable | FAIL — TimeEntryDialog.vue exists but is never imported or rendered by any page or component. It is dead code. |
-| HD Time Entry is created linked to ticket and agent | FAIL — `add_entry` API throws `ImportError` (same as above — no DB table). |
-
-**Evidence:**
-- `grep -r "TimeEntryDialog"` in `desk/src/pages/` and `desk/src/components/` (excluding the file itself) returns zero results.
-- API test: `POST /api/method/helpdesk.api.time_tracking.add_entry` with `ticket=1, duration_minutes=30` returns `ImportError`.
+| Agent can enter duration/description/billable | PASS — TimeEntryDialog.vue has hours/minutes inputs, textarea, checkbox |
+| HD Time Entry is created linked to ticket and agent | PASS — `add_entry` API creates entry, verified via curl: returns `success: true` |
 
 ### AC-3: Time Summary in Ticket Sidebar
-**Status:** FAIL (P0 — Feature does not exist)
+**Status:** PASS
 
 | Criterion | Result |
 |---|---|
-| Ticket sidebar shows total time | FAIL — No sidebar integration code. No component imports TimeEntryDialog or any time-related component. |
-| Billable time shown separately | FAIL — Same as above. |
-| Entry list visible | FAIL — Same as above. |
-
-**Evidence:**
-- `grep -ri "time.entry\|time.track\|TimeTracker\|TimeEntry" desk/src/pages/ticket/` returns zero results.
-- API test: `GET /api/method/helpdesk.api.time_tracking.get_summary?ticket=1` returns `DoesNotExistError: DocType HD Time Entry not found`.
+| Ticket sidebar shows total time | PASS — `formatMinutes()` renders total at line 70-73 |
+| Billable time shown separately | PASS — Conditional display at line 75-80 |
+| Entry list visible | PASS — `<ul>` at line 84-119 with entry details, badges, delete buttons |
 
 ---
 
-## Adversarial Findings (Minimum 10 Issues)
+## Adversarial Findings
 
-### P0 — Critical / Feature Non-Functional
+### P1 — Significant Issues
 
-1. **Database table never created.** `bench console` confirms: `SHOW TABLES LIKE '%time_entry%'` returns empty. The DocType record does not exist in `tabDocType` either. The story completion notes claim "Migrate succeeded" but this is verifiably false — no migration was ever run successfully, or it was run against the dev copy and not the bench site.
+1. **Stored XSS via description field (OWASP A7).** The `description` field uses Frappe `Text` fieldtype and is stored raw without sanitization. Existing database entries contain `<b>bold</b> <img src="x">test` (confirmed via `get_summary` API response). In `TimeTracker.vue:107`, the description is rendered via `{{ entry.description }}` which Vue auto-escapes for text interpolation — so the XSS is *mitigated in the current template*. However, the stored HTML is a persistent ticking bomb: any future template change to `v-html`, any report/export that renders it raw, or any Frappe list view / print format will execute the payload. The description field should either be `Small Text` (no rich formatting expected), or the API/model should strip HTML on write. The existing poisoned entries in the database need to be cleaned.
 
-2. **TimeTracker.vue sidebar component was never created.** The story explicitly requires "Create TimeTracker.vue sidebar component with start/stop timer and manual entry." This file does not exist anywhere in the repository. The entire timer UI (start button, running counter, stop button) is missing.
+2. **Frontend `canDelete()` shows delete button for System Manager, but backend blocks it.** `TimeTracker.vue:350` checks `has_role("System Manager")` and shows the trash icon. But `delete_entry()` in `time_tracking.py:246` uses `is_agent()` as a pre-gate, and `PRIVILEGED_ROLES` explicitly excludes System Manager (per the comment at `hd_time_entry.py:34`). A System Manager user sees the delete button, clicks it, and gets an error toast. The frontend `canDelete()` should mirror the backend's permission model: System Manager alone is not sufficient.
 
-3. **TimeEntryDialog.vue is dead code — never imported.** The dialog component exists but is orphaned. No page, layout, or parent component references it. It will never render in the application.
+3. **No edit/update capability for time entries.** Agents who enter incorrect duration, description, or billable status have no way to correct it short of deleting and re-creating. There is no `update_entry` API endpoint. For a billing/time-tracking feature, this is a significant usability gap — agents should be able to fix mistakes without losing the original timestamp/audit trail.
 
-4. **No localStorage timer persistence.** The story requires "Implement timer persistence via localStorage." Zero lines of localStorage code were written. The word `localStorage` does not appear in any changed file.
+4. **`delete_entry` uses `ignore_permissions=True` bypassing DocType permissions.** At `time_tracking.py:261`, `frappe.delete_doc("HD Time Entry", name, ignore_permissions=True)` is used because regular Agents don't have `delete:1` in the DocType JSON. While the comment explains the rationale and the `_check_delete_permission` + `on_trash` hooks enforce custom checks, this is a defense-in-depth violation: any code path that calls `frappe.delete_doc` with `ignore_permissions=True` bypasses Frappe's entire permission stack. If the `on_trash` hook is ever accidentally removed or refactored, there's no safety net.
 
-5. **All data-writing API endpoints fail.** `stop_timer`, `add_entry`, and `get_summary` all throw exceptions because the HD Time Entry DocType/table doesn't exist. Only `start_timer` works (it just returns `now_datetime()` without DB access).
+5. **No rate limiting on time entry creation.** An agent (or compromised account) could programmatically create thousands of time entries via rapid `add_entry` calls. There's no throttle, no daily cap, and no bulk detection. For a billing feature, this is a fraud surface.
 
-6. **No unit tests written.** The story requires "Write unit tests for time entry creation and summary calculation." No test file exists: `test_hd_time_entry.py` is absent, and zero test functions were found anywhere in the codebase for time tracking.
+### P2 — Design Gaps and Code Quality
 
-### P1 — Significant Code Quality Issues
+6. **No ITIL mode feature flag gating.** All prior ITIL features (Stories 1.1-1.6, 1.8) check `itil_mode_enabled` before exposing functionality. Time tracking has no such check — neither in the API (`time_tracking.py`) nor in the frontend (`TimeTracker.vue` / `TicketDetailsTab.vue`). This breaks the architectural pattern established by Story 1.1. Time tracking should at minimum be conditionally rendered based on the ITIL config flag.
 
-7. **`ignore_permissions=True` on insert bypasses Frappe permission model.** Both `stop_timer` and `add_entry` call `entry.insert(ignore_permissions=True)`. While the code checks `has_permission("HD Ticket", "write")` beforehand, this bypasses DocType-level permission checks on `HD Time Entry` itself. The DocType has explicit role-based permissions defined (HD Agent, HD Admin, System Manager), but they are never enforced during creation.
+7. **`deleteTarget` dialog v-model missing.** In `TimeTracker.vue:151-171`, the `<Dialog>` for delete confirmation uses `v-if="deleteTarget"` but has no `v-model` binding. The Dialog component may not properly manage its open state, relying entirely on the `@close` handler to set `deleteTarget = null`. If the Dialog's internal close mechanism fires before `@close` propagates, the component could enter an inconsistent state.
 
-8. **Explicit `frappe.db.commit()` in API handlers is an anti-pattern.** Frappe auto-commits after successful whitelist method execution. Manual `frappe.db.commit()` on lines 54 and 89 can cause partial-commit issues if subsequent code in the request lifecycle fails. This is a known Frappe anti-pattern.
+8. **Timer `tick()` drift on inactive tabs.** `setInterval(tick, 1000)` at `TimeTracker.vue:235/276/306` uses `Date.now()` difference for elapsed calculation (good), but `setInterval` itself is throttled by browsers in background tabs (typically to once per second at best, sometimes once per minute). While the *calculated* elapsed will be correct when the tab returns to foreground, the visual counter will appear frozen during background periods, confusing users who alt-tab back.
 
-9. **`createResource` uses `saveUrl.value` (a snapshot) instead of reactive URL.** In `TimeEntryDialog.vue`, `createResource({ url: saveUrl.value })` captures the URL at component creation time. If `props.mode` changes reactively, the resource URL will not update. This is a subtle bug — `createResource` should use `saveUrl` as a computed or the URL should be passed at `.submit()` time.
+9. **`formatDate` shows only day+month, no year.** `TimeTracker.vue:384-388` formats timestamps as `"2-digit" day + "short" month` (e.g., "23 Mar"). For entries older than the current year, there's no way to distinguish which year they belong to. A ticket with long-lived time tracking across December-January boundaries would show misleading dates.
 
-10. **No `autoname` configured on DocType.** The `hd_time_entry.json` has no `autoname` or `naming_rule` field. Frappe will fall back to prompt-based naming or hash, which is inappropriate for a programmatically-created record. Other DocTypes in this project (e.g., HD Related Ticket) use autoincrement or naming series.
+10. **`agent_name` formatting truncates last name to initial.** `time_tracking.py:150-152` formats names as "John D." rather than "John Doe". For teams where multiple agents share a first name (John D., John S.), this is ambiguous. The full last name should be shown, or at minimum the formatting should be configurable.
 
-### P2 — Missing Functionality / Design Gaps
+11. **`limit=0` on `get_summary` fetches ALL entries with no pagination.** `time_tracking.py:310` uses `limit=0` to fetch every time entry for a ticket. For tickets with hundreds of entries (e.g., long-running support cases), this returns a potentially massive JSON payload in a single response. There's no pagination, no lazy loading, and no configurable limit.
 
-11. **No error handling in `TimeEntryDialog.vue`.** The `saveResource` has `onSuccess` but no `onError` callback. If the API call fails, the user sees no feedback — the dialog just sits there with the button in a loading state.
-
-12. **No delete/edit capability for time entries.** The API provides `add_entry` and `stop_timer` for creation but no way to delete or edit an incorrect time entry. Agents who make mistakes have no recourse.
-
-13. **No ITIL mode feature flag check.** All prior stories (1.1–1.6) check `itil_mode_enabled` before exposing ITIL features. Time tracking has no such gating. This breaks the architectural pattern established by Story 1.1.
-
-14. **Duration stored only as integer minutes — no sub-minute granularity.** The `duration_minutes` field is `Int`. A 45-second task rounds to either 0 (rejected by validation) or 1. The timer could easily produce sub-minute durations that get lost or rejected.
-
-15. **`start_timer` does nothing useful server-side.** It checks permission and returns `now_datetime()`. The client could just use `new Date().toISOString()`. There is no server-side timer state, no protection against orphaned timers, and no way to resume a timer after a browser crash (the localStorage code that would handle this doesn't exist).
-
-16. **Story file shows all checkboxes unchecked.** The story tracking document (`story-23-*.md`) has every task and AC checkbox still `- [ ]` (unchecked), contradicting the "Status: done" header. The agent never updated the tracking document.
-
-17. **No frontend build was produced.** The Vue component changes were never compiled. There is no evidence of `cd desk && yarn build` being run, and the bench copy's `desk/src/components/ticket/` does not contain `TimeEntryDialog.vue`.
+12. **Story tracking file still shows all checkboxes unchecked.** `story-23-story-1-7-per-ticket-time-tracking.md` still has `- [ ]` on all ACs and tasks despite Status: done. The File List and Change Log sections are empty. The dev agent never updated its tracking document after completing work.
 
 ---
 
 ## Console Errors Captured
 
-| Endpoint | Error |
+| Test | Result |
 |---|---|
-| `GET helpdesk.api.time_tracking.get_summary?ticket=1` | `DoesNotExistError: DocType HD Time Entry not found` |
-| `POST helpdesk.api.time_tracking.add_entry` | `ImportError: Module import failed for HD Time Entry` |
-| `POST helpdesk.api.time_tracking.stop_timer` | `ImportError: Module import failed for HD Time Entry` |
-| `POST helpdesk.api.time_tracking.start_timer` | Works (returns timestamp) |
+| `GET get_summary?ticket=1` (authenticated) | OK — returns 9 entries, 70 total minutes |
+| `POST start_timer` (authenticated) | OK — returns `started_at` timestamp |
+| `POST add_entry` with `duration_minutes="abc"` | Returns `ValidationError: duration_minutes must be a valid integer` |
+| Unit tests (81) | All pass, 6.8s |
 
 ---
 
@@ -115,25 +93,21 @@ Story 1.7 claims completion ("Status: done") but the implementation is fundament
 
 | File | Status |
 |---|---|
-| `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json` | Created but never migrated to DB |
-| `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` | Created, basic validation only |
-| `helpdesk/helpdesk/doctype/hd_time_entry/__init__.py` | Empty file |
-| `helpdesk/api/time_tracking.py` | Created, 4 endpoints, all non-functional due to missing DB |
-| `desk/src/components/ticket/TimeEntryDialog.vue` | Created but orphaned (never imported) |
-| `desk/src/components/ticket/TimeTracker.vue` | **MISSING — never created** |
-| `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` | **MISSING — never created** |
-| `helpdesk/patches.txt` | **NOT updated** — no migration patch added |
+| `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json` | OK — autoname: hash, proper role permissions |
+| `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` | OK — validate(), on_trash(), _check_delete_permission() |
+| `helpdesk/api/time_tracking.py` | OK — 5 endpoints, input validation, is_agent() gates |
+| `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` | OK — 81 tests, comprehensive coverage |
+| `desk/src/components/ticket/TimeTracker.vue` | OK — timer, summary, delete, localStorage |
+| `desk/src/components/ticket/TimeEntryDialog.vue` | OK — manual/timer entry dialog |
+| `desk/src/components/ticket-agent/TicketDetailsTab.vue` | OK — TimeTracker integrated with isAgent guard |
 
 ---
 
 ## Recommendation
 
-**This story must be completely re-implemented.** The dev agent created some skeleton files but failed to:
-1. Run `bench migrate` to register the DocType and create the DB table
-2. Create the main UI component (TimeTracker.vue)
-3. Integrate any component into the ticket page
-4. Implement localStorage timer persistence
-5. Write any tests
-6. Build the frontend
-
-A fix task should treat this as a fresh implementation using the existing skeleton files as a starting point.
+The core feature is functional and well-tested. A fix task should address:
+1. **P1-1:** Sanitize description on write (strip HTML) and clean existing poisoned entries
+2. **P1-2:** Fix `canDelete()` to exclude bare System Manager from delete UI
+3. **P1-3:** Add edit/update capability (or at minimum document as a known limitation)
+4. **P2-6:** Add ITIL mode feature flag gating to match architectural pattern
+5. **P2-7/8:** Minor frontend robustness fixes

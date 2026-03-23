@@ -75,7 +75,7 @@ opus
 - Adversarial review completed: 14 findings (2x P1, 5x P2, 7x P3)
 - P1-1: Task #146 commit (`769ad7efa`) contains ZERO Python code -- same audit trail violation pattern the task was created to fix. Code was in commit `8b17c65c3` (task #148).
 - P1-2: `hd_time_entry.json` DocType JSON out of sync -- bench has System Manager create/write permissions that dev removed. Needs `bench migrate`.
-- All 89 tests pass (80 in test_hd_time_entry.py, 9 in tests/test_utils.py).
+- All 90 tests pass (81 in test_hd_time_entry.py, 9 in tests/test_utils.py).
 - Full report at `docs/qa-report-task-146.md`.
 
 ### Change Log

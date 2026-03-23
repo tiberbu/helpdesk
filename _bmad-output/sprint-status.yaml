@@ -524,6 +524,6 @@ development_status:
 
   212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe: review  # [adversarial-review] QA: Fix P1 unguarded commit() + asymmetric ValidationError +
 
-  213-qa-fix-p1-unguarded-commit-in-autoclose-loop-asymmetric-vali: ready-for-dev  # [adversarial-review] QA: Fix: P1 unguarded commit() in autoclose loop + asymmetri
+  213-qa-fix-p1-unguarded-commit-in-autoclose-loop-asymmetric-vali: review  # [adversarial-review] QA: Fix: P1 unguarded commit() in autoclose loop + asymmetri
 
-  214-fix-p1-story-204-claims-credit-for-task-203-work-commit-scop: ready-for-dev  # [quick-dev] Fix: P1 story-204 claims credit for task-203 work + commit-s
+  214-fix-p1-story-204-claims-credit-for-task-203-work-commit-scop: review  # [quick-dev] Fix: P1 story-204 claims credit for task-203 work + commit-s
