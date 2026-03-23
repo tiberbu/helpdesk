@@ -1,6 +1,6 @@
 # Story: Fix: P1/P2 findings from adversarial review task-108 — missing HD Admin tests, is_agent triple get_roles, stale comments
 
-Status: in-progress
+Status: done
 Task ID: mn3cgmint6k2kj
 Task Number: #110
 Workflow: quick-dev
