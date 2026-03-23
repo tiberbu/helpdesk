@@ -1,0 +1,115 @@
+{
+ "actions": [],
+ "creation": "2026-03-23 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "ticket",
+  "agent",
+  "duration_minutes",
+  "billable",
+  "description",
+  "timestamp",
+  "started_at"
+ ],
+ "fields": [
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Ticket",
+   "options": "HD Ticket",
+   "reqd": 1
+  },
+  {
+   "default": "__user",
+   "fieldname": "agent",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Agent",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration_minutes",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Duration (Minutes)",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "billable",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Billable"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "default": "Now",
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Logged At",
+   "reqd": 1
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "label": "Timer Started At",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD Time Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HD Agent",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HD Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "timestamp",
+ "sort_order": "DESC",
+ "states": []
+}

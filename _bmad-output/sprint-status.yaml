@@ -159,7 +159,7 @@ development_status:
   20-story-1-4-internal-notes-on-tickets: review  # [create-story] Story 1.4: Internal Notes on Tickets
   21-story-1-5-mention-notifications-in-internal-notes: review  # [dev-story] Story 1.5: @Mention Notifications in Internal Notes
   22-story-1-6-related-ticket-linking: review
-  23-story-1-7-per-ticket-time-tracking: ready-for-dev  # [create-story] Story 1.7: Per-Ticket Time Tracking
+  23-story-1-7-per-ticket-time-tracking: review  # [create-story] Story 1.7: Per-Ticket Time Tracking
   24-story-1-8-major-incident-flag-and-workflow: ready-for-dev  # [create-story] Story 1.8: Major Incident Flag and Workflow
   25-story-1-9-incident-models-templates: ready-for-dev  # [create-story] Story 1.9: Incident Models / Templates
   26-story-2-1-automation-rule-doctype-and-engine-core: review  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
@@ -198,3 +198,5 @@ development_status:
   52-qa-story-1-4-internal-notes-on-tickets: review  # [adversarial-review] QA: Story 1.4: Internal Notes on Tickets
 
   53-qa-story-1-5-mention-notifications-in-internal-notes: review  # [adversarial-review] QA: Story 1.5: @Mention Notifications in Internal Notes
+
+  54-qa-story-1-6-related-ticket-linking: review  # [adversarial-review] QA: Story 1.6: Related Ticket Linking
