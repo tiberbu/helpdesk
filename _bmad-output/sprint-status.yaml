@@ -161,7 +161,7 @@ development_status:
   22-story-1-6-related-ticket-linking: review
   23-story-1-7-per-ticket-time-tracking: review  # [create-story] Story 1.7: Per-Ticket Time Tracking
   24-story-1-8-major-incident-flag-and-workflow: review  # [create-story] Story 1.8: Major Incident Flag and Workflow
-  25-story-1-9-incident-models-templates: ready-for-dev  # [create-story] Story 1.9: Incident Models / Templates
+  25-story-1-9-incident-models-templates: review  # [create-story] Story 1.9: Incident Models / Templates
   26-story-2-1-automation-rule-doctype-and-engine-core: review  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
   27-story-2-2-automation-rule-builder-ui: review  # [create-story] Story 2.2: Automation Rule Builder UI
   28-story-2-3-sla-based-automation-triggers: review  # [create-story] Story 2.3: SLA-Based Automation Triggers
@@ -206,3 +206,8 @@ development_status:
   56-qa-story-1-7-per-ticket-time-tracking-re-run-with-playwright: review  # [adversarial-review] QA: Story 1.7 Per-Ticket Time Tracking (re-run with Playwrig
 
   57-qa-story-1-8-major-incident-flag-and-workflow: review  # [adversarial-review] QA: Story 1.8: Major Incident Flag and Workflow
+
+  58-qa-story-1-8-major-incident-flag-and-workflow: review  # [adversarial-review] QA: Story 1.8: Major Incident Flag and Workflow
+  59-fix-story-1-7-time-tracking-create-timetracker-vue-tests-sid: ready-for-dev  # [quick-dev] Fix: Story 1.7 Time Tracking — Create TimeTracker.vue, Tests
+
+  60-fix-story-1-8-major-incident-p0-p1-issues-missing-post-incid: ready-for-dev  # [quick-dev] Fix: Story 1.8 Major Incident — P0/P1 issues (missing post-i
