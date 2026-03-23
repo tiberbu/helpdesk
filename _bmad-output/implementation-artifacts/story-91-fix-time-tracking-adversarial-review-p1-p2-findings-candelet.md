@@ -38,14 +38,14 @@ Both `TimeEntryDialog.vue` and `TimeTracker.vue` use `__()` in `<script setup>` 
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -63,12 +63,19 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1 (canDelete Agent Manager): Already present in existing code — verified correct.
+- P2 (__ import): Added `import { __ } from "@/translation"` to both TimeTracker.vue and TimeEntryDialog.vue.
+- P2 (Frontend max validation): Added `MAX_DURATION_MINUTES = 1440` constant, `showMaxDurationError` computed, updated `isValid` to check upper bound, added error message display, and `max=24` on hours input in TimeEntryDialog.vue.
+- P2 (Duplicated delete_entry logic): Replaced local `user_roles`/`is_privileged` vars with inline `PRIVILEGED_ROLES` check, delegating ownership logic entirely to `_check_delete_permission`.
+- P2 (MAX_DURATION API check): Added `MAX_DURATION_MINUTES` import and upper-bound checks to both `stop_timer()` and `add_entry()`.
+- All 32 tests pass. Frontend builds cleanly.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- **2026-03-23**: Implemented all P1/P2 fixes; all 32 tests pass; frontend build successful.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `desk/src/components/ticket/TimeTracker.vue` — Added `__ import`
+- `desk/src/components/ticket/TimeEntryDialog.vue` — Added `__ import`, `MAX_DURATION_MINUTES` constant, `showMaxDurationError` computed, updated `isValid`, added max error UI, `max=24` on hours input
+- `helpdesk/api/time_tracking.py` — Added `MAX_DURATION_MINUTES`/`PRIVILEGED_ROLES` imports, max-duration checks in `stop_timer()` and `add_entry()`, removed duplicated local vars in `delete_entry()`

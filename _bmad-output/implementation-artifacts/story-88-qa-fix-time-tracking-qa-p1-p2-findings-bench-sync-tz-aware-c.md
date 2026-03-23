@@ -1,6 +1,6 @@
 # Story: QA: Fix: Time Tracking QA P1/P2 findings (bench sync, tz-aware crash, toast API, is_agent gaps)
 
-Status: complete
+Status: done
 Task ID: mn3birt253exl1
 Task Number: #88
 Workflow: adversarial-review

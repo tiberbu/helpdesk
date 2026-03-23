@@ -1495,10 +1495,20 @@ def close_tickets_after_n_days():
 
     # cant do set_value because SLA will not be applied as setting directly to db and doc is not running.
     for ticket in tickets_to_close:
-        doc = frappe.get_doc("HD Ticket", ticket)
-        doc.status = "Closed"
-        # F-02: do NOT set ignore_validate=True here — that bypassed the
-        # validate_checklist_before_resolution() guard entirely.  Auto-close
-        # must respect the same validation rules as a manual close.
-        doc.save(ignore_permissions=True)
-        frappe.db.commit()  # nosemgrep
+        try:
+            doc = frappe.get_doc("HD Ticket", ticket)
+            doc.status = "Closed"
+            # F-02: do NOT set ignore_validate=True here — that bypassed the
+            # validate_checklist_before_resolution() guard entirely.  Auto-close
+            # must respect the same validation rules as a manual close.
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()  # nosemgrep
+        except Exception as exc:
+            # Log and skip tickets that fail validation (e.g. incomplete mandatory
+            # checklist items) so a single bad ticket cannot crash the entire cron
+            # run and prevent all subsequent tickets from being auto-closed.
+            frappe.log_error(
+                title=f"Auto-close failed for ticket {ticket}",
+                message=frappe.get_traceback(),
+            )
+            frappe.db.rollback()  # nosemgrep

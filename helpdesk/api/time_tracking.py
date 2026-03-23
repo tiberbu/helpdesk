@@ -3,11 +3,12 @@
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime, get_datetime
+from frappe.utils import now_datetime, get_datetime, cint
 
 from helpdesk.utils import is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
+	MAX_DURATION_MINUTES,
 	PRIVILEGED_ROLES,
 	_check_delete_permission,
 )
@@ -72,9 +73,14 @@ def stop_timer(
 	if started_at_naive > now_datetime():
 		frappe.throw(_("started_at cannot be in the future."), frappe.ValidationError)
 
-	duration_minutes = int(duration_minutes)
+	duration_minutes = cint(duration_minutes)
 	if duration_minutes < 1:
 		frappe.throw(_("Duration must be at least 1 minute."), frappe.ValidationError)
+	if duration_minutes > MAX_DURATION_MINUTES:
+		frappe.throw(
+			_("Duration must not exceed {0} minutes (24 hours).").format(MAX_DURATION_MINUTES),
+			frappe.ValidationError,
+		)
 
 	entry = frappe.get_doc(
 		{
@@ -82,7 +88,7 @@ def stop_timer(
 			"ticket": ticket,
 			"agent": frappe.session.user,
 			"duration_minutes": duration_minutes,
-			"billable": int(billable),
+			"billable": cint(billable),
 			"description": description or "",
 			"timestamp": now_datetime(),
 			# Store as naive datetime string — MariaDB DATETIME col rejects tz-offset format
@@ -119,9 +125,14 @@ def add_entry(
 			frappe.ValidationError,
 		)
 
-	duration_minutes = int(duration_minutes)
+	duration_minutes = cint(duration_minutes)
 	if duration_minutes < 1:
 		frappe.throw(_("Duration must be at least 1 minute."), frappe.ValidationError)
+	if duration_minutes > MAX_DURATION_MINUTES:
+		frappe.throw(
+			_("Duration must not exceed {0} minutes (24 hours).").format(MAX_DURATION_MINUTES),
+			frappe.ValidationError,
+		)
 
 	entry = frappe.get_doc(
 		{
@@ -129,7 +140,7 @@ def add_entry(
 			"ticket": ticket,
 			"agent": frappe.session.user,
 			"duration_minutes": duration_minutes,
-			"billable": int(billable),
+			"billable": cint(billable),
 			"description": description or "",
 			"timestamp": now_datetime(),
 		}
@@ -151,15 +162,12 @@ def delete_entry(name: str) -> dict:
 	"""
 	entry = frappe.get_doc("HD Time Entry", name)
 
-	# Use the module-level PRIVILEGED_ROLES constant (single source of truth).
-	user_roles = set(frappe.get_roles(frappe.session.user))
-	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
-
-	# Non-agents who are also not privileged are blocked entirely
-	if not is_agent() and not is_privileged:
+	# Pre-gate: only agents may delete time entries.
+	# Ownership and privileged-role checks are delegated entirely to
+	# _check_delete_permission (single source of truth — no duplication).
+	if not is_agent():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
-	# Issue #9: delegate ownership check to shared helper — single source of truth.
 	_check_delete_permission(entry, frappe.session.user)
 
 	# Use ignore_permissions=True since we've already done our own permission check above

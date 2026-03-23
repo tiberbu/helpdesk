@@ -175,6 +175,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { createResource, Button, Badge, Dialog, toast } from "frappe-ui";
+import { __ } from "@/translation";
 import LucidePlus from "~icons/lucide/plus";
 import LucideTimer from "~icons/lucide/timer";
 import LucideClock from "~icons/lucide/clock";

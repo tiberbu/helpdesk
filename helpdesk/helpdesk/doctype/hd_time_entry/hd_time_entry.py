@@ -10,7 +10,7 @@ MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound
 
 # Single source of truth for roles that may delete any time entry (not just their own).
 # Mirrors the delete:1 grant in the HD Time Entry DocType JSON.
-PRIVILEGED_ROLES = {"HD Admin", "Agent Manager", "System Manager"}
+PRIVILEGED_ROLES = frozenset({"HD Admin", "Agent Manager", "System Manager"})
 
 
 def _check_delete_permission(entry, user):

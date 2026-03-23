@@ -17,6 +17,7 @@
               :placeholder="__('Hours')"
               v-model="hours"
               :min="0"
+              :max="24"
               class="w-24"
             />
             <FormControl
@@ -30,6 +31,9 @@
           </div>
           <p v-if="showDurationError" class="mt-1 text-xs text-red-600">
             {{ __("Duration must be greater than 0") }}
+          </p>
+          <p v-if="showMaxDurationError" class="mt-1 text-xs text-red-600">
+            {{ __("Duration cannot exceed 24 hours (1440 minutes)") }}
           </p>
         </div>
 
@@ -69,6 +73,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { createResource, Button, Dialog, FormControl, toast } from "frappe-ui";
+import { __ } from "@/translation";
 
 const props = defineProps<{
   ticketId: string;
@@ -78,6 +83,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{ saved: []; close: [] }>();
+
+const MAX_DURATION_MINUTES = 1440; // 24 hours — mirrors backend MAX_DURATION_MINUTES
 
 const show = ref(true);
 const description = ref("");
@@ -107,7 +114,12 @@ const totalMinutes = computed(
 );
 
 const showDurationError = computed(() => touched.value && totalMinutes.value < 1);
-const isValid = computed(() => totalMinutes.value >= 1);
+const showMaxDurationError = computed(
+  () => touched.value && totalMinutes.value > MAX_DURATION_MINUTES
+);
+const isValid = computed(
+  () => totalMinutes.value >= 1 && totalMinutes.value <= MAX_DURATION_MINUTES
+);
 
 const stopTimerResource = createResource({
   url: "helpdesk.api.time_tracking.stop_timer",
