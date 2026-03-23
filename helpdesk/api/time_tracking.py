@@ -36,7 +36,10 @@ def _require_int_str(value, param_name: str) -> None:
 			# Use int(float(...)) to match cint() behavior:
 			# cint("3.5") truncates to 3; int("3.5") raises ValueError.
 			int(float(value.strip()))
-		except ValueError:
+		except (ValueError, OverflowError):
+			# ValueError: non-numeric string (e.g. "abc", "")
+			# OverflowError: int(float("inf")) / int(float("nan")) — Python raises
+			# OverflowError, not ValueError, so both must be caught.
 			frappe.throw(
 				_("{0} must be a valid integer").format(param_name),
 				frappe.ValidationError,

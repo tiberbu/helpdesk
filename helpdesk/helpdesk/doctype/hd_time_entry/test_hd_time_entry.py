@@ -7,7 +7,13 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 from frappe.utils import now_datetime
 from helpdesk.api.time_tracking import add_entry, stop_timer, get_summary, delete_entry, start_timer
-from helpdesk.test_utils import create_agent, make_ticket
+from helpdesk.test_utils import (
+	create_agent,
+	ensure_agent_manager_user,
+	ensure_hd_admin_user,
+	ensure_system_manager_user,
+	make_ticket,
+)
 
 
 class TestHDTimeEntry(FrappeTestCase):
@@ -150,18 +156,12 @@ class TestHDTimeEntry(FrappeTestCase):
 		frappe.set_user("agent.tt@test.com")
 
 	def _ensure_hd_admin_user(self):
-		"""Create hd.admin.tt@test.com with HD Admin role only (no Agent role)."""
-		frappe.set_user("Administrator")
-		if not frappe.db.exists("User", "hd.admin.tt@test.com"):
-			admin_user = frappe.get_doc({
-				"doctype": "User",
-				"email": "hd.admin.tt@test.com",
-				"first_name": "HD",
-				"last_name": "Admin",
-				"send_welcome_email": 0,
-			})
-			admin_user.insert(ignore_permissions=True)
-			admin_user.add_roles("HD Admin")
+		"""Create hd.admin.tt@test.com with HD Admin role only (no Agent/Agent Manager/System Manager roles).
+
+		Delegates to shared ensure_hd_admin_user() in test_utils — see story-130 Finding #7.
+		Asserts user does NOT hold unexpected roles (story-130 Finding #5).
+		"""
+		ensure_hd_admin_user()
 
 	def test_delete_entry_admin_can_delete_any_entry(self):
 		"""HD Admin role should be able to delete another agent's time entry."""
@@ -195,6 +195,7 @@ class TestHDTimeEntry(FrappeTestCase):
 		entry = frappe.get_doc("HD Time Entry", result["name"])
 		self.assertEqual(entry.duration_minutes, 15)
 		self.assertEqual(entry.agent, "hd.admin.tt@test.com")
+		self.assertEqual(entry.description, "HD Admin manual entry")
 		frappe.set_user("Administrator")
 
 	def test_hd_admin_can_start_timer(self):
@@ -208,6 +209,46 @@ class TestHDTimeEntry(FrappeTestCase):
 		self.assertIn("started_at", result)
 		self.assertIsInstance(result["started_at"], str)
 		self.assertTrue(len(result["started_at"]) > 0)
+		frappe.set_user("Administrator")
+
+	def test_hd_admin_can_stop_timer(self):
+		"""
+		HD Admin user (no Agent role) must be able to call stop_timer() and create
+		a time entry — verifies is_agent() gate passes for HD Admin role on the
+		stop_timer() path, which has previously had zero coverage.
+		"""
+		self._ensure_hd_admin_user()
+		frappe.set_user("hd.admin.tt@test.com")
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at="2026-01-01 10:00:00",
+			duration_minutes=20,
+			description="HD Admin timer session",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 20)
+		self.assertEqual(entry.agent, "hd.admin.tt@test.com")
+		self.assertEqual(entry.description, "HD Admin timer session")
+		frappe.set_user("Administrator")
+
+	def test_hd_admin_can_get_summary(self):
+		"""
+		HD Admin user (no Agent role) must be able to call get_summary() and receive
+		time tracking data — verifies is_agent() gate passes for HD Admin role on the
+		get_summary() path, which has previously had zero coverage.
+		"""
+		# Agent creates an entry that the HD Admin should be able to see in the summary
+		result = add_entry(ticket=self.ticket_name, duration_minutes=30, billable=1)
+		self.assertTrue(result.get("success"))
+
+		self._ensure_hd_admin_user()
+		frappe.set_user("hd.admin.tt@test.com")
+		summary = get_summary(ticket=self.ticket_name)
+		self.assertEqual(summary["total_minutes"], 30)
+		self.assertEqual(summary["billable_minutes"], 30)
+		self.assertEqual(len(summary["entries"]), 1)
 		frappe.set_user("Administrator")
 
 	# --- Permission tests ---
@@ -431,18 +472,11 @@ class TestHDTimeEntry(FrappeTestCase):
 	# --- P1 fix: Agent Manager in exemption list for delete_entry and on_trash ---
 
 	def _ensure_agent_manager_user(self):
-		"""Create agent.mgr.tt@test.com with Agent Manager role if not present."""
-		frappe.set_user("Administrator")
-		if not frappe.db.exists("User", "agent.mgr.tt@test.com"):
-			mgr_user = frappe.get_doc({
-				"doctype": "User",
-				"email": "agent.mgr.tt@test.com",
-				"first_name": "Agent",
-				"last_name": "Manager",
-				"send_welcome_email": 0,
-			})
-			mgr_user.insert(ignore_permissions=True)
-			mgr_user.add_roles("Agent Manager")
+		"""Create agent.mgr.tt@test.com with Agent Manager role if not present.
+
+		Delegates to shared ensure_agent_manager_user() in test_utils — see story-130 Finding #7.
+		"""
+		ensure_agent_manager_user()
 
 	def test_agent_manager_can_delete_any_entry_via_delete_entry(self):
 		"""
@@ -580,18 +614,11 @@ class TestHDTimeEntry(FrappeTestCase):
 	# --- P1: System Manager can delete any entry ---
 
 	def _ensure_system_manager_user(self):
-		"""Create sys.mgr.tt@test.com with System Manager role only (no Agent/HD Admin)."""
-		frappe.set_user("Administrator")
-		if not frappe.db.exists("User", "sys.mgr.tt@test.com"):
-			sys_mgr_user = frappe.get_doc({
-				"doctype": "User",
-				"email": "sys.mgr.tt@test.com",
-				"first_name": "Sys",
-				"last_name": "Manager",
-				"send_welcome_email": 0,
-			})
-			sys_mgr_user.insert(ignore_permissions=True)
-			sys_mgr_user.add_roles("System Manager")
+		"""Create sys.mgr.tt@test.com with System Manager role only (no Agent/HD Admin).
+
+		Delegates to shared ensure_system_manager_user() in test_utils — see story-130 Finding #7.
+		"""
+		ensure_system_manager_user()
 
 	def test_delete_entry_system_manager_can_delete_any_entry(self):
 		"""
@@ -766,6 +793,123 @@ class TestHDTimeEntry(FrappeTestCase):
 		self.assertTrue(result.get("success"))
 		entry = frappe.get_doc("HD Time Entry", result["name"])
 		self.assertEqual(entry.billable, 0, "'0.9' must truncate to 0 (non-billable)")
+
+	# --- P1 fix: OverflowError for inf/Infinity via stop_timer path ---
+
+	def test_require_int_str_rejects_inf_via_stop_timer(self):
+		"""
+		_require_int_str must raise ValidationError for 'inf' / 'Infinity'.
+
+		int(float('inf')) raises OverflowError, NOT ValueError.  Previously only
+		ValueError was caught, so passing billable='inf' produced an unhandled 500.
+		This test exercises the stop_timer integration path to verify the fix is
+		wired end-to-end (not just in the helper).
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-01-01 10:00:00",
+				duration_minutes=10,
+				billable="inf",
+			)
+
+	def test_require_int_str_rejects_infinity_string_duration(self):
+		"""
+		'Infinity' passed as duration_minutes must raise ValidationError (OverflowError fix).
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-01-01 10:00:00",
+				duration_minutes="Infinity",
+			)
+
+	# --- P2: Billable clamping boundary tests for stop_timer ---
+
+	def test_stop_timer_clamps_billable_above_one(self):
+		"""
+		stop_timer must clamp billable=2 to 1 — a Check field only accepts 0 or 1.
+		Mirrors test_add_entry_clamps_billable_above_one for the stop_timer path.
+		"""
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at="2026-01-01 10:00:00",
+			duration_minutes=10,
+			billable=2,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.billable, 1, "billable=2 must be clamped to 1")
+
+	def test_stop_timer_clamps_negative_billable_to_zero(self):
+		"""
+		stop_timer must clamp billable=-1 to 0.
+		Negative values are truthy in Python (bool(-1) is True), so a naive
+		`1 if cint(billable) else 0` guard would incorrectly set billable=1.
+		The correct guard uses max(0, min(1, cint(billable))).
+		Mirrors test_add_entry_clamps_negative_billable_to_zero for the stop_timer path.
+		"""
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at="2026-01-01 10:00:00",
+			duration_minutes=10,
+			billable=-1,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.billable, 0, "billable=-1 must be clamped to 0")
+
+	# --- P1 fix: _require_int_str must reject inf/nan (OverflowError + ValueError) ---
+
+	def test_require_int_str_rejects_inf_string_as_duration_add_entry(self):
+		"""
+		'inf' passed as duration_minutes to add_entry() must raise ValidationError.
+
+		int(float('inf')) raises OverflowError (NOT ValueError), so the except clause
+		must catch both. Previously only ValueError was caught, causing an unhandled
+		500 Internal Server Error (flagged in QA reports task-114 and task-126).
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="inf")
+
+	def test_require_int_str_rejects_negative_inf_string_duration(self):
+		"""
+		'-inf' passed as duration_minutes must raise ValidationError.
+		int(float('-inf')) raises OverflowError — same OverflowError path as 'inf'.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="-inf")
+
+	def test_require_int_str_rejects_nan_string_duration(self):
+		"""
+		'nan' passed as duration_minutes must raise ValidationError.
+		int(float('nan')) raises ValueError (not OverflowError), but the combined
+		except (ValueError, OverflowError) clause handles it correctly.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="nan")
+
+	# --- P2: Scientific notation string behavior (documented, not rejected) ---
+
+	def test_require_int_str_documents_scientific_notation_accepted(self):
+		"""
+		Scientific notation strings like '1e2' are ACCEPTED by _require_int_str
+		because float('1e2') == 100.0 is a valid float.  cint('1e2') also evaluates
+		to 100, so the behavior is internally consistent.
+
+		This test documents the deliberate decision to NOT reject scientific notation:
+		- It is unlikely to appear from real browser inputs.
+		- Rejecting it would require a regex, adding complexity with no practical benefit.
+		- Behavior is consistent: '1e2' → 100 min, same as passing 100 directly.
+		"""
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes="1e2",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 100, "'1e2' must evaluate to 100")
 
 
 class TestIsAgentExplicitUser(FrappeTestCase):

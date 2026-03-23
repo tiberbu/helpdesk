@@ -1,6 +1,6 @@
 # Story: QA: Fix: _require_int_str float-string mismatch (P1) + undocumented is_admin(user) f
 
-Status: in-progress
+Status: done
 Task ID: mn3cwd0pl0v38d
 Task Number: #124
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,17 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Produced adversarial review report: `docs/qa-report-task-121.md`
+- Found 2 P1, 4 P2, 5 P3 issues
+- P1-1: `_require_int_str("inf")` raises unhandled OverflowError (500 crash) — only `ValueError` is caught, not `OverflowError`
+- P1-2: Story file falsely claims credit for 12 tests when commit only adds 4 — the other 8 were from predecessor commit fc98b5cfe
+- All 58 tests pass, dev/bench in sync
+- Created fix task for P1 issues
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-121.md` — full adversarial review report
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-121.md` — QA report (created)

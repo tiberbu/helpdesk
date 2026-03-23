@@ -343,3 +343,13 @@ development_status:
   127-qa-fix-p1-performance-regression-misleading-error-test-split: ready-for-dev  # [adversarial-review] QA: Fix P1 performance regression + misleading error + test 
 
   128-qa-fix-p1-performance-regression-uncached-db-query-every-sav: ready-for-dev  # [adversarial-review] QA: Fix: P1 performance regression (uncached DB query every 
+
+  129-qa-fix-missing-on-trash-tests-for-system-manager-hd-admin-te: review  # [adversarial-review] QA: Fix: Missing on_trash tests for System Manager/HD Admin 
+
+  130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-: in-progress  # [quick-dev] Fix: P1/P2 from adversarial review task-120 — stale test cou
+
+  131-fix-require-int-str-overflowerror-on-inf-missing-stop-timer-: review  # [quick-dev] Fix: _require_int_str OverflowError on inf + missing stop_ti
+
+  132-fix-require-int-str-inf-nan-500-error-p1-empty-commit-audit-: in-progress  # [quick-dev] Fix: _require_int_str inf/nan 500 error (P1) + empty commit 
+
+  133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-: in-progress  # [quick-dev] Fix: _require_int_str OverflowError on inf/nan input (P1) + 

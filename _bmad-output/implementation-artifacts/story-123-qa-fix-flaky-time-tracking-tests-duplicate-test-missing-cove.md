@@ -1,6 +1,6 @@
 # Story: QA: Fix: Flaky time tracking tests (duplicate test, missing coverage, test isolation
 
-Status: in-progress
+Status: done
 Task ID: mn3cuepf667m4a
 Task Number: #123
 Workflow: adversarial-review
@@ -42,23 +42,24 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Review each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Run test suite multiple times to verify flakiness fix
+- [x] Verify no console errors (backend only — N/A for browser)
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Read story #119 acceptance criteria
+- [x] Review code diff (commit fc98b5cfe)
+- [x] Verify dev and bench copies in sync
+- [x] Run test suite 3 times to check stability
+- [x] Perform adversarial analysis (12 findings)
+- [x] Produce QA report at docs/qa-report-task-119.md
+- [x] Create fix task for P1 issues
 
 ## Dev Notes
 
-
+Backend-only task. No frontend/browser testing applicable (Playwright MCP not available).
 
 ### References
 
@@ -72,12 +73,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Produced adversarial QA report with 12 findings (2 P1, 5 P2, 5 P3)
+- P1 findings: (1) `_require_int_str` does not catch `OverflowError` for "inf"/"Infinity" strings, causing unhandled 500 errors; (2) Test count still oscillates (56 vs 58 across runs) — flakiness not resolved
+- Core fixes (race condition, billable clamping) verified correct
+- Dev and bench copies confirmed in sync
+- Created chained fix task for P1/P2 issues
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-119.md` — full adversarial review report
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-119.md` (created)
