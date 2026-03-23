@@ -262,6 +262,8 @@ development_status:
 
   86-fix-p1-findings-from-qa-task-83-performance-regression-in-se: in-progress  # [quick-dev] Fix: P1 findings from QA task-83 — performance regression in
 
-  87-fix-p1s-from-adversarial-review-task-84-deduplicate-privileg: in-progress  # [quick-dev] Fix: P1s from adversarial review task-84 — deduplicate privi
+  87-fix-p1s-from-adversarial-review-task-84-deduplicate-privileg: review  # [quick-dev] Fix: P1s from adversarial review task-84 — deduplicate privi
 
   88-qa-fix-time-tracking-qa-p1-p2-findings-bench-sync-tz-aware-c: review  # [adversarial-review] QA: Fix: Time Tracking QA P1/P2 findings (bench sync, tz-awa
+
+  89-qa-fix-time-tracking-qa-p1-p2-findings-bench-sync-tz-aware-c: review  # [adversarial-review] QA: Fix: Time Tracking QA P1/P2 findings (bench sync, tz-awa

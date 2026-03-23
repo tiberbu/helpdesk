@@ -345,6 +345,7 @@ function canDelete(entry: any): boolean {
   const frappeUser = (window as any).frappe?.session?.user;
   const hasAdminRole =
     (window as any).frappe?.user?.has_role?.("HD Admin") ||
+    (window as any).frappe?.user?.has_role?.("Agent Manager") ||
     (window as any).frappe?.user?.has_role?.("System Manager");
   return entry.agent === frappeUser || hasAdminRole;
 }

@@ -100,8 +100,11 @@ class HDTicket(Document):
         """Prevent resolution/closure when mandatory checklist items are incomplete.
 
         Story 1.9: AC #8 — server-side authoritative guard.
+        Checks both "Resolved" and "Closed" status categories so that tickets
+        cannot be closed (manually or via auto-close scheduler) with incomplete
+        mandatory checklist items.
         """
-        if self.status_category not in ("Resolved",):
+        if self.status_category not in ("Resolved", "Closed"):
             return
 
         checklist = self.get("ticket_checklist", [])
@@ -1040,23 +1043,39 @@ class HDTicket(Document):
             self.status = self.default_open_status
 
     def set_status_category(self):
-        # Always re-derive status_category from the current status value.
-        # The has_value_changed guard was removed: a pre-populated status_category
-        # that doesn't match the current status (e.g. set via API/import) must be
-        # corrected.  The only safe skip is when status itself is empty/unset —
-        # in that case there is nothing to look up.
+        """Derive status_category from the linked HD Ticket Status record.
+
+        Performance strategy:
+        - Fast path: if status has not changed and a category is already set,
+          skip the DB query (status_category was already correct on last save).
+        - Re-derive path: when status changed or status_category is missing,
+          query HD Ticket Status to get the current category.
+        - F-05: if the HD Ticket Status record was deleted while a ticket still
+          references it, clear the now-stale status_category so downstream code
+          does not act on a phantom category value.
+        """
         if not self.status:
             return
 
+        status_changed = self.is_new() or self.has_value_changed("status")
+
+        if not status_changed and self.status_category:
+            # Fast path: status unchanged and category already populated.
+            # The value was correct on the previous save; no DB query needed.
+            return
+
+        # Re-derive: status changed, or status_category is missing/empty.
         new_category = frappe.get_value(
             "HD Ticket Status",
             self.status,
             "category",
         )
-        # Only update if the lookup succeeds; otherwise keep the existing value
-        # (guards against deleted HD Ticket Status records).
         if new_category:
             self.status_category = new_category
+        else:
+            # F-05: HD Ticket Status record was deleted — clear the stale value
+            # so downstream validators (e.g. checklist guard) are not fooled.
+            self.status_category = None
 
     # `on_communication_update` is a special method exposed from `Communication` doctype.
     # It is called when a communication is updated. Beware of changes as this effectively
@@ -1478,6 +1497,8 @@ def close_tickets_after_n_days():
     for ticket in tickets_to_close:
         doc = frappe.get_doc("HD Ticket", ticket)
         doc.status = "Closed"
-        doc.flags.ignore_validate = True
+        # F-02: do NOT set ignore_validate=True here — that bypassed the
+        # validate_checklist_before_resolution() guard entirely.  Auto-close
+        # must respect the same validation rules as a manual close.
         doc.save(ignore_permissions=True)
         frappe.db.commit()  # nosemgrep

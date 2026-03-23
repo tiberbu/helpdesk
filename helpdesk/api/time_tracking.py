@@ -3,11 +3,12 @@
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime, get_datetime, convert_utc_to_system_timezone
+from frappe.utils import now_datetime, get_datetime
 
 from helpdesk.utils import is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
+	PRIVILEGED_ROLES,
 	_check_delete_permission,
 )
 
@@ -44,7 +45,9 @@ def stop_timer(
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 
-	# Validate description length server-side (frontend maxlength is not enforced by REST)
+	# Defense-in-depth: validate description length here so callers receive a clear
+	# HTTP 417 with a user-facing message before the document is even constructed.
+	# HDTimeEntry.validate() also enforces this limit, so both layers are intentional.
 	if description and len(description) > MAX_DESCRIPTION_LENGTH:
 		frappe.throw(
 			_("Description must not exceed {0} characters.").format(MAX_DESCRIPTION_LENGTH),
@@ -57,12 +60,13 @@ def stop_timer(
 	except Exception:
 		frappe.throw(_("Invalid started_at datetime format."), frappe.ValidationError)
 
-	# Convert to server timezone before stripping tzinfo for correct comparison with
-	# now_datetime() (which returns naive local time). A plain .replace(tzinfo=None)
-	# would compare UTC wall-clock against local time, producing wrong results when
-	# the server is not in UTC.
+	# Convert to server local time before stripping tzinfo for correct comparison with
+	# now_datetime() (which returns naive local time).
+	# Use astimezone(tz=None) rather than convert_utc_to_system_timezone() because the
+	# latter contract requires UTC input — started_at may carry any tz offset from the
+	# client, so we must let Python perform the proper IANA-aware conversion first.
 	if started_at_dt.tzinfo is not None:
-		started_at_naive = convert_utc_to_system_timezone(started_at_dt).replace(tzinfo=None)
+		started_at_naive = started_at_dt.astimezone(tz=None).replace(tzinfo=None)
 	else:
 		started_at_naive = started_at_dt
 	if started_at_naive > now_datetime():
@@ -106,7 +110,9 @@ def add_entry(
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 
-	# Validate description length server-side (frontend maxlength is not enforced by REST)
+	# Defense-in-depth: validate description length here so callers receive a clear
+	# HTTP 417 with a user-facing message before the document is even constructed.
+	# HDTimeEntry.validate() also enforces this limit, so both layers are intentional.
 	if description and len(description) > MAX_DESCRIPTION_LENGTH:
 		frappe.throw(
 			_("Description must not exceed {0} characters.").format(MAX_DESCRIPTION_LENGTH),
@@ -145,11 +151,9 @@ def delete_entry(name: str) -> dict:
 	"""
 	entry = frappe.get_doc("HD Time Entry", name)
 
-	# Issue #12: use frappe.get_roles() instead of direct Has Role table query.
-	# Issue #1: include Agent Manager (holds delete:1 in DocType JSON).
-	privileged_roles = {"HD Admin", "Agent Manager", "System Manager"}
+	# Use the module-level PRIVILEGED_ROLES constant (single source of truth).
 	user_roles = set(frappe.get_roles(frappe.session.user))
-	is_privileged = bool(user_roles & privileged_roles)
+	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
 
 	# Non-agents who are also not privileged are blocked entirely
 	if not is_agent() and not is_privileged:

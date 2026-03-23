@@ -36,6 +36,9 @@ def _make_model(priority="High", num_mandatory=2, num_optional=1):
 class TestIncidentModelApplication(FrappeTestCase):
 	"""Unit tests for Story 1.9: Incident Models / Templates."""
 
+	# Well-known status records that individual tests may create.
+	_TEST_STATUS_NAMES = ("Replied", "Resolved")
+
 	def setUp(self):
 		frappe.set_user("Administrator")
 		frappe.db.set_single_value("HD Settings", "skip_email_workflow", 1)
@@ -43,6 +46,13 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
 		# Disable category-required-on-resolution so resolution tests don't need a category
 		frappe.db.set_single_value("HD Settings", "category_required_on_resolution", 0)
+
+		# F-03: snapshot which HD Ticket Status records exist BEFORE the test so
+		# tearDown can delete only ones that were created by the test, not
+		# pre-existing records from fixtures or other test suites.
+		self._pre_existing_statuses = set(
+			frappe.db.get_all("HD Ticket Status", pluck="name")
+		)
 
 		self.agent_email = "im_agent@example.com"
 		create_agent(self.agent_email)
@@ -57,11 +67,21 @@ class TestIncidentModelApplication(FrappeTestCase):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
+		# F-03: delete any HD Ticket Status records that were created by this test
+		# (db.rollback() is a no-op when a commit occurred mid-test).
+		for status_name in self._TEST_STATUS_NAMES:
+			if status_name not in self._pre_existing_statuses and frappe.db.exists(
+				"HD Ticket Status", status_name
+			):
+				frappe.delete_doc(
+					"HD Ticket Status", status_name, ignore_permissions=True, force=True
+				)
 		# F-06: explicitly delete the non-agent test user so it doesn't persist
 		# across test runs (db.rollback() is a no-op when a commit occurred mid-test).
 		noagent_email = "im_customer_noagent@example.com"
 		if frappe.db.exists("User", noagent_email):
 			frappe.delete_doc("User", noagent_email, ignore_permissions=True, force=True)
+		frappe.db.commit()
 		frappe.db.rollback()
 
 	# ---------------------------------------------------------------

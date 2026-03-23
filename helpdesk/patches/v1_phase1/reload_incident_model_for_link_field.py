@@ -34,9 +34,11 @@ def execute():
 		)
 	except Exception as e:
 		# F-04: Only suppress table-not-found errors (MySQL/MariaDB error 1146).
+		# Check the numeric error code directly instead of string-matching the
+		# error message, which is locale-dependent and fragile.
 		# Re-raise anything else so unexpected failures are visible.
-		err_str = str(e)
-		if "doesn't exist" not in err_str and "1146" not in err_str:
+		err_args = getattr(e, "args", ())
+		if not (err_args and err_args[0] == 1146):
 			raise
 		frappe.logger().warning(
 			"reload_incident_model_for_link_field: tabHD Ticket Priority not found, "

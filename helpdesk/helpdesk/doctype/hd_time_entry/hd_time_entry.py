@@ -8,6 +8,10 @@ from frappe.model.document import Document
 MAX_DESCRIPTION_LENGTH = 500  # Issue #11: single source of truth for description limit
 MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound
 
+# Single source of truth for roles that may delete any time entry (not just their own).
+# Mirrors the delete:1 grant in the HD Time Entry DocType JSON.
+PRIVILEGED_ROLES = {"HD Admin", "Agent Manager", "System Manager"}
+
 
 def _check_delete_permission(entry, user):
 	"""
@@ -21,9 +25,8 @@ def _check_delete_permission(entry, user):
 
 	Raises frappe.PermissionError if the user is not permitted.
 	"""
-	privileged_roles = {"HD Admin", "Agent Manager", "System Manager"}
 	user_roles = set(frappe.get_roles(user))
-	is_privileged = bool(user_roles & privileged_roles)
+	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
 	if entry.agent != user and not is_privileged:
 		frappe.throw(_("You can only delete your own time entries."), frappe.PermissionError)
 
