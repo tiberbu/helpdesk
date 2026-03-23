@@ -611,7 +611,7 @@ class TestHDTimeEntry(FrappeTestCase):
 				duration_minutes=MAX_DURATION_MINUTES,
 			)
 
-	# --- P1: System Manager can delete any entry ---
+	# --- System Manager pre-gate check (non-agent must be blocked) ---
 
 	def _ensure_system_manager_user(self):
 		"""Create sys.mgr.tt@test.com with System Manager role only (no Agent/HD Admin).
@@ -620,10 +620,11 @@ class TestHDTimeEntry(FrappeTestCase):
 		"""
 		ensure_system_manager_user()
 
-	def test_delete_entry_system_manager_can_delete_any_entry(self):
+	def test_delete_entry_system_manager_blocked_at_pre_gate(self):
 		"""
-		A bare System Manager user (no Agent/HD Admin role) must be able to delete
-		another agent's entry via delete_entry() — System Manager is in PRIVILEGED_ROLES.
+		A bare System Manager user (no Agent/HD Admin/Agent role) must be blocked
+		by the is_agent() pre-gate in delete_entry() — the previous PRIVILEGED_ROLES
+		inline check created an unintended wider permission surface (story-142 fix).
 		"""
 		# agent.tt creates an entry
 		result = add_entry(ticket=self.ticket_name, duration_minutes=18, billable=0)
@@ -631,10 +632,15 @@ class TestHDTimeEntry(FrappeTestCase):
 
 		self._ensure_system_manager_user()
 		frappe.set_user("sys.mgr.tt@test.com")
-		del_result = delete_entry(name=entry_name)
-		self.assertTrue(del_result.get("success"))
-		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
-		frappe.set_user("Administrator")
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				delete_entry(name=entry_name)
+		finally:
+			frappe.set_user("Administrator")
+			# Clean up the entry that was never deleted
+			if frappe.db.exists("HD Time Entry", entry_name):
+				frappe.delete_doc("HD Time Entry", entry_name, ignore_permissions=True)
+				frappe.db.commit()
 
 	# --- P1: stop_timer must reject non-numeric duration_minutes ---
 

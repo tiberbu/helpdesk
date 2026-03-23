@@ -11,7 +11,6 @@ from helpdesk.utils import is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
-	PRIVILEGED_ROLES,
 	_check_delete_permission,
 )
 
@@ -232,18 +231,15 @@ def delete_entry(name: str) -> dict:
 	"""
 	Delete an HD Time Entry.
 
-	Agents may only delete their own entries; HD Admin / Agent Manager /
-	System Manager may delete any.
+	Agents may only delete their own entries; HD Admin / Agent Manager
+	(privileged agent roles) may delete any.
 
 	Returns: { "success": True }
 	"""
-	# Pre-gate: only agents OR privileged-role users may delete.
+	# Pre-gate: only agents may delete time entries.
 	# is_agent() covers: Administrator, HD Admin, Agent Manager, Agent (by role),
 	# and any user with an HD Agent record.
-	# is_privileged adds System Manager — in PRIVILEGED_ROLES but not in is_agent().
-	user_roles = set(frappe.get_roles(frappe.session.user))
-	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
-	if not is_agent() and not is_privileged:
+	if not is_agent():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 	# Fetch the entry to verify existence and enforce ownership.
@@ -256,7 +252,7 @@ def delete_entry(name: str) -> dict:
 	_check_delete_permission(entry, frappe.session.user)
 
 	# ignore_permissions=True is required because the regular Agent role does not hold a
-	# Frappe-level delete grant on this DocType (only PRIVILEGED_ROLES do).
+	# Frappe-level delete grant on this DocType (only HD Admin / Agent Manager do).
 	frappe.delete_doc("HD Time Entry", name, ignore_permissions=True)
 	return {"success": True}
 

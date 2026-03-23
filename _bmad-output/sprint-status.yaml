@@ -368,5 +368,9 @@ development_status:
 
   140-qa-fix-require-int-str-overflowerror-on-inf-nan-input-p1-sto: review  # [adversarial-review] QA: Fix: _require_int_str OverflowError on inf/nan input (P1
 
-  142-fix-delete-entry-reimplements-is-agent-inline-consolidate-pe: ready-for-dev  # [quick-dev] Fix: delete_entry reimplements is_agent inline - consolidate
+  142-fix-delete-entry-reimplements-is-agent-inline-consolidate-pe: review  # [quick-dev] Fix: delete_entry reimplements is_agent inline - consolidate
   141-qa-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-del: review  # [adversarial-review] QA: Fix: Wrong nan comment + non-string float NaN/Inf bypass
+
+  143-qa-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-del: review  # [adversarial-review] QA: Fix: Wrong nan comment + non-string float NaN/Inf bypass
+
+  144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin: in-progress  # [quick-dev] Fix: P1 recursive audit trail violation in task-133 + P2 mis

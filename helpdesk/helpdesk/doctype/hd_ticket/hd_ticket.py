@@ -1514,14 +1514,19 @@ def close_tickets_after_n_days():
 
     # cant do set_value because SLA will not be applied as setting directly to db and doc is not running.
     for ticket in tickets_to_close:
+        # Create a named savepoint so that a failure in one iteration only rolls
+        # back that iteration's DB changes, leaving previously-committed closures
+        # and the outer transaction intact.
+        _sp = f"sp_autoclose_{ticket}"
+        frappe.db.savepoint(_sp)
         try:
-            with frappe.db.savepoint():
-                doc = frappe.get_doc("HD Ticket", ticket)
-                doc.status = "Closed"
-                # F-02: do NOT set ignore_validate=True here — that bypassed the
-                # validate_checklist_before_resolution() guard entirely.  Auto-close
-                # must respect the same validation rules as a manual close.
-                doc.save(ignore_permissions=True)
+            doc = frappe.get_doc("HD Ticket", ticket)
+            doc.status = "Closed"
+            # F-02: do NOT set ignore_validate=True here — that bypassed the
+            # validate_checklist_before_resolution() guard entirely.  Auto-close
+            # must respect the same validation rules as a manual close.
+            doc.save(ignore_permissions=True)
+            frappe.db.release_savepoint(_sp)
             frappe.db.commit()  # nosemgrep
         except (frappe.ValidationError, frappe.LinkValidationError, frappe.DoesNotExistError):
             # Log and skip tickets that fail due to expected validation failure
@@ -1529,8 +1534,7 @@ def close_tickets_after_n_days():
             # Narrowed from bare `except Exception` so that OperationalError,
             # SecurityException, and other unexpected failures still propagate
             # and surface properly rather than being silently swallowed.
-            # The savepoint context manager already rolled back this iteration's
-            # DB changes when the exception escaped the `with` block.
+            frappe.db.rollback(save_point=_sp)  # nosemgrep — undo this iteration only
             frappe.log_error(
                 title=f"Auto-close failed for ticket {ticket}",
                 message=frappe.get_traceback(),

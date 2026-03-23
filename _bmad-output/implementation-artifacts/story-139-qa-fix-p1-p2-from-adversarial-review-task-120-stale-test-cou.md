@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1/P2 from adversarial review task-120 — stale test count, misplaced TestIs
 
-Status: in-progress
+Status: done
 Task ID: mn3dhlwf6bt4rk
 Task Number: #139
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 14 findings: 2x P1, 5x P2, 7x P3.
+- P1-1: Story-130 commit contains ZERO Python code — completion notes falsely claim credit for code changes done by other tasks (commits da95326be and 6bb0baa33).
+- P1-2: Finding #4 (delete_entry double get_roles() DB hit) was fixed in 6bb0baa33 then REVERTED in cda3520c1 — the original bug still exists in current code.
+- All 73 tests pass (69 + 4). Dev/bench sync verified. HTTP-level validation confirmed (inf -> 417, not 500).
+- Full report at docs/qa-report-task-139-adversarial-review.md.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-139-adversarial-review.md` — adversarial review report with 14 findings.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-139-adversarial-review.md` (new)
