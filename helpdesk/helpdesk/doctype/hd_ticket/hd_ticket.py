@@ -92,6 +92,35 @@ class HDTicket(Document):
 
     def validate(self):
         self.validate_feedback()
+        self.validate_priority_matrix()
+
+    def validate_priority_matrix(self):
+        """Calculate priority from Impact x Urgency matrix when ITIL Mode is enabled.
+
+        AC #7: Server-side authority — client JS is UX only, server always wins.
+        AC #10: Short-circuits immediately when ITIL mode is off.
+        AC #6: Skips calculation when impact or urgency is empty (legacy tickets).
+        """
+        if not frappe.db.get_single_value("HD Settings", "itil_mode_enabled"):
+            return
+
+        if not self.impact or not self.urgency:
+            # Legacy ticket: both fields empty — retain manually-set priority (AC #6)
+            return
+
+        matrix_json = frappe.db.get_single_value("HD Settings", "priority_matrix")
+        if not matrix_json:
+            return
+
+        if isinstance(matrix_json, str):
+            matrix = json.loads(matrix_json)
+        else:
+            matrix = matrix_json
+
+        key = f"{self.impact}-{self.urgency}"
+        calculated_priority = matrix.get(key)
+        if calculated_priority:
+            self.priority = calculated_priority
 
     def before_save(self):
         self.apply_sla()

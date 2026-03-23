@@ -4,6 +4,8 @@
 
 from __future__ import unicode_literals
 
+import json
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -22,6 +24,65 @@ class HDSettings(Document):
         self.validate_auto_close_days()
         self.validate_email_contents()
         self.validate_send_feedback_when_ticket_closed()
+        self.validate_priority_matrix()
+
+    def validate_priority_matrix(self):
+        """Validate the ITIL priority matrix when ITIL Mode is enabled.
+
+        AC #5: All 9 Impact x Urgency combinations must be mapped.
+        AC #4: Future calculations use the updated matrix.
+        """
+        if not self.itil_mode_enabled:
+            return
+
+        if not self.priority_matrix:
+            return
+
+        if isinstance(self.priority_matrix, str):
+            try:
+                matrix = json.loads(self.priority_matrix)
+            except (json.JSONDecodeError, ValueError):
+                frappe.throw(
+                    _("Priority Matrix must be valid JSON"),
+                    frappe.ValidationError,
+                )
+        else:
+            matrix = self.priority_matrix
+
+        required_keys = [
+            "High-High",
+            "High-Medium",
+            "High-Low",
+            "Medium-High",
+            "Medium-Medium",
+            "Medium-Low",
+            "Low-High",
+            "Low-Medium",
+            "Low-Low",
+        ]
+        valid_priorities = {"Urgent", "High", "Medium", "Low"}
+
+        missing_keys = [k for k in required_keys if k not in matrix]
+        if missing_keys:
+            frappe.throw(
+                _("Priority Matrix is missing required combinations: {0}").format(
+                    ", ".join(missing_keys)
+                ),
+                frappe.ValidationError,
+            )
+
+        invalid_values = [
+            f"{k}: {v}"
+            for k, v in matrix.items()
+            if v not in valid_priorities
+        ]
+        if invalid_values:
+            frappe.throw(
+                _(
+                    "Priority Matrix has invalid priority values (must be Urgent, High, Medium, or Low): {0}"
+                ).format(", ".join(invalid_values)),
+                frappe.ValidationError,
+            )
 
     def validate_auto_close_days(self):
         if self.auto_close_tickets and self.auto_close_after_days <= 0:

@@ -709,3 +709,197 @@ class TestHDTicket(IntegrationTestCase):
         remove_holidays()
         frappe.db.set_single_value("HD Settings", "default_ticket_status", "Open")
         frappe.delete_doc("HD Ticket Status", "New", force=True)
+
+
+DEFAULT_PRIORITY_MATRIX = {
+    "High-High": "Urgent",
+    "High-Medium": "High",
+    "High-Low": "Medium",
+    "Medium-High": "High",
+    "Medium-Medium": "Medium",
+    "Medium-Low": "Low",
+    "Low-High": "Medium",
+    "Low-Medium": "Low",
+    "Low-Low": "Low",
+}
+
+
+def _enable_itil_mode():
+    """Enable ITIL mode and ensure default priority matrix is set."""
+    import json
+
+    frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
+    frappe.db.set_single_value(
+        "HD Settings", "priority_matrix", json.dumps(DEFAULT_PRIORITY_MATRIX)
+    )
+
+
+def _disable_itil_mode():
+    """Restore ITIL mode to disabled (default)."""
+    frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
+
+
+def _make_itil_ticket(impact, urgency, priority=None):
+    """Create and insert a ticket with given impact/urgency values."""
+    kwargs = {"impact": impact, "urgency": urgency}
+    if priority:
+        kwargs["priority"] = priority
+    return make_ticket(**kwargs)
+
+
+class TestPriorityMatrix(IntegrationTestCase):
+    """
+    Unit tests for Story 1.2: Impact x Urgency → Priority auto-calculation.
+
+    Covers all 9 matrix combinations (AC #2, #9), legacy ticket backward
+    compatibility (AC #6), ITIL mode disabled guard (AC #10), custom matrix
+    (AC #4), and matrix validation (AC #5).
+    """
+
+    def setUp(self):
+        frappe.db.delete("HD Ticket")
+        _enable_itil_mode()
+
+    def addCleanup_settings(self):
+        """Register cleanup to restore HD Settings to defaults after each test."""
+        self.addCleanup(_disable_itil_mode)
+
+    # ------------------------------------------------------------------
+    # AC #2 / #9: All 9 Impact × Urgency combinations
+    # ------------------------------------------------------------------
+
+    def _assert_matrix(self, impact, urgency, expected_priority):
+        """Helper: insert ticket, assert calculated priority matches expected."""
+        self.addCleanup(_disable_itil_mode)
+        ticket = _make_itil_ticket(impact, urgency)
+        self.assertEqual(
+            ticket.priority,
+            expected_priority,
+            f"Expected {impact}-{urgency} → {expected_priority}, got {ticket.priority}",
+        )
+
+    def test_priority_matrix_high_high(self):
+        self._assert_matrix("High", "High", "Urgent")
+
+    def test_priority_matrix_high_medium(self):
+        self._assert_matrix("High", "Medium", "High")
+
+    def test_priority_matrix_high_low(self):
+        self._assert_matrix("High", "Low", "Medium")
+
+    def test_priority_matrix_medium_high(self):
+        self._assert_matrix("Medium", "High", "High")
+
+    def test_priority_matrix_medium_medium(self):
+        self._assert_matrix("Medium", "Medium", "Medium")
+
+    def test_priority_matrix_medium_low(self):
+        self._assert_matrix("Medium", "Low", "Low")
+
+    def test_priority_matrix_low_high(self):
+        self._assert_matrix("Low", "High", "Medium")
+
+    def test_priority_matrix_low_medium(self):
+        self._assert_matrix("Low", "Medium", "Low")
+
+    def test_priority_matrix_low_low(self):
+        self._assert_matrix("Low", "Low", "Low")
+
+    # ------------------------------------------------------------------
+    # AC #6: Legacy tickets (empty impact/urgency) retain their priority
+    # ------------------------------------------------------------------
+
+    def test_legacy_ticket_retains_priority(self):
+        """Ticket with no impact/urgency keeps its manually-set priority in ITIL mode."""
+        self.addCleanup(_disable_itil_mode)
+        ticket = make_ticket(priority="High")  # no impact or urgency
+        self.assertEqual(ticket.priority, "High")
+
+    def test_legacy_ticket_retains_priority_after_update(self):
+        """Saving a legacy ticket (no impact/urgency) does not change priority."""
+        self.addCleanup(_disable_itil_mode)
+        ticket = make_ticket(priority="Low")
+        ticket.reload()
+        ticket.subject = "Updated subject"
+        ticket.save()
+        self.assertEqual(ticket.priority, "Low")
+
+    # ------------------------------------------------------------------
+    # AC #10: ITIL mode disabled — matrix logic is not invoked
+    # ------------------------------------------------------------------
+
+    def test_itil_mode_off_no_calculation(self):
+        """When ITIL mode is disabled, impact+urgency do NOT trigger matrix."""
+        _disable_itil_mode()
+        # Priority set explicitly; matrix should not override it
+        ticket = _make_itil_ticket("High", "High", priority="Low")
+        self.assertEqual(
+            ticket.priority,
+            "Low",
+            "Priority must not be overridden when ITIL mode is off",
+        )
+
+    # ------------------------------------------------------------------
+    # AC #4: Custom matrix is used for calculation
+    # ------------------------------------------------------------------
+
+    def test_custom_matrix_used_when_set(self):
+        """Calculations use the custom matrix stored in HD Settings."""
+        import json
+
+        self.addCleanup(_disable_itil_mode)
+        # Override High-High to map to Low (non-default)
+        custom_matrix = {**DEFAULT_PRIORITY_MATRIX, "High-High": "Low"}
+        frappe.db.set_single_value(
+            "HD Settings", "priority_matrix", json.dumps(custom_matrix)
+        )
+        ticket = _make_itil_ticket("High", "High")
+        self.assertEqual(ticket.priority, "Low")
+
+    # ------------------------------------------------------------------
+    # AC #5: HD Settings validate rejects invalid / incomplete matrix
+    # ------------------------------------------------------------------
+
+    def test_custom_matrix_validation_missing_keys(self):
+        """Saving HD Settings with an incomplete matrix raises ValidationError."""
+        import json
+
+        self.addCleanup(_disable_itil_mode)
+        settings = frappe.get_single("HD Settings")
+        settings.itil_mode_enabled = 1
+        # Matrix with only 1 key — missing 8 required combinations
+        settings.priority_matrix = json.dumps({"High-High": "Urgent"})
+        self.assertRaises(frappe.ValidationError, settings.validate_priority_matrix)
+
+    def test_custom_matrix_validation_invalid_priority_value(self):
+        """Saving HD Settings with invalid priority values raises ValidationError."""
+        import json
+
+        self.addCleanup(_disable_itil_mode)
+        settings = frappe.get_single("HD Settings")
+        settings.itil_mode_enabled = 1
+        bad_matrix = {**DEFAULT_PRIORITY_MATRIX, "High-High": "Critical"}  # invalid
+        settings.priority_matrix = json.dumps(bad_matrix)
+        self.assertRaises(frappe.ValidationError, settings.validate_priority_matrix)
+
+    def test_custom_matrix_validation_malformed_json(self):
+        """Saving HD Settings with non-JSON string raises ValidationError."""
+        self.addCleanup(_disable_itil_mode)
+        settings = frappe.get_single("HD Settings")
+        settings.itil_mode_enabled = 1
+        settings.priority_matrix = "not valid json {"
+        self.assertRaises(frappe.ValidationError, settings.validate_priority_matrix)
+
+    def test_matrix_validation_skipped_when_itil_mode_off(self):
+        """validate_priority_matrix does not raise when ITIL mode is disabled."""
+        import json
+
+        settings = frappe.get_single("HD Settings")
+        settings.itil_mode_enabled = 0
+        settings.priority_matrix = json.dumps({"High-High": "Urgent"})  # incomplete
+        # Should NOT raise even though matrix is incomplete
+        settings.validate_priority_matrix()  # no exception expected
+
+    def tearDown(self):
+        frappe.db.delete("HD Ticket")
+        _disable_itil_mode()
