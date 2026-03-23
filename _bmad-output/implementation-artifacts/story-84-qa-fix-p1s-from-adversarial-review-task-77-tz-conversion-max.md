@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1s from adversarial review task-77 — tz conversion, maxlength validate hoo
 
-Status: in-progress
+Status: done
 Task ID: mn3bcqjol87e99
 Task Number: #84
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed. 14 findings: 3 P1, 6 P2, 5 P3.
+- P1 #1: privileged_roles set still duplicated between delete_entry and _check_delete_permission (Issue #9 deduplication incomplete)
+- P1 #2: convert_utc_to_system_timezone called with non-UTC input (API contract violation, works by accident)
+- P1 #3: Redundant API-layer description length check not removed after model-layer validate() added
+- P2 #5: Frontend canDelete() omits Agent Manager role (backend fix not mirrored to frontend)
+- Full report at docs/qa-report-task-79.md
+- Fix task created for P1 issues
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-79.md` — adversarial QA report with 14 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-79.md` — created (QA report)
