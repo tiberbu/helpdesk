@@ -298,7 +298,7 @@ development_status:
 
   105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: review  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
 
-  106-fix-p1s-from-adversarial-review-task-101-bench-time-tracking: in-progress  # [quick-dev] Fix: P1s from adversarial review task-101 — bench time_track
+  106-fix-p1s-from-adversarial-review-task-101-bench-time-tracking: review  # [quick-dev] Fix: P1s from adversarial review task-101 — bench time_track
 
   107-qa-fix-p1-time-tracking-issues-from-adversarial-review-story: review  # [adversarial-review] QA: Fix: P1 time tracking issues from adversarial review (St
 
@@ -310,8 +310,10 @@ development_status:
 
   111-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: review  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
 
-  112-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
+  112-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: review  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
 
   113-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-forwar: review  # [quick-dev] Fix: P0 delete_entry ownership bypass + P1 is_agent user-for
 
   114-fix-before-delete-on-trash-test-mismatch-p0-missing-system-m: in-progress  # [quick-dev] Fix: before_delete→on_trash test mismatch (P0) + missing Sys
+
+  115-qa-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-for: ready-for-dev  # [adversarial-review] QA: Fix: P0 delete_entry ownership bypass + P1 is_agent user
