@@ -71,7 +71,8 @@
   "customer_feedback_section",
   "feedback_rating",
   "feedback",
-  "feedback_extra"
+  "feedback_extra",
+  "related_tickets"
  ],
  "fields": [
   {
@@ -496,6 +497,13 @@
    "label": "Ticket raised outside working hours",
    "read_only": 1,
    "set_only_once": 1
+  },
+  {
+   "fieldname": "related_tickets",
+   "fieldtype": "Table",
+   "label": "Related Tickets",
+   "options": "HD Related Ticket",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,

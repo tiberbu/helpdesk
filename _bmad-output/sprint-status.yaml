@@ -62,7 +62,7 @@ development_status:
   1-3-multi-level-ticket-categorization: backlog
   1-4-internal-notes-on-tickets: backlog
   1-5-at-mention-notifications-in-internal-notes: backlog
-  1-6-related-ticket-linking: backlog
+  1-6-related-ticket-linking: done
   1-7-per-ticket-time-tracking: backlog
   1-8-major-incident-flag-and-workflow: backlog
   1-9-incident-models-templates: backlog
@@ -158,7 +158,7 @@ development_status:
   # New tasks (added by Claude Studio)
   20-story-1-4-internal-notes-on-tickets: review  # [create-story] Story 1.4: Internal Notes on Tickets
   21-story-1-5-mention-notifications-in-internal-notes: review  # [dev-story] Story 1.5: @Mention Notifications in Internal Notes
-  22-story-1-6-related-ticket-linking: ready-for-dev  # [create-story] Story 1.6: Related Ticket Linking
+  22-story-1-6-related-ticket-linking: done
   23-story-1-7-per-ticket-time-tracking: ready-for-dev  # [create-story] Story 1.7: Per-Ticket Time Tracking
   24-story-1-8-major-incident-flag-and-workflow: ready-for-dev  # [create-story] Story 1.8: Major Incident Flag and Workflow
   25-story-1-9-incident-models-templates: ready-for-dev  # [create-story] Story 1.9: Incident Models / Templates
@@ -196,3 +196,5 @@ development_status:
   51-story-6-5-time-tracking-reports: review  # [create-story] Story 6.5: Time Tracking Reports
 
   52-qa-story-1-4-internal-notes-on-tickets: review  # [adversarial-review] QA: Story 1.4: Internal Notes on Tickets
+
+  53-qa-story-1-5-mention-notifications-in-internal-notes: review  # [adversarial-review] QA: Story 1.5: @Mention Notifications in Internal Notes

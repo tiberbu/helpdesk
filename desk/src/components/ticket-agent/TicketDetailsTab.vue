@@ -57,6 +57,12 @@
         </template>
       </div>
     </div>
+
+    <!-- Related Tickets panel -->
+    <RelatedTickets
+      v-if="ticket?.doc?.name"
+      :ticket-id="String(ticket.doc.name)"
+    />
   </div>
 </template>
 
@@ -75,6 +81,7 @@ import {
 } from "@/types";
 import { computed, inject, ref } from "vue";
 import TicketField from "../TicketField.vue";
+import RelatedTickets from "../ticket/RelatedTickets.vue";
 import AssignTo from "./AssignTo.vue";
 import TicketContact from "./TicketContact.vue";
 

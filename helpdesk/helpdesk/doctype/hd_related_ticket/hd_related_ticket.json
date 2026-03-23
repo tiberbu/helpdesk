@@ -1,0 +1,62 @@
+{
+ "actions": [],
+ "creation": "2026-03-23 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ticket",
+  "link_type",
+  "col_break",
+  "linked_by",
+  "linked_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Ticket",
+   "options": "HD Ticket",
+   "reqd": 1
+  },
+  {
+   "fieldname": "link_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Link Type",
+   "options": "Related to\nCaused by\nCauses\nDuplicate of\nDuplicated by",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "__user",
+   "fieldname": "linked_by",
+   "fieldtype": "Link",
+   "label": "Linked By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "linked_on",
+   "fieldtype": "Datetime",
+   "label": "Linked On",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD Related Ticket",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

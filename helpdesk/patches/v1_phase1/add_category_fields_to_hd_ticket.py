@@ -44,6 +44,20 @@ def _ensure_ticket_column(fieldname, column_definition):
 def _ensure_hd_settings_column():
     """Ensure category_required_on_resolution column exists in HD Settings."""
     db_name = frappe.conf.db_name
+
+    # Guard: skip if the HD Settings table itself does not yet exist
+    table_exists = frappe.db.sql(
+        """
+        SELECT COUNT(*)
+        FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = %(db_name)s
+          AND TABLE_NAME   = 'tabHD Settings'
+        """,
+        {"db_name": db_name},
+    )[0][0]
+    if not table_exists:
+        return
+
     exists = frappe.db.sql(
         """
         SELECT COUNT(*)
