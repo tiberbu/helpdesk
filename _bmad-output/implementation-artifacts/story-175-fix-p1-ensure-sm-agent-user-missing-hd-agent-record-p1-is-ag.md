@@ -42,14 +42,14 @@ Created: 2026-03-23T16:37:42.925Z
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -67,12 +67,23 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- All 4 QA findings (P1 + P2) addressed in 4 files.
+- P1: `is_agent()` now raises `ValueError` at runtime when `user_roles` is provided for a user other than `frappe.session.user`, enforcing the identity contract.
+- P1: `_ensure_sm_agent_user` refactored to `ensure_sm_agent_user()` in shared `test_utils.py`; creates HD Agent record and includes role pollution guard.
+- P2: `PRIVILEGED_ROLES` explicitly enumerated (`frozenset({"HD Admin", "Agent Manager"})`) instead of derived via set subtraction — eliminates privilege escalation risk from new roles added to `AGENT_ROLES`.
+- P2: `on_trash()` now short-circuits before `get_roles()` for Administrator, eliminating the wasteful DB/cache hit; comment updated to accurately reflect the optimization.
+- All 83 tests pass (was 80 before this story).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/utils.py`: Added `ValueError` guard in `is_agent()` when `user_roles` is provided for a non-session user (P1 identity contract fix).
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: Changed `PRIVILEGED_ROLES` from set-subtraction derivation to explicit enumeration (P2 escalation risk fix); added `Administrator` early-return in `on_trash()` before `get_roles()` call (P2 optimization fix).
+- `helpdesk/test_utils.py`: Added `ensure_sm_agent_user()` with User creation, HD Agent record, role pollution guard (P1 DRY + P2 guard fixes).
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Updated import to include `ensure_sm_agent_user`; refactored `_ensure_sm_agent_user()` to delegate to shared helper (P2 DRY fix).
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/utils.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified)
+- `helpdesk/test_utils.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified)

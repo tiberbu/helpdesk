@@ -420,7 +420,7 @@ development_status:
 
   167-qa-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-tra: review  # [adversarial-review] QA: Fix: P1 hd_time_entry.json out of sync + recursive audit
 
-  168-fix-redundant-except-types-operationalerror-kills-cron-batch: in-progress  # [quick-dev] Fix: Redundant except types + OperationalError kills cron ba
+  168-fix-redundant-except-types-operationalerror-kills-cron-batch: review  # [quick-dev] Fix: Redundant except types + OperationalError kills cron ba
 
   169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g: review  # [quick-dev] Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash doubl
 
@@ -428,7 +428,7 @@ development_status:
 
   171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw: review  # [quick-dev] Fix: P1 commit-scope pollution in task-163 + stale frappe.th
 
-  172-qa-fix-p1-privileged-roles-agent-roles-unsync-on-trash-doubl: ready-for-dev  # [adversarial-review] QA: Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash d
+  172-qa-fix-p1-privileged-roles-agent-roles-unsync-on-trash-doubl: review  # [adversarial-review] QA: Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash d
 
   173-qa-fix-redundant-except-types-operationalerror-kills-cron-ba: ready-for-dev  # [adversarial-review] QA: Fix: Redundant except types + OperationalError kills cro
 
@@ -439,3 +439,7 @@ development_status:
   176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc: review  # [quick-dev] Fix: P1 4th recursive commit-scope pollution in story-158 + 
 
   177-qa-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-th: ready-for-dev  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-163 + stale frapp
+
+  178-qa-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-: ready-for-dev  # [adversarial-review] QA: Fix: P1 4th recursive commit-scope pollution in story-15
+
+  179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun: in-progress  # [quick-dev] Fix: P1 undeclared scope creep in task-163 + P2 stale test c

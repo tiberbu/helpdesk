@@ -371,6 +371,56 @@ def ensure_system_manager_user(email: str = "sys.mgr.tt@test.com") -> None:
         )
 
 
+def ensure_sm_agent_user(email: str = "sm.agent.tt@test.com") -> None:
+    """
+    Create *email* with both System Manager and Agent roles, and a corresponding
+    HD Agent record.
+
+    Used for dual-role SM+Agent permission tests.  The HD Agent record is required
+    for realism — without it the user would not appear in agent lists and
+    ``is_agent()``'s HD Agent fallback check would not fire correctly.
+
+    Asserts the user does NOT inadvertently gain HD Admin or Agent Manager roles,
+    which would change the test semantics (those roles are PRIVILEGED_ROLES and
+    could delete any time entry, masking whether the Agent role alone is sufficient).
+
+    See QA report task-155 Findings #1 and #6.
+    """
+    frappe.set_user("Administrator")
+    if not frappe.db.exists("User", email):
+        user_doc = frappe.get_doc({
+            "doctype": "User",
+            "email": email,
+            "first_name": "SM",
+            "last_name": "Agent",
+            "send_welcome_email": 0,
+        })
+        user_doc.insert(ignore_permissions=True)
+        user_doc.add_roles("Agent", "System Manager")
+
+    # Ensure the HD Agent record exists — required for realistic is_agent() behaviour
+    # and for the user to appear in helpdesk agent lists.
+    if not frappe.db.exists("HD Agent", {"user": email}):
+        user_doc = frappe.get_doc("User", email)
+        agent_name = f"{user_doc.first_name} {user_doc.last_name or ''}".strip()
+        frappe.get_doc({
+            "doctype": "HD Agent",
+            "user": email,
+            "agent_name": agent_name or email,
+            "is_active": 1,
+        }).insert(ignore_permissions=True)
+
+    # Safety assertion: the user must NOT hold HD Admin or Agent Manager roles,
+    # as those are PRIVILEGED_ROLES that would change test semantics.
+    user_roles = set(frappe.get_roles(email))
+    unexpected_roles = user_roles & {"HD Admin", "Agent Manager"}
+    if unexpected_roles:
+        raise AssertionError(
+            f"ensure_sm_agent_user: {email} unexpectedly has roles {unexpected_roles}. "
+            "Test data may be polluted — check tearDown / rollback logic."
+        )
+
+
 def add_comment(
     ticket: str,
     content: str = "This is a test comment.",

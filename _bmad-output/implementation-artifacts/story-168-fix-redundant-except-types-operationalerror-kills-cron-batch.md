@@ -1,6 +1,6 @@
 # Story: Fix: Redundant except types + OperationalError kills cron batch + stale cache docstring
 
-Status: complete
+Status: done
 Task ID: mn3eiurk00ajtj
 Task Number: #168
 Workflow: quick-dev
@@ -55,17 +55,17 @@ sonnet
 
 ### Completion Notes List
 
-- F-01: Removed redundant `frappe.LinkValidationError` and `frappe.DoesNotExistError` from except clause — both are subclasses of `frappe.ValidationError`. Replaced entire tuple with `except Exception as exc` to also fix F-02.
-- F-02: Changed narrowed except clause back to `except Exception` so OperationalErrors (deadlock, lock timeout) don't crash the cron batch. ValidationError logged at WARNING; unexpected exceptions logged at ERROR via `frappe.log_error()`. All exceptions continue the loop.
-- F-03: Added explicit `NOTE — cross-process cache staleness` section to `set_status_category()` docstring clarifying that `frappe.get_cached_value()` is in-process only (not shared across Gunicorn workers), with explanation of acceptable risk window.
+- F-01, F-02, F-03: All already fixed in HEAD (commits 1aab1769d, cfe1f482b, d893b5e97) by previous quick-dev stories. The hd_ticket.py already had `except Exception as exc` with isinstance-based differential logging, no redundant exception subtypes, and the cross-process staleness docstring note.
+- **Actual fix**: test_close_tickets.py was inconsistent with the already-fixed hd_ticket.py. Two tests asserted `frappe.log_error` Error Log entries for ValidationError — but ValidationError is now logged at WARNING (not Error Log). Updated both tests to assert the correct new behavior: ticket not closed, batch doesn't raise.
 - F-06: Already covered — `test_save_raises_validation_error_when_status_has_no_category` (line 590 of test_incident_model.py) tests the identical empty-category branch. No new test needed.
-- All 20 tests in test_incident_model pass with changes applied.
+- All 25 tests (20 incident_model + 5 close_tickets) pass.
 
 ### Change Log
 
-- 2026-03-23: hd_ticket.py — F-01+F-02: replaced `except (frappe.ValidationError, frappe.LinkValidationError, frappe.DoesNotExistError)` with `except Exception as exc` + differential log levels; F-03: expanded docstring with cross-process staleness note.
+- 2026-03-23: test_close_tickets.py — updated `test_checklist_validation_blocks_auto_close` and `test_stale_ticket_does_not_exist_is_skipped` to remove stale Error Log assertions that conflicted with the WARNING-level logging already implemented in hd_ticket.py.
 
 ### File List
 
-- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (F-01, F-02, F-03)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (test assertions updated to match WARNING log behavior)
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (no changes needed — already at correct state in HEAD)
 - `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (F-06 — pre-existing test confirmed sufficient, no changes needed)

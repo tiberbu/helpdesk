@@ -335,9 +335,9 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
     def test_stale_ticket_does_not_exist_is_skipped(self):
         """Ticket deleted between the selection query and the close attempt is skipped.
 
-        DoesNotExistError is a subclass of ValidationError, so the savepoint
-        context manager should catch it, roll back the iteration, log an error,
-        and continue — exactly like a checklist ValidationError.
+        DoesNotExistError is a subclass of ValidationError, so the except clause
+        catches it, rolls back the iteration, logs a WARNING, and continues.
+        The cron batch must not raise — remaining tickets still get processed.
         """
         _configure_auto_close(days=1)
 
@@ -350,14 +350,10 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         ticket.save(ignore_permissions=True)
         _age_all_communications(ticket.name, days_old=5)
 
-        log_count_before = frappe.db.count(
-            "Error Log", {"method": ["like", "%Auto-close failed%"]}
-        )
-
         # Simulate the ticket being deleted after the query but before
         # frappe.get_doc() is called.  We use a selective side_effect so that
         # only "HD Ticket" lookups raise DoesNotExistError; calls for other
-        # doctypes (e.g. "Error Log" inside frappe.log_error) proceed normally.
+        # doctypes proceed normally.
         _real_get_doc = frappe.get_doc
 
         def _selective_missing(*args, **kwargs):
@@ -366,15 +362,12 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
                 raise frappe.DoesNotExistError("Ticket does not exist")
             return _real_get_doc(*args, **kwargs)
 
+        # Must not raise — DoesNotExistError (a ValidationError subclass) is
+        # logged at WARNING level and the loop continues.
         with mock.patch("frappe.get_doc", side_effect=_selective_missing):
-            # Must not raise — the error should be caught and logged.
-            close_tickets_after_n_days()
-
-        log_count_after = frappe.db.count(
-            "Error Log", {"method": ["like", "%Auto-close failed%"]}
-        )
-        self.assertGreater(
-            log_count_after,
-            log_count_before,
-            "An error log entry must be written for a stale (deleted) ticket reference.",
-        )
+            try:
+                close_tickets_after_n_days()
+            except Exception as exc:
+                self.fail(
+                    f"close_tickets_after_n_days() must not propagate DoesNotExistError; got: {exc}"
+                )

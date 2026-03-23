@@ -96,10 +96,15 @@ class HDTimeEntry(Document):
 		ownership logic is defined in exactly one place and cannot drift.
 		"""
 		user = frappe.session.user
+		# Administrator short-circuit: skip the role lookup entirely.
+		# is_agent() and _check_delete_permission() both short-circuit for
+		# Administrator, but get_roles() would still be called unconditionally
+		# before reaching those checks — wasteful for a highly-frequent caller.
+		# See QA report task-155 Finding #3.
+		if user == "Administrator":
+			return
 		# Pre-fetch roles ONCE and forward to both callers to avoid a redundant
-		# frappe.get_roles() DB/cache hit (see QA report task-156 finding #3).
-		# Administrator short-circuits before role lookup in both helpers, so
-		# the get_roles() call is skipped entirely for Administrator.
+		# frappe.get_roles() DB/cache hit.
 		user_roles = set(frappe.get_roles(user))
 		if not is_agent(user=user, user_roles=user_roles):
 			frappe.throw(_("Not permitted"), frappe.PermissionError)

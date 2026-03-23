@@ -11,6 +11,7 @@ from helpdesk.test_utils import (
 	create_agent,
 	ensure_agent_manager_user,
 	ensure_hd_admin_user,
+	ensure_sm_agent_user,
 	ensure_system_manager_user,
 	make_ticket,
 )
@@ -1160,29 +1161,13 @@ class TestHDTimeEntry(FrappeTestCase):
 	# --- P2: Dual-role System Manager + Agent user ---
 
 	def _ensure_sm_agent_user(self, email="sm.agent.tt@test.com"):
-		"""Create a user with both System Manager and Agent roles."""
-		frappe.set_user("Administrator")
-		if not frappe.db.exists("User", email):
-			frappe.get_doc(
-				{
-					"doctype": "User",
-					"email": email,
-					"first_name": "SM",
-					"last_name": "Agent",
-					"send_welcome_email": 0,
-				}
-			).insert(ignore_permissions=True)
-		for role in ("Agent", "System Manager"):
-			if not frappe.db.exists("Has Role", {"parent": email, "role": role}):
-				frappe.get_doc(
-					{
-						"doctype": "Has Role",
-						"parenttype": "User",
-						"parentfield": "roles",
-						"parent": email,
-						"role": role,
-					}
-				).insert(ignore_permissions=True)
+		"""Create a user with both System Manager and Agent roles plus an HD Agent record.
+
+		Delegates to shared ensure_sm_agent_user() in test_utils so the helper is
+		DRY and reusable across test modules (QA report task-155 Findings #1 and #7).
+		Includes HD Agent record creation and role pollution guard.
+		"""
+		ensure_sm_agent_user(email)
 
 	def test_system_manager_with_agent_role_can_delete_own_entry(self):
 		"""
