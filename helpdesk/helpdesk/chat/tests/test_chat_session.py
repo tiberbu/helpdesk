@@ -329,6 +329,43 @@ class TestSessionCleanup(FrappeTestCase):
         count = cleanup_inactive_sessions()
         self.assertGreaterEqual(count, 2)
 
+    def test_session_with_recent_message_not_ended_despite_old_start(self):
+        """A session started 45 min ago but with a message 5 min ago must NOT be ended.
+
+        This verifies that inactivity is measured from the last message time,
+        NOT from started_at (Issue 3 regression fix).
+        """
+        # Session started 45 minutes ago — would be stale by started_at alone
+        session = _make_session(
+            email="recentmsg@example.com",
+            status="waiting",
+            timeout=30,
+            started_offset_minutes=-45,
+        )
+        self._sessions.append(session.name)
+
+        # Insert a message sent only 5 minutes ago
+        msg = frappe.get_doc({
+            "doctype": "HD Chat Message",
+            "session": session.name,
+            "sender_type": "customer",
+            "sender_email": "recentmsg@example.com",
+            "content": "Still here!",
+            "sent_at": add_to_date(now_datetime(), minutes=-5),
+        })
+        msg.insert(ignore_permissions=True)
+        frappe.db.commit()  # nosemgrep
+
+        from helpdesk.helpdesk.chat.session_cleanup import cleanup_inactive_sessions
+        cleanup_inactive_sessions()
+
+        updated = frappe.get_doc("HD Chat Session", session.name)
+        self.assertEqual(
+            updated.status,
+            "waiting",
+            "Session with a message 5 min ago should NOT be ended (30-min timeout).",
+        )
+
 
 # ---------------------------------------------------------------------------
 # AC#8: JWT helpers

@@ -4,12 +4,55 @@ Ends chat sessions that have been inactive beyond their configured timeout.
 Scheduled to run every 5 minutes via hooks.py scheduler_events (ADR-12 / short queue).
 
 A session is considered inactive if:
-    started_at < now() - inactivity_timeout_minutes
+    last_activity_at < now() - inactivity_timeout_minutes
+
+where ``last_activity_at`` is the MAX(sent_at) of all HD Chat Messages in the
+session, falling back to ``started_at`` when no messages have been sent yet.
 
 For ended sessions: status is set to "ended" and a system message is appended.
 """
 
 import frappe
+
+
+def _get_last_activity(session_name: str, started_at):
+    """Return the timestamp of the most recent activity for a session.
+
+    Queries MAX(sent_at) from HD Chat Message. Falls back to ``started_at``
+    when the session has no messages yet.
+
+    Parameters
+    ----------
+    session_name : str
+        The ``name`` (== session_id) of the HD Chat Session document.
+    started_at :
+        The session's ``started_at`` datetime (fallback value).
+
+    Returns
+    -------
+    datetime
+        The latest activity datetime (naive UTC).
+    """
+    from datetime import timezone
+
+    result = frappe.db.sql(
+        """
+        SELECT MAX(sent_at) AS last_sent
+        FROM `tabHD Chat Message`
+        WHERE session = %s
+        """,
+        session_name,
+        as_dict=True,
+    )
+    last_sent = result[0].get("last_sent") if result else None
+
+    activity = last_sent if last_sent is not None else started_at
+
+    # Normalize to naive datetime for comparison
+    if activity and hasattr(activity, "tzinfo") and activity.tzinfo is not None:
+        activity = activity.astimezone(timezone.utc).replace(tzinfo=None)
+
+    return activity
 
 
 def cleanup_inactive_sessions() -> int:
@@ -20,6 +63,8 @@ def cleanup_inactive_sessions() -> int:
     int
         Number of sessions ended in this run.
     """
+    from datetime import timezone
+
     active_sessions = frappe.db.get_all(
         "HD Chat Session",
         filters={"status": ["in", ["waiting", "active"]]},
@@ -37,12 +82,16 @@ def cleanup_inactive_sessions() -> int:
         if not started_at:
             continue
 
-        # Normalize to naive datetime for comparison
-        if hasattr(started_at, "tzinfo") and started_at.tzinfo is not None:
-            from datetime import timezone
-            started_at = started_at.astimezone(timezone.utc).replace(tzinfo=None)
+        # Normalize cutoff to naive datetime for comparison
+        if hasattr(cutoff, "tzinfo") and cutoff.tzinfo is not None:
+            cutoff = cutoff.astimezone(timezone.utc).replace(tzinfo=None)
 
-        if started_at < cutoff:
+        # Use last message time as the activity reference; fall back to started_at
+        last_activity = _get_last_activity(session["session_id"], started_at)
+        if last_activity is None:
+            continue
+
+        if last_activity < cutoff:
             _end_session_internal(session["session_id"], session["name"])
             ended_count += 1
 
