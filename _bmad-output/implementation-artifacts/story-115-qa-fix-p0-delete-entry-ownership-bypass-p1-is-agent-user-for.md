@@ -1,6 +1,6 @@
 # Story: QA: Fix: P0 delete_entry ownership bypass + P1 is_agent user-forwarding + P1 excepti
 
-Status: in-progress
+Status: done
 Task ID: mn3cmbftdu0m0t
 Task Number: #115
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- All 5 fixes from task #113 verified as correctly implemented (P0 ownership bypass, P1 is_agent forwarding, P1 exception broadening, P2 stale comments, P2 savepoint removal)
+- 41/41 HD Time Entry tests pass, 10/10 Internal Notes tests pass
+- Dev/bench sync confirmed (zero diff on all 3 files)
+- No P0/P1 issues found; 6 P2 advisory findings and 4 P3 advisory findings documented
+- Full QA report written to docs/qa-report-task-113.md
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created docs/qa-report-task-113.md (adversarial QA report with 12 findings)
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- docs/qa-report-task-113.md (created)

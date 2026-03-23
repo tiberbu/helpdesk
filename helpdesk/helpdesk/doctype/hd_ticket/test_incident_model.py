@@ -518,3 +518,58 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.set_user("Administrator")
 		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
 		frappe.set_user(self.agent_email)
+
+	# ---------------------------------------------------------------
+	# F-05 (QA report): Deleted HD Ticket Status raises ValidationError
+	# ---------------------------------------------------------------
+
+	def test_save_raises_validation_error_when_status_record_deleted(self):
+		"""F-05: Saving a ticket whose HD Ticket Status record was deleted must
+		raise ValidationError with a 'no longer exists' message.
+
+		This tests the F-02 fix in set_status_category(): when the referenced
+		HD Ticket Status record is missing, a clear ValidationError must be
+		raised instead of silently setting status_category=None (which would
+		bypass validate_checklist_before_resolution and validate_category).
+		"""
+		# Create a throwaway HD Ticket Status record and point the ticket at it.
+		ephemeral_status = f"EphemeralStatus-{frappe.generate_hash(length=6)}"
+		frappe.set_user("Administrator")
+		frappe.get_doc(
+			{
+				"doctype": "HD Ticket Status",
+				"label_agent": ephemeral_status,
+				"category": "Open",
+				"is_default": 0,
+			}
+		).insert(ignore_permissions=True)
+		frappe.db.commit()  # nosemgrep — commit so the insert is visible
+
+		# Point the ticket at the new status and save (should succeed).
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		doc.status = ephemeral_status
+		doc.save(ignore_permissions=True)
+		frappe.db.commit()  # nosemgrep
+
+		# Now delete the HD Ticket Status record to simulate a deleted status.
+		frappe.delete_doc(
+			"HD Ticket Status", ephemeral_status, ignore_permissions=True, force=True
+		)
+		frappe.db.commit()  # nosemgrep — commit the delete
+
+		# Reload and attempt to re-save — set_status_category() should detect
+		# the missing record and raise ValidationError with a clear message.
+		doc.reload()
+		# Confirm the status field still points to the now-deleted record.
+		self.assertEqual(doc.status, ephemeral_status)
+
+		with self.assertRaisesRegex(
+			frappe.ValidationError,
+			r"no longer exists",
+		):
+			doc.save(ignore_permissions=True)
+
+		# Restore ticket to a valid status so tearDown doesn't trip over it.
+		frappe.set_value("HD Ticket", doc.name, "status", self.ticket.status)
+		frappe.db.commit()  # nosemgrep
+		frappe.set_user(self.agent_email)

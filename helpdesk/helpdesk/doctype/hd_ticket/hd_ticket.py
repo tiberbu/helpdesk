@@ -1049,22 +1049,24 @@ class HDTicket(Document):
         prevent tampered status_category values (e.g. via REST API or
         frappe.set_value()) from bypassing downstream validation guards.
 
-        F-01: The previous fast-path optimisation (skip DB query when status
-        unchanged and category already set) trusted self.status_category
-        unconditionally, creating a window where a directly-SET category value
-        could persist indefinitely without re-validation.  Fast path removed.
+        F-01: Use frappe.get_cached_value() instead of frappe.get_value() to
+        avoid an unconditional DB round-trip on every save.  The in-process
+        document cache is invalidated whenever an HD Ticket Status record is
+        saved, so freshly-updated values are always reflected within the same
+        request.  We still always re-derive (never trust self.status_category)
+        to prevent tampered values from bypassing downstream guards.
 
-        F-02: Raises ValidationError when status is set but no matching HD
-        Ticket Status record exists (e.g. after a status record is deleted).
-        Previously the stale value was silently cleared to None, which caused
-        validate_checklist_before_resolution() and validate_category() to
-        short-circuit, bypassing all category-based guards.
+        F-02: get_cached_value / get_value both return None for two distinct
+        conditions: (a) the record does not exist, or (b) the category field
+        is empty.  An exists() check disambiguates these so we can raise a
+        meaningful, actionable error in each case.
         """
         if not self.status:
             return
 
-        # Always re-derive — never trust self.status_category (F-01).
-        new_category = frappe.get_value(
+        # F-01: get_cached_value avoids a DB round-trip on the hot save path.
+        # Always re-derive — never trust self.status_category.
+        new_category = frappe.get_cached_value(
             "HD Ticket Status",
             self.status,
             "category",
@@ -1072,19 +1074,27 @@ class HDTicket(Document):
         if new_category:
             self.status_category = new_category
         else:
-            # F-02: HD Ticket Status record was deleted or has no category.
-            # Raise instead of silently setting None — a None status_category
-            # bypasses validate_checklist_before_resolution() and
-            # validate_category() because both return early for non-Resolved/
-            # non-Closed values, including None.
-            frappe.throw(
-                _(
-                    "Status '{0}' is invalid: the corresponding HD Ticket"
-                    " Status record no longer exists. Please select a"
-                    " valid status."
-                ).format(self.status),
-                frappe.ValidationError,
-            )
+            # F-02: Disambiguate missing record vs. empty category field.
+            if frappe.db.exists("HD Ticket Status", self.status):
+                # Record exists but category field is blank.
+                frappe.throw(
+                    _(
+                        "Status '{0}' exists but has no category assigned."
+                        " Please assign a category to the '{0}' HD Ticket"
+                        " Status record before saving this ticket."
+                    ).format(self.status),
+                    frappe.ValidationError,
+                )
+            else:
+                # Record was deleted or never existed.
+                frappe.throw(
+                    _(
+                        "Status '{0}' is invalid: the corresponding HD Ticket"
+                        " Status record no longer exists. Please select a"
+                        " valid status."
+                    ).format(self.status),
+                    frappe.ValidationError,
+                )
 
     # `on_communication_update` is a special method exposed from `Communication` doctype.
     # It is called when a communication is updated. Beware of changes as this effectively
@@ -1517,8 +1527,12 @@ def close_tickets_after_n_days():
             # database errors, DoesNotExist, etc.) so a single bad ticket cannot
             # crash the entire cron run and prevent all subsequent tickets from
             # being auto-closed.
+            # F-08: commit the error log BEFORE rolling back the failed
+            # transaction — otherwise the rollback would undo the log_error
+            # insert, silently swallowing the error.
             frappe.log_error(
                 title=f"Auto-close failed for ticket {ticket}",
                 message=frappe.get_traceback(),
             )
+            frappe.db.commit()  # nosemgrep — persist the error log
             frappe.db.rollback()  # nosemgrep

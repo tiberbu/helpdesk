@@ -975,7 +975,13 @@ class TestCategoryValidation(IntegrationTestCase):
 
         ticket = make_ticket(**kwargs)
         ticket.status = status_name
-        ticket.status_category = "Resolved"
+        # F-03: derive status_category via the same code-path used in
+        # production (set_status_category reads from HD Ticket Status).
+        # The previous hard-coded assignment `ticket.status_category = "Resolved"`
+        # was dead code for save() paths and created a split reality where tests
+        # calling validate_category() directly would bypass set_status_category()
+        # entirely, meaning the test never exercised the real production path.
+        ticket.set_status_category()
         return ticket
 
     # ------------------------------------------------------------------
