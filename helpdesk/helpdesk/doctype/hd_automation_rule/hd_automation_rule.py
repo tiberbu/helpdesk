@@ -53,7 +53,26 @@ class HDAutomationRule(Document):
 					_("Condition #{0} must be a JSON object.").format(i + 1),
 					frappe.ValidationError,
 				)
-			if "field" not in cond or "operator" not in cond:
+			if "conditions" in cond:
+				# Nested condition group — validate recursively
+				nested = cond["conditions"]
+				if not isinstance(nested, list):
+					frappe.throw(
+						_("Condition #{0} nested 'conditions' must be a list.").format(i + 1),
+						frappe.ValidationError,
+					)
+				for j, sub in enumerate(nested):
+					if not isinstance(sub, dict):
+						frappe.throw(
+							_("Condition #{0} sub-condition #{1} must be a JSON object.").format(i + 1, j + 1),
+							frappe.ValidationError,
+						)
+					if "field" not in sub or "operator" not in sub:
+						frappe.throw(
+							_("Condition #{0} sub-condition #{1} must have 'field' and 'operator' keys.").format(i + 1, j + 1),
+							frappe.ValidationError,
+						)
+			elif "field" not in cond or "operator" not in cond:
 				frappe.throw(
 					_("Condition #{0} must have 'field' and 'operator' keys.").format(i + 1),
 					frappe.ValidationError,

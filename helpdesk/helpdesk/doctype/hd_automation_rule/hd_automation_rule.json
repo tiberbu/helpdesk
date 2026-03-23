@@ -48,7 +48,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Trigger Type",
-   "options": "ticket_created\nticket_updated\nticket_assigned\nticket_resolved\nticket_reopened",
+   "options": "ticket_created\nticket_updated\nticket_assigned\nticket_resolved\nticket_reopened\nsla_warning\nsla_breached\ncsat_received\nchat_started\nchat_ended",
    "reqd": 1
   },
   {

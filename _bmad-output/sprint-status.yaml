@@ -135,7 +135,7 @@ development_status:
   epic-6-retrospective: optional
 
   # New tasks (added by Claude Studio)
-  6-product-brief-frappe-helpdesk-itil-transformation: review  # [analysis] Product Brief — Frappe Helpdesk ITIL Transformation
+  6-product-brief-frappe-helpdesk-itil-transformation: done  # [analysis] Product Brief — Frappe Helpdesk ITIL Transformation
   11-sprint-planning-generate-sprint-status-yaml-create-story-tas: done  # [sprint-planning] Sprint Planning — Generate sprint-status.yaml & Create Story
   10-epics-stories-frappe-helpdesk-phase-1-breakdown: done  # [solutioning] Epics & Stories — Frappe Helpdesk Phase 1 Breakdown
   9-architecture-frappe-helpdesk-phase-1-technical-design: done  # [solutioning] Architecture — Frappe Helpdesk Phase 1 Technical Design
@@ -163,7 +163,7 @@ development_status:
   24-story-1-8-major-incident-flag-and-workflow: review  # [create-story] Story 1.8: Major Incident Flag and Workflow
   25-story-1-9-incident-models-templates: review  # [create-story] Story 1.9: Incident Models / Templates
   26-story-2-1-automation-rule-doctype-and-engine-core: review  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
-  27-story-2-2-automation-rule-builder-ui: ready-for-dev  # [create-story] Story 2.2: Automation Rule Builder UI
+  27-story-2-2-automation-rule-builder-ui: in-progress  # [create-story] Story 2.2: Automation Rule Builder UI
   28-story-2-3-sla-based-automation-triggers: ready-for-dev  # [create-story] Story 2.3: SLA-Based Automation Triggers
   29-story-2-4-automation-execution-logging: ready-for-dev  # [create-story] Story 2.4: Automation Execution Logging
 
@@ -529,3 +529,7 @@ development_status:
   214-fix-p1-story-204-claims-credit-for-task-203-work-commit-scop: review  # [quick-dev] Fix: P1 story-204 claims credit for task-203 work + commit-s
 
   215-fix-p1-unguarded-fallback-logger-commit-failure-cascade-in-a: review  # [quick-dev] Fix: P1 unguarded fallback logger + commit failure cascade i
+
+  216-qa-story-2-1-automation-rule-doctype-and-engine-core: review  # [adversarial-review] QA: Story 2.1: Automation Rule DocType and Engine Core
+
+  217-fix-story-2-1-automation-rule-nested-conditions-rejected-tri: review  # [quick-dev] Fix: Story 2.1 Automation Rule — Nested conditions rejected 
