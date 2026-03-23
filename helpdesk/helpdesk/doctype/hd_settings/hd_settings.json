@@ -12,6 +12,7 @@
   "feature_flags_section",
   "chat_enabled",
   "chat_response_timeout_seconds",
+  "max_concurrent_chats",
   "csat_enabled",
   "automation_enabled",
   "log_retention_days",
@@ -624,6 +625,14 @@
    "fieldname": "enable_outside_hours_banner",
    "fieldtype": "Check",
    "label": "Apply outside working hours"
+  },
+  {
+   "default": "5",
+   "fieldname": "max_concurrent_chats",
+   "fieldtype": "Int",
+   "label": "Max Concurrent Chats per Agent",
+   "description": "Maximum number of simultaneous chat sessions an agent can handle. Default: 5.",
+   "insert_after": "chat_response_timeout_seconds"
   }
  ],
  "grid_page_length": 50,

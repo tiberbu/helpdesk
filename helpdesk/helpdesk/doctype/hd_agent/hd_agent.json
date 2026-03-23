@@ -9,7 +9,8 @@
   "user",
   "agent_name",
   "user_image",
-  "is_active"
+  "is_active",
+  "chat_availability"
  ],
  "fields": [
   {
@@ -38,11 +39,21 @@
    "fieldname": "user_image",
    "fieldtype": "Attach Image",
    "label": "Image"
+  },
+  {
+   "default": "Online",
+   "fieldname": "chat_availability",
+   "fieldtype": "Select",
+   "in_list_view": 0,
+   "in_standard_filter": 1,
+   "label": "Chat Availability",
+   "options": "Online\nAway\nOffline",
+   "description": "Controls whether new chat sessions are routed to this agent. Away/Offline agents will not receive new chats."
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-02 11:15:47.402850",
+ "modified": "2026-03-23 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Agent",

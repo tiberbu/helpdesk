@@ -3,6 +3,7 @@ import LucideContact2 from "~icons/lucide/contact-2";
 import LucideTicket from "~icons/lucide/ticket";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
 import LucideZap from "~icons/lucide/zap";
+import LucideMessageCircle from "~icons/lucide/message-circle";
 import { OrganizationsIcon } from "../icons";
 import PhoneIcon from "../icons/PhoneIcon.vue";
 import LucideHome from "~icons/lucide/home";
@@ -38,6 +39,11 @@ export const agentPortalSidebarOptions = [
     label: __("Call Logs"),
     icon: PhoneIcon,
     to: "CallLogs",
+  },
+  {
+    label: __("Live Chat"),
+    icon: LucideMessageCircle,
+    to: "ChatDashboard",
   },
   {
     label: __("Major Incidents"),

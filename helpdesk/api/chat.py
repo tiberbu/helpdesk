@@ -346,8 +346,7 @@ def get_availability(brand: str = "") -> dict:
     """Return whether any agents are currently available to chat.
 
     Used by the widget to decide whether to show PreChatForm (online) or
-    OfflineForm (offline).  Since ``availability_status`` is not yet on
-    HD Agent, we fall back to checking ``is_active``.
+    OfflineForm (offline).
 
     Parameters
     ----------
@@ -357,8 +356,7 @@ def get_availability(brand: str = "") -> dict:
     -------
     dict with key: available (bool)
     """
-    # HD Agent does not yet have availability_status; use is_active as proxy.
-    count = frappe.db.count("HD Agent", {"is_active": 1})
+    count = frappe.db.count("HD Agent", {"is_active": 1, "chat_availability": "Online"})
     return {"available": count > 0}
 
 
@@ -586,6 +584,195 @@ def mark_messages_read(session_id: str, token: str, message_ids: list) -> dict:
         message_ids = _json.loads(message_ids)
     handle_message_read(session_id, token, message_ids)
     return {"ok": True}
+
+
+@frappe.whitelist()
+def accept_session(session_id: str) -> dict:
+    """Agent accepts a waiting chat session.
+
+    Marks the session as active, sets accepted_at, links the session to the
+    accepting agent, and publishes a real-time event to the session room.
+
+    Parameters
+    ----------
+    session_id : str  The HD Chat Session session_id.
+
+    Returns
+    -------
+    dict with keys: session_id, status, agent
+    """
+    _check_chat_enabled()
+
+    if not _is_agent():
+        frappe.throw(_("Only agents can accept chat sessions."), frappe.PermissionError)
+
+    # Enforce max_concurrent_chats limit
+    agent_name = frappe.db.get_value("HD Agent", {"user": frappe.session.user}, "name")
+    if not agent_name:
+        frappe.throw(_("Current user is not a registered agent."), frappe.PermissionError)
+
+    max_chats = frappe.db.get_single_value("HD Settings", "max_concurrent_chats") or 5
+    active_count = frappe.db.count(
+        "HD Chat Session",
+        {"agent": agent_name, "status": "active"},
+    )
+    if active_count >= max_chats:
+        frappe.throw(
+            _("You have reached the maximum of {0} concurrent chats.").format(max_chats),
+            frappe.ValidationError,
+        )
+
+    session_doc = frappe.get_doc("HD Chat Session", session_id)
+
+    if session_doc.status == "ended":
+        frappe.throw(_("Cannot accept an ended session."), frappe.ValidationError)
+
+    session_doc.status = "active"
+    session_doc.agent = agent_name
+    session_doc.accepted_at = frappe.utils.now_datetime()
+    session_doc.save(ignore_permissions=True)
+
+    try:
+        frappe.publish_realtime(
+            event="session_accepted",
+            message={
+                "session_id": session_id,
+                "agent": agent_name,
+                "agent_email": frappe.session.user,
+            },
+            room=f"chat:{session_id}",
+        )
+    except Exception:
+        pass
+
+    return {"session_id": session_id, "status": "active", "agent": agent_name}
+
+
+@frappe.whitelist()
+def set_availability(availability: str) -> dict:
+    """Set the current agent's chat availability status.
+
+    Parameters
+    ----------
+    availability : str  One of: Online, Away, Offline.
+
+    Returns
+    -------
+    dict with keys: agent, availability
+    """
+    _check_chat_enabled()
+
+    if not _is_agent():
+        frappe.throw(_("Only agents can set availability."), frappe.PermissionError)
+
+    valid = {"Online", "Away", "Offline"}
+    if availability not in valid:
+        frappe.throw(
+            _("Invalid availability value. Must be one of: Online, Away, Offline."),
+            frappe.ValidationError,
+        )
+
+    agent_name = frappe.db.get_value("HD Agent", {"user": frappe.session.user}, "name")
+    if not agent_name:
+        frappe.throw(_("Current user is not a registered agent."), frappe.PermissionError)
+
+    frappe.db.set_value("HD Agent", agent_name, "chat_availability", availability)
+
+    # Notify the agent's personal room so other tabs/devices update
+    try:
+        frappe.publish_realtime(
+            event="availability_changed",
+            message={"agent": agent_name, "availability": availability},
+            room=f"agent:{frappe.session.user}",
+        )
+    except Exception:
+        pass
+
+    return {"agent": agent_name, "availability": availability}
+
+
+@frappe.whitelist()
+def get_agent_sessions(status: str = "") -> list:
+    """Return chat sessions assigned to the current agent.
+
+    Parameters
+    ----------
+    status : str  Optional filter: "waiting", "active", or "ended".
+
+    Returns
+    -------
+    list of session dicts ordered by started_at ascending.
+    """
+    _check_chat_enabled()
+
+    if not _is_agent():
+        frappe.throw(_("Only agents can list their sessions."), frappe.PermissionError)
+
+    agent_name = frappe.db.get_value("HD Agent", {"user": frappe.session.user}, "name")
+    if not agent_name:
+        return []
+
+    filters = {"agent": agent_name}
+    if status:
+        filters["status"] = status
+    else:
+        filters["status"] = ["in", ["waiting", "active"]]
+
+    sessions = frappe.db.get_all(
+        "HD Chat Session",
+        filters=filters,
+        fields=[
+            "session_id",
+            "customer_email",
+            "customer_name",
+            "status",
+            "started_at",
+            "accepted_at",
+            "agent",
+            "ticket",
+        ],
+        order_by="started_at asc",
+    )
+
+    for session in sessions:
+        session["unread_count"] = frappe.db.count(
+            "HD Chat Message",
+            {"session": session["session_id"], "sender_type": "customer", "is_read": 0},
+        )
+        session["message_count"] = frappe.db.count(
+            "HD Chat Message", {"session": session["session_id"]}
+        )
+
+    return sessions
+
+
+@frappe.whitelist()
+def get_transfer_targets() -> list:
+    """Return agents available to receive a chat transfer.
+
+    Returns agents who are Online and active, excluding the current agent.
+
+    Returns
+    -------
+    list of dicts: agent_name, user, chat_availability
+    """
+    _check_chat_enabled()
+
+    if not _is_agent():
+        frappe.throw(_("Only agents can list transfer targets."), frappe.PermissionError)
+
+    current_agent_name = frappe.db.get_value(
+        "HD Agent", {"user": frappe.session.user}, "name"
+    )
+
+    agents = frappe.db.get_all(
+        "HD Agent",
+        filters={"is_active": 1, "chat_availability": "Online"},
+        fields=["name", "user", "agent_name", "chat_availability", "user_image"],
+    )
+
+    # Exclude self
+    return [a for a in agents if a["name"] != current_agent_name]
 
 
 def _create_ticket_for_session(session_doc, first_message_content: str):

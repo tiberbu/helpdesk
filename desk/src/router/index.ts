@@ -136,6 +136,19 @@ const routes = [
     name: "CallLogs",
     component: () => import("@/pages/call-logs/CallLogs.vue"),
   },
+  {
+    path: "/chat",
+    name: "ChatDashboard",
+    component: () => import("@/pages/chat/ChatDashboard.vue"),
+    meta: { auth: true, agent: true },
+  },
+  {
+    path: "/chat/:sessionId",
+    name: "ChatSession",
+    component: () => import("@/pages/chat/ChatDashboard.vue"),
+    props: true,
+    meta: { auth: true, agent: true },
+  },
 
   // Customer Portal Routes
   {
