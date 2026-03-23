@@ -63,4 +63,5 @@ sonnet
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-196-fix-p1-recursive-commit-scope-pollution-in-story-182-missing.md` (modified — added ERRATA to Completion Notes, corrected File List to all 17 files, added Change Log entry)
+- `_bmad-output/implementation-artifacts/story-203-fix-p1-commit-bf2e19d09-task-196-bundles-17-files-declaring-.md` (modified — this story file, completion tracking)

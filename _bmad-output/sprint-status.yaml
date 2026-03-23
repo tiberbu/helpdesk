@@ -504,6 +504,8 @@ development_status:
 
   202-fix-p1-6th-recursive-commit-scope-pollution-in-task-189-wron: review  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-189 + w
 
-  203-fix-p1-commit-bf2e19d09-task-196-bundles-17-files-declaring-: in-progress  # [quick-dev] Fix: P1 commit bf2e19d09 (task-196) bundles 17 files declari
+  203-fix-p1-commit-bf2e19d09-task-196-bundles-17-files-declaring-: review  # [quick-dev] Fix: P1 commit bf2e19d09 (task-196) bundles 17 files declari
 
   204-fix-p1-story-192-claims-credit-for-task-189-work-commit-scop: in-progress  # [quick-dev] Fix: P1 story-192 claims credit for task-189 work + commit-s
+
+  205-qa-fix-p1-6th-recursive-commit-scope-pollution-in-task-189-w: review  # [adversarial-review] QA: Fix: P1 6th recursive commit-scope pollution in task-189

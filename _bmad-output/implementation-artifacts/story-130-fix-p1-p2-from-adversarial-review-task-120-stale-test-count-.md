@@ -72,7 +72,7 @@ sonnet
 
 - All 8 acceptance criteria satisfied.
 - Story-110 completion notes updated: "39 tests" → "56 tests" (actual count at time of QA task-120).
-- `TestIsAgentExplicitUser` moved to `helpdesk/tests/test_utils.py` — module path `helpdesk.tests.test_utils`; all 4 tests pass.
+- `TestIsAgentExplicitUser` moved to `helpdesk/tests/test_utils.py` — module path `helpdesk.tests.test_utils`; all 9 tests pass.
 - Added `test_hd_admin_can_stop_timer` and `test_hd_admin_can_get_summary` with full assertions including description and agent fields.
 - **AUDIT CORRECTION (task-146)**: Story-130's own commit (`53904dcf8`) contains ZERO Python code — only markdown files (`story-130-*.md`, `story-138-*.md`, `sprint-status.yaml`). The `delete_entry()` refactor claimed below was NOT implemented by story-130. The actual code changes (test additions, test moves, shared helpers, `time_tracking.py` refactor) were implemented in commits `da95326be` and `6bb0baa33` by prior tasks. The `delete_entry()` double-`get_roles()` fix in `6bb0baa33` was subsequently REVERTED by commit `cda3520c1` (task: "_require_int_str OverflowError") and re-implemented correctly by task-148 (commit 8b17c65c3). Story-130 delivered only markdown coordination artifacts.
 - `ensure_hd_admin_user()` asserts no unexpected roles (Agent/Agent Manager/System Manager) via `raise AssertionError(...)` on role pollution.

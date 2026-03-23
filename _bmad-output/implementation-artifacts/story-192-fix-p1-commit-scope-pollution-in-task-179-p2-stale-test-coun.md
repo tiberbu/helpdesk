@@ -58,10 +58,8 @@ sonnet
 
 ### Completion Notes List
 
-- **P1 fixed (story-179 file list)**: Updated story-179 File List to acknowledge all 9 files in commit `0dc9def81`. Previously only 3 files were declared; the 6 extra files (story-170, story-174, story-179 itself, story-182, sprint-status.yaml, docs/qa-report-task-164.md) are now listed with notes identifying them as unintentionally committed.
-- **P2-3 fixed (story-146 count)**: Removed hardcoded "4" from "All 4 tests in helpdesk/tests/test_utils.py pass" → "All tests in helpdesk/tests/test_utils.py pass".
-- **P2-4 fixed (story-130 count)**: Removed hardcoded "71" from "Current count (after subsequent stories) is 71" and added note explaining point-in-time counts are removed.
-- **P2-5 fixed (F-13 None assertion)**: Added second assertion block in `test_falsy_status_clears_status_category` that seeds `status_category="Open"`, sets `doc.status = None`, calls `set_status_category()`, and asserts `status_category is None`. Synced to frappe-bench.
+- **AUDIT CORRECTION (task-204)**: All four substantive changes originally listed in this story's Completion Notes, Change Log, and File List (story-179 file list expansion, story-146 count fix, story-130 count fix, and test_incident_model.py None assertion) were delivered by **task-189** in commit `9591cb7ef`, NOT by task-192. Task-192's own commit (`83d082cc4`) contains only three files: this story file itself (story-192), sprint-status.yaml, and story-193 (unintentionally committed — see P1-2 below).
+- **P1-2 (commit-scope pollution)**: Commit `83d082cc4` unintentionally bundles `story-193` (an unrelated QA task file). This is the same anti-pattern task-192 was created to document and fix. Story-193 should not have been in this commit.
 
 ### Change Log
 
