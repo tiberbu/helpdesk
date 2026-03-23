@@ -67,10 +67,18 @@ class TestSLAMonitorAutomation(FrappeTestCase):
 
     def tearDown(self):
         frappe.set_user("Administrator")
-        # Delete rules explicitly (they use db.commit internally)
+        # Delete HD Automation Logs first — they have a required Link to their
+        # parent rule and would block rule deletion with a LinkExistsError.
+        for rule_name in self._created_rules:
+            log_names = frappe.get_all(
+                "HD Automation Log", filters={"rule_name": rule_name}, pluck="name"
+            )
+            for log_name in log_names:
+                frappe.delete_doc("HD Automation Log", log_name, ignore_permissions=True, force=True)
+        # Now delete the rules themselves
         for rule_name in self._created_rules:
             if frappe.db.exists("HD Automation Rule", rule_name):
-                frappe.delete_doc("HD Automation Rule", rule_name, ignore_permissions=True)
+                frappe.delete_doc("HD Automation Rule", rule_name, ignore_permissions=True, force=True)
         frappe.db.commit()  # nosemgrep
         frappe.db.set_single_value("HD Settings", "automation_enabled", 0)
         frappe.db.set_single_value("HD Settings", "sla_warning_thresholds", json.dumps([30, 15, 5]))
@@ -203,9 +211,9 @@ class TestSLAMonitorAutomation(FrappeTestCase):
         call_kwargs = mock_publish.call_args
         # event must be "sla_warning"
         self.assertEqual(call_kwargs[1].get("event") or call_kwargs[0][0], "sla_warning")
-        # room must be agent:{email}
-        room = call_kwargs[1].get("room") or call_kwargs[0][2]
-        self.assertEqual(room, f"agent:{agent_email}")
+        # Standard Frappe routing: user= parameter (maps to user:{email} room)
+        user_arg = call_kwargs[1].get("user")
+        self.assertEqual(user_arg, agent_email, "publish_realtime must use user= not room=agent:")
 
     def test_notify_agent_sla_warning_unassigned_is_noop(self):
         """notify_agent_sla_warning does nothing when ticket is unassigned."""
@@ -325,6 +333,63 @@ class TestSLAMonitorAutomation(FrappeTestCase):
     # AC#9 — automation_enabled=0 suppresses rule evaluation               #
     # ------------------------------------------------------------------ #
 
+    # ------------------------------------------------------------------ #
+    # check_sla_breaches end-to-end integration                           #
+    # ------------------------------------------------------------------ #
+
+    def test_check_sla_breaches_fires_warning_for_near_breach_ticket(self):
+        """check_sla_breaches() picks up a ticket near breach via the SQL query
+        and executes the matching sla_warning automation rule end-to-end."""
+        suffix = frappe.generate_hash(length=6)
+        self._rule(
+            rule_name=f"e2e-warn-{suffix}",
+            trigger_type="sla_warning",
+            conditions=[],
+            actions=[{"type": "set_priority", "value": "Urgent"}],
+            priority_order=1,
+        )
+        # Ticket with 10 min to breach — within the 15-min threshold
+        ticket = self._ticket_near_breach(minutes_to_breach=10.0)
+        # Ensure the default status has category that passes _get_at_risk_tickets filter
+        initial_priority = frappe.db.get_value("HD Ticket", ticket.name, "priority")
+        self.assertNotEqual(initial_priority, "Urgent", "Pre-condition: priority not yet Urgent")
+
+        # Call the actual cron entry point (not the private helpers)
+        check_sla_breaches()
+
+        priority = frappe.db.get_value("HD Ticket", ticket.name, "priority")
+        self.assertEqual(
+            priority,
+            "Urgent",
+            "check_sla_breaches() must fire sla_warning rule for a ticket 10 min from breach",
+        )
+
+    def test_check_sla_breaches_fires_breached_for_overdue_ticket(self):
+        """check_sla_breaches() picks up an already-breached ticket and executes
+        the sla_breached automation rule end-to-end."""
+        suffix = frappe.generate_hash(length=6)
+        self._rule(
+            rule_name=f"e2e-breached-{suffix}",
+            trigger_type="sla_breached",
+            conditions=[],
+            actions=[{"type": "set_priority", "value": "Urgent"}],
+            priority_order=1,
+        )
+        # Ticket whose deadline is 5 min in the past
+        ticket = self._ticket_breached(minutes_past_breach=5.0)
+        initial_priority = frappe.db.get_value("HD Ticket", ticket.name, "priority")
+        self.assertNotEqual(initial_priority, "Urgent", "Pre-condition: priority not yet Urgent")
+
+        # Call the actual cron entry point end-to-end
+        check_sla_breaches()
+
+        priority = frappe.db.get_value("HD Ticket", ticket.name, "priority")
+        self.assertEqual(
+            priority,
+            "Urgent",
+            "check_sla_breaches() must fire sla_breached rule for an overdue ticket",
+        )
+
     def test_automation_disabled_prevents_sla_trigger(self):
         """When automation_enabled=0, sla_warning rule must NOT execute."""
         frappe.db.set_single_value("HD Settings", "automation_enabled", 0)
@@ -394,5 +459,6 @@ class TestNotificationHelper(FrappeTestCase):
         msg = kwargs.get("message", {})
         self.assertEqual(msg["ticket"], str(ticket.name))
         self.assertEqual(msg["threshold_minutes"], 15)
-        self.assertEqual(kwargs["room"], "agent:agent@example.com")
+        # Standard Frappe routing via user= parameter (not room=agent:...)
+        self.assertEqual(kwargs["user"], "agent@example.com")
         self.assertEqual(kwargs["event"], "sla_warning")

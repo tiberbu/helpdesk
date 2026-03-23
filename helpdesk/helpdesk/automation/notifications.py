@@ -19,9 +19,8 @@ def notify_agent_sla_warning(
 ):
     """Deliver an in-app SLA warning notification to the assigned agent.
 
-    Publishes a Socket.IO event to the ``agent:{email}`` room (Architecture
-    Communication Patterns — Socket.IO Room Strategy) so the agent's workspace
-    receives a real-time toast/badge update.
+    Publishes a Socket.IO event to the standard Frappe ``user:{email}`` room
+    so the agent's workspace receives a real-time toast/badge update.
 
     If the ticket has no assigned agent the call is a silent no-op — this is
     intentional; unassigned tickets will be picked up by automation rules
@@ -51,11 +50,14 @@ def notify_agent_sla_warning(
             "sla_deadline": str(resolution_by),
         }
 
-        # Publish to the agent's private Socket.IO room
+        # Publish to the agent's private Socket.IO room using standard Frappe
+        # user routing.  frappe.publish_realtime(user=...) maps to the
+        # ``user:{email}`` room that the Frappe desk client subscribes to
+        # automatically — the old ``agent:{email}`` room was never joined.
         frappe.publish_realtime(
             event="sla_warning",
             message=payload,
-            room=f"agent:{agent_email}",
+            user=agent_email,
         )
 
     except Exception:

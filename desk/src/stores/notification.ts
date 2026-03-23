@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/stores/auth";
 import { ListResource, Notification } from "@/types";
 import { isCustomerPortal } from "@/utils";
-import { createListResource, createResource } from "frappe-ui";
+import { createListResource, createResource, toast } from "frappe-ui";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { globalStore } from "./globalStore";
@@ -73,6 +73,26 @@ export const useNotificationStore = defineStore("notification", () => {
     if (isCustomerPortal.value) return;
     resource.reload();
   });
+
+  // SLA warning notifications delivered via frappe.publish_realtime(user=...).
+  // Show a toast so the agent is alerted immediately even if the notification
+  // panel is not open.  The message payload matches notify_agent_sla_warning().
+  $socket.on(
+    "sla_warning",
+    (data: {
+      ticket: string;
+      subject: string;
+      threshold_minutes: number;
+      minutes_remaining: number;
+      sla_deadline: string;
+    }) => {
+      if (isCustomerPortal.value) return;
+      const minsLeft = Math.round(data.minutes_remaining);
+      toast.create({
+        message: `SLA Warning: Ticket #${data.ticket} — ${minsLeft} min until breach`,
+      });
+    }
+  );
 
   return {
     clear,
