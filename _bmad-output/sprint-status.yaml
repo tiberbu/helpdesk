@@ -438,9 +438,9 @@ development_status:
 
   176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc: review  # [quick-dev] Fix: P1 4th recursive commit-scope pollution in story-158 + 
 
-  177-qa-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-th: ready-for-dev  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-163 + stale frapp
+  177-qa-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-th: review  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-163 + stale frapp
 
-  178-qa-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-: ready-for-dev  # [adversarial-review] QA: Fix: P1 4th recursive commit-scope pollution in story-15
+  178-qa-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-: review  # [adversarial-review] QA: Fix: P1 4th recursive commit-scope pollution in story-15
 
   179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun: review  # [quick-dev] Fix: P1 undeclared scope creep in task-163 + P2 stale test c
 
@@ -448,4 +448,10 @@ development_status:
 
   181-qa-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is: ready-for-dev  # [adversarial-review] QA: Fix: P1 _ensure_sm_agent_user missing HD Agent record + 
 
-  182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: in-progress  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co
+  182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: review  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co
+
+  183-qa-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-c: ready-for-dev  # [adversarial-review] QA: Fix: P1 undeclared scope creep in task-163 + P2 stale te
+
+  184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage: in-progress  # [quick-dev] Fix: P1 dead AGENT_ROLES import + zero ValueError test cover
+
+  185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm: ready-for-dev  # [quick-dev] Fix: P1 hd_ticket.py production code not updated — savepoint

@@ -1,6 +1,6 @@
 # Story: QA: Fix: Redundant except types + OperationalError kills cron batch + stale cache docstring
 
-Status: in-progress
+Status: done
 Task ID: mn3ep6tngrpfms
 Task Number: #173
 Workflow: adversarial-review
@@ -34,23 +34,23 @@ Verify the following fixes in `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py`
 
 ## Acceptance Criteria
 
-- [ ] **F-01+F-02** (`close_tickets_after_n_days`, ~line 1551): `except (frappe.ValidationError, ...)` replaced with `except Exception as exc` + differential logging — ValidationError logs WARNING, unexpected exceptions log ERROR. Loop continues in all cases.
-- [ ] **F-03** (`set_status_category` docstring, ~line 1052): Added explicit NOTE about cross-process cache staleness with Gunicorn workers.
-- [ ] **F-06**: Pre-existing test `test_save_raises_validation_error_when_status_has_no_category` already covers empty-category branch — no new test added.
-- [ ] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_incident_model` — all 20 tests must pass.
-- [ ] Read `hd_ticket.py` around line 1551 and confirm: `except Exception as exc`, `isinstance(exc, frappe.ValidationError)` → WARNING, else ERROR, loop never broken.
-- [ ] Read docstring at `set_status_category` (~line 1058) and confirm cross-process staleness note is present.
-- [ ] Confirm `frappe.LinkValidationError` and `frappe.DoesNotExistError` no longer appear in the except clause.
+- [x] **F-01+F-02** (`close_tickets_after_n_days`, ~line 1551): `except (frappe.ValidationError, ...)` replaced with `except Exception as exc` + differential logging — ValidationError logs WARNING, unexpected exceptions log ERROR. Loop continues in all cases.
+- [x] **F-03** (`set_status_category` docstring, ~line 1052): Added explicit NOTE about cross-process cache staleness with Gunicorn workers.
+- [x] **F-06**: Pre-existing test `test_save_raises_validation_error_when_status_has_no_category` already covers empty-category branch — no new test added.
+- [x] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_incident_model` — all 20 tests must pass.
+- [x] Read `hd_ticket.py` around line 1551 and confirm: `except Exception as exc`, `isinstance(exc, frappe.ValidationError)` → WARNING, else ERROR, loop never broken.
+- [x] Read docstring at `set_status_category` (~line 1058) and confirm cross-process staleness note is present.
+- [x] Confirm `frappe.LinkValidationError` and `frappe.DoesNotExistError` no longer appear in the except clause.
 
 ## Tasks / Subtasks
 
-- [ ] **F-01+F-02** (`close_tickets_after_n_days`, ~line 1551): `except (frappe.ValidationError, ...)` replaced with `except Exception as exc` + differential logging — ValidationError logs WARNING, unexpected exceptions log ERROR. Loop continues in all cases.
-- [ ] **F-03** (`set_status_category` docstring, ~line 1052): Added explicit NOTE about cross-process cache staleness with Gunicorn workers.
-- [ ] **F-06**: Pre-existing test `test_save_raises_validation_error_when_status_has_no_category` already covers empty-category branch — no new test added.
-- [ ] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_incident_model` — all 20 tests must pass.
-- [ ] Read `hd_ticket.py` around line 1551 and confirm: `except Exception as exc`, `isinstance(exc, frappe.ValidationError)` → WARNING, else ERROR, loop never broken.
-- [ ] Read docstring at `set_status_category` (~line 1058) and confirm cross-process staleness note is present.
-- [ ] Confirm `frappe.LinkValidationError` and `frappe.DoesNotExistError` no longer appear in the except clause.
+- [x] **F-01+F-02** (`close_tickets_after_n_days`, ~line 1551): `except (frappe.ValidationError, ...)` replaced with `except Exception as exc` + differential logging — ValidationError logs WARNING, unexpected exceptions log ERROR. Loop continues in all cases.
+- [x] **F-03** (`set_status_category` docstring, ~line 1052): Added explicit NOTE about cross-process cache staleness with Gunicorn workers.
+- [x] **F-06**: Pre-existing test `test_save_raises_validation_error_when_status_has_no_category` already covers empty-category branch — no new test added.
+- [x] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_ticket.test_incident_model` — all 20 tests must pass.
+- [x] Read `hd_ticket.py` around line 1551 and confirm: `except Exception as exc`, `isinstance(exc, frappe.ValidationError)` → WARNING, else ERROR, loop never broken.
+- [x] Read docstring at `set_status_category` (~line 1058) and confirm cross-process staleness note is present.
+- [x] Confirm `frappe.LinkValidationError` and `frappe.DoesNotExistError` no longer appear in the except clause.
 
 ## Dev Notes
 
@@ -68,12 +68,12 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+Adversarial review completed. 12 findings (1 P1, 5 P2, 6 P3). Full report at `docs/qa-report-task-173-adversarial-review.md`. All 20 incident model tests pass. All acceptance criteria verified — the code changes are present and correct. Key concerns: (1) no test for the OperationalError branch (P2), (2) unconditional commit without finally guard (P1), (3) docstring inaccuracy about cache staleness window (P2).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-173-adversarial-review.md` — adversarial review report with 12 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-173-adversarial-review.md` (created)

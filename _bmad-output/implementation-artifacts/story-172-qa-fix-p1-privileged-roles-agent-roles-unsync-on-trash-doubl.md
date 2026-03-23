@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash double get_roles + is_age
 
-Status: in-progress
+Status: done
 Task ID: mn3eox5igf97i3
 Task Number: #172
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,12 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review of task #169 complete. Found 13 issues (4 P1, 5 P2, 3 P3). Most critical: AC-1 (derive PRIVILEGED_ROLES from AGENT_ROLES) was implemented then silently reverted by a subsequent commit; task #169's own commit made zero changes to the files listed in its story; ValueError identity-contract enforcement has zero test coverage; dead AGENT_ROLES import left behind after revert. Full report at `docs/qa-report-task-169.md`. Fix task created for P1 issues.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-169.md` — adversarial review report with 13 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-169.md` (created)

@@ -1,6 +1,6 @@
 # Story: Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + commit-scope pollution audit
 
-Status: in-progress
+Status: done
 Task ID: mn3ezislsg5jss
 Task Number: #182
 Workflow: quick-dev
@@ -29,14 +29,14 @@ Commit 1aab1769d (task #164) contains undeclared changes to utils.py and hd_time
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -54,12 +54,17 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **No code changes required.** Both P1 desync issues had already been resolved in prior fix commits:
+  - Commit `d57b258ce` — "Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash double get_roles" resolved hd_time_entry.py desync (PRIVILEGED_ROLES explicit frozenset now identical in dev and bench)
+  - Commit `5a680623e` — "Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 is_agent identity contract" resolved utils.py desync (ValueError enforcement now identical in dev and bench)
+- **Diffs confirmed identical**: `diff helpdesk/utils.py` → IDENTICAL; `diff hd_time_entry.py` → IDENTICAL
+- **Test suite**: All 168 tests pass (43s, OK). Zero regressions.
+- **P1 #1 (commit-scope pollution)**: Commit 1aab1769d introduced utils.py and hd_time_entry.py changes outside declared scope; those changes are now the canonical versions in both codebases and are correctly synced, so no further remediation needed.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Verified dev/bench sync — both files already identical. No code modifications needed. Confirmed 168/168 tests pass.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+_(No files modified — both dev and bench were already in sync)_
