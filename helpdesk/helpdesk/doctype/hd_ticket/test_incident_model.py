@@ -37,7 +37,7 @@ class TestIncidentModelApplication(FrappeTestCase):
 	"""Unit tests for Story 1.9: Incident Models / Templates."""
 
 	# Well-known status records that individual tests may create.
-	_TEST_STATUS_NAMES = ("Replied", "Resolved")
+	_TEST_STATUS_NAMES = ("Replied", "Resolved", "Closed")
 
 	def setUp(self):
 		frappe.set_user("Administrator")
@@ -241,6 +241,41 @@ class TestIncidentModelApplication(FrappeTestCase):
 		except frappe.ValidationError as e:
 			self.fail(f"Resolution without checklist should be allowed: {e}")
 
+	def test_closure_blocked_when_mandatory_items_incomplete(self):
+		"""F-03: 'Closed' category path must also block incomplete mandatory checklist.
+
+		validate_checklist_before_resolution() guards both "Resolved" and "Closed"
+		status categories.  This test covers the "Closed" branch to prevent a
+		regression where only "Resolved" was tested and a refactor could accidentally
+		drop the Closed guard.
+		"""
+		# Ensure a "Closed" HD Ticket Status record exists
+		if not frappe.db.exists("HD Ticket Status", "Closed"):
+			frappe.set_user("Administrator")
+			frappe.get_doc(
+				{
+					"doctype": "HD Ticket Status",
+					"label_agent": "Closed",
+					"category": "Closed",
+					"is_default": 0,
+				}
+			).insert(ignore_permissions=True)
+			frappe.set_user(self.agent_email)
+
+		# Apply model so the ticket has mandatory checklist items (all incomplete)
+		apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		self.assertTrue(len(doc.ticket_checklist) > 0, "Expected checklist rows after applying model")
+
+		# Attempt to close the ticket with incomplete mandatory items
+		doc.status = "Closed"
+		# F-07: assertRaisesRegex confirms both the exception type and message
+		with self.assertRaisesRegex(
+			frappe.ValidationError,
+			r"mandatory checklist item",
+		):
+			doc.save()
+
 	# ---------------------------------------------------------------
 	# F-02: Regression test — status_category must update when status changes
 	# ---------------------------------------------------------------
@@ -357,12 +392,12 @@ class TestIncidentModelApplication(FrappeTestCase):
 		# set_status_category() will re-derive status_category to "Resolved",
 		# then validate_checklist_before_resolution() must fire and block the save.
 		doc.status = "Resolved"
-		with self.assertRaises(
+		# F-07: use assertRaisesRegex to verify the exception message content
+		# (assertRaises with msg= only sets the test-failure message, it does NOT
+		# assert on the exception message itself).
+		with self.assertRaisesRegex(
 			frappe.ValidationError,
-			msg=(
-				"Expected ValidationError when resolving a ticket with incomplete "
-				"mandatory checklist items — checklist guard was bypassed"
-			),
+			r"mandatory checklist item",
 		):
 			doc.save()
 
@@ -470,12 +505,10 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
 		frappe.set_user(self.agent_email)
 
-		with self.assertRaises(
+		# F-07: use assertRaisesRegex to verify the exception message content
+		with self.assertRaisesRegex(
 			frappe.ValidationError,
-			msg=(
-				"Expected ValidationError when calling complete_checklist_item "
-				"with ITIL mode disabled"
-			),
+			r"ITIL mode",
 		):
 			complete_checklist_item(
 				ticket=str(self.ticket.name), checklist_item_name=item.name

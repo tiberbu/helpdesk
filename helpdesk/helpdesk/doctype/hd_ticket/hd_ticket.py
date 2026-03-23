@@ -1045,26 +1045,25 @@ class HDTicket(Document):
     def set_status_category(self):
         """Derive status_category from the linked HD Ticket Status record.
 
-        Performance strategy:
-        - Fast path: if status has not changed and a category is already set,
-          skip the DB query (status_category was already correct on last save).
-        - Re-derive path: when status changed or status_category is missing,
-          query HD Ticket Status to get the current category.
-        - F-05: if the HD Ticket Status record was deleted while a ticket still
-          references it, clear the now-stale status_category so downstream code
-          does not act on a phantom category value.
+        Always re-derives from the HD Ticket Status table on every save to
+        prevent tampered status_category values (e.g. via REST API or
+        frappe.set_value()) from bypassing downstream validation guards.
+
+        F-01: The previous fast-path optimisation (skip DB query when status
+        unchanged and category already set) trusted self.status_category
+        unconditionally, creating a window where a directly-SET category value
+        could persist indefinitely without re-validation.  Fast path removed.
+
+        F-02: Raises ValidationError when status is set but no matching HD
+        Ticket Status record exists (e.g. after a status record is deleted).
+        Previously the stale value was silently cleared to None, which caused
+        validate_checklist_before_resolution() and validate_category() to
+        short-circuit, bypassing all category-based guards.
         """
         if not self.status:
             return
 
-        status_changed = self.is_new() or self.has_value_changed("status")
-
-        if not status_changed and self.status_category:
-            # Fast path: status unchanged and category already populated.
-            # The value was correct on the previous save; no DB query needed.
-            return
-
-        # Re-derive: status changed, or status_category is missing/empty.
+        # Always re-derive — never trust self.status_category (F-01).
         new_category = frappe.get_value(
             "HD Ticket Status",
             self.status,
@@ -1073,9 +1072,19 @@ class HDTicket(Document):
         if new_category:
             self.status_category = new_category
         else:
-            # F-05: HD Ticket Status record was deleted — clear the stale value
-            # so downstream validators (e.g. checklist guard) are not fooled.
-            self.status_category = None
+            # F-02: HD Ticket Status record was deleted or has no category.
+            # Raise instead of silently setting None — a None status_category
+            # bypasses validate_checklist_before_resolution() and
+            # validate_category() because both return early for non-Resolved/
+            # non-Closed values, including None.
+            frappe.throw(
+                _(
+                    "Status '{0}' is invalid: the corresponding HD Ticket"
+                    " Status record no longer exists. Please select a"
+                    " valid status."
+                ).format(self.status),
+                frappe.ValidationError,
+            )
 
     # `on_communication_update` is a special method exposed from `Communication` doctype.
     # It is called when a communication is updated. Beware of changes as this effectively

@@ -1,6 +1,6 @@
 # Story: Fix: P1 findings from adversarial review task-92 — None status_category bypass, fast-path trust gap, auto-close batch crash
 
-Status: in-progress
+Status: done
 Task ID: mn3by6kf7mawo1
 Task Number: #99
 Workflow: quick-dev
@@ -28,14 +28,14 @@ When an HD Ticket Status record is deleted, set_status_category() sets status_ca
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -53,12 +53,20 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- F-01: Removed the fast-path early return from `set_status_category()`. Now always re-derives `status_category` from the HD Ticket Status DB record on every save, preventing a tampered (REST/set_value) `status_category` from persisting unvalidated.
+- F-02: Replaced the silent `self.status_category = None` with a `frappe.throw(ValidationError)` when the HD Ticket Status record is missing/deleted. This prevents `None` from silently bypassing `validate_checklist_before_resolution()` and `validate_category()`.
+- F-03: Added `test_closure_blocked_when_mandatory_items_incomplete` to cover the "Closed" category path in `validate_checklist_before_resolution()`, complementing the existing "Resolved" path test.
+- F-04: Already implemented in a prior fix (try/except per ticket with `frappe.log_error` + `frappe.db.rollback()` is present in `close_tickets_after_n_days()`). No action needed.
+- F-07: Replaced `assertRaises(frappe.ValidationError, msg=...)` with `assertRaisesRegex(frappe.ValidationError, r"...")` in two tests to actually verify exception message content rather than just setting a failure message.
+- All 18 tests pass (17 original + 1 new).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: F-01+F-02: Rewrote `set_status_category()` — removed fast path, added ValidationError on missing status record
+- 2026-03-23: F-03: Added `test_closure_blocked_when_mandatory_items_incomplete` test; added "Closed" to `_TEST_STATUS_NAMES`
+- 2026-03-23: F-07: Replaced `assertRaises(..., msg=)` with `assertRaisesRegex(...)` in two tests
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` — F-01+F-02: `set_status_category()` rewrite
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` — F-03: new test; F-07: assertRaisesRegex fixes
