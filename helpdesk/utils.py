@@ -50,7 +50,7 @@ def is_admin(user: str = None) -> bool:
 AGENT_ROLES = frozenset({"HD Admin", "Agent Manager", "Agent"})
 
 
-def is_agent(user: str = None, user_roles: set = None) -> bool:
+def is_agent(user: str = None, user_roles: set | None = None) -> bool:
     """
     Check whether `user` is an agent
 
@@ -58,6 +58,18 @@ def is_agent(user: str = None, user_roles: set = None) -> bool:
     :param user_roles: Pre-fetched set of role names (optional). If provided,
         this set is used instead of calling frappe.get_roles(), avoiding a
         redundant DB/cache hit when the caller already holds the roles.
+
+    .. warning:: **Identity contract** — when both ``user`` and ``user_roles``
+        are supplied, the caller is responsible for ensuring that ``user_roles``
+        were fetched for *that specific user* (e.g. via
+        ``set(frappe.get_roles(user))``).  Passing roles belonging to a
+        *different* user is a logic error and will produce incorrect results.
+        The safest pattern is::
+
+            user = frappe.session.user
+            user_roles = set(frappe.get_roles(user))
+            if is_agent(user=user, user_roles=user_roles): ...
+
     :return: Whether `user` is an agent
     """
     user = user or frappe.session.user

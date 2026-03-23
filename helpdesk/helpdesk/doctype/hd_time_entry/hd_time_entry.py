@@ -4,16 +4,18 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from helpdesk.utils import is_agent
+from helpdesk.utils import AGENT_ROLES, is_agent
 
 MAX_DESCRIPTION_LENGTH = 500  # Issue #11: single source of truth for description limit
 MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound
 
-# Single source of truth for roles that may delete any time entry (not just their own).
-# Mirrors the delete:1 grant in the HD Time Entry DocType JSON.
-# Note: System Manager is intentionally excluded — bare System Manager users are not
-# agents and must not be granted delete authority over time entries.
-PRIVILEGED_ROLES = frozenset({"HD Admin", "Agent Manager"})
+# Derived from AGENT_ROLES (single source of truth in helpdesk/utils.py) so that
+# adding a new privileged agent role to AGENT_ROLES automatically propagates here
+# without requiring a separate update (prevents PRIVILEGED_ROLES/AGENT_ROLES drift —
+# see QA report task-156 P1 finding).
+# "Agent" is excluded because plain Agents may only delete their own entries; only
+# HD Admin / Agent Manager hold delete:1 in the HD Time Entry DocType JSON.
+PRIVILEGED_ROLES: frozenset = AGENT_ROLES - {"Agent"}
 
 
 def _check_delete_permission(entry, user, user_roles=None):
@@ -93,6 +95,11 @@ class HDTimeEntry(Document):
 		ownership logic is defined in exactly one place and cannot drift.
 		"""
 		user = frappe.session.user
-		if not is_agent(user):
+		# Pre-fetch roles ONCE and forward to both callers to avoid a redundant
+		# frappe.get_roles() DB/cache hit (see QA report task-156 finding #3).
+		# Administrator short-circuits before role lookup in both helpers, so
+		# the get_roles() call is skipped entirely for Administrator.
+		user_roles = set(frappe.get_roles(user))
+		if not is_agent(user=user, user_roles=user_roles):
 			frappe.throw(_("Not permitted"), frappe.PermissionError)
-		_check_delete_permission(self, user)
+		_check_delete_permission(self, user, user_roles=user_roles)

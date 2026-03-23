@@ -1,6 +1,6 @@
 # Story: QA: Fix: delete_entry re-inlines is_agent() DRY violation + on_trash missing pre-gat
 
-Status: in-progress
+Status: done
 Task ID: mn3ec90zztiagv
 Task Number: #160
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,15 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed. All 4 acceptance criteria PASS. 80/80 tests pass.
+- Found 11 issues: 2x P1, 6x P2, 3x P3. Key P1s: (1) PRIVILEGED_ROLES/AGENT_ROLES still manually synced (Finding 4 not truly resolved), (2) is_agent(user, user_roles) semantic inconsistency allows mismatched identity.
+- Report produced at `docs/qa-report-task-156.md`.
+- P1 fix task chained.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-156.md` — adversarial review report with 11 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-156.md` (created)

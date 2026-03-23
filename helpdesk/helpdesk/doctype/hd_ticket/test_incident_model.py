@@ -560,6 +560,9 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.delete_doc(
 			"HD Ticket Status", ephemeral_status, ignore_permissions=True, force=True
 		)
+		# Invalidate the document cache so get_cached_value sees the deleted
+		# state rather than returning the stale "Open" category from cache.
+		frappe.clear_document_cache("HD Ticket Status", ephemeral_status)
 		frappe.db.commit()  # nosemgrep — commit the delete
 
 		# Reload and attempt to re-save — set_status_category() should detect
@@ -568,8 +571,14 @@ class TestIncidentModelApplication(FrappeTestCase):
 		# Confirm the status field still points to the now-deleted record.
 		self.assertEqual(doc.status, ephemeral_status)
 
-		# Our custom F-02 guard fires in before_validate (before Frappe's link
-		# validation in validate), so the message must contain "no longer exists".
+		# Bypass Frappe's built-in link validation so our custom F-02 guard is
+		# the error that surfaces.  In document.py, _validate_links() runs at
+		# line 553 BEFORE run_before_save_methods() (line 554), which means
+		# Frappe's LinkValidationError fires before before_validate reaches
+		# set_status_category().  doc.flags.ignore_links = True is the standard
+		# Frappe mechanism to suppress _validate_links() on a per-save basis,
+		# letting our guard in before_validate run instead.
+		doc.flags.ignore_links = True
 		with self.assertRaisesRegex(frappe.ValidationError, r"no longer exists"):
 			doc.save(ignore_permissions=True)
 

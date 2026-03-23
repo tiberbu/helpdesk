@@ -8,6 +8,7 @@ import frappe
 from bs4 import BeautifulSoup
 from frappe import _
 from frappe.core.page.permission_manager.permission_manager import remove
+from frappe.database.database import savepoint as db_savepoint
 from frappe.desk.form.assign_to import add as assign
 from frappe.desk.form.assign_to import clear as clear_all_assignments
 from frappe.desk.form.assign_to import get as get_assignees
@@ -1052,9 +1053,22 @@ class HDTicket(Document):
         F-01: Use frappe.get_cached_value() instead of frappe.get_value() to
         avoid an unconditional DB round-trip on every save.  The in-process
         document cache is invalidated whenever an HD Ticket Status record is
-        saved, so freshly-updated values are always reflected within the same
-        request.  We still always re-derive (never trust self.status_category)
-        to prevent tampered values from bypassing downstream guards.
+        saved *within the same Gunicorn worker process*, so freshly-updated
+        values are reflected within the same request.
+
+        NOTE — cross-process cache staleness: frappe.get_cached_value() uses
+        an in-process document cache (not a shared cache like Redis).  If an
+        HD Ticket Status record is updated in one Gunicorn worker, the other
+        workers will continue to serve the old cached value until their own
+        cache is invalidated (typically on the next request that touches that
+        record in that process).  For the status_category field this is
+        acceptable: the worst case is that a worker briefly uses a stale
+        category until its next cache invalidation, and set_status_category()
+        always re-derives from the cache (never trusts self.status_category),
+        so the window is bounded to a single request per worker.
+
+        We still always re-derive (never trust self.status_category) to
+        prevent tampered values from bypassing downstream guards.
 
         F-02: get_cached_value / get_value both return None for two distinct
         conditions: (a) the record does not exist, or (b) the category field
@@ -1535,15 +1549,22 @@ def close_tickets_after_n_days():
             doc.save(ignore_permissions=True)
             frappe.db.release_savepoint(_sp)
             frappe.db.commit()  # nosemgrep
-        except (frappe.ValidationError, frappe.LinkValidationError, frappe.DoesNotExistError):
-            # Log and skip tickets that fail due to expected validation failure
-            # modes (checklist guards, missing links, stale references).
-            # Narrowed from bare `except Exception` so that OperationalError,
-            # SecurityException, and other unexpected failures still propagate
-            # and surface properly rather than being silently swallowed.
+        except Exception as exc:  # noqa: BLE001
+            # Roll back only this iteration's DB changes (not prior closures).
             frappe.db.rollback(save_point=_sp)  # nosemgrep — undo this iteration only
-            frappe.log_error(
-                title=f"Auto-close failed for ticket {ticket}",
-                message=frappe.get_traceback(),
-            )
+            if isinstance(exc, frappe.ValidationError):
+                # Expected failure modes: checklist guards, missing links,
+                # stale references.  Log at WARNING — these are not bugs.
+                frappe.logger().warning(
+                    f"Auto-close skipped ticket {ticket} (validation): {exc}"
+                )
+            else:
+                # Unexpected failures: OperationalError (deadlock/lock timeout),
+                # PermissionError, etc.  Log at ERROR so on-call is alerted, but
+                # continue processing remaining tickets — one bad ticket must not
+                # abort the entire cron batch.
+                frappe.log_error(
+                    title=f"Auto-close failed for ticket {ticket}",
+                    message=frappe.get_traceback(),
+                )
             frappe.db.commit()  # nosemgrep — persist the error log
