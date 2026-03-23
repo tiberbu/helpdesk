@@ -107,6 +107,7 @@ class SafetyGuard:
                         f"{MAX_CONSECUTIVE_FAILURES})."
                     ),
                 )
+                _notify_rule_creator(rule_name)
         except Exception:
             # Non-critical; swallow errors from failure tracking
             frappe.log_error(
@@ -118,3 +119,48 @@ class SafetyGuard:
         """Clear the loop counter for a ticket (test helper / manual reset)."""
         key = _LOOP_KEY_TEMPLATE.format(ticket_name=ticket_name)
         frappe.cache().delete_value(key)
+
+
+def _notify_rule_creator(rule_name: str):
+    """Send email + in-app notification to the rule owner when auto-disabled.
+
+    Silently swallows all exceptions — notification failure must not
+    interrupt the disable operation.
+    """
+    try:
+        owner = frappe.db.get_value("HD Automation Rule", rule_name, "owner")
+        if not owner:
+            return
+
+        owner_email = frappe.db.get_value("User", owner, "email") or owner
+        subject = frappe._("Automation Rule Auto-Disabled: {0}").format(rule_name)
+        message = frappe._(
+            "Your automation rule <b>{0}</b> has been automatically disabled "
+            "after {1} consecutive failures. Please review the "
+            "<a href='/helpdesk/automations'>Automation Rules</a> page and "
+            "check the HD Automation Log for details before re-enabling the rule."
+        ).format(rule_name, MAX_CONSECUTIVE_FAILURES)
+
+        frappe.sendmail(
+            recipients=[owner_email],
+            subject=subject,
+            message=message,
+        )
+
+        frappe.publish_realtime(
+            event="notification",
+            message={
+                "title": subject,
+                "message": frappe._(
+                    "Rule '{0}' was auto-disabled after {1} consecutive failures."
+                ).format(rule_name, MAX_CONSECUTIVE_FAILURES),
+                "type": "warning",
+                "link": "/helpdesk/automations",
+            },
+            room=f"agent:{owner_email}",
+        )
+    except Exception:
+        frappe.log_error(
+            title="AutomationRule: auto-disable notification failed",
+            message=frappe.get_traceback(),
+        )

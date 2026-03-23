@@ -81,8 +81,12 @@ def toggle_rule(rule_name: str, enabled: int) -> dict:
 def get_execution_stats() -> list:
     """Return per-rule execution statistics from HD Automation Log.
 
-    Returns a list of dicts with: rule_name, execution_count, last_fired,
-    failure_count per HD Automation Rule.
+    Returns a list of dicts, one per HD Automation Rule, with fields:
+        rule_name, trigger_type, enabled, priority_order, failure_count,
+        execution_count, last_fired, failure_rate.
+
+    Uses a single aggregate SQL query across HD Automation Log for efficiency,
+    then merges with the rule list (batch approach avoids N+1 queries).
     """
     frappe.only_for(["System Manager", "HD Admin"])
 
@@ -91,4 +95,31 @@ def get_execution_stats() -> list:
         fields=["name", "rule_name", "trigger_type", "enabled", "failure_count", "priority_order"],
         order_by="priority_order asc",
     )
+
+    # Aggregate log stats per rule in a single query
+    log_rows = frappe.db.sql(
+        """
+        SELECT
+            rule_name,
+            COUNT(*) AS execution_count,
+            MAX(timestamp) AS last_fired,
+            SUM(CASE WHEN status = 'failure' THEN 1 ELSE 0 END) AS failure_total
+        FROM `tabHD Automation Log`
+        GROUP BY rule_name
+        """,
+        as_dict=True,
+    )
+
+    stats_by_rule = {row["rule_name"]: row for row in log_rows}
+
+    for rule in rules:
+        log_stat = stats_by_rule.get(rule["name"]) or {}
+        execution_count = int(log_stat.get("execution_count") or 0)
+        failure_total = int(log_stat.get("failure_total") or 0)
+        rule["execution_count"] = execution_count
+        rule["last_fired"] = str(log_stat["last_fired"]) if log_stat.get("last_fired") else None
+        rule["failure_rate"] = (
+            round((failure_total / execution_count) * 100, 1) if execution_count > 0 else 0.0
+        )
+
     return rules

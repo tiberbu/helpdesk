@@ -45,7 +45,8 @@ scheduler_events = {
         ],
     },
     "daily": [
-        "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days"
+        "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days",
+        "helpdesk.helpdesk.doctype.hd_automation_log.cleanup.purge_old_logs",
     ],
 }
 

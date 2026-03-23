@@ -16,6 +16,8 @@ Architecture (ADR-14):
         c. If match: execute actions, record success/failure
 """
 
+import time
+
 import frappe
 
 from helpdesk.helpdesk.automation.conditions import ConditionEvaluator
@@ -103,28 +105,107 @@ def evaluate(ticket, trigger_type: str, dry_run: bool = False, rule_name: str | 
         return
 
     for rule in rules:
-        _evaluate_rule(ticket, rule)
+        _evaluate_rule(ticket, rule, trigger_type)
 
 
-def _evaluate_rule(ticket, rule: dict):
+def _evaluate_rule(ticket, rule: dict, trigger_type: str = ""):
     """Evaluate a single rule dict against the ticket."""
     rule_name = rule["name"]
+    ticket_name = getattr(ticket, "name", None)
+    conditions = rule.get("conditions") or "[]"
+    actions = rule.get("actions") or "[]"
+
+    start = time.monotonic()
 
     # Evaluate conditions
-    conditions = rule.get("conditions") or "[]"
     if not _condition_evaluator.evaluate(ticket, conditions):
+        elapsed_ms = int((time.monotonic() - start) * 1000)
+        _create_log(
+            rule_name=rule_name,
+            ticket=ticket_name,
+            trigger_event=trigger_type,
+            conditions_evaluated=conditions,
+            actions_executed="[]",
+            execution_time_ms=elapsed_ms,
+            status="skipped",
+        )
         return  # Conditions did not match; skip this rule
 
     # Execute actions
-    actions = rule.get("actions") or "[]"
     results = _action_executor.execute(ticket, actions)
+    elapsed_ms = int((time.monotonic() - start) * 1000)
 
     # Track success / failure for auto-disable
     had_failure = any(not r.get("success") for r in results)
     if had_failure:
+        error_parts = [r.get("error", "") for r in results if not r.get("success")]
+        _create_log(
+            rule_name=rule_name,
+            ticket=ticket_name,
+            trigger_event=trigger_type,
+            conditions_evaluated=conditions,
+            actions_executed=actions,
+            execution_time_ms=elapsed_ms,
+            status="failure",
+            error_message="; ".join(filter(None, error_parts)),
+        )
         _safety_guard.record_failure(rule_name)
     else:
+        _create_log(
+            rule_name=rule_name,
+            ticket=ticket_name,
+            trigger_event=trigger_type,
+            conditions_evaluated=conditions,
+            actions_executed=actions,
+            execution_time_ms=elapsed_ms,
+            status="success",
+        )
         _safety_guard.record_success(rule_name)
+
+
+def _create_log(
+    rule_name: str,
+    ticket,
+    trigger_event,
+    conditions_evaluated,
+    actions_executed,
+    execution_time_ms: int,
+    status: str,
+    error_message: str = "",
+):
+    """Insert an HD Automation Log record.
+
+    Silently swallows all exceptions — logging must never interrupt core
+    ticket processing (NFR-A-01).
+    """
+    try:
+        frappe.get_doc(
+            {
+                "doctype": "HD Automation Log",
+                "rule_name": rule_name,
+                "ticket": str(ticket) if ticket else None,
+                "trigger_event": trigger_event or "",
+                "conditions_evaluated": (
+                    conditions_evaluated
+                    if isinstance(conditions_evaluated, str)
+                    else frappe.as_json(conditions_evaluated)
+                ),
+                "actions_executed": (
+                    actions_executed
+                    if isinstance(actions_executed, str)
+                    else frappe.as_json(actions_executed)
+                ),
+                "execution_time_ms": execution_time_ms,
+                "status": status,
+                "error_message": error_message or "",
+                "timestamp": frappe.utils.now_datetime(),
+            }
+        ).insert(ignore_permissions=True)
+    except Exception:
+        frappe.log_error(
+            title="HD Automation Log: insert failed",
+            message=frappe.get_traceback(),
+        )
 
 
 def _dry_run_rule(ticket, rule: dict) -> dict:

@@ -64,13 +64,16 @@
             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Rule Name") }}</th>
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Trigger") }}</th>
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Priority") }}</th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Executions") }}</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Last Fired") }}</th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Failure Rate") }}</th>
             <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Enabled") }}</th>
             <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Actions") }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <tr
-            v-for="rule in rules.data"
+            v-for="rule in rulesWithStats"
             :key="rule.name"
             class="hover:bg-gray-50 cursor-pointer"
             @click="router.push({ name: 'AutomationBuilder', params: { id: rule.name } })"
@@ -84,6 +87,24 @@
               />
             </td>
             <td class="px-4 py-3 text-gray-500">{{ rule.priority_order }}</td>
+            <td class="px-4 py-3 text-right text-gray-600 tabular-nums">
+              <span v-if="stats.loading" class="text-gray-300">—</span>
+              <span v-else>{{ rule.execution_count ?? 0 }}</span>
+            </td>
+            <td class="px-4 py-3 text-gray-500 text-xs">
+              <span v-if="stats.loading" class="text-gray-300">—</span>
+              <span v-else-if="rule.last_fired">{{ formatRelativeTime(rule.last_fired) }}</span>
+              <span v-else class="text-gray-300">{{ __("Never") }}</span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <span v-if="stats.loading" class="text-gray-300">—</span>
+              <Badge
+                v-else
+                :label="(rule.failure_rate ?? 0) + '%'"
+                :theme="getFailureRateTheme(rule.failure_rate ?? 0)"
+                variant="subtle"
+              />
+            </td>
             <td class="px-4 py-3 text-center" @click.stop>
               <input
                 type="checkbox"
@@ -137,8 +158,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { Badge, Button, Dialog, LoadingIndicator, createListResource, usePageMeta, call } from "frappe-ui"
+import { ref, computed } from "vue"
+import { Badge, Button, Dialog, LoadingIndicator, createListResource, createResource, usePageMeta, call } from "frappe-ui"
 import { useRouter } from "vue-router"
 import { useAuthStore } from "@/stores/auth"
 import { __ } from "@/translation"
@@ -160,6 +181,28 @@ const rules = createListResource({
   fields: ["name", "rule_name", "trigger_type", "enabled", "priority_order", "failure_count"],
   orderBy: "priority_order asc",
   auto: true,
+})
+
+// Batch-fetch execution stats for all rules from HD Automation Log
+const stats = createResource({
+  url: "helpdesk.api.automation.get_execution_stats",
+  auto: true,
+})
+
+// Merge stats into rules list for display
+const rulesWithStats = computed(() => {
+  if (!rules.data) return []
+  const statsList: any[] = stats.data || []
+  const statsMap = Object.fromEntries(statsList.map((s: any) => [s.name, s]))
+  return rules.data.map((rule: any) => {
+    const stat = statsMap[rule.name] || {}
+    return {
+      ...rule,
+      execution_count: stat.execution_count ?? 0,
+      last_fired: stat.last_fired ?? null,
+      failure_rate: stat.failure_rate ?? 0.0,
+    }
+  })
 })
 
 function formatTrigger(trigger: string): string {
@@ -185,6 +228,26 @@ function getTriggerTheme(trigger: string): string {
   return "gray"
 }
 
+function getFailureRateTheme(rate: number): string {
+  if (rate === 0) return "green"
+  if (rate <= 25) return "yellow"
+  return "red"
+}
+
+function formatRelativeTime(timestamp: string): string {
+  if (!timestamp) return ""
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 1) return __("just now")
+  if (diffMins < 60) return __("{0}m ago").replace("{0}", String(diffMins))
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return __("{0}h ago").replace("{0}", String(diffHours))
+  const diffDays = Math.floor(diffHours / 24)
+  return __("{0}d ago").replace("{0}", String(diffDays))
+}
+
 async function toggleEnabled(rule: any) {
   const newEnabled = rule.enabled ? 0 : 1
   await call("helpdesk.api.automation.toggle_rule", {
@@ -192,6 +255,7 @@ async function toggleEnabled(rule: any) {
     enabled: newEnabled,
   })
   await rules.reload()
+  await stats.reload()
 }
 
 function deleteRule(rule: any) {
@@ -204,5 +268,6 @@ async function confirmDelete() {
   if (!rule) return
   await call("frappe.client.delete", { doctype: "HD Automation Rule", name: rule.name })
   await rules.reload()
+  await stats.reload()
 }
 </script>

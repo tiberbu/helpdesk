@@ -6,10 +6,13 @@
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
+from unittest.mock import patch
+
 from helpdesk.helpdesk.automation.safety import (
     MAX_CONSECUTIVE_FAILURES,
     MAX_EXECUTIONS_PER_WINDOW,
     SafetyGuard,
+    _notify_rule_creator,
 )
 from helpdesk.test_utils import create_agent, make_ticket
 
@@ -128,3 +131,71 @@ class TestSafetyGuard(FrappeTestCase):
         finally:
             frappe.delete_doc("HD Automation Rule", rule.name, ignore_permissions=True)
             frappe.db.commit()  # nosemgrep
+
+    def test_auto_disable_triggers_notification(self):
+        """Auto-disable must call sendmail and publish_realtime for rule owner."""
+        rule = frappe.get_doc(
+            {
+                "doctype": "HD Automation Rule",
+                "rule_name": f"safety-notify-{frappe.generate_hash(length=6)}",
+                "trigger_type": "ticket_created",
+                "enabled": 1,
+                "conditions": "[]",
+                "actions": "[]",
+                "failure_count": MAX_CONSECUTIVE_FAILURES - 1,
+            }
+        ).insert(ignore_permissions=True)
+        try:
+            with patch("frappe.sendmail") as mock_mail, \
+                 patch("frappe.publish_realtime") as mock_rt:
+                self.guard.record_failure(rule.name)
+                # Rule should be disabled
+                enabled = frappe.db.get_value("HD Automation Rule", rule.name, "enabled")
+                self.assertEqual(int(enabled), 0)
+                # sendmail must have been called once for the owner
+                self.assertEqual(mock_mail.call_count, 1)
+                # publish_realtime must have been called with event="notification"
+                notification_calls = [
+                    c for c in mock_rt.call_args_list
+                    if c.kwargs.get("event") == "notification"
+                    or (c.args and c.args[0] == "notification")
+                ]
+                self.assertGreaterEqual(len(notification_calls), 1, "Expected notification realtime event")
+        finally:
+            frappe.delete_doc("HD Automation Rule", rule.name, ignore_permissions=True)
+            frappe.db.commit()  # nosemgrep
+
+    def test_notification_not_sent_before_threshold(self):
+        """Notification must NOT be sent when failure count is below threshold."""
+        rule = frappe.get_doc(
+            {
+                "doctype": "HD Automation Rule",
+                "rule_name": f"safety-no-notify-{frappe.generate_hash(length=6)}",
+                "trigger_type": "ticket_created",
+                "enabled": 1,
+                "conditions": "[]",
+                "actions": "[]",
+                "failure_count": MAX_CONSECUTIVE_FAILURES - 3,
+            }
+        ).insert(ignore_permissions=True)
+        try:
+            with patch("frappe.sendmail") as mock_mail, \
+                 patch("frappe.publish_realtime") as mock_rt:
+                self.guard.record_failure(rule.name)
+                # Should still be enabled (not at threshold yet)
+                enabled = frappe.db.get_value("HD Automation Rule", rule.name, "enabled")
+                self.assertEqual(int(enabled), 1)
+                # No notification should have been sent
+                mock_mail.assert_not_called()
+                mock_rt.assert_not_called()
+        finally:
+            frappe.delete_doc("HD Automation Rule", rule.name, ignore_permissions=True)
+            frappe.db.commit()  # nosemgrep
+
+    def test_notify_rule_creator_swallows_exceptions(self):
+        """_notify_rule_creator() must not raise even if sendmail fails."""
+        with patch("frappe.sendmail", side_effect=Exception("SMTP error")):
+            try:
+                _notify_rule_creator("some-nonexistent-rule")
+            except Exception as e:
+                self.fail(f"_notify_rule_creator raised: {e}")

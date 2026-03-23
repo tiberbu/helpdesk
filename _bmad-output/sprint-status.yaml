@@ -77,7 +77,7 @@ development_status:
   2-1-automation-rule-doctype-and-engine-core: done
   2-2-automation-rule-builder-ui: review
   2-3-sla-based-automation-triggers: backlog
-  2-4-automation-execution-logging: backlog
+  2-4-automation-execution-logging: done
   epic-2-retrospective: optional
 
   # =============================================================
@@ -165,7 +165,7 @@ development_status:
   26-story-2-1-automation-rule-doctype-and-engine-core: review  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
   27-story-2-2-automation-rule-builder-ui: review  # [dev-story] Story 2.2: Automation Rule Builder UI
   28-story-2-3-sla-based-automation-triggers: review  # [create-story] Story 2.3: SLA-Based Automation Triggers
-  29-story-2-4-automation-execution-logging: ready-for-dev  # [create-story] Story 2.4: Automation Execution Logging
+  29-story-2-4-automation-execution-logging: done  # [dev-story] Story 2.4: Automation Execution Logging
 
   # New tasks (added by Claude Studio)
   30-story-3-1-channel-abstraction-layer: review  # [create-story] Story 3.1: Channel Abstraction Layer
@@ -537,3 +537,7 @@ development_status:
   218-qa-story-2-2-automation-rule-builder-ui: review  # [adversarial-review] QA: Story 2.2: Automation Rule Builder UI
 
   219-fix-story-2-2-automation-rule-builder-ui-and-or-logic-lost-o: review  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — AND/OR logic los
+
+  220-qa-story-2-3-sla-based-automation-triggers: review  # [adversarial-review] QA: Story 2.3: SLA-Based Automation Triggers
+
+  221-fix-story-2-3-sla-based-automation-triggers-dead-notificatio: in-progress  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — dead notifica

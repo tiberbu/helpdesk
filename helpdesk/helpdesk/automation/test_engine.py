@@ -51,6 +51,8 @@ class TestAutomationEngine(FrappeTestCase):
         frappe.set_user("Administrator")
         # Clean up rules explicitly (they use db.commit in record_failure/success)
         for rule_name in self._created_rules:
+            # Delete linked log records first to avoid LinkExistsError
+            frappe.db.delete("HD Automation Log", {"rule_name": rule_name})
             if frappe.db.exists("HD Automation Rule", rule_name):
                 frappe.delete_doc("HD Automation Rule", rule_name, ignore_permissions=True)
         frappe.db.commit()  # nosemgrep
