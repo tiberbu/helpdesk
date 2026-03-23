@@ -1278,10 +1278,169 @@ Search:
 
 ---
 
-**Research Completion Date:** 2026-03-21
-**Total DocTypes Analyzed:** 39
+---
+
+## 11. Upstream Sync Update (March 2026) — New Features Audit
+
+### 11.1 Overview
+
+The Frappe Helpdesk codebase was synced with 600+ commits from frappe/helpdesk `develop` branch. This section documents all new capabilities added by upstream and their impact on the ITIL compliance assessment.
+
+**Sync commit:** `369178ef3` — merge: sync with upstream frappe/helpdesk develop
+
+### 11.2 Major New Features
+
+#### 11.2.1 Agent Landing Page Dashboard (PR #2796)
+
+**Files:** `desk/src/pages/home/Home.vue`, `desk/src/pages/home/components/`, `helpdesk/api/agent_home/`
+
+A customizable agent dashboard has been added as the default home page for agents. Key components:
+
+- **AgentTicketsCard** — Shows ticket creation trends with period comparison (e.g. "12% more tickets than last month")
+- **PendingTickets** — Displays tickets grouped by: SLA-due (with countdown timer), recently assigned (last 24h), pending response. Color-coded: red (overdue), orange (<2h), green (normal)
+- **AvgTimeCard** — Average first response time and average resolution time with period comparison
+- **AvgTimeMetrics** — 3-month, 6-month, 1-year trending with monthly aggregation
+- **RecentFeedback** — Star rating distribution (1-5), recent customer reviews, performance rating text
+- **Drag-and-drop customization** — GridLayout component allows agents to reorder/resize dashboard widgets
+- **Per-user persistence** — Layout stored in new `HD Field Layout` DocType
+
+**New DocType:** `HD Field Layout` — Stores dashboard layout per user (document_type, user, type, apply_to_system, layout JSON)
+
+**Backend APIs:**
+- `get_dashboard()` — Returns user's saved or default dashboard layout
+- `get_agent_tickets()` — Ticket creation data with period comparison
+- `get_pending_tickets()` — Pending tickets with SLA countdown and categorization
+- `get_avg_first_response_time()` / `get_avg_resolution_time()` — Time metrics
+- `get_recent_feedback()` — Customer feedback and star ratings
+- `get_avg_time_metrics()` — Monthly aggregated time metrics
+
+**ITIL Impact:** Strengthens **Service Desk** practice (agent workspace, KPI visibility) and **Continual Improvement** (metrics, feedback)
+
+#### 11.2.2 Saved Replies (Renamed from Canned Responses)
+
+**Files:** `helpdesk/helpdesk/doctype/hd_saved_reply/`, `desk/src/components/Settings/SavedReplies/`, `helpdesk/api/saved_replies.py`
+
+HD Canned Response was renamed to **HD Saved Reply** with enhanced capabilities:
+- Pre-written response templates with dynamic variables
+- Team-based sharing via `HD Saved Reply Team` child table
+- Autocomplete integration in email editor
+- Preview dialog for saved replies
+- Telemetry tracking: `saved_reply_applied` event
+
+**ITIL Impact:** Directly addresses **Service Desk** practice requirement for agent templates/macros — a capability previously listed as missing.
+
+#### 11.2.3 Real-time Collaboration (Collision Detection + Typing Indicators)
+
+**Files:** `realtime/handlers.js`, `desk/src/composables/realtime.ts`
+
+Custom Socket.IO handlers provide:
+- **Active viewer tracking** — When an agent opens a ticket, all other viewers are notified via `ticket_viewers` event. Shows list of agents currently viewing the same ticket.
+- **Typing indicators** — When an agent starts typing a reply/comment, other viewers see real-time typing status. Auto-clears after 10 seconds of inactivity.
+- **Real-time ticket updates** — Field changes (status, priority, assignment) are broadcast to all viewers via `ticket_update` event.
+
+**ITIL Impact:** Directly addresses **Incident Management** collision detection requirement — previously listed as a critical gap.
+
+#### 11.2.4 Keyboard Shortcuts System
+
+**Files:** `desk/src/composables/shortcuts.ts`, `desk/src/components/modals/ShortcutsModal.vue`
+
+Full keyboard navigation system:
+- **General:** Ctrl+K (command palette), Ctrl+, (settings), Ctrl+/ (shortcuts help), Ctrl+H (help)
+- **Ticket Management:** T (ticket type), P (priority), Shift+T (team), A (assign), S (status), Ctrl+. (copy ID), Ctrl+Shift+. (copy URL)
+- **Communication:** R (reply box), C (comment box)
+- **Navigation:** Shift+> (next ticket), Shift+< (previous ticket)
+- Smart disable when typing in inputs/textareas/modals
+
+**ITIL Impact:** Strengthens **Service Desk** agent productivity — previously listed as missing.
+
+#### 11.2.5 Command Palette
+
+**Files:** `desk/src/components/command-palette/CP.vue`
+
+Quick-access navigation via Ctrl+K for searching tickets, navigating to pages, and executing actions.
+
+#### 11.2.6 Internationalization (i18n)
+
+**Files:** `desk/src/translation.ts`, `helpdesk/api/general.py`, `helpdesk/locale/`
+
+Translation infrastructure:
+- `translate()` / `__()` global function for UI string translation
+- Backend API for fetching translations per user language
+- Supports string interpolation with `{0}`, `{1}` placeholders
+- **Languages with translations:** Spanish, Portuguese (Brazilian), Swedish, Serbian (Latin & Cyrillic), Russian, French, German, Italian, Dutch, Polish, Hungarian, Czech, Danish, Turkish, Chinese (Simplified), Vietnamese, Indonesian, Persian, Thai, Croatian, Burmese, Bosnian, Norwegian Bokmål, Slovenian, Esperanto, Arabic (25+ languages)
+
+**ITIL Impact:** Supports global deployment requirements; important for Service Desk accessibility.
+
+#### 11.2.7 Telemetry (PostHog Integration)
+
+**Files:** `desk/src/telemetry.ts`
+
+Event tracking system:
+- **KB events:** `kb_customer_page_articles`, `kb_customer_page_viewed`, `article_viewed`, `article_updated`, `kb_agent_page_viewed`, `category_created`
+- **Ticket events:** `new_ticket_page`, `ticket_assigned`, `bulk_delete`
+- **Configuration events:** `email_account_created`, `agents_invited`
+- **Reply events:** `saved_reply_applied`
+- **Onboarding events:** `onboarding_step_skipped_*`, `onboarding_steps_skipped`
+- **Dashboard events:** `home_page_updated`
+- **Search events:** `kb_customer_search_article_clicked`
+
+**ITIL Impact:** Supports **Measurement and Reporting** practice — provides data collection for continual improvement.
+
+#### 11.2.8 Comment Reactions
+
+**New DocType:** `HD Comment Reaction` (child table) — Fields: emoji, user
+
+Agents can react to ticket comments with emojis. Supports team collaboration and acknowledgment.
+
+#### 11.2.9 Autocomplete Settings
+
+**Files:** `desk/src/components/Settings/Profile/Profile.vue`
+
+Agents can toggle autocomplete on/off in their profile settings.
+
+#### 11.2.10 Custom Badges (Added then Reverted)
+
+Custom badge rendering was added for ticket views but was reverted in PR #3097. Not currently active.
+
+### 11.3 Other Notable Changes
+
+| Category | Changes |
+|----------|---------|
+| **UI/UX** | Improved empty states (TableEmptyState, EmptyState components), enhanced list view builder with bulk operations, text clipping fixes, feedback empty state redesign |
+| **Email** | Fixed email formatting bug, preserved `src` tags in email content, Shift+Enter support in email editor, enhanced Excel paste handling for tabular data |
+| **Data** | Feedback fixture improvements, filter application from URL params, HD View before_save logic fixes |
+| **Build** | Migration from setup.py to pyproject.toml, frappe-ui version bumps, Vite build system |
+| **Code Quality** | Code cleanup and refactoring, duplicate code removal, linter fixes, TypeScript types added |
+| **Search** | SQLite search support added (`helpdesk/search_sqlite.py`) for non-MariaDB environments |
+| **Testing** | New test utilities module (`helpdesk/test_utils.py`) with 300+ lines of test infrastructure |
+| **Setup** | Improved install process, default views system, default template expansion |
+| **Patches** | Rename canned_response to saved_reply, set_last_customer_agent_response, remove_agents_teams_default_views, update_ticket_statuses, set_std_views_non_public |
+
+### 11.4 Updated DocType Count
+
+**Previous count:** 39 DocTypes
+**Current count:** 41+ DocTypes (added HD Field Layout, HD Comment Reaction, HD Saved Reply Team; renamed HD Canned Response → HD Saved Reply)
+
+### 11.5 Impact on ITIL Compliance Assessment
+
+| ITIL Practice | Previous Score | Updated Score | Key Changes |
+|---|---|---|---|
+| Service Desk | 60% | **75%** | Saved replies, collision detection, keyboard shortcuts, command palette, agent dashboard, i18n |
+| Incident Management | 40% | **50%** | Collision detection, typing indicators, agent dashboard metrics, saved replies |
+| Service Level Management | 50% | **55%** | Pending tickets with SLA countdown, avg time metrics dashboard |
+| Knowledge Management | 35% | **40%** | Telemetry for KB analytics, i18n for articles |
+| Continual Improvement | 0% | **10%** | Agent dashboard with feedback trends, telemetry data collection, performance metrics |
+| Measurement & Reporting | N/A | **15%** | PostHog telemetry, agent home analytics, time metrics |
+
+**Net assessment:** The upstream sync closes several previously-identified "Critical gaps" in the Service Desk practice (canned responses, collision detection, keyboard shortcuts were all P0 items in the feature roadmap). The foundation is now stronger for Phase 1 ITIL implementation.
+
+---
+
+**Research Completion Date:** 2026-03-23 (updated from 2026-03-21)
+**Total DocTypes Analyzed:** 41+
 **ITIL Practices Evaluated:** 34 (12 in depth for helpdesk relevance)
 **Competitor Tools Analyzed:** 11
-**Confidence Level:** High — based on direct codebase analysis and multiple authoritative ITIL sources
+**Upstream Commits Reviewed:** 600+
+**Confidence Level:** High — based on direct codebase analysis, git log audit, and multiple authoritative ITIL sources
 
 _This comprehensive research document serves as the foundational reference for making Frappe Helpdesk ITIL 4 compliant. It provides the strategic insights, gap analysis, and phased roadmap needed for informed decision-making._

@@ -13,10 +13,14 @@
   "raised_by",
   "status",
   "priority",
+  "impact",
+  "urgency",
   "status_category",
   "cb00",
   "ticket_type",
   "agent_group",
+  "category",
+  "sub_category",
   "summary",
   "sb_details",
   "description",
@@ -114,6 +118,20 @@
    "options": "HD Ticket Priority"
   },
   {
+   "fieldname": "impact",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Impact",
+   "options": "\nHigh\nMedium\nLow"
+  },
+  {
+   "fieldname": "urgency",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Urgency",
+   "options": "\nHigh\nMedium\nLow"
+  },
+  {
    "fieldname": "cb00",
    "fieldtype": "Column Break"
   },
@@ -129,6 +147,20 @@
    "fieldtype": "Link",
    "label": "Team",
    "options": "HD Team"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Category",
+   "options": "HD Ticket Category"
+  },
+  {
+   "fieldname": "sub_category",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Sub Category",
+   "options": "HD Ticket Category"
   },
   {
    "fieldname": "ticket_split_from",

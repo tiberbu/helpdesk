@@ -62,12 +62,14 @@ We will own the intersection of three underserved markets:
 
 #### P0: Immediate Gaps (Month 1–2)
 
-| # | Feature | Description | ITIL Practice | Competitive Benchmark | Effort | Business Value | Dependencies |
-|---|---------|-------------|---------------|-----------------------|--------|----------------|--------------|
-| 1.1 | **Canned Responses / Macros** | Pre-written reply templates with dynamic variables (contact name, ticket ID, agent name). Multi-step macros that can set fields + add note + reply in one click. | Service Request Mgmt | All 15 competitors — table stakes | S | High | None |
-| 1.2 | **Internal Notes on Tickets** | Private notes visible only to agents. @mention teammates for internal collaboration. Distinguish visually from customer-facing replies. | Incident Management | Zendesk, Front, Help Scout, Freshdesk | S | High | None |
-| 1.3 | **Collision Detection** | Real-time indicator when another agent is viewing or replying to a ticket. "Mia is typing a reply..." alert prevents duplicate responses. | Incident Management | Help Scout, Freshdesk, Hiver, Zoho | S | High | Socket.IO (already in Frappe) |
-| 1.4 | **Agent Keyboard Shortcuts** | Full keyboard navigation: `r` to reply, `n` for note, `c` to close, `j/k` to navigate tickets, `/` to search. | Service Request Mgmt | Zendesk, Help Scout, Front | S | Medium | None |
+> **Updated 2026-03-23**: 3 of 4 P0 items implemented by upstream. Only Internal Notes remains.
+
+| # | Feature | Description | ITIL Practice | Competitive Benchmark | Effort | Business Value | Dependencies | Status |
+|---|---------|-------------|---------------|-----------------------|--------|----------------|--------------|--------|
+| 1.1 | ~~**Canned Responses / Macros**~~ | Pre-written reply templates with dynamic variables. Team-based sharing. Autocomplete integration. | Service Request Mgmt | All 15 competitors | S | High | None | ✅ **IMPLEMENTED** — Renamed to "Saved Replies" (HD Saved Reply DocType) with HD Saved Reply Team for sharing |
+| 1.2 | **Internal Notes on Tickets** | Private notes visible only to agents. @mention teammates for internal collaboration. Distinguish visually from customer-facing replies. | Incident Management | Zendesk, Front, Help Scout, Freshdesk | S | High | None | ❌ Still needed |
+| 1.3 | ~~**Collision Detection**~~ | Real-time indicator when another agent is viewing or replying to a ticket. Typing indicators. | Incident Management | Help Scout, Freshdesk, Hiver, Zoho | S | High | Socket.IO | ✅ **IMPLEMENTED** — `realtime/handlers.js` with Socket.IO: `view_ticket`, `stop_view_ticket`, `helpdesk_ticket_typing`, `helpdesk_ticket_typing_stopped` events. Frontend: `desk/src/composables/realtime.ts` |
+| 1.4 | ~~**Agent Keyboard Shortcuts**~~ | Full keyboard navigation: `R` to reply, `C` for comment, `T` for type, `P` for priority, `A` to assign, `S` for status, `Ctrl+K` command palette. | Service Request Mgmt | Zendesk, Help Scout, Front | S | Medium | None | ✅ **IMPLEMENTED** — `desk/src/composables/shortcuts.ts` + `ShortcutsModal.vue` with Ctrl+/ help |
 
 ---
 
@@ -94,13 +96,16 @@ We will own the intersection of three underserved markets:
 
 #### Phase 1 ITIL Alignment Summary
 
-| ITIL Practice | Phase 1 Coverage |
-|---------------|-----------------|
-| Incident Management | Collision detection, internal notes, workflow automation |
-| Service Request Management | Canned responses, live chat, macros |
-| Service Level Management | Enhanced SLA, business hours, breach alerts |
-| Continual Improvement | CSAT surveys, custom reports |
-| Knowledge Management | (existing KB + AI search in Phase 2) |
+> **Updated 2026-03-23**: Several Phase 1 items now implemented by upstream
+
+| ITIL Practice | Phase 1 Coverage | Implementation Status |
+|---------------|-----------------|---------------------|
+| Incident Management | Collision detection ✅, internal notes ❌, workflow automation ❌ | Collision detection + typing indicators DONE |
+| Service Request Management | Canned responses ✅, live chat ❌, macros ✅ | Saved Replies DONE |
+| Service Level Management | Enhanced SLA ❌, business hours ✅ (existing), breach alerts ❌ | Business hours already existed |
+| Continual Improvement | CSAT surveys ❌, custom reports ❌ | Not yet implemented |
+| Knowledge Management | (existing KB + AI search in Phase 2) | — |
+| **Additional (from upstream)** | Agent dashboard ✅, keyboard shortcuts ✅, command palette ✅, i18n ✅, telemetry ✅ | All DONE |
 
 ---
 

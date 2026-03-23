@@ -5,6 +5,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "itil_tab",
+  "itil_mode_section",
+  "itil_mode_enabled",
+  "column_break_itil",
+  "feature_flags_section",
+  "chat_enabled",
+  "csat_enabled",
+  "automation_enabled",
+  "itil_matrix_section",
+  "priority_matrix",
   "priority_section",
   "default_priority",
   "column_break_nvbf",
@@ -80,6 +90,67 @@
   "reply_via_agent_email_content"
  ],
  "fields": [
+  {
+   "fieldname": "itil_tab",
+   "fieldtype": "Tab Break",
+   "label": "ITIL & Features"
+  },
+  {
+   "fieldname": "itil_mode_section",
+   "fieldtype": "Section Break",
+   "label": "ITIL Mode"
+  },
+  {
+   "default": "0",
+   "description": "When enabled, impact, urgency, category, and sub-category fields appear on tickets and priority becomes auto-calculated from the priority matrix.",
+   "fieldname": "itil_mode_enabled",
+   "fieldtype": "Check",
+   "label": "Enable ITIL Mode"
+  },
+  {
+   "fieldname": "column_break_itil",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "feature_flags_section",
+   "fieldtype": "Section Break",
+   "label": "Feature Flags"
+  },
+  {
+   "default": "0",
+   "description": "Enable live chat widget and agent chat interface.",
+   "fieldname": "chat_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Live Chat"
+  },
+  {
+   "default": "0",
+   "description": "Enable post-resolution CSAT survey emails.",
+   "fieldname": "csat_enabled",
+   "fieldtype": "Check",
+   "label": "Enable CSAT Surveys"
+  },
+  {
+   "default": "0",
+   "description": "Enable visual workflow automation rule builder.",
+   "fieldname": "automation_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Workflow Automation"
+  },
+  {
+   "depends_on": "eval:doc.itil_mode_enabled==1",
+   "fieldname": "itil_matrix_section",
+   "fieldtype": "Section Break",
+   "label": "Priority Matrix"
+  },
+  {
+   "default": "{\"High-High\": \"Urgent\", \"High-Medium\": \"High\", \"High-Low\": \"Medium\", \"Medium-High\": \"High\", \"Medium-Medium\": \"Medium\", \"Medium-Low\": \"Low\", \"Low-High\": \"Medium\", \"Low-Medium\": \"Low\", \"Low-Low\": \"Low\"}",
+   "depends_on": "eval:doc.itil_mode_enabled==1",
+   "description": "JSON mapping Impact-Urgency combinations to priority values. All 9 combinations (High/Medium/Low x High/Medium/Low) must be mapped.",
+   "fieldname": "priority_matrix",
+   "fieldtype": "JSON",
+   "label": "ITIL Priority Matrix"
+  },
   {
    "fieldname": "assignment_rules_section",
    "fieldtype": "Section Break",
@@ -509,7 +580,7 @@
  "grid_page_length": 50,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-23 18:30:40.906948",
+ "modified": "2026-03-23 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Settings",

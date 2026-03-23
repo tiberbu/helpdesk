@@ -1092,6 +1092,8 @@ Based on analysis across all 15 tools, these are the features that separate worl
 
 ## 4.2 Frappe Helpdesk: Current State vs. Best-in-Class
 
+> **Updated 2026-03-23** — Post upstream sync with 600+ commits from frappe/helpdesk develop
+
 ### What Frappe Helpdesk Does Well
 - **Open source** — unique advantage for customization and self-hosting
 - **No per-agent pricing** — massive cost advantage at scale
@@ -1102,41 +1104,50 @@ Based on analysis across all 15 tools, these are the features that separate worl
 - **Customer portal** — self-service ticket submission and tracking
 - **Assignment rules** — round-robin and manual assignment
 - **Custom fields** — extensible data model
+- ✅ **NEW: Saved replies (macros)** — Pre-written response templates with dynamic variables and team-based sharing
+- ✅ **NEW: Collision detection** — Real-time Socket.IO-based viewer tracking with typing indicators
+- ✅ **NEW: Agent dashboard** — Customizable landing page with pending tickets, SLA metrics, feedback, and performance trends
+- ✅ **NEW: Keyboard shortcuts** — Full keyboard navigation (T, P, A, S, R, C, Ctrl+K command palette)
+- ✅ **NEW: i18n support** — 25+ language translations with runtime translation plugin
+- ✅ **NEW: Telemetry** — PostHog-based event tracking for usage analytics
+- ✅ **NEW: Comment reactions** — Emoji reactions on ticket comments for team collaboration
 
-### Critical Gaps vs. Best-in-Class
+### Critical Gaps vs. Best-in-Class (Updated 2026-03-23)
 
-| Gap | Impact | Best-in-Class Benchmark |
-|-----|--------|------------------------|
-| **No AI Agent** | Missing the defining feature of 2025 — competitors resolve 40–80% autonomously | Intercom Fin, Zendesk AI Agents |
-| **No AI Copilot** | Agents get no AI assistance for drafting, summarizing, or KB surfacing | Intercom Copilot, Zendesk Copilot |
-| **No Live Chat** | No real-time messaging channel — email only | All competitors offer this |
-| **No Phone/Voice** | Cannot handle phone support | Zendesk Talk, Dixa, Gladly |
-| **No WhatsApp/SMS** | Missing high-growth messaging channels | Zendesk, Zoho, Intercom |
-| **No Social Media** | Cannot receive support from Facebook/Instagram/X | All major competitors |
-| **Basic Automation** | Assignment rules only — no visual workflow builder | Zendesk triggers, Zoho Blueprint |
-| **No Collision Detection** | Two agents can reply to same ticket simultaneously | Freshdesk, Help Scout, Front |
-| **No CSAT Surveys** | Cannot measure customer satisfaction post-resolution | All competitors offer this |
-| **Limited Reporting** | Basic dashboards — no custom report builder, no drill-down | Zendesk Explore, ServiceNow PA |
-| **No Canned Responses** | No template system for common replies (macros) | All competitors offer this |
-| **No Internal Notes** | Limited internal collaboration on tickets | All competitors offer this |
-| **No Mobile App** | PWA only — no native mobile experience | Most competitors have native apps |
-| **No Multi-Brand** | Cannot support multiple brands from one instance | Zendesk, Zoho, Freshdesk |
-| **No Agent Productivity Tools** | No shortcuts, no time tracking, no gamification | Freshdesk, Zendesk, Front |
-| **No QA/Quality Scoring** | Cannot score or audit agent performance | Front, Zendesk (Klaus), Dixa |
-| **No Proactive Messaging** | Cannot reach out to customers before they ask | Intercom, HubSpot |
+| Gap | Impact | Best-in-Class Benchmark | Status |
+|-----|--------|------------------------|--------|
+| **No AI Agent** | Missing the defining feature of 2025 — competitors resolve 40–80% autonomously | Intercom Fin, Zendesk AI Agents | ❌ Still missing |
+| **No AI Copilot** | Agents get no AI assistance for drafting, summarizing, or KB surfacing | Intercom Copilot, Zendesk Copilot | ❌ Still missing |
+| **No Live Chat** | No real-time messaging channel — email only | All competitors offer this | ❌ Still missing |
+| **No Phone/Voice** | Cannot handle phone support | Zendesk Talk, Dixa, Gladly | ❌ Still missing |
+| **No WhatsApp/SMS** | Missing high-growth messaging channels | Zendesk, Zoho, Intercom | ❌ Still missing |
+| **No Social Media** | Cannot receive support from Facebook/Instagram/X | All major competitors | ❌ Still missing |
+| **Basic Automation** | Assignment rules only — no visual workflow builder | Zendesk triggers, Zoho Blueprint | ❌ Still missing |
+| ~~No Collision Detection~~ | ~~Two agents can reply to same ticket simultaneously~~ | ~~Freshdesk, Help Scout, Front~~ | ✅ **IMPLEMENTED** — Real-time viewer tracking + typing indicators via Socket.IO |
+| **No CSAT Surveys** | Cannot measure customer satisfaction post-resolution | All competitors offer this | ❌ Still missing (feedback options exist but no formal CSAT) |
+| **Limited Reporting** | Basic dashboards — no custom report builder | Zendesk Explore, ServiceNow PA | ⚠️ **Partially addressed** — Agent dashboard with metrics |
+| ~~No Canned Responses~~ | ~~No template system for common replies~~ | ~~All competitors~~ | ✅ **IMPLEMENTED** — HD Saved Reply with team sharing and autocomplete |
+| **No Internal Notes** | Limited internal collaboration on tickets | All competitors offer this | ❌ Still missing (comments exist but no internal/external distinction) |
+| **No Mobile App** | PWA only — no native mobile experience | Most competitors have native apps | ❌ Still missing |
+| **No Multi-Brand** | Cannot support multiple brands from one instance | Zendesk, Zoho, Freshdesk | ❌ Still missing |
+| ~~No Agent Productivity Tools~~ | ~~No shortcuts, no time tracking, no gamification~~ | ~~Freshdesk, Zendesk, Front~~ | ✅ **PARTIALLY IMPLEMENTED** — Keyboard shortcuts, command palette, dashboard. Missing: time tracking, gamification |
+| **No QA/Quality Scoring** | Cannot score or audit agent performance | Front, Zendesk (Klaus), Dixa | ❌ Still missing |
+| **No Proactive Messaging** | Cannot reach out to customers before they ask | Intercom, HubSpot | ❌ Still missing |
+
+**Summary: 3 gaps fully closed, 1 partially addressed, 13 remain open.**
 
 ## 4.3 Recommended Feature Roadmap Priority
 
 ### Tier 1: Foundation (Critical — Must-Have for Competitive Viability)
 
-These gaps make Frappe Helpdesk non-competitive for most use cases:
+> **Updated 2026-03-23**: 3 of 4 P0 items are now resolved by upstream.
 
-| Priority | Feature | Rationale | Effort |
-|----------|---------|-----------|--------|
-| P0 | **Canned Responses / Macros** | Every single competitor has this. Agents need templates. | Low |
-| P0 | **Internal Notes on Tickets** | Basic collaboration. Agents need to communicate internally. | Low |
-| P0 | **Collision Detection** | Prevents embarrassing duplicate replies. Table stakes. | Low |
-| P0 | **CSAT Surveys** | Cannot improve what you don't measure. Basic quality signal. | Medium |
+| Priority | Feature | Rationale | Effort | Status |
+|----------|---------|-----------|--------|--------|
+| ~~P0~~ | ~~**Canned Responses / Macros**~~ | ~~Every single competitor has this.~~ | ~~Low~~ | ✅ **DONE** — HD Saved Reply |
+| P0 | **Internal Notes on Tickets** | Basic collaboration. Agents need to communicate internally. | Low | ❌ Still needed |
+| ~~P0~~ | ~~**Collision Detection**~~ | ~~Prevents embarrassing duplicate replies.~~ | ~~Low~~ | ✅ **DONE** — Socket.IO realtime |
+| P0 | **CSAT Surveys** | Cannot improve what you don't measure. Basic quality signal. | Medium | ❌ Still needed |
 | P1 | **Live Chat Widget** | Required for real-time support. Second most expected channel after email. | Medium |
 | P1 | **Advanced Automation / Workflow Builder** | Visual if-then rules beyond simple assignment. Triggers, conditions, actions. | High |
 | P1 | **Custom Report Builder** | Managers need to build their own reports. Pre-built is not enough. | High |
