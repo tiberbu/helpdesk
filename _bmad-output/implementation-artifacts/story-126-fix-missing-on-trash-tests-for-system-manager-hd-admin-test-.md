@@ -1,6 +1,6 @@
 # Story: Fix: Missing on_trash tests for System Manager/HD Admin + test naming inconsistency (P1/P2 from QA #118)
 
-Status: in-progress
+Status: done
 Task ID: mn3cyy3lub60xr
 Task Number: #126
 Workflow: quick-dev
