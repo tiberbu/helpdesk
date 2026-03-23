@@ -468,6 +468,8 @@ development_status:
 
   191-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-f: ready-for-dev  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-176
 
-  192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun: in-progress  # [quick-dev] Fix: P1 commit-scope pollution in task-179 + P2 stale test c
+  192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun: review  # [quick-dev] Fix: P1 commit-scope pollution in task-179 + P2 stale test c
 
-  193-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: ready-for-dev  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171
+  193-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: review  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171
+
+  194-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: ready-for-dev  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171

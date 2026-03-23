@@ -1,6 +1,6 @@
 # Story: Fix: P1 commit-scope pollution in task-179 + P2 stale test counts in story-146/story-130
 
-Status: in-progress
+Status: done
 Task ID: mn3fcaid3lrmhd
 Task Number: #192
 Workflow: quick-dev
@@ -33,14 +33,14 @@ Add a second assertion in test_falsy_status_clears_status_category that tests do
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -58,12 +58,21 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **P1 fixed (story-179 file list)**: Updated story-179 File List to acknowledge all 9 files in commit `0dc9def81`. Previously only 3 files were declared; the 6 extra files (story-170, story-174, story-179 itself, story-182, sprint-status.yaml, docs/qa-report-task-164.md) are now listed with notes identifying them as unintentionally committed.
+- **P2-3 fixed (story-146 count)**: Removed hardcoded "4" from "All 4 tests in helpdesk/tests/test_utils.py pass" → "All tests in helpdesk/tests/test_utils.py pass".
+- **P2-4 fixed (story-130 count)**: Removed hardcoded "71" from "Current count (after subsequent stories) is 71" and added note explaining point-in-time counts are removed.
+- **P2-5 fixed (F-13 None assertion)**: Added second assertion block in `test_falsy_status_clears_status_category` that seeds `status_category="Open"`, sets `doc.status = None`, calls `set_status_category()`, and asserts `status_category is None`. Synced to frappe-bench.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `_bmad-output/implementation-artifacts/story-179-*.md`: Updated File List section to acknowledge all 9 committed files with explanatory notes.
+- `_bmad-output/implementation-artifacts/story-146-*.md`: Removed hardcoded "4" count from test_utils.py reference (line 69).
+- `_bmad-output/implementation-artifacts/story-130-*.md`: Removed hardcoded "71" count from test count correction note (line 81).
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py`: Added `None` falsy-status assertion to `test_falsy_status_clears_status_category`. Synced to frappe-bench.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun.md` (modified — expanded file list to 9 files)
+- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified — removed hardcoded "4" count)
+- `_bmad-output/implementation-artifacts/story-130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-.md` (modified — removed hardcoded "71" count)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (modified — added None assertion to F-13 test)
