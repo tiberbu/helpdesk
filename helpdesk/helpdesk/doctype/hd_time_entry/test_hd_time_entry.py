@@ -547,3 +547,50 @@ class TestHDTimeEntry(FrappeTestCase):
 				started_at=started_at,
 				duration_minutes=MAX_DURATION_MINUTES,
 			)
+
+	# --- P1: System Manager can delete any entry ---
+
+	def _ensure_system_manager_user(self):
+		"""Create sys.mgr.tt@test.com with System Manager role only (no Agent/HD Admin)."""
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("User", "sys.mgr.tt@test.com"):
+			sys_mgr_user = frappe.get_doc({
+				"doctype": "User",
+				"email": "sys.mgr.tt@test.com",
+				"first_name": "Sys",
+				"last_name": "Manager",
+				"send_welcome_email": 0,
+			})
+			sys_mgr_user.insert(ignore_permissions=True)
+			sys_mgr_user.add_roles("System Manager")
+
+	def test_delete_entry_system_manager_can_delete_any_entry(self):
+		"""
+		A bare System Manager user (no Agent/HD Admin role) must be able to delete
+		another agent's entry via delete_entry() — System Manager is in PRIVILEGED_ROLES.
+		"""
+		# agent.tt creates an entry
+		result = add_entry(ticket=self.ticket_name, duration_minutes=18, billable=0)
+		entry_name = result["name"]
+
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		del_result = delete_entry(name=entry_name)
+		self.assertTrue(del_result.get("success"))
+		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+		frappe.set_user("Administrator")
+
+	# --- P1: stop_timer must reject non-numeric duration_minutes ---
+
+	def test_stop_timer_rejects_non_numeric_duration(self):
+		"""
+		stop_timer must raise ValidationError when duration_minutes is a non-numeric
+		string — mirrors test_add_entry_rejects_non_numeric_duration for stop_timer.
+		cint('abc') silently returns 0, which would be a confusing downstream error.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-01-01 10:00:00",
+				duration_minutes="abc",
+			)

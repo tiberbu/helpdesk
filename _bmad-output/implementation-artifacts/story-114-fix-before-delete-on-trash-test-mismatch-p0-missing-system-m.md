@@ -1,6 +1,6 @@
 # Story: Fix: before_delete→on_trash test mismatch (P0) + missing System Manager/stop_timer tests (P1)
 
-Status: in-progress
+Status: done
 Task ID: mn3cll4uxc9ous
 Task Number: #114
 Workflow: quick-dev
@@ -29,13 +29,13 @@ Created: 2026-03-23T15:36:20.250Z
 
 ## Acceptance Criteria
 
-- [ ] Add `test_delete_entry_system_manager_can_delete_any_entry` — creates a bare System Manager user (no Agent/HD Admin role) and verifies they can delete another agent's entry via `delete_entry()`.
-- [ ] Add `test_stop_timer_rejects_non_numeric_duration` — mirrors the existing `test_add_entry_rejects_non_numeric_duration` but for `stop_timer()`.
+- [x] Add `test_delete_entry_system_manager_can_delete_any_entry` — creates a bare System Manager user (no Agent/HD Admin role) and verifies they can delete another agent's entry via `delete_entry()`.
+- [x] Add `test_stop_timer_rejects_non_numeric_duration` — mirrors the existing `test_add_entry_rejects_non_numeric_duration` but for `stop_timer()`.
 
 ## Tasks / Subtasks
 
-- [ ] Add `test_delete_entry_system_manager_can_delete_any_entry` — creates a bare System Manager user (no Agent/HD Admin role) and verifies they can delete another agent's entry via `delete_entry()`.
-- [ ] Add `test_stop_timer_rejects_non_numeric_duration` — mirrors the existing `test_add_entry_rejects_non_numeric_duration` but for `stop_timer()`.
+- [x] Add `test_delete_entry_system_manager_can_delete_any_entry` — creates a bare System Manager user (no Agent/HD Admin role) and verifies they can delete another agent's entry via `delete_entry()`.
+- [x] Add `test_stop_timer_rejects_non_numeric_duration` — mirrors the existing `test_add_entry_rejects_non_numeric_duration` but for `stop_timer()`.
 
 ## Dev Notes
 
@@ -53,12 +53,17 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P0 fixes were already applied in the file (`on_trash()` at lines 341 and 477); no change needed.
+- Added `_ensure_system_manager_user()` helper and `test_delete_entry_system_manager_can_delete_any_entry` test (P1 #1).
+- Added `test_stop_timer_rejects_non_numeric_duration` test (P1 #2).
+- All 41 tests pass (Ran 41 tests in 12.520s OK).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Added `_ensure_system_manager_user`, `test_delete_entry_system_manager_can_delete_any_entry`, and `test_stop_timer_rejects_non_numeric_duration` to test file.
+- Copied test file to bench: `frappe-bench/apps/helpdesk/...`.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified)
+- `/home/ubuntu/frappe-bench/apps/helpdesk/helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (synced)

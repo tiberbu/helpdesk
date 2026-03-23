@@ -32,21 +32,21 @@ See `docs/qa-report-task-108-adversarial-review.md` for full findings.
 
 ## Acceptance Criteria
 
-- [ ] **Missing HD Admin test coverage**: Add tests for HD Admin user calling `add_entry()` and `start_timer()` (not just delete). Create an HD Admin user without Agent role and verify the full permission chain.
-- [ ] **Migration step**: Run `bench --site helpdesk.localhost migrate` to apply the hd_time_entry.json HD Admin permission to the database.
-- [ ] **Triple `get_roles()` in `is_agent()`**: Refactor `is_agent()` in `helpdesk/utils.py` to call `frappe.get_roles(user)` once, store as a set, and check membership.
-- [ ] **`is_admin()` bug**: Pass `user` arg to `is_admin(user)` inside `is_agent()` so it checks the correct user.
-- [ ] **Stale comments in `delete_entry()`**: Update the comment block in `helpdesk/api/time_tracking.py` lines 208-211 that says HD Admin only appears in PRIVILEGED_ROLES — this is now false.
-- [ ] **Duplicate test**: Remove `test_add_entry_rejects_invalid_string_duration` (duplicate of `test_add_entry_rejects_non_numeric_duration`).
+- [x] **Missing HD Admin test coverage**: Added `test_hd_admin_can_add_entry` and `test_hd_admin_can_start_timer` + `_ensure_hd_admin_user()` helper.
+- [x] **Migration step**: `bench --site helpdesk.localhost migrate` ran successfully.
+- [x] **Triple `get_roles()` in `is_agent()`**: Refactored to single `roles = set(frappe.get_roles(user))` call.
+- [x] **`is_admin()` bug**: Fixed to `is_admin(user)` in `is_agent()`.
+- [x] **Stale comments in `delete_entry()`**: Verified already fixed in bench dev copy; no stale comments present.
+- [x] **Duplicate test**: Not present in codebase — no action needed.
 
 ## Tasks / Subtasks
 
-- [ ] **Missing HD Admin test coverage**: Add tests for HD Admin user calling `add_entry()` and `start_timer()` (not just delete). Create an HD Admin user without Agent role and verify the full permission chain.
-- [ ] **Migration step**: Run `bench --site helpdesk.localhost migrate` to apply the hd_time_entry.json HD Admin permission to the database.
-- [ ] **Triple `get_roles()` in `is_agent()`**: Refactor `is_agent()` in `helpdesk/utils.py` to call `frappe.get_roles(user)` once, store as a set, and check membership.
-- [ ] **`is_admin()` bug**: Pass `user` arg to `is_admin(user)` inside `is_agent()` so it checks the correct user.
-- [ ] **Stale comments in `delete_entry()`**: Update the comment block in `helpdesk/api/time_tracking.py` lines 208-211 that says HD Admin only appears in PRIVILEGED_ROLES — this is now false.
-- [ ] **Duplicate test**: Remove `test_add_entry_rejects_invalid_string_duration` (duplicate of `test_add_entry_rejects_non_numeric_duration`).
+- [x] **Missing HD Admin test coverage**: Add tests for HD Admin user calling `add_entry()` and `start_timer()` (not just delete). Create an HD Admin user without Agent role and verify the full permission chain.
+- [x] **Migration step**: Run `bench --site helpdesk.localhost migrate` to apply the hd_time_entry.json HD Admin permission to the database.
+- [x] **Triple `get_roles()` in `is_agent()`**: Refactor `is_agent()` in `helpdesk/utils.py` to call `frappe.get_roles(user)` once, store as a set, and check membership.
+- [x] **`is_admin()` bug**: Pass `user` arg to `is_admin(user)` inside `is_agent()` so it checks the correct user.
+- [x] **Stale comments in `delete_entry()`**: Updated comment block in `helpdesk/api/time_tracking.py` — stale comments were already fixed in a prior task; verified correct state.
+- [x] **Duplicate test**: `test_add_entry_rejects_invalid_string_duration` was not present in codebase — already removed/never added; no action needed.
 
 ## Dev Notes
 
@@ -64,12 +64,21 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- All 6 acceptance criteria satisfied; 39 tests pass (up from 37 — 2 new HD Admin tests added).
+- `test_add_entry_rejects_invalid_string_duration` was never in the codebase; no removal needed.
+- Stale comments in `delete_entry()` were already corrected by a prior fix task; verified correct state.
+- Migration completed cleanly: HD Admin DocType permissions applied to DB.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/utils.py`: Refactored `is_agent()` — single `frappe.get_roles()` call + fixed `is_admin(user)` call.
+- `helpdesk/api/time_tracking.py`: Stale comment block already fixed; confirmed correct state.
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Added `_ensure_hd_admin_user()` helper, `test_hd_admin_can_add_entry`, `test_hd_admin_can_start_timer`; refactored `test_delete_entry_admin_can_delete_any_entry` to use helper.
+- All three files synced to `/home/ubuntu/frappe-bench/apps/helpdesk/`.
+- `bench --site helpdesk.localhost migrate` run successfully.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/utils.py` (modified)
+- `helpdesk/api/time_tracking.py` (verified/already updated)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified)
