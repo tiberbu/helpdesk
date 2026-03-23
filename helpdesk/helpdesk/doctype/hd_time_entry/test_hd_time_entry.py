@@ -1143,6 +1143,53 @@ class TestHDTimeEntry(FrappeTestCase):
 				"the explicit Administrator short-circuit guard is broken."
 			)
 
+	def test_check_delete_permission_raises_valueerror_for_mismatched_user_roles(self):
+		"""
+		_check_delete_permission() must raise ValueError when user_roles is
+		pre-fetched for a different user than frappe.session.user.
+
+		This mirrors the identity-contract enforcement in is_agent() (utils.py)
+		to prevent silent permission mismatches where the caller passes
+		user="X" with roles fetched for the session user "Y".
+
+		See QA report task-184 Finding #8.
+		"""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
+			_check_delete_permission,
+		)
+
+		# Create an entry as agent.tt
+		frappe.set_user("agent.tt@test.com")
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_doc = frappe.get_doc("HD Time Entry", result["name"])
+
+		# Switch to a different session user, then try to pass roles for yet
+		# another user — this must raise ValueError.
+		frappe.set_user("agent.tt@test.com")
+		try:
+			# user_roles fetched for the session user is valid — should not raise
+			session_roles = set(frappe.get_roles(frappe.session.user))
+			try:
+				_check_delete_permission(entry_doc, frappe.session.user, user_roles=session_roles)
+				# No exception expected for matching user + session user
+			except ValueError:
+				self.fail(
+					"_check_delete_permission() raised ValueError when user == "
+					"frappe.session.user — the identity contract must allow matching users."
+				)
+
+			# Now pass user_roles for a DIFFERENT user — must raise ValueError
+			with self.assertRaises(ValueError) as ctx:
+				_check_delete_permission(
+					entry_doc,
+					user="other.user@test.com",
+					user_roles=session_roles,
+				)
+			self.assertIn("other.user@test.com", str(ctx.exception))
+			self.assertIn(frappe.session.user, str(ctx.exception))
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_delete_entry_administrator_can_delete_any_entry(self):
 		"""
 		Administrator must be able to delete any agent's entry via delete_entry()

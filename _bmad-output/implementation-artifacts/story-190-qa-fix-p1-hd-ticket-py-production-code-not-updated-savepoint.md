@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1 hd_ticket.py production code not updated — savepoint CM + exception simp
 
-Status: in-progress
+Status: done
 Task ID: mn3f7wtrnxbmbm
 Task Number: #190
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 14 findings: 0x P0, 3x P1, 5x P2, 6x P3
+- All 6 close_tickets tests pass (2.010s). Dev and bench copies are byte-identical.
+- Core fix (P1-a savepoint CM, P1-b exception hierarchy) verified PASS via git diff and code inspection
+- P1 findings: (F-01) exception handler uses DB when DB may be dead, (F-02) Error Log lost due to savepoint scope, (F-03) no multi-ticket OperationalError isolation test
+- API verified: HD Ticket list returns HTTP 200, login succeeds
+- QA report written to `docs/qa-report-task-185.md`
+- Fix task created for 3x P1 issues
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Created `docs/qa-report-task-185.md` with full adversarial review (14 findings)
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-185.md` (created — QA report)

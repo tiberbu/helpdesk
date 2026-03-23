@@ -55,11 +55,12 @@ sonnet
 ### Completion Notes List
 
 - **No code changes required.** Both P1 desync issues had already been resolved in prior fix commits:
-  - Commit `d57b258ce` — "Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash double get_roles" resolved hd_time_entry.py desync (PRIVILEGED_ROLES explicit frozenset now identical in dev and bench)
-  - Commit `5a680623e` — "Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 is_agent identity contract" resolved utils.py desync (ValueError enforcement now identical in dev and bench)
+  - Task #169, commit `d57b258ce` — "Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash double get_roles" resolved hd_time_entry.py desync (PRIVILEGED_ROLES explicit frozenset now identical in dev and bench)
+  - Task #175, commit `5a680623e` — "Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 is_agent identity contract" resolved utils.py desync (ValueError enforcement now identical in dev and bench)
 - **Diffs confirmed identical**: `diff helpdesk/utils.py` → IDENTICAL; `diff hd_time_entry.py` → IDENTICAL
 - **Test suite**: All 168 tests pass (43s, OK). Zero regressions.
 - **P1 #1 (commit-scope pollution)**: Commit 1aab1769d introduced utils.py and hd_time_entry.py changes outside declared scope; those changes are now the canonical versions in both codebases and are correctly synced, so no further remediation needed.
+- **Audit trail note** (added by task #196): The two resolving commits above were authorized and implemented by task #169 and task #175 respectively. Developers tracing the desync remediation should look up those task files: `story-169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g.md` and `story-175-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is-ag.md`.
 
 ### Change Log
 

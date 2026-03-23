@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1 5th recursive commit-scope pollution in task-171 + undeclared hd_ticket.py cron refactor
 
-Status: in-progress
+Status: done
 Task ID: mn3fdzmu49noq6
 Task Number: #193
 Workflow: adversarial-review
@@ -38,27 +38,21 @@ Task #189 made the following changes:
 
 ## Acceptance Criteria
 
-- [ ] **story-171 File List expanded**: Updated from 4 to 14 entries listing all files in commit d893b5e97 with UNDECLARED annotations.
-- [ ] **story-171 Change Log updated**: Added detailed hd_ticket.py cron refactor entry with description of _autoclose_savepoint CM + broad Exception handler + reference to test coverage in test_close_tickets.py.
-- [ ] **TestEnsureHelpersRolePollutionGuard moved**: From `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` to `helpdesk/tests/test_utils.py` — co-locating tests with the module they test.
-- [ ] Verify story-171 File List has exactly 14 entries
-- [ ] Verify story-171 Change Log has hd_ticket.py entry with _autoclose_savepoint description
-- [ ] Verify TestEnsureHelpersRolePollutionGuard class is in test_utils.py and NOT in test_hd_time_entry.py
-- [ ] Run `bench run-tests --module helpdesk.tests.test_utils` — expect 9 tests pass
-- [ ] Run `bench run-tests --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` — expect 80 tests pass
-- [ ] Check bench/dev file sync for test_utils.py and test_hd_time_entry.py
+- [x] **story-171 File List expanded**: Confirmed 14 entries (plus self). All UNDECLARED annotations present.
+- [x] **story-171 Change Log updated**: hd_ticket.py entry present with _autoclose_savepoint CM description, broad Exception handler, test_close_tickets.py reference.
+- [x] **TestEnsureHelpersRolePollutionGuard moved**: Confirmed in test_utils.py (line 139), removed from test_hd_time_entry.py (replaced with move comment at line 1236).
+- [x] Verify story-171 File List has exactly 14 entries — **CONFIRMED** (14 non-self + 1 self = 15 lines total)
+- [x] Verify story-171 Change Log has hd_ticket.py entry with _autoclose_savepoint description — **CONFIRMED** (line 79)
+- [x] Verify TestEnsureHelpersRolePollutionGuard class is in test_utils.py and NOT in test_hd_time_entry.py — **CONFIRMED**
+- [x] Run `bench run-tests --module helpdesk.tests.test_utils` — **9 tests PASS**
+- [x] Run `bench run-tests --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` — **80 tests PASS**
+- [x] Check bench/dev file sync for test_utils.py and test_hd_time_entry.py — **BOTH IN SYNC** (diff returns exit 0)
 
 ## Tasks / Subtasks
 
-- [ ] **story-171 File List expanded**: Updated from 4 to 14 entries listing all files in commit d893b5e97 with UNDECLARED annotations.
-- [ ] **story-171 Change Log updated**: Added detailed hd_ticket.py cron refactor entry with description of _autoclose_savepoint CM + broad Exception handler + reference to test coverage in test_close_tickets.py.
-- [ ] **TestEnsureHelpersRolePollutionGuard moved**: From `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` to `helpdesk/tests/test_utils.py` — co-locating tests with the module they test.
-- [ ] Verify story-171 File List has exactly 14 entries
-- [ ] Verify story-171 Change Log has hd_ticket.py entry with _autoclose_savepoint description
-- [ ] Verify TestEnsureHelpersRolePollutionGuard class is in test_utils.py and NOT in test_hd_time_entry.py
-- [ ] Run `bench run-tests --module helpdesk.tests.test_utils` — expect 9 tests pass
-- [ ] Run `bench run-tests --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` — expect 80 tests pass
-- [ ] Check bench/dev file sync for test_utils.py and test_hd_time_entry.py
+- [x] Verify all acceptance criteria (see above)
+- [x] Perform adversarial review — 12 findings (1 P1, 6 P2, 5 P3)
+- [x] Write QA report: `docs/qa-report-task-193-adversarial-review.md`
 
 ## Dev Notes
 
@@ -76,12 +70,19 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review of task #189 completed with **12 findings** (1 P1, 6 P2, 5 P3).
+- All 9 acceptance criteria verified and passing (14 file list entries, hd_ticket.py change log entry present, tests moved correctly, 9+80 tests pass, bench synced).
+- **P1 finding**: Story-189 uses wrong filesystem path `helpdesk/helpdesk/tests/test_utils.py` — actual path is `helpdesk/tests/test_utils.py`. Wrong in Change Log, File List, and QA task description.
+- **Key P2 findings**: Story-171 completion notes/file list now stale (still reference TestEnsureHelpersRolePollutionGuard in test_hd_time_entry.py), redundant tombstone comments in test file, likely 6th recursive commit-scope pollution in story-189's own commit.
+- **Process finding (P3)**: The recursive audit-trail-fixing pattern (now 6 layers deep) is unsustainable. Recommend pre-commit hook to enforce declared-file-only staging.
+- Full report: `docs/qa-report-task-193-adversarial-review.md`
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `docs/qa-report-task-193-adversarial-review.md` (created — adversarial review report with 12 findings)
+- `_bmad-output/implementation-artifacts/story-193-*.md` (self — story tracking updated)
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-193-adversarial-review.md` (created — QA report)
+- `_bmad-output/implementation-artifacts/story-193-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u.md` (self — story tracking file)

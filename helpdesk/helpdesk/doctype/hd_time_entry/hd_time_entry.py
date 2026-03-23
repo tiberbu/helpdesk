@@ -41,15 +41,33 @@ def _check_delete_permission(entry, user, user_roles=None):
 	        fetched via frappe.get_roles(). Pass a pre-fetched set to avoid a
 	        redundant DB/cache hit when the caller already holds the roles.
 
+	        **Identity contract** — ``user_roles`` is only valid for the current
+	        session user (``frappe.session.user``).  Passing ``user_roles`` for a
+	        *different* user raises ``ValueError`` immediately to prevent silent
+	        identity mismatches that would produce incorrect permission decisions.
+	        This mirrors the same contract enforced by ``is_agent()``.
+
 	Uses frappe.get_roles() (Issue #12) instead of direct Has Role table query.
 	Includes Agent Manager (Issue #1) which holds delete:1 in the DocType JSON.
 
 	Raises frappe.PermissionError if the user is not permitted.
+	Raises ValueError if user_roles is provided for a non-session user.
 	"""
 	# Administrator can always delete any entry — explicit short-circuit so we do not
 	# depend on Administrator incidentally holding one of the PRIVILEGED_ROLES.
 	if user == "Administrator":
 		return
+	# Identity-contract enforcement: pre-fetched roles are only valid for the
+	# current session user.  Catching this at runtime prevents silent mismatches
+	# where a caller passes user="X" with roles fetched for user "Y".
+	# Mirrors the same contract in is_agent() (helpdesk/utils.py).
+	if user_roles is not None and user != frappe.session.user:
+		raise ValueError(
+			f"_check_delete_permission(): pre-fetched user_roles are only valid for the "
+			f"current session user ({frappe.session.user!r}). Received user={user!r}. "
+			"To check a different user, omit user_roles and let _check_delete_permission() "
+			"fetch roles via frappe.get_roles(user)."
+		)
 	if user_roles is None:
 		user_roles = set(frappe.get_roles(user))
 	is_privileged = bool(user_roles & PRIVILEGED_ROLES)

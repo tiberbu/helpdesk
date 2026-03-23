@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + commit-scope pollution
 
-Status: in-progress
+Status: done
 Task ID: mn3f34puv8b68q
 Task Number: #186
 Workflow: adversarial-review
@@ -43,19 +43,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -73,12 +73,17 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 14 findings: 2 P1, 5 P2, 7 P3
+- P1 #1: Story-182's own commit (fd17a6a77) bundles 11 unrelated documentation files — reproducing the exact commit-scope pollution it was supposed to remediate
+- P1 #2: Audit trail between story-182 and the actual fixing commits (d57b258ce, 5a680623e) is traceable only via SHA, not task cross-references
+- P2 #3: Dev/bench sync was broken within 3 minutes by the next commit (4bff11be6) — no enforcement mechanism exists
+- All 170 tests pass. Dev/bench files currently identical.
+- Full report: `docs/qa-report-task-182.md`
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Produced adversarial review report `docs/qa-report-task-182.md` (14 findings)
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-182.md` (created)
