@@ -540,4 +540,6 @@ development_status:
 
   220-qa-story-2-3-sla-based-automation-triggers: review  # [adversarial-review] QA: Story 2.3: SLA-Based Automation Triggers
 
-  221-fix-story-2-3-sla-based-automation-triggers-dead-notificatio: ready-for-dev  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — dead notifica
+  221-fix-story-2-3-sla-based-automation-triggers-dead-notificatio: review  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — dead notifica
+
+  222-qa-story-2-4-automation-execution-logging: ready-for-dev  # [adversarial-review] QA: Story 2.4: Automation Execution Logging
