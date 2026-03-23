@@ -342,7 +342,7 @@ development_status:
 
   127-qa-fix-p1-performance-regression-misleading-error-test-split: review  # [adversarial-review] QA: Fix P1 performance regression + misleading error + test 
 
-  128-qa-fix-p1-performance-regression-uncached-db-query-every-sav: ready-for-dev  # [adversarial-review] QA: Fix: P1 performance regression (uncached DB query every 
+  128-qa-fix-p1-performance-regression-uncached-db-query-every-sav: review  # [adversarial-review] QA: Fix: P1 performance regression (uncached DB query every 
 
   129-qa-fix-missing-on-trash-tests-for-system-manager-hd-admin-te: review  # [adversarial-review] QA: Fix: Missing on_trash tests for System Manager/HD Admin 
 
@@ -401,8 +401,10 @@ development_status:
 
   157-qa-fix-reverted-savepoint-isolation-broad-except-in-close-ti: ready-for-dev  # [adversarial-review] QA: Fix: Reverted savepoint isolation + broad except in clos
 
-  158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco: in-progress  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-150 + P2 i
+  158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco: review  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-150 + P2 i
 
-  159-qa-fix-delete-entry-dry-violation-on-trash-missing-is-agent-: ready-for-dev  # [adversarial-review] QA: Fix delete_entry DRY violation + on_trash missing is_age
+  159-qa-fix-delete-entry-dry-violation-on-trash-missing-is-agent-: review  # [adversarial-review] QA: Fix delete_entry DRY violation + on_trash missing is_age
 
   160-qa-fix-delete-entry-re-inlines-is-agent-dry-violation-on-tra: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry re-inlines is_agent() DRY violation + 
+
+  161-qa-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p: ready-for-dev  # [adversarial-review] QA: Fix: P1 inline is_agent() reimplementation in delete_ent

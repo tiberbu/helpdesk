@@ -65,3 +65,7 @@ sonnet
 - `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — test count correction + wontfix note
 - `_bmad-output/implementation-artifacts/story-144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin.md` — File List expanded to 7 entries
 - `_bmad-output/implementation-artifacts/story-150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-.md` — this story file
+- `_bmad-output/implementation-artifacts/story-149-qa-fix-system-manager-delete-permission-contradictory-betwee.md` — touched by commit 95e55885a (sprint sync)
+- `_bmad-output/implementation-artifacts/story-152-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud.md` — touched by commit 95e55885a (sprint sync)
+- `_bmad-output/sprint-status.yaml` — updated sprint status
+- `docs/qa-report-task-149.md` — touched by commit 95e55885a (sprint sync)

@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1 delete_entry double get_roles + stale test count + audit trail violation
 
-Status: in-progress
+Status: done
 Task ID: mn3e2azvxnokix
 Task Number: #153
 Workflow: adversarial-review
@@ -9,7 +9,7 @@ Created: 2026-03-23T16:18:43.098Z
 
 ## Description
 
-## QA Report Task — DO NOT MODIFY CODE
+## QA Report Task -- DO NOT MODIFY CODE
 
 **Review task #146: Fix: P1 delete_entry double get_roles + stale test count + audit trail violations from adversarial review task-139**
 
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed: 14 findings (2x P1, 5x P2, 7x P3)
+- P1-1: Task #146 commit (`769ad7efa`) contains ZERO Python code -- same audit trail violation pattern the task was created to fix. Code was in commit `8b17c65c3` (task #148).
+- P1-2: `hd_time_entry.json` DocType JSON out of sync -- bench has System Manager create/write permissions that dev removed. Needs `bench migrate`.
+- All 84 tests pass (80 in test_hd_time_entry.py, 4 in tests/test_utils.py).
+- Full report at `docs/qa-report-task-146.md`.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-146.md` -- adversarial review report with 14 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-146.md` (new)

@@ -56,7 +56,7 @@ sonnet
 
 ### Completion Notes List
 
-- **P1 (story-133 audit trail)**: Rewrote story-133 Completion Notes, Change Log, and File List to accurately distinguish what `da95326be` contributed (the `except (ValueError, OverflowError)` fix + 7 string inf/nan tests) vs what `cda3520c1` (story-133's own commit) contributed (float NaN/Inf bypass guard + `import math` + `is_admin` import removal + 3 Python float tests).
+- **P1 (story-133 audit trail)**: Rewrote story-133 Completion Notes, Change Log, and File List to accurately distinguish what `da95326be` contributed (the `except (ValueError, OverflowError)` fix + 5 string inf/nan rejection tests) vs what `cda3520c1` (story-133's own commit) contributed (float NaN/Inf bypass guard + `import math` + `is_admin` import removal + 3 Python float tests).
 - **P2-1 (1e309 test)**: Added `test_require_int_str_rejects_1e309_overflow_duration` to `test_hd_time_entry.py`. `float("1e309")` overflows to `float("inf")` and `int(float("inf"))` raises `OverflowError`, which the `except (ValueError, OverflowError)` clause catches.
 - **P2-2 (story-121 stale ref)**: Added `RELOCATION NOTE` to story-121 Change Log and File List noting that `TestIsAgentExplicitUser` was moved from `test_hd_time_entry.py` to `helpdesk/tests/test_utils.py` in story-130.
 - **P2-3 (nan billable test)**: Added `test_stop_timer_rejects_nan_billable` to `test_hd_time_entry.py`. Completes the inf/nan billable matrix for `stop_timer`.
