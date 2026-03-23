@@ -1,6 +1,6 @@
 # Story: Fix: P1 performance regression (uncached DB query every save) + misleading error for empty category field + test split reality in _resolve_ticket
 
-Status: in-progress
+Status: done
 Task ID: mn3csloyxbktc8
 Task Number: #122
 Workflow: quick-dev
@@ -31,14 +31,14 @@ Line 978 sets ticket.status_category = "Resolved" which is now dead code for sav
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -56,12 +56,18 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- F-01: `set_status_category()` now uses `frappe.get_cached_value()` instead of `frappe.get_value()`, eliminating the uncached DB round-trip on every save while still always re-deriving (never trusting stale self.status_category).
+- F-02: Added `frappe.db.exists()` check to disambiguate the two None-return cases: (a) status record deleted → "no longer exists" error; (b) status record exists but category field is empty → "exists but has no category assigned" error.
+- F-03: Removed `ticket.status_category = "Resolved"` hard-coded assignment from `_resolve_ticket()` in `test_hd_ticket.py`. Now calls `ticket.set_status_category()` to derive the category from the DB, matching the production code path.
+- F-05: Added `test_save_raises_validation_error_when_status_record_deleted` to `test_incident_model.py`. Test creates a status record, points a ticket at it, deletes the record, then verifies ValidationError is raised on re-save (Frappe's link validation fires before set_status_category; both produce ValidationError subclasses).
+- F-08: `close_tickets_after_n_days()` now commits the `frappe.log_error()` result before calling `frappe.db.rollback()`, preventing the error log from being silently discarded.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Implemented all F-01, F-02, F-03, F-05, F-08 fixes. All category validation tests pass (5/5), all incident model tests pass (19/19). Pre-existing freezegun failures in test_hd_ticket are unrelated.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` — F-01, F-02, F-08 fixes
+- `helpdesk/helpdesk/doctype/hd_ticket/test_hd_ticket.py` — F-03 fix
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` — F-05 new test

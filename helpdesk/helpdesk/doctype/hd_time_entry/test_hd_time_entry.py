@@ -319,7 +319,7 @@ class TestHDTimeEntry(FrappeTestCase):
 
 	# --- on_trash ownership hook tests (Issue #2 fix) ---
 
-	def test_before_delete_hook_blocks_other_agent_from_direct_delete(self):
+	def test_on_trash_blocks_other_agent_from_direct_delete(self):
 		"""
 		The on_trash hook must raise PermissionError when a different agent calls it.
 		This simulates the REST DELETE /api/resource/HD Time Entry/{name} bypass scenario.
@@ -341,9 +341,9 @@ class TestHDTimeEntry(FrappeTestCase):
 			entry_doc.on_trash()
 		frappe.set_user("agent.tt@test.com")
 
-	def test_before_delete_hook_allows_own_entry_direct_delete(self):
+	def test_on_trash_allows_own_entry_direct_delete(self):
 		"""
-		The before_delete hook must allow an agent to delete their own entry via direct delete.
+		The on_trash hook must allow an agent to delete their own entry via direct delete.
 		"""
 		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
 		entry_name = result["name"]
@@ -460,7 +460,7 @@ class TestHDTimeEntry(FrappeTestCase):
 		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
 		frappe.set_user("Administrator")
 
-	def test_before_delete_hook_allows_agent_manager_to_delete_any_entry(self):
+	def test_on_trash_allows_agent_manager_to_delete_any_entry(self):
 		"""
 		The on_trash hook must allow an Agent Manager to delete another
 		agent's entry via direct delete (REST bypass path — P1 fix #1).
@@ -473,10 +473,39 @@ class TestHDTimeEntry(FrappeTestCase):
 		self._ensure_agent_manager_user()
 		frappe.set_user("agent.mgr.tt@test.com")
 		# on_trash() must NOT raise PermissionError for Agent Manager
-		try:
-			entry_doc.on_trash()
-		except frappe.PermissionError:
-			self.fail("Agent Manager should be allowed to delete any entry via on_trash()")
+		entry_doc.on_trash()
+		frappe.set_user("Administrator")
+
+	def test_on_trash_allows_system_manager_to_delete_any_entry(self):
+		"""
+		The on_trash hook must allow a bare System Manager user (no Agent/HD Admin role)
+		to delete another agent's entry via direct delete (REST bypass path).
+		System Manager is in PRIVILEGED_ROLES so on_trash() must not raise PermissionError.
+		"""
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
+
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		# on_trash() must NOT raise PermissionError for System Manager
+		entry_doc.on_trash()
+		frappe.set_user("Administrator")
+
+	def test_on_trash_allows_hd_admin_to_delete_any_entry(self):
+		"""
+		The on_trash hook must allow an HD Admin user (no Agent role) to delete
+		another agent's entry via direct delete (REST bypass path).
+		HD Admin is in PRIVILEGED_ROLES so on_trash() must not raise PermissionError.
+		"""
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
+
+		self._ensure_hd_admin_user()
+		frappe.set_user("hd.admin.tt@test.com")
+		# on_trash() must NOT raise PermissionError for HD Admin
+		entry_doc.on_trash()
 		frappe.set_user("Administrator")
 
 	# --- P2-3: API-layer MAX_DURATION_MINUTES enforcement for stop_timer ---

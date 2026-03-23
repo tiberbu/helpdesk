@@ -1515,24 +1515,24 @@ def close_tickets_after_n_days():
     # cant do set_value because SLA will not be applied as setting directly to db and doc is not running.
     for ticket in tickets_to_close:
         try:
-            doc = frappe.get_doc("HD Ticket", ticket)
-            doc.status = "Closed"
-            # F-02: do NOT set ignore_validate=True here — that bypassed the
-            # validate_checklist_before_resolution() guard entirely.  Auto-close
-            # must respect the same validation rules as a manual close.
-            doc.save(ignore_permissions=True)
+            with frappe.db.savepoint():
+                doc = frappe.get_doc("HD Ticket", ticket)
+                doc.status = "Closed"
+                # F-02: do NOT set ignore_validate=True here — that bypassed the
+                # validate_checklist_before_resolution() guard entirely.  Auto-close
+                # must respect the same validation rules as a manual close.
+                doc.save(ignore_permissions=True)
             frappe.db.commit()  # nosemgrep
-        except Exception:
-            # Log and skip tickets that fail for any reason (validation errors,
-            # database errors, DoesNotExist, etc.) so a single bad ticket cannot
-            # crash the entire cron run and prevent all subsequent tickets from
-            # being auto-closed.
-            # F-08: commit the error log BEFORE rolling back the failed
-            # transaction — otherwise the rollback would undo the log_error
-            # insert, silently swallowing the error.
+        except (frappe.ValidationError, frappe.LinkValidationError, frappe.DoesNotExistError):
+            # Log and skip tickets that fail due to expected validation failure
+            # modes (checklist guards, missing links, stale references).
+            # Narrowed from bare `except Exception` so that OperationalError,
+            # SecurityException, and other unexpected failures still propagate
+            # and surface properly rather than being silently swallowed.
+            # The savepoint context manager already rolled back this iteration's
+            # DB changes when the exception escaped the `with` block.
             frappe.log_error(
                 title=f"Auto-close failed for ticket {ticket}",
                 message=frappe.get_traceback(),
             )
             frappe.db.commit()  # nosemgrep — persist the error log
-            frappe.db.rollback()  # nosemgrep

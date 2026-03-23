@@ -1,6 +1,6 @@
 # Story: QA: Fix: P1s from adversarial review task-101 — bench time_tracking.py sync, delete_
 
-Status: in-progress
+Status: done
 Task ID: mn3cmzkhhz7q8i
 Task Number: #116
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 14 findings (3 P1, 7 P2, 4 P3)
+- Key discovery: 3 of 6 fixes claimed by story #106 (savepoint isolation, narrowed except, removed double perm check) were silently REVERTED by subsequent commit a7891185d
+- All 44 unit tests pass; dev/bench files confirmed in sync
+- QA report produced at `docs/qa-report-task-106.md`
+- P1 fix task created for reverted savepoint isolation and broad except
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Produced adversarial review report `docs/qa-report-task-106.md`
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-106.md` — QA adversarial review report (created)

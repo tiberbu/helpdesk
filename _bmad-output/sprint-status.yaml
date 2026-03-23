@@ -330,6 +330,14 @@ development_status:
 
   121-fix-require-int-str-float-string-mismatch-p1-undocumented-is: review  # [quick-dev] Fix: _require_int_str float-string mismatch (P1) + undocumen
 
-  122-fix-p1-performance-regression-uncached-db-query-every-save-m: in-progress  # [quick-dev] Fix: P1 performance regression (uncached DB query every save
+  122-fix-p1-performance-regression-uncached-db-query-every-save-m: review  # [quick-dev] Fix: P1 performance regression (uncached DB query every save
 
-  123-qa-fix-flaky-time-tracking-tests-duplicate-test-missing-cove: ready-for-dev  # [adversarial-review] QA: Fix: Flaky time tracking tests (duplicate test, missing 
+  123-qa-fix-flaky-time-tracking-tests-duplicate-test-missing-cove: review  # [adversarial-review] QA: Fix: Flaky time tracking tests (duplicate test, missing 
+
+  124-qa-fix-require-int-str-float-string-mismatch-p1-undocumented: ready-for-dev  # [adversarial-review] QA: Fix: _require_int_str float-string mismatch (P1) + undoc
+
+  125-fix-reverted-savepoint-isolation-broad-except-in-close-ticke: in-progress  # [quick-dev] Fix: Reverted savepoint isolation + broad except in close_ti
+
+  126-fix-missing-on-trash-tests-for-system-manager-hd-admin-test-: in-progress  # [quick-dev] Fix: Missing on_trash tests for System Manager/HD Admin + te
+
+  127-qa-fix-p1-performance-regression-misleading-error-test-split: ready-for-dev  # [adversarial-review] QA: Fix P1 performance regression + misleading error + test 

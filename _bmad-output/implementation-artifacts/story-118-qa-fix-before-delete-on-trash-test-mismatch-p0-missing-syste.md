@@ -1,6 +1,6 @@
-# Story: QA: Fix: before_delete→on_trash test mismatch (P0) + missing System Manager/stop_tim
+# Story: QA: Fix: before_delete->on_trash test mismatch (P0) + missing System Manager/stop_tim
 
-Status: in-progress
+Status: done
 Task ID: mn3coweqch25n7
 Task Number: #118
 Workflow: adversarial-review
@@ -9,9 +9,9 @@ Created: 2026-03-23T15:42:57.042Z
 
 ## Description
 
-## QA Report Task — DO NOT MODIFY CODE
+## QA Report Task -- DO NOT MODIFY CODE
 
-**Review task #114: Fix: before_delete→on_trash test mismatch (P0) + missing System Manager/stop_timer tests (P1)**
+**Review task #114: Fix: before_delete->on_trash test mismatch (P0) + missing System Manager/stop_timer tests (P1)**
 
 ### What to verify
 Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-114-fix-before-delete-on-trash-test-mismatch-p0-missing-system-m.md`
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,19 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 12 findings (0 P0, 2 P1, 5 P2, 5 P3)
+- All 56 tests pass (Ran 56 tests in 12.836s OK)
+- Both ACs from task #114 verified as PASS
+- Dev/bench file parity confirmed (zero diff)
+- API endpoints verified via curl (add_entry, delete_entry, validation paths)
+- P1 findings: missing on_trash direct-delete tests for System Manager and HD Admin
+- P2 findings: test names still say "before_delete" (ironic given P0 was naming mismatch), test isolation leaks, try/except anti-pattern, _require_int_str doesn't handle "inf"/"nan"
+- Fix task created for P1 issues
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-114.md` with full adversarial review findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-114.md` (created)
