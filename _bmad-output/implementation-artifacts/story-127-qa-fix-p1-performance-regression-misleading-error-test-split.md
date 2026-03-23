@@ -1,6 +1,6 @@
 # Story: QA: Fix P1 performance regression + misleading error + test split reality
 
-Status: in-progress
+Status: done
 Task ID: mn3d0w8pi79qof
 Task Number: #127
 Workflow: adversarial-review
@@ -34,19 +34,19 @@ Use Playwright MCP for browser testing if applicable.
 
 ## Acceptance Criteria
 
-- [ ] **F-01**: `set_status_category()` in hd_ticket.py now uses `frappe.get_cached_value()` instead of `frappe.get_value()` — confirm the method signature changed, no regressions in tests.
-- [ ] **F-02**: Disambiguated None return — two distinct error messages: (a) deleted record → "no longer exists"; (b) empty category field → "exists but has no category assigned".
-- [ ] **F-03**: `_resolve_ticket()` in test_hd_ticket.py no longer hard-codes `ticket.status_category = "Resolved"`, now calls `ticket.set_status_category()` instead.
-- [ ] **F-05**: New test `test_save_raises_validation_error_when_status_record_deleted` in test_incident_model.py passes.
-- [ ] **F-08**: `close_tickets_after_n_days()` commits error log before rollback.
+- [x] **F-01**: `set_status_category()` in hd_ticket.py now uses `frappe.get_cached_value()` instead of `frappe.get_value()` — confirm the method signature changed, no regressions in tests.
+- [x] **F-02**: Disambiguated None return — two distinct error messages: (a) deleted record → "no longer exists"; (b) empty category field → "exists but has no category assigned".
+- [x] **F-03**: `_resolve_ticket()` in test_hd_ticket.py no longer hard-codes `ticket.status_category = "Resolved"`, now calls `ticket.set_status_category()` instead.
+- [x] **F-05**: New test `test_save_raises_validation_error_when_status_record_deleted` in test_incident_model.py passes.
+- [x] **F-08**: `close_tickets_after_n_days()` commits error log before rollback.
 
 ## Tasks / Subtasks
 
-- [ ] **F-01**: `set_status_category()` in hd_ticket.py now uses `frappe.get_cached_value()` instead of `frappe.get_value()` — confirm the method signature changed, no regressions in tests.
-- [ ] **F-02**: Disambiguated None return — two distinct error messages: (a) deleted record → "no longer exists"; (b) empty category field → "exists but has no category assigned".
-- [ ] **F-03**: `_resolve_ticket()` in test_hd_ticket.py no longer hard-codes `ticket.status_category = "Resolved"`, now calls `ticket.set_status_category()` instead.
-- [ ] **F-05**: New test `test_save_raises_validation_error_when_status_record_deleted` in test_incident_model.py passes.
-- [ ] **F-08**: `close_tickets_after_n_days()` commits error log before rollback.
+- [x] **F-01**: `set_status_category()` in hd_ticket.py now uses `frappe.get_cached_value()` instead of `frappe.get_value()` — confirm the method signature changed, no regressions in tests.
+- [x] **F-02**: Disambiguated None return — two distinct error messages: (a) deleted record → "no longer exists"; (b) empty category field → "exists but has no category assigned".
+- [x] **F-03**: `_resolve_ticket()` in test_hd_ticket.py no longer hard-codes `ticket.status_category = "Resolved"`, now calls `ticket.set_status_category()` instead.
+- [x] **F-05**: New test `test_save_raises_validation_error_when_status_record_deleted` in test_incident_model.py passes.
+- [x] **F-08**: `close_tickets_after_n_days()` commits error log before rollback.
 
 ## Dev Notes
 
@@ -64,12 +64,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 13 findings (5x P2, 8x P3)
+- All 5 acceptance criteria verified: code changes confirmed, tests pass
+- All 19 incident model tests pass; all 5 category validation tests pass
+- Dev/bench file parity confirmed (zero diff on all 3 files)
+- Key findings: no test for F-02 path (b) empty-category, F-05 test may catch Frappe link validation not custom guard, inconsistent caching strategy, pre-existing 42% test failure rate in TestHDTicket
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-story-127-adversarial-review.md` — full adversarial review report
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-story-127-adversarial-review.md` (created)

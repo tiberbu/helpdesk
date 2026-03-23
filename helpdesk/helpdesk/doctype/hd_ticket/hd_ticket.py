@@ -1060,8 +1060,15 @@ class HDTicket(Document):
         conditions: (a) the record does not exist, or (b) the category field
         is empty.  An exists() check disambiguates these so we can raise a
         meaningful, actionable error in each case.
+
+        F-13: When self.status is falsy (empty string or None), clear
+        status_category to None so downstream guards never see a stale value
+        from a previous save.  Silently preserving the old status_category
+        when status is cleared is incorrect — callers that set status="" to
+        mean "no status" would see a stale category that bypasses validation.
         """
         if not self.status:
+            self.status_category = None
             return
 
         # F-01: get_cached_value avoids a DB round-trip on the hot save path.

@@ -525,16 +525,17 @@ class TestIncidentModelApplication(FrappeTestCase):
 
 	def test_save_raises_validation_error_when_status_record_deleted(self):
 		"""F-05: Saving a ticket whose HD Ticket Status record was deleted must
-		raise ValidationError (or a subclass thereof).
+		raise our custom F-02 ValidationError with "no longer exists".
 
-		This tests that the system never silently accepts a deleted status
-		record.  In practice the error may come from Frappe's built-in link
-		validation (LinkValidationError ⊂ ValidationError, message "Could not
-		find Status: …") which fires before set_status_category() is reached,
-		or from our custom F-02 guard in set_status_category() (message
-		"no longer exists") if link validation is bypassed.  Either way a
-		ValidationError must be raised so that status_category is never
-		silently set to None.
+		set_status_category() runs in before_validate, which executes before
+		Frappe's link validation (in validate).  This guarantees that our
+		custom guard fires first and the error message contains "no longer
+		exists", proving the F-02 guard is active — not just Frappe's built-in
+		link validation ("Could not find Status: …").
+
+		assertRaisesRegex(ValidationError, r"no longer exists") is used
+		intentionally to prove the custom guard fires (not just any
+		ValidationError subclass).
 		"""
 		# Create a throwaway HD Ticket Status record and point the ticket at it.
 		ephemeral_status = f"EphemeralStatus-{frappe.generate_hash(length=6)}"
@@ -567,13 +568,62 @@ class TestIncidentModelApplication(FrappeTestCase):
 		# Confirm the status field still points to the now-deleted record.
 		self.assertEqual(doc.status, ephemeral_status)
 
-		# Either Frappe's link validation ("Could not find Status: …") or our
-		# custom F-02 guard ("no longer exists") must fire — both are
-		# ValidationError subclasses.
-		with self.assertRaises(frappe.ValidationError):
+		# Our custom F-02 guard fires in before_validate (before Frappe's link
+		# validation in validate), so the message must contain "no longer exists".
+		with self.assertRaisesRegex(frappe.ValidationError, r"no longer exists"):
 			doc.save(ignore_permissions=True)
 
 		# Restore ticket to a valid status so tearDown doesn't trip over it.
 		frappe.set_value("HD Ticket", doc.name, "status", self.ticket.status)
 		frappe.db.commit()  # nosemgrep
 		frappe.set_user(self.agent_email)
+
+	def test_save_raises_validation_error_when_status_has_no_category(self):
+		"""F-02 path (b): Saving a ticket whose HD Ticket Status record exists
+		but has an empty category field must raise ValidationError with the
+		message "exists but has no category assigned".
+
+		This tests the branch in set_status_category() that distinguishes:
+		  (a) record does not exist → "no longer exists"
+		  (b) record exists but category is blank → "exists but has no category assigned"
+
+		We insert with a valid category first (so document validation passes),
+		then directly wipe the category via frappe.db.set_value and clear the
+		document cache so get_cached_value reflects the empty value.
+		"""
+		empty_cat_status = f"EmptyCatStatus-{frappe.generate_hash(length=6)}"
+		frappe.set_user("Administrator")
+		frappe.get_doc(
+			{
+				"doctype": "HD Ticket Status",
+				"label_agent": empty_cat_status,
+				"category": "Open",
+				"is_default": 0,
+			}
+		).insert(ignore_permissions=True)
+		# Directly wipe the category field in DB to simulate a status record
+		# that exists but has no category assigned (bypasses doc validation
+		# which would normally require category to be set).
+		frappe.db.set_value("HD Ticket Status", empty_cat_status, "category", "")
+		# Invalidate the document cache so get_cached_value sees the empty value.
+		frappe.clear_document_cache("HD Ticket Status", empty_cat_status)
+		frappe.db.commit()  # nosemgrep
+
+		try:
+			# Point the ticket at the status with empty category.
+			doc = frappe.get_doc("HD Ticket", self.ticket.name)
+			doc.status = empty_cat_status
+			# set_status_category() must detect category="" and raise the
+			# F-02 path (b) error: "exists but has no category assigned".
+			with self.assertRaisesRegex(
+				frappe.ValidationError,
+				r"exists but has no category assigned",
+			):
+				doc.save(ignore_permissions=True)
+		finally:
+			# Clean up the throwaway status record.
+			frappe.delete_doc(
+				"HD Ticket Status", empty_cat_status, ignore_permissions=True, force=True
+			)
+			frappe.db.commit()  # nosemgrep
+			frappe.set_user(self.agent_email)

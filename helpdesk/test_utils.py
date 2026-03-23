@@ -303,7 +303,7 @@ def ensure_hd_admin_user(email: str = "hd.admin.tt@test.com") -> None:
     user_roles = set(frappe.get_roles(email))
     unexpected_roles = user_roles & {"Agent", "Agent Manager", "System Manager"}
     if unexpected_roles:
-        frappe.throw(
+        raise AssertionError(
             f"ensure_hd_admin_user: {email} unexpectedly has roles {unexpected_roles}. "
             "Test data may be polluted — check tearDown / rollback logic."
         )
@@ -334,7 +334,7 @@ def ensure_agent_manager_user(email: str = "agent.mgr.tt@test.com") -> None:
     user_roles = set(frappe.get_roles(email))
     unexpected_roles = user_roles & {"Agent", "HD Admin", "System Manager"}
     if unexpected_roles:
-        frappe.throw(
+        raise AssertionError(
             f"ensure_agent_manager_user: {email} unexpectedly has roles {unexpected_roles}. "
             "Test data may be polluted — check tearDown / rollback logic."
         )
@@ -365,7 +365,7 @@ def ensure_system_manager_user(email: str = "sys.mgr.tt@test.com") -> None:
     user_roles = set(frappe.get_roles(email))
     unexpected_roles = user_roles & {"Agent", "HD Admin", "Agent Manager"}
     if unexpected_roles:
-        frappe.throw(
+        raise AssertionError(
             f"ensure_system_manager_user: {email} unexpectedly has roles {unexpected_roles}. "
             "Test data may be polluted — check tearDown / rollback logic."
         )

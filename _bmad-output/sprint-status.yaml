@@ -399,12 +399,21 @@ development_status:
 
   156-fix-delete-entry-re-inlines-is-agent-dry-violation-on-trash-: review  # [quick-dev] Fix: delete_entry re-inlines is_agent() DRY violation + on_t
 
-  157-qa-fix-reverted-savepoint-isolation-broad-except-in-close-ti: ready-for-dev  # [adversarial-review] QA: Fix: Reverted savepoint isolation + broad except in clos
+  157-qa-fix-reverted-savepoint-isolation-broad-except-in-close-ti: review  # [adversarial-review] QA: Fix: Reverted savepoint isolation + broad except in clos
 
   158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco: review  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-150 + P2 i
 
   159-qa-fix-delete-entry-dry-violation-on-trash-missing-is-agent-: review  # [adversarial-review] QA: Fix delete_entry DRY violation + on_trash missing is_age
 
-  160-qa-fix-delete-entry-re-inlines-is-agent-dry-violation-on-tra: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry re-inlines is_agent() DRY violation + 
+  160-qa-fix-delete-entry-re-inlines-is-agent-dry-violation-on-tra: review  # [adversarial-review] QA: Fix: delete_entry re-inlines is_agent() DRY violation + 
 
   161-qa-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p: ready-for-dev  # [adversarial-review] QA: Fix: P1 inline is_agent() reimplementation in delete_ent
+
+  162-qa-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-i: ready-for-dev  # [adversarial-review] QA: Fix: P1 recursive commit-scope pollution in story-150 + 
+
+  163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-: review  # [quick-dev] Fix: P1 hd_time_entry.json out of sync + recursive audit tra
+
+  164-fix-p2-findings-from-adversarial-review-of-story-122-fixes: in-progress  # [quick-dev] Fix: P2 findings from adversarial review of Story #122 fixes
+
+  165-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-exc: in-progress  # [quick-dev] Fix: P1 test deadlocks in test_close_tickets + P2 redundant 
+  166-qa-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-tra: ready-for-dev  # [adversarial-review] QA: Fix: P1 hd_time_entry.json out of sync + recursive audit
