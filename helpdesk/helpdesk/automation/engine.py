@@ -119,16 +119,6 @@ def _evaluate_rule(ticket, rule: dict, trigger_type: str = ""):
 
     # Evaluate conditions
     if not _condition_evaluator.evaluate(ticket, conditions):
-        elapsed_ms = int((time.monotonic() - start) * 1000)
-        _create_log(
-            rule_name=rule_name,
-            ticket=ticket_name,
-            trigger_event=trigger_type,
-            conditions_evaluated=conditions,
-            actions_executed="[]",
-            execution_time_ms=elapsed_ms,
-            status="skipped",
-        )
         return  # Conditions did not match; skip this rule
 
     # Execute actions
