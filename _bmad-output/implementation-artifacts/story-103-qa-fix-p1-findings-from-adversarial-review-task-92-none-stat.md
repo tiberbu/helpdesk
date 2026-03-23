@@ -1,6 +1,6 @@
-# Story: QA: Fix: P1 findings from adversarial review task-92 — None status_category bypass, 
+# Story: QA: Fix: P1 findings from adversarial review task-92 — None status_category bypass,
 
-Status: in-progress
+Status: done
 Task ID: mn3c30a6o4fvfl
 Task Number: #103
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 15 findings: 3 P1, 4 P2, 8 P3
+- P1-01: Performance regression — unconditional DB query on every save (should use `frappe.get_cached_value`)
+- P1-02: `frappe.get_value` conflates missing record with empty category field — misleading error
+- P1-03: `_resolve_ticket()` in test_hd_ticket.py manually sets status_category, creating split reality between save() and direct validate() calls
+- All 18 incident model tests pass on bench
+- Dev and bench copies are in sync (no diff)
+- Full report at `docs/qa-report-task-99.md`
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Created adversarial QA report `docs/qa-report-task-99.md`
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-99.md` — Adversarial QA report with 15 findings

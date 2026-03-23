@@ -1,6 +1,6 @@
 # Story: QA: Fix: delete_entry regression (P0) + cint silent conversion (P1) from QA task #97
 
-Status: in-progress
+Status: done
 Task ID: mn3choyc1obwvh
 Task Number: #112
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed. Verdict: CONDITIONAL PASS (0 P0, 2 P1, 4 P2, 6 P3).
+- All 4 original ACs from task #104 PASS: P0 delete_entry regression fixed, P1 cint fix works, P2 billable clamping works, P2 max-duration tests added.
+- All 39 tests pass. Dev/bench in sync.
+- 2 new P1 findings: (1) `_require_int_str()` rejects float strings that `cint()` accepts, with zero edge-case tests; (2) buried `is_admin(user)` parameter fix in utils.py has global scope but no documentation or tests.
+- 4 P2 findings: double permission check in delete path, window.frappe in frontend (4th review), test user leakage via commit, type handling gaps.
+- 6 P3 findings: 3 items flagged for 4th consecutive cycle (localStorage scope, track_changes, foreign timer), plus naming inconsistency, story accuracy, and unbounded query.
+- P1 issues warrant a fix task.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Produced `docs/qa-report-task-104.md` with full adversarial review findings.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-104.md` (created — adversarial review report)

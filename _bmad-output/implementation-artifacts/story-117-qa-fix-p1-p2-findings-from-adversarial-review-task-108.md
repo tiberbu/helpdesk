@@ -1,6 +1,6 @@
 # Story: QA: Fix P1/P2 findings from adversarial review task-108
 
-Status: in-progress
+Status: done
 Task ID: mn3conhrln1p65
 Task Number: #117
 Workflow: code-review
@@ -40,29 +40,29 @@ Verify the following fixes from story #110 are correct and complete:
 
 ## Acceptance Criteria
 
-- [ ] **is_agent() refactor** (`helpdesk/utils.py`): Confirm single `frappe.get_roles()` call, set membership check, and `is_admin(user)` passes correct user arg.
-- [ ] **HD Admin test coverage**: New tests `test_hd_admin_can_add_entry` and `test_hd_admin_can_start_timer` exist and pass. Helper `_ensure_hd_admin_user()` is used by all HD Admin tests.
-- [ ] **Stale comments**: `delete_entry()` in `time_tracking.py` has up-to-date comment describing `is_agent()` coverage.
-- [ ] **Migration**: Run `bench --site helpdesk.localhost migrate` was executed; HD Admin DocType permissions in DB.
-- [ ] **No regression**: All 41 tests in `test_hd_time_entry.py` pass.
-- [ ] Read `helpdesk/utils.py` and verify `is_agent()` refactor
-- [ ] Read `test_hd_time_entry.py` and verify new HD Admin tests + helper
-- [ ] Read `time_tracking.py` and verify comment correctness
-- [ ] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` and confirm all 41 pass
-- [ ] No Playwright browser testing needed (backend-only changes)
+- [x] **is_agent() refactor** (`helpdesk/utils.py`): Confirm single `frappe.get_roles()` call, set membership check, and `is_admin(user)` passes correct user arg.
+- [x] **HD Admin test coverage**: New tests `test_hd_admin_can_add_entry` and `test_hd_admin_can_start_timer` exist and pass. Helper `_ensure_hd_admin_user()` is used by all HD Admin tests.
+- [x] **Stale comments**: `delete_entry()` in `time_tracking.py` has up-to-date comment describing `is_agent()` coverage.
+- [x] **Migration**: Run `bench --site helpdesk.localhost migrate` was executed; HD Admin DocType permissions in DB.
+- [x] **No regression**: All 41 tests in `test_hd_time_entry.py` pass.
+- [x] Read `helpdesk/utils.py` and verify `is_agent()` refactor
+- [x] Read `test_hd_time_entry.py` and verify new HD Admin tests + helper
+- [x] Read `time_tracking.py` and verify comment correctness
+- [x] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` and confirm all 41 pass
+- [x] No Playwright browser testing needed (backend-only changes)
 
 ## Tasks / Subtasks
 
-- [ ] **is_agent() refactor** (`helpdesk/utils.py`): Confirm single `frappe.get_roles()` call, set membership check, and `is_admin(user)` passes correct user arg.
-- [ ] **HD Admin test coverage**: New tests `test_hd_admin_can_add_entry` and `test_hd_admin_can_start_timer` exist and pass. Helper `_ensure_hd_admin_user()` is used by all HD Admin tests.
-- [ ] **Stale comments**: `delete_entry()` in `time_tracking.py` has up-to-date comment describing `is_agent()` coverage.
-- [ ] **Migration**: Run `bench --site helpdesk.localhost migrate` was executed; HD Admin DocType permissions in DB.
-- [ ] **No regression**: All 41 tests in `test_hd_time_entry.py` pass.
-- [ ] Read `helpdesk/utils.py` and verify `is_agent()` refactor
-- [ ] Read `test_hd_time_entry.py` and verify new HD Admin tests + helper
-- [ ] Read `time_tracking.py` and verify comment correctness
-- [ ] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` and confirm all 41 pass
-- [ ] No Playwright browser testing needed (backend-only changes)
+- [x] **is_agent() refactor** (`helpdesk/utils.py`): Confirm single `frappe.get_roles()` call, set membership check, and `is_admin(user)` passes correct user arg.
+- [x] **HD Admin test coverage**: New tests `test_hd_admin_can_add_entry` and `test_hd_admin_can_start_timer` exist and pass. Helper `_ensure_hd_admin_user()` is used by all HD Admin tests.
+- [x] **Stale comments**: `delete_entry()` in `time_tracking.py` has up-to-date comment describing `is_agent()` coverage.
+- [x] **Migration**: Run `bench --site helpdesk.localhost migrate` was executed; HD Admin DocType permissions in DB.
+- [x] **No regression**: All 41 tests in `test_hd_time_entry.py` pass.
+- [x] Read `helpdesk/utils.py` and verify `is_agent()` refactor
+- [x] Read `test_hd_time_entry.py` and verify new HD Admin tests + helper
+- [x] Read `time_tracking.py` and verify comment correctness
+- [x] Run `bench --site helpdesk.localhost run-tests --app helpdesk --module helpdesk.helpdesk.doctype.hd_time_entry.test_hd_time_entry` and confirm all 41 pass
+- [x] No Playwright browser testing needed (backend-only changes)
 
 ## Dev Notes
 
@@ -80,12 +80,20 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- All 5 acceptance criteria verified and passing
+- `is_agent()` correctly uses single `get_roles()` call with set intersection; `is_admin(user)` passes user arg
+- Two new HD Admin tests (`test_hd_admin_can_add_entry`, `test_hd_admin_can_start_timer`) present and green
+- `_ensure_hd_admin_user()` helper reused across all 3 HD Admin tests (add_entry, start_timer, delete)
+- `delete_entry()` comment accurately describes `is_agent()` coverage (Administrator, HD Admin, Agent Manager, Agent)
+- All 41 tests pass with 0 failures in 10.46s
+- No code changes required — this is a review-only QA task
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- No source code changes (review-only task)
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/utils.py` — reviewed (no changes)
+- `helpdesk/api/time_tracking.py` — reviewed (no changes)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — reviewed (no changes)

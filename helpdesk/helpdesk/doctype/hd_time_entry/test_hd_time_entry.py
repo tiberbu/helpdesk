@@ -594,3 +594,146 @@ class TestHDTimeEntry(FrappeTestCase):
 				started_at="2026-01-01 10:00:00",
 				duration_minutes="abc",
 			)
+
+	# --- P2: Missing coverage — non-numeric billable on add_entry ---
+
+	def test_add_entry_rejects_non_numeric_billable(self):
+		"""
+		add_entry must raise ValidationError when billable is a non-numeric string.
+		cint('xyz') silently returns 0, coercing invalid input to non-billable.
+		Mirrors test_stop_timer_rejects_non_numeric_billable for the add_entry path.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(
+				ticket=self.ticket_name,
+				duration_minutes=10,
+				billable="xyz",
+			)
+
+	# --- P2: Billable clamping boundary tests ---
+
+	def test_add_entry_clamps_billable_above_one(self):
+		"""
+		add_entry must clamp billable=2 to 1 — a Check field only accepts 0 or 1.
+		Values > 1 arise from programmatic callers passing raw integers.
+		"""
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes=10,
+			billable=2,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.billable, 1, "billable=2 must be clamped to 1")
+
+	def test_add_entry_clamps_negative_billable_to_zero(self):
+		"""
+		add_entry must clamp billable=-1 to 0.
+		Negative values are truthy in Python (bool(-1) is True), so a naive
+		`1 if cint(billable) else 0` guard would incorrectly set billable=1.
+		The correct guard uses max(0, min(1, cint(billable))).
+		"""
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes=10,
+			billable=-1,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.billable, 0, "billable=-1 must be clamped to 0")
+
+	# --- P1 fix: _require_int_str edge cases (float strings, empty, whitespace, etc.) ---
+
+	def test_require_int_str_accepts_float_string_duration(self):
+		"""
+		_require_int_str must accept float strings like '3.5' because cint('3.5') == 3
+		(truncates). Previously int('3.5') raised ValueError, causing a P1 regression
+		where valid browser inputs like '30.0' would be incorrectly rejected.
+		"""
+		# "30.0" is a common output of JS Number.toString() — must be accepted
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes="30.0",
+			description="Float string duration",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 30, "'30.0' must truncate to 30")
+
+	def test_require_int_str_accepts_fractional_float_string_duration(self):
+		"""
+		'3.5' must be accepted and truncated to 3, matching cint('3.5') == 3 behavior.
+		"""
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes="3.5",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 3, "'3.5' must truncate to 3")
+
+	def test_require_int_str_accepts_whitespace_padded_integer(self):
+		"""
+		'  10  ' (whitespace-padded) must be accepted — strip() is applied before parsing.
+		"""
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes="  10  ",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 10, "Whitespace-padded '  10  ' must parse to 10")
+
+	def test_require_int_str_rejects_empty_string_duration(self):
+		"""
+		'' (empty string) must raise ValidationError — float('') raises ValueError.
+		cint('') returns 0 and then the < 1 check would catch it, but _require_int_str
+		must reject it first with a clear 'must be a valid integer' message.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="")
+
+	def test_require_int_str_rejects_whitespace_only_duration(self):
+		"""
+		'   ' (whitespace-only) must raise ValidationError — float('') raises ValueError
+		after strip(). Prevents silent 0 from cint() leading to confusing error later.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="   ")
+
+	def test_require_int_str_accepts_boolean_true_duration(self):
+		"""
+		True (Python bool) must be accepted — booleans are not strings so _require_int_str
+		passes through; cint(True) == 1. The < 1 check then rejects it (1 min minimum).
+		This test documents the pass-through behavior for non-string types.
+		"""
+		# True coerces to 1 minute via cint(True)==1, which is >= 1 (valid)
+		result = add_entry(ticket=self.ticket_name, duration_minutes=True, billable=0)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 1, "True must coerce to 1 via cint()")
+
+	def test_require_int_str_accepts_none_duration_as_zero_then_rejects(self):
+		"""
+		None is not a string so _require_int_str passes through; cint(None) == 0,
+		which then fails the < 1 validation. Documents that None is handled gracefully.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes=None)
+
+	def test_require_int_str_accepts_float_string_billable(self):
+		"""
+		'0.9' as billable must be accepted — cint('0.9') would truncate to 0 (non-billable).
+		This covers stop_timer's billable param as well, using add_entry for simplicity.
+		"""
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes=10,
+			billable="0.9",
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.billable, 0, "'0.9' must truncate to 0 (non-billable)")

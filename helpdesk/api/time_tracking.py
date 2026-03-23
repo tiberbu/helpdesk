@@ -23,10 +23,19 @@ def _require_int_str(value, param_name: str) -> None:
 	cint() silently coerces non-numeric strings to 0, which hides bad input.
 	This guard must be called BEFORE cint() wherever user-controlled strings
 	are accepted.
+
+	Behavior matches cint():
+	- Integer strings ("3", " 5 ") are accepted.
+	- Float strings ("3.5", "1.0") are accepted — cint("3.5") == 3 (truncates).
+	- Non-numeric strings ("abc", "") raise ValidationError.
+	- Non-string values (int, float, bool, None) are passed through unchanged;
+	  cint() already handles those types correctly.
 	"""
 	if isinstance(value, str):
 		try:
-			int(value.strip())
+			# Use int(float(...)) to match cint() behavior:
+			# cint("3.5") truncates to 3; int("3.5") raises ValueError.
+			int(float(value.strip()))
 		except ValueError:
 			frappe.throw(
 				_("{0} must be a valid integer").format(param_name),
@@ -86,11 +95,15 @@ def stop_timer(
 	# Use astimezone(tz=None) rather than convert_utc_to_system_timezone() because the
 	# latter contract requires UTC input — started_at may carry any tz offset from the
 	# client, so we must let Python perform the proper IANA-aware conversion first.
+	# Capture server time once to avoid race conditions between the future check,
+	# elapsed-time cross-check, and the timestamp stored on the entry.
+	server_now = now_datetime()
+
 	if started_at_dt.tzinfo is not None:
 		started_at_naive = started_at_dt.astimezone(tz=None).replace(tzinfo=None)
 	else:
 		started_at_naive = started_at_dt
-	if started_at_naive > now_datetime():
+	if started_at_naive > server_now:
 		frappe.throw(_("started_at cannot be in the future."), frappe.ValidationError)
 
 	# Validate duration_minutes: must be a real integer string (cint() coerces "abc"→0)
@@ -106,7 +119,7 @@ def stop_timer(
 
 	# Cross-validate: claimed duration must not exceed actual elapsed time + tolerance.
 	# This prevents billing fraud where an agent claims 24 h but the timer ran 5 min.
-	elapsed_minutes = (now_datetime() - started_at_naive).total_seconds() / 60
+	elapsed_minutes = (server_now - started_at_naive).total_seconds() / 60
 	if duration_minutes > elapsed_minutes + _DURATION_ELAPSED_TOLERANCE_MINUTES:
 		frappe.throw(
 			_(
@@ -118,8 +131,9 @@ def stop_timer(
 
 	# Validate billable: must be a numeric string before cint() silently coerces "xyz"→0
 	_require_int_str(billable, "billable")
-	# Clamp billable to 0/1 — cint() can produce values >1 for a Check field.
-	billable_int = 1 if cint(billable) else 0
+	# Clamp billable to 0/1 — values outside [0,1] are invalid for a Check field.
+	# Use max/min rather than bool so that negative integers clamp to 0 (not 1).
+	billable_int = max(0, min(1, cint(billable)))
 
 	entry = frappe.get_doc(
 		{
@@ -129,7 +143,7 @@ def stop_timer(
 			"duration_minutes": duration_minutes,
 			"billable": billable_int,
 			"description": description or "",
-			"timestamp": now_datetime(),
+			"timestamp": server_now,
 			# Store as naive datetime string — MariaDB DATETIME col rejects tz-offset format
 			"started_at": started_at_naive,
 		}
@@ -177,8 +191,9 @@ def add_entry(
 
 	# Validate billable: must be a numeric string before cint() silently coerces "xyz"→0
 	_require_int_str(billable, "billable")
-	# Clamp billable to 0/1 — cint() can produce values >1 for a Check field.
-	billable_int = 1 if cint(billable) else 0
+	# Clamp billable to 0/1 — values outside [0,1] are invalid for a Check field.
+	# Use max/min rather than bool so that negative integers clamp to 0 (not 1).
+	billable_int = max(0, min(1, cint(billable)))
 
 	entry = frappe.get_doc(
 		{

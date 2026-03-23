@@ -316,12 +316,18 @@ development_status:
 
   114-fix-before-delete-on-trash-test-mismatch-p0-missing-system-m: review  # [quick-dev] Fix: before_delete→on_trash test mismatch (P0) + missing Sys
 
-  115-qa-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-for: ready-for-dev  # [adversarial-review] QA: Fix: P0 delete_entry ownership bypass + P1 is_agent user
+  115-qa-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-for: review  # [adversarial-review] QA: Fix: P0 delete_entry ownership bypass + P1 is_agent user
 
-  116-qa-fix-p1s-from-adversarial-review-task-101-bench-time-track: ready-for-dev  # [adversarial-review] QA: Fix: P1s from adversarial review task-101 — bench time_t
+  116-qa-fix-p1s-from-adversarial-review-task-101-bench-time-track: review  # [adversarial-review] QA: Fix: P1s from adversarial review task-101 — bench time_t
 
   117-qa-fix-p1-p2-findings-from-adversarial-review-task-108: review  # [code-review] QA: Fix P1/P2 findings from adversarial review task-108
 
   118-qa-fix-before-delete-on-trash-test-mismatch-p0-missing-syste: ready-for-dev  # [adversarial-review] QA: Fix: before_delete→on_trash test mismatch (P0) + missing
 
-  119-fix-flaky-time-tracking-tests-duplicate-test-missing-coverag: ready-for-dev  # [quick-dev] Fix: Flaky time tracking tests (duplicate test, missing cove
+  119-fix-flaky-time-tracking-tests-duplicate-test-missing-coverag: review  # [quick-dev] Fix: Flaky time tracking tests (duplicate test, missing cove
+
+  120-qa-fix-p1-p2-findings-from-adversarial-review-task-108-missi: ready-for-dev  # [adversarial-review] QA: Fix: P1/P2 findings from adversarial review task-108 — m
+
+  121-fix-require-int-str-float-string-mismatch-p1-undocumented-is: in-progress  # [quick-dev] Fix: _require_int_str float-string mismatch (P1) + undocumen
+
+  122-fix-p1-performance-regression-uncached-db-query-every-save-m: in-progress  # [quick-dev] Fix: P1 performance regression (uncached DB query every save
