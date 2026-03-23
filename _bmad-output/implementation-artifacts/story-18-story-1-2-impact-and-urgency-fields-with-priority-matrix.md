@@ -1,6 +1,6 @@
 # Story: Story 1.2: Impact and Urgency Fields with Priority Matrix
 
-Status: review
+Status: done
 Task ID: mn2g8wzgjnyj5s
 Task Number: #18
 Workflow: dev-story

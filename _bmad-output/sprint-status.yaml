@@ -151,7 +151,7 @@ development_status:
   3-itil-compliance-research-making-helpdesk-itil-compliant: done  # [research] ITIL Compliance Research — Making Helpdesk ITIL-Compliant
   4-helpdesk-feature-roadmap-business-requirements-document: done  # [quick-spec] Helpdesk Feature Roadmap & Business Requirements Document
   17-story-1-1-feature-flag-infrastructure-for-itil-mode: review  # [create-story] Story 1.1: Feature Flag Infrastructure for ITIL Mode
-  18-story-1-2-impact-and-urgency-fields-with-priority-matrix: ready-for-dev  # [create-story] Story 1.2: Impact and Urgency Fields with Priority Matrix
+  18-story-1-2-impact-and-urgency-fields-with-priority-matrix: review  # [create-story] Story 1.2: Impact and Urgency Fields with Priority Matrix
   19-story-1-3-multi-level-ticket-categorization: ready-for-dev  # [create-story] Story 1.3: Multi-Level Ticket Categorization
   5-itil-compliance-doc-missing-update-all-research-docs-with-la: done  # [research] ITIL Compliance Doc (missing) + Update all research docs wit
 
