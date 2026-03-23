@@ -1,5 +1,5 @@
 # generated: 2026-03-23
-# last_updated: 2026-03-23
+# last_updated: 2026-03-23 (story 3.1 → review)
 # project: Frappe Helpdesk Phase 1
 # project_key: NOKEY
 # tracking_system: file-system
@@ -168,16 +168,16 @@ development_status:
   29-story-2-4-automation-execution-logging: review  # [dev-story] Story 2.4: Automation Execution Logging
 
   # New tasks (added by Claude Studio)
-  30-story-3-1-channel-abstraction-layer: review  # [create-story] Story 3.1: Channel Abstraction Layer
-  31-story-3-2-chat-session-management-backend: review  # [create-story] Story 3.2: Chat Session Management Backend
-  32-story-3-3-embeddable-chat-widget: review  # [create-story] Story 3.3: Embeddable Chat Widget
-  33-story-3-4-real-time-chat-communication: review  # [create-story] Story 3.4: Real-Time Chat Communication
+  30-story-3-1-channel-abstraction-layer: review  # [dev-story] Story 3.1: Channel Abstraction Layer
+  31-story-3-2-chat-session-management-backend: ready-for-dev  # [create-story] Story 3.2: Chat Session Management Backend
+  32-story-3-3-embeddable-chat-widget: ready-for-dev  # [create-story] Story 3.3: Embeddable Chat Widget
+  33-story-3-4-real-time-chat-communication: ready-for-dev  # [create-story] Story 3.4: Real-Time Chat Communication
 
   # New tasks (added by Claude Studio)
-  34-story-3-5-agent-chat-interface: review  # [create-story] Story 3.5: Agent Chat Interface
-  35-story-3-6-chat-to-ticket-transcript-and-follow-up: review  # [create-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
-  36-story-3-7-csat-survey-infrastructure-and-delivery: review  # [create-story] Story 3.7: CSAT Survey Infrastructure and Delivery
-  37-story-3-8-multi-brand-configuration: review  # [create-story] Story 3.8: Multi-Brand Configuration
+  34-story-3-5-agent-chat-interface: ready-for-dev  # [create-story] Story 3.5: Agent Chat Interface
+  35-story-3-6-chat-to-ticket-transcript-and-follow-up: ready-for-dev  # [create-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
+  36-story-3-7-csat-survey-infrastructure-and-delivery: ready-for-dev  # [create-story] Story 3.7: CSAT Survey Infrastructure and Delivery
+  37-story-3-8-multi-brand-configuration: ready-for-dev  # [create-story] Story 3.8: Multi-Brand Configuration
   38-story-4-1-business-hours-sla-calculation-engine: review  # [create-story] Story 4.1: Business Hours SLA Calculation Engine
   39-story-4-2-proactive-sla-breach-alerts: review  # [create-story] Story 4.2: Proactive SLA Breach Alerts
   40-story-4-3-sla-compliance-dashboard: review  # [create-story] Story 4.3: SLA Compliance Dashboard
@@ -542,4 +542,6 @@ development_status:
 
   221-fix-story-2-3-sla-based-automation-triggers-dead-notificatio: review  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — dead notifica
 
-  222-qa-story-2-4-automation-execution-logging: ready-for-dev  # [adversarial-review] QA: Story 2.4: Automation Execution Logging
+  222-qa-story-2-4-automation-execution-logging: review  # [adversarial-review] QA: Story 2.4: Automation Execution Logging
+
+  223-fix-story-2-4-automation-execution-logging-missing-indexes-s: review  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — Missing indexe
