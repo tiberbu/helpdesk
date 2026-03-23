@@ -3,7 +3,7 @@
 
 import frappe
 from frappe.tests.utils import FrappeTestCase
-from helpdesk.api.time_tracking import add_entry, stop_timer, get_summary, delete_entry
+from helpdesk.api.time_tracking import add_entry, stop_timer, get_summary, delete_entry, start_timer
 from helpdesk.test_utils import create_agent, make_ticket
 
 
@@ -177,3 +177,72 @@ class TestHDTimeEntry(FrappeTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			add_entry(ticket=self.ticket_name, duration_minutes=30)
 		frappe.set_user("agent.tt@test.com")
+
+	def test_customer_cannot_delete_entry(self):
+		"""Customers must not be able to call delete_entry (is_agent gate)."""
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+		frappe.set_user("customer.tt@test.com")
+		with self.assertRaises(frappe.PermissionError):
+			delete_entry(name=entry_name)
+		frappe.set_user("agent.tt@test.com")
+
+	# --- start_timer tests ---
+
+	def test_start_timer_returns_started_at(self):
+		"""Happy-path: agent calls start_timer and gets a started_at timestamp."""
+		result = start_timer(ticket=self.ticket_name)
+		self.assertIn("started_at", result)
+		self.assertIsInstance(result["started_at"], str)
+		self.assertTrue(len(result["started_at"]) > 0)
+
+	def test_start_timer_blocked_for_customer(self):
+		"""Customers must not be able to call start_timer (is_agent gate)."""
+		frappe.set_user("customer.tt@test.com")
+		with self.assertRaises(frappe.PermissionError):
+			start_timer(ticket=self.ticket_name)
+		frappe.set_user("agent.tt@test.com")
+
+	# --- description length validation tests ---
+
+	def test_stop_timer_rejects_description_over_500_chars(self):
+		"""stop_timer must reject descriptions longer than 500 characters."""
+		long_description = "x" * 501
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-03-23 10:00:00",
+				duration_minutes=10,
+				description=long_description,
+			)
+
+	def test_add_entry_rejects_description_over_500_chars(self):
+		"""add_entry must reject descriptions longer than 500 characters."""
+		long_description = "a" * 501
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(
+				ticket=self.ticket_name,
+				duration_minutes=10,
+				description=long_description,
+			)
+
+	def test_stop_timer_accepts_description_of_exactly_500_chars(self):
+		"""500-character description is at the boundary and must be accepted."""
+		boundary_description = "b" * 500
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at="2026-03-23 10:00:00",
+			duration_minutes=5,
+			description=boundary_description,
+		)
+		self.assertTrue(result.get("success"))
+
+	def test_add_entry_accepts_description_of_exactly_500_chars(self):
+		"""500-character description is at the boundary and must be accepted."""
+		boundary_description = "c" * 500
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes=5,
+			description=boundary_description,
+		)
+		self.assertTrue(result.get("success"))

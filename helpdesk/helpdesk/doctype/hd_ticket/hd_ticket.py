@@ -1040,14 +1040,24 @@ class HDTicket(Document):
             self.status = self.default_open_status
 
     def set_status_category(self):
-        # Always re-derive from current status — never short-circuit on stale value.
-        # The `or` guard was removed because it allowed status_category to remain
-        # e.g. "Paused" when status changed to "Resolved", bypassing resolution guards.
-        self.status_category = frappe.get_value(
+        # Re-derive when status has changed or when status_category is not yet set.
+        # When neither condition holds the existing value is already correct, so skip
+        # to avoid silently wiping status_category when status is None/empty or
+        # references a deleted HD Ticket Status record.
+        if not self.has_value_changed("status") and self.status_category:
+            return
+
+        if not self.status:
+            return
+
+        new_category = frappe.get_value(
             "HD Ticket Status",
             self.status,
             "category",
         )
+        # Only update if the lookup succeeds; otherwise keep the existing value.
+        if new_category:
+            self.status_category = new_category
 
     # `on_communication_update` is a special method exposed from `Communication` doctype.
     # It is called when a communication is updated. Beware of changes as this effectively

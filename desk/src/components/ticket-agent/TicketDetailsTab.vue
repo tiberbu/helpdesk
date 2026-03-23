@@ -75,9 +75,9 @@
     <!-- Post-Incident Review panel (visible when ticket is a major incident) -->
     <PostIncidentReview v-if="ticket?.doc?.name" />
 
-    <!-- Time Tracker panel -->
+    <!-- Time Tracker panel (agents only — customers must not see billing/time data) -->
     <TimeTracker
-      v-if="ticket?.doc?.name"
+      v-if="ticket?.doc?.name && isAgent"
       :ticket-id="String(ticket.doc.name)"
     />
   </div>
@@ -98,8 +98,10 @@ import {
 } from "@/types";
 import { computed, inject, ref } from "vue";
 import { createResource, toast } from "frappe-ui";
+import { storeToRefs } from "pinia";
 import { __ } from "@/translation";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
+import { useAuthStore } from "@/stores/auth";
 import TicketField from "../TicketField.vue";
 import PostIncidentReview from "../ticket/PostIncidentReview.vue";
 import RelatedTickets from "../ticket/RelatedTickets.vue";
@@ -115,6 +117,7 @@ const activities = inject(ActivitiesSymbol);
 const { getFields, getField } = getMeta("HD Ticket");
 const { notifyTicketUpdate } = useNotifyTicketUpdate(ticket.value?.name);
 const ticketStatusStore = useTicketStatusStore();
+const { isAgent } = storeToRefs(useAuthStore());
 
 // ticket_type, priority, customer, agent_group
 const coreFields = computed(() => {

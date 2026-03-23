@@ -227,5 +227,13 @@ development_status:
 
   68-fix-p1-findings-from-qa-task-62-status-category-bypass-and-m: review  # [quick-dev] Fix: P1 findings from QA task-62 — status_category bypass an
 
-  69-qa-fix-p1-findings-from-qa-task-62-status-category-bypass-an: ready-for-dev  # [adversarial-review] QA: Fix: P1 findings from QA task-62 — status_category bypas
+  69-qa-fix-p1-findings-from-qa-task-62-status-category-bypass-an: review  # [adversarial-review] QA: Fix: P1 findings from QA task-62 — status_category bypas
   70-qa-fix-p1-issues-in-story-1-7-time-tracking: review  # [adversarial-review] QA: Fix P1 issues in Story 1.7 Time Tracking
+
+  71-qa-fix-p1-issues-in-story-1-7-time-tracking-n-1-query-starte: review  # [adversarial-review] QA: Fix: P1 issues in Story 1.7 Time Tracking (N+1 query, st
+
+  72-fix-time-tracking-adversarial-review-findings-p1-p2: review  # [quick-dev] Fix: Time Tracking adversarial review findings (P1/P2)
+
+  73-fix-p1-findings-from-qa-task-69-status-category-none-regress: in-progress  # [quick-dev] Fix: P1 findings from QA task-69 — status_category None regr
+
+  74-fix-p1-issues-from-qa-task-71-tz-aware-crash-rest-delete-byp: in-progress  # [quick-dev] Fix: P1 issues from QA task-71 — tz-aware crash, REST delete

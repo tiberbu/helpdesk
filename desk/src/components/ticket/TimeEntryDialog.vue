@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { createResource, Button, Dialog, FormControl } from "frappe-ui";
+import { createResource, Button, Dialog, FormControl, toast } from "frappe-ui";
 
 const props = defineProps<{
   ticketId: string;
@@ -114,12 +114,26 @@ const stopTimerResource = createResource({
   onSuccess() {
     emit("saved");
   },
+  onError(error: Error) {
+    toast({
+      title: __("Error"),
+      text: error.message || __("Failed to save timer entry. Please try again."),
+      type: "error",
+    });
+  },
 });
 
 const addEntryResource = createResource({
   url: "helpdesk.api.time_tracking.add_entry",
   onSuccess() {
     emit("saved");
+  },
+  onError(error: Error) {
+    toast({
+      title: __("Error"),
+      text: error.message || __("Failed to add time entry. Please try again."),
+      type: "error",
+    });
   },
 });
 

@@ -16,6 +16,8 @@ def start_timer(ticket: str) -> dict:
 
 	Returns: { "started_at": "<ISO datetime string>" }
 	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 	started_at = now_datetime()
 	return {"started_at": str(started_at)}
@@ -35,6 +37,10 @@ def stop_timer(
 	Returns: { "name": "<entry_name>", "success": True }
 	"""
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
+
+	# Validate description length server-side (frontend maxlength=500 is not enforced by API)
+	if description and len(description) > 500:
+		frappe.throw(_("Description must not exceed 500 characters."), frappe.ValidationError)
 
 	# Validate started_at: must be parseable and not in the future
 	try:
@@ -80,6 +86,10 @@ def add_entry(
 	"""
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 
+	# Validate description length server-side (frontend maxlength=500 is not enforced by API)
+	if description and len(description) > 500:
+		frappe.throw(_("Description must not exceed 500 characters."), frappe.ValidationError)
+
 	duration_minutes = int(duration_minutes)
 	if duration_minutes < 1:
 		frappe.throw(_("Duration must be at least 1 minute."), frappe.ValidationError)
@@ -111,13 +121,17 @@ def delete_entry(name: str) -> dict:
 	"""
 	entry = frappe.get_doc("HD Time Entry", name)
 
-	is_admin = frappe.db.get_value(
+	is_hd_admin = frappe.db.get_value(
 		"Has Role",
 		{"parent": frappe.session.user, "role": ["in", ["HD Admin", "System Manager"]]},
 		"name",
 	)
 
-	if entry.agent != frappe.session.user and not is_admin:
+	# Non-agents who are also not HD Admin / System Manager are blocked entirely
+	if not is_agent() and not is_hd_admin:
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+	if entry.agent != frappe.session.user and not is_hd_admin:
 		frappe.throw(_("You can only delete your own time entries."), frappe.PermissionError)
 
 	# Use ignore_permissions=True since we've already done our own permission check above
