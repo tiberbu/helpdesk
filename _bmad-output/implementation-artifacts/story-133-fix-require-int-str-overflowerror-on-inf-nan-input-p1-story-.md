@@ -69,5 +69,5 @@ sonnet
 ### File List
 
 - `helpdesk/api/time_tracking.py` — (da95326be) `except (ValueError, OverflowError)` fix; (cda3520c1) float NaN/Inf bypass guard + import cleanup
-- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — (da95326be) 5 string inf/nan rejection tests + 1 scientific notation doc test + 2 billable clamp tests; (cda3520c1) 3 Python float bypass tests
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — (da95326be) 5 string inf/nan rejection tests + 1 scientific notation doc test + 2 billable clamp tests + 2 HD Admin tests; (cda3520c1) 3 Python float bypass tests
 - `_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md` — corrected audit trail (committed in da95326be)

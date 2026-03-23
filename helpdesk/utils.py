@@ -59,20 +59,37 @@ def is_agent(user: str = None, user_roles: set | None = None) -> bool:
         this set is used instead of calling frappe.get_roles(), avoiding a
         redundant DB/cache hit when the caller already holds the roles.
 
-    .. warning:: **Identity contract** — when both ``user`` and ``user_roles``
-        are supplied, the caller is responsible for ensuring that ``user_roles``
-        were fetched for *that specific user* (e.g. via
-        ``set(frappe.get_roles(user))``).  Passing roles belonging to a
-        *different* user is a logic error and will produce incorrect results.
-        The safest pattern is::
+    .. warning:: **Identity contract** — ``user_roles`` is only valid for the
+        *current session user* (``frappe.session.user``).  If you pass
+        ``user_roles`` for a *different* user, a ``ValueError`` is raised
+        immediately to prevent silent identity mismatches that would produce
+        incorrect permission decisions.
+
+        The safe pattern is::
 
             user = frappe.session.user
             user_roles = set(frappe.get_roles(user))
             if is_agent(user=user, user_roles=user_roles): ...
 
+        To check an arbitrary user, do **not** pass ``user_roles``::
+
+            if is_agent(user="some.user@example.com"): ...
+
     :return: Whether `user` is an agent
+    :raises ValueError: if ``user_roles`` is provided for a user other than
+        ``frappe.session.user``
     """
     user = user or frappe.session.user
+    # Identity-contract enforcement: pre-fetched roles are only valid for the
+    # current session user.  Catching this at runtime prevents silent mismatches
+    # where a caller passes user="X" with roles fetched for user "Y".
+    if user_roles is not None and user != frappe.session.user:
+        raise ValueError(
+            f"is_agent(): pre-fetched user_roles are only valid for the current "
+            f"session user ({frappe.session.user!r}). Received user={user!r}. "
+            "To check a different user, omit user_roles and let is_agent() fetch "
+            "roles via frappe.get_roles(user)."
+        )
     if is_admin(user):
         return True
     # Use pre-fetched roles if provided; otherwise fetch once from DB/cache.

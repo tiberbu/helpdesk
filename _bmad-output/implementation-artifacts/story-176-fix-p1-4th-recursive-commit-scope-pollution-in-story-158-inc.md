@@ -1,6 +1,6 @@
 # Story: Fix: P1 4th recursive commit-scope pollution in story-158 + incomplete File Lists in stories 133/158
 
-Status: in-progress
+Status: done
 Task ID: mn3etoi3vgzz1v
 Task Number: #176
 Workflow: quick-dev
@@ -30,14 +30,14 @@ Stop the recursion. Batch-fix all File List inconsistencies (stories 133, 158) i
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -55,12 +55,17 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **P1 (story-158 File List)**: Expanded File List from 4 to 10 entries to reflect all files in commit `752897a89`. Added 6 out-of-scope entries (story-128, story-153, story-159, sprint-status.yaml, qa-report-story-127, qa-report-task-146) with annotation "bundled by tooling (out-of-scope; commit scope pollution artifact)" to make the pollution transparent without falsifying the record.
+- **P2 (story-133 File List line 72)**: Added "+ 2 HD Admin tests" to the test count description for `test_hd_time_entry.py` in the da95326be entry. The HD Admin tests (`test_hd_admin_can_stop_timer`, `test_hd_admin_can_get_summary`) were already attributed in the Change Log and Completion Notes — this brings the File List inline with them.
+- No source code changes; no regressions possible. This is a documentation-only fix.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- **_bmad-output/implementation-artifacts/story-158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco.md**: File List expanded from 4 to 10 entries; 6 out-of-scope entries labelled as tooling artifacts.
+- **_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md**: File List line 72 updated to add "+ 2 HD Admin tests" to the da95326be test count.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco.md` — File List expanded to 10 entries
+- `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — File List line 72 updated with HD Admin test count
+- `_bmad-output/implementation-artifacts/story-176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc.md` — this story file

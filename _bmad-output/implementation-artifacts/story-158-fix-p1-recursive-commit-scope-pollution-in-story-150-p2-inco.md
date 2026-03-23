@@ -67,7 +67,13 @@ sonnet
 
 ### File List
 
-- `_bmad-output/implementation-artifacts/story-150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-.md` — File List expanded to 7 entries
-- `_bmad-output/implementation-artifacts/story-144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin.md` — "7" corrected to "5" in Completion Notes
-- `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — HD Admin test attribution added
-- `_bmad-output/implementation-artifacts/story-158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco.md` — this story file
+- `_bmad-output/implementation-artifacts/story-150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-.md` — File List expanded to 7 entries (in-scope)
+- `_bmad-output/implementation-artifacts/story-144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin.md` — "7" corrected to "5" in Completion Notes (in-scope)
+- `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — HD Admin test attribution added (in-scope)
+- `_bmad-output/implementation-artifacts/story-158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco.md` — this story file (in-scope)
+- `_bmad-output/implementation-artifacts/story-128-qa-fix-p1-performance-regression-uncached-db-query-every-sav.md` — bundled by tooling (out-of-scope; commit scope pollution artifact)
+- `_bmad-output/implementation-artifacts/story-153-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud.md` — bundled by tooling (out-of-scope; commit scope pollution artifact)
+- `_bmad-output/implementation-artifacts/story-159-qa-fix-delete-entry-dry-violation-on-trash-missing-is-agent-.md` — bundled by tooling (out-of-scope; commit scope pollution artifact)
+- `_bmad-output/sprint-status.yaml` — bundled by tooling (out-of-scope; commit scope pollution artifact)
+- `docs/qa-report-story-127-adversarial-review.md` — bundled by tooling (out-of-scope; commit scope pollution artifact)
+- `docs/qa-report-task-146.md` — bundled by tooling (out-of-scope; commit scope pollution artifact)

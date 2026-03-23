@@ -424,7 +424,7 @@ development_status:
 
   169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g: review  # [quick-dev] Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash doubl
 
-  170-qa-fix-p2-findings-from-adversarial-review-of-story-122-fixe: ready-for-dev  # [adversarial-review] QA: Fix: P2 findings from adversarial review of Story #122 f
+  170-qa-fix-p2-findings-from-adversarial-review-of-story-122-fixe: review  # [adversarial-review] QA: Fix: P2 findings from adversarial review of Story #122 f
 
   171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw: review  # [quick-dev] Fix: P1 commit-scope pollution in task-163 + stale frappe.th
 
@@ -436,4 +436,6 @@ development_status:
 
   175-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is-ag: in-progress  # [quick-dev] Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 i
 
-  176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc: in-progress  # [quick-dev] Fix: P1 4th recursive commit-scope pollution in story-158 + 
+  176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc: review  # [quick-dev] Fix: P1 4th recursive commit-scope pollution in story-158 + 
+
+  177-qa-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-th: ready-for-dev  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-163 + stale frapp

@@ -9,13 +9,14 @@ from helpdesk.utils import AGENT_ROLES, is_agent
 MAX_DESCRIPTION_LENGTH = 500  # Issue #11: single source of truth for description limit
 MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound
 
-# Derived from AGENT_ROLES (single source of truth in helpdesk/utils.py) so that
-# adding a new privileged agent role to AGENT_ROLES automatically propagates here
-# without requiring a separate update (prevents PRIVILEGED_ROLES/AGENT_ROLES drift —
-# see QA report task-156 P1 finding).
-# "Agent" is excluded because plain Agents may only delete their own entries; only
-# HD Admin / Agent Manager hold delete:1 in the HD Time Entry DocType JSON.
-PRIVILEGED_ROLES: frozenset = AGENT_ROLES - {"Agent"}
+# Explicitly enumerate privileged roles rather than deriving from AGENT_ROLES.
+# Derivation via AGENT_ROLES - {"Agent"} is a privilege escalation risk: any new
+# role added to AGENT_ROLES would silently auto-become privileged and gain the
+# ability to delete any agent's time entry — without an intentional review.
+# Only HD Admin and Agent Manager hold delete:1 in the HD Time Entry DocType JSON;
+# that explicit list is the source of truth, not set arithmetic.
+# See QA report task-155 Finding #4.
+PRIVILEGED_ROLES: frozenset = frozenset({"HD Admin", "Agent Manager"})
 
 
 def _check_delete_permission(entry, user, user_roles=None):
