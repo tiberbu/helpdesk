@@ -1,6 +1,6 @@
 # Story: QA: Fix: Wrong nan comment + non-string float NaN/Inf bypass + delete_entry is_admin
 
-Status: in-progress
+Status: done
 Task ID: mn3dmoftyr4tql
 Task Number: #143
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,19 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed. 12 findings: 1 P1, 4 P2, 6 P3.
+- P1 (F1): Task 137's own commit (549f2159d) contains zero code changes, repeating the audit trail violation it was supposed to fix. Code landed in prior commit cda3520c1.
+- P2 (F2): Task 137 introduced is_agent()+is_privileged pre-gate that allowed bare System Manager, fixed by subsequent commit cf3628a79.
+- P2 (F3): Permission model inconsistency between delete_entry (is_agent gate) and on_trash (PRIVILEGED_ROLES includes System Manager).
+- P2 (F4): Python float NaN/Inf tests only exercise add_entry, not stop_timer.
+- P2 (F5): Decimal('NaN') bypasses the float guard (isinstance check).
+- All 69 backend tests pass. API endpoint tests via curl confirm NaN/inf rejection.
+- Full report at docs/qa-report-task-137.md
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-137.md` — adversarial QA report with 12 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-137.md` (created)

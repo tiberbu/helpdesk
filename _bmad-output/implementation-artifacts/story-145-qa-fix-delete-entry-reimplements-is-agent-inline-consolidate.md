@@ -1,6 +1,6 @@
 # Story: QA: Fix: delete_entry reimplements is_agent inline - consolidate permission logic
 
-Status: in-progress
+Status: done
 Task ID: mn3drw18bhro12
 Task Number: #145
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,16 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Produced adversarial review report: `docs/qa-report-task-142.md`
+- 12 findings: 1x P1, 4x P2, 7x P3
+- P1: System Manager permission is contradictory between `delete_entry` API (blocked) and direct REST DELETE (allowed via on_trash + PRIVILEGED_ROLES + DocType JSON). Half-applied permission change.
+- All 69 tests pass on bench. Dev and bench copies verified byte-identical.
+- Created fix task for P1 finding via chained task.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-142.md` — adversarial QA report
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-142.md` (created)

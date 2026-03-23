@@ -311,9 +311,11 @@ def ensure_hd_admin_user(email: str = "hd.admin.tt@test.com") -> None:
 
 def ensure_agent_manager_user(email: str = "agent.mgr.tt@test.com") -> None:
     """
-    Create *email* with Agent Manager role if not present.
+    Create *email* with Agent Manager role only (no Agent / HD Admin / System Manager).
 
     Shared across test classes for Agent Manager permission tests.
+    Asserts that the created user does NOT inadvertently gain other elevated roles,
+    so tests reflect real-world Agent Manager isolation.
     """
     frappe.set_user("Administrator")
     if not frappe.db.exists("User", email):
@@ -327,12 +329,24 @@ def ensure_agent_manager_user(email: str = "agent.mgr.tt@test.com") -> None:
         mgr_user.insert(ignore_permissions=True)
         mgr_user.add_roles("Agent Manager")
 
+    # Safety assertion: the user must NOT hold roles that would grant broader access
+    # than intended. This guards against accidental role pollution between tests.
+    user_roles = set(frappe.get_roles(email))
+    unexpected_roles = user_roles & {"Agent", "HD Admin", "System Manager"}
+    if unexpected_roles:
+        frappe.throw(
+            f"ensure_agent_manager_user: {email} unexpectedly has roles {unexpected_roles}. "
+            "Test data may be polluted — check tearDown / rollback logic."
+        )
+
 
 def ensure_system_manager_user(email: str = "sys.mgr.tt@test.com") -> None:
     """
-    Create *email* with System Manager role only (no Agent / HD Admin roles).
+    Create *email* with System Manager role only (no Agent / HD Admin / Agent Manager).
 
     Shared across test classes for System Manager permission tests.
+    Asserts that the created user does NOT inadvertently gain other elevated roles,
+    so tests reflect real-world System Manager isolation.
     """
     frappe.set_user("Administrator")
     if not frappe.db.exists("User", email):
@@ -345,6 +359,16 @@ def ensure_system_manager_user(email: str = "sys.mgr.tt@test.com") -> None:
         })
         sys_mgr_user.insert(ignore_permissions=True)
         sys_mgr_user.add_roles("System Manager")
+
+    # Safety assertion: the user must NOT hold roles that would grant broader access
+    # than intended. This guards against accidental role pollution between tests.
+    user_roles = set(frappe.get_roles(email))
+    unexpected_roles = user_roles & {"Agent", "HD Admin", "Agent Manager"}
+    if unexpected_roles:
+        frappe.throw(
+            f"ensure_system_manager_user: {email} unexpectedly has roles {unexpected_roles}. "
+            "Test data may be polluted — check tearDown / rollback logic."
+        )
 
 
 def add_comment(

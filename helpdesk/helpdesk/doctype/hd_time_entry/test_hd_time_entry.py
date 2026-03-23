@@ -510,11 +510,13 @@ class TestHDTimeEntry(FrappeTestCase):
 		entry_doc.on_trash()
 		frappe.set_user("Administrator")
 
-	def test_on_trash_allows_system_manager_to_delete_any_entry(self):
+	def test_on_trash_blocks_system_manager_delete(self):
 		"""
-		The on_trash hook must allow a bare System Manager user (no Agent/HD Admin role)
-		to delete another agent's entry via direct delete (REST bypass path).
-		System Manager is in PRIVILEGED_ROLES so on_trash() must not raise PermissionError.
+		The on_trash hook must BLOCK a bare System Manager user (no Agent/HD Admin role)
+		from deleting another agent's entry via direct REST DELETE.
+		System Manager was removed from PRIVILEGED_ROLES (story-148 fix) to eliminate
+		the split-personality where delete_entry() blocked System Manager but the REST
+		DELETE path allowed it.  on_trash() now raises PermissionError for bare SM.
 		"""
 		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
 		entry_name = result["name"]
@@ -522,9 +524,12 @@ class TestHDTimeEntry(FrappeTestCase):
 
 		self._ensure_system_manager_user()
 		frappe.set_user("sys.mgr.tt@test.com")
-		# on_trash() must NOT raise PermissionError for System Manager
-		entry_doc.on_trash()
-		frappe.set_user("Administrator")
+		try:
+			# on_trash() MUST raise PermissionError for bare System Manager
+			with self.assertRaises(frappe.PermissionError):
+				entry_doc.on_trash()
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_on_trash_allows_hd_admin_to_delete_any_entry(self):
 		"""
@@ -625,6 +630,10 @@ class TestHDTimeEntry(FrappeTestCase):
 		A bare System Manager user (no Agent/HD Admin/Agent role) must be blocked
 		by the is_agent() pre-gate in delete_entry() — the previous PRIVILEGED_ROLES
 		inline check created an unintended wider permission surface (story-142 fix).
+
+		Isolation note: no frappe.db.commit() is called here.  The entry is created
+		within the test transaction; tearDown's frappe.db.rollback() will clean it up
+		automatically, keeping the test isolated from its neighbours.
 		"""
 		# agent.tt creates an entry
 		result = add_entry(ticket=self.ticket_name, duration_minutes=18, billable=0)
@@ -637,10 +646,7 @@ class TestHDTimeEntry(FrappeTestCase):
 				delete_entry(name=entry_name)
 		finally:
 			frappe.set_user("Administrator")
-			# Clean up the entry that was never deleted
-			if frappe.db.exists("HD Time Entry", entry_name):
-				frappe.delete_doc("HD Time Entry", entry_name, ignore_permissions=True)
-				frappe.db.commit()
+			# tearDown rolls back the open transaction — no explicit delete needed.
 
 	# --- P1: stop_timer must reject non-numeric duration_minutes ---
 

@@ -10,22 +10,44 @@ MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound
 
 # Single source of truth for roles that may delete any time entry (not just their own).
 # Mirrors the delete:1 grant in the HD Time Entry DocType JSON.
-PRIVILEGED_ROLES = frozenset({"HD Admin", "Agent Manager", "System Manager"})
+# Note: System Manager is intentionally excluded — bare System Manager users are not
+# agents and must not be granted delete authority over time entries.
+PRIVILEGED_ROLES = frozenset({"HD Admin", "Agent Manager"})
 
 
-def _check_delete_permission(entry, user):
+def _check_delete_permission(entry, user, user_roles=None):
 	"""
 	Shared permission check for deleting an HD Time Entry (Issue #9).
 
-	Agents may only delete their own entries; HD Admin, Agent Manager, and
-	System Manager may delete any entry.
+	Agents may only delete their own entries; HD Admin and Agent Manager
+	(privileged agent roles) may delete any entry.
+
+	Administrator is always permitted (explicit short-circuit before role lookup).
+
+	Note: This function is called from on_trash() (all deletion paths) and from
+	delete_entry() (whitelisted API). Callers are responsible for enforcing any
+	additional pre-gate checks (e.g. is_agent()) before delegating here.
+	System Manager is intentionally NOT in PRIVILEGED_ROLES — bare System Manager
+	users must be blocked by the caller's pre-gate before this function is reached.
+
+	Args:
+	    entry: The HD Time Entry document.
+	    user: The user performing the delete.
+	    user_roles: Pre-fetched set of role names (optional). If None, roles are
+	        fetched via frappe.get_roles(). Pass a pre-fetched set to avoid a
+	        redundant DB/cache hit when the caller already holds the roles.
 
 	Uses frappe.get_roles() (Issue #12) instead of direct Has Role table query.
 	Includes Agent Manager (Issue #1) which holds delete:1 in the DocType JSON.
 
 	Raises frappe.PermissionError if the user is not permitted.
 	"""
-	user_roles = set(frappe.get_roles(user))
+	# Administrator can always delete any entry — explicit short-circuit so we do not
+	# depend on Administrator incidentally holding one of the PRIVILEGED_ROLES.
+	if user == "Administrator":
+		return
+	if user_roles is None:
+		user_roles = set(frappe.get_roles(user))
 	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
 	if entry.agent != user and not is_privileged:
 		frappe.throw(_("You can only delete your own time entries."), frappe.PermissionError)

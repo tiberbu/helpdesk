@@ -236,20 +236,31 @@ def delete_entry(name: str) -> dict:
 
 	Returns: { "success": True }
 	"""
+	user = frappe.session.user
+	# Fetch roles ONCE and reuse for both the pre-gate check and the ownership check
+	# below, avoiding a redundant frappe.get_roles() DB/cache hit.
+	user_roles = set(frappe.get_roles(user))
+
 	# Pre-gate: only agents may delete time entries.
-	# is_agent() covers: Administrator, HD Admin, Agent Manager, Agent (by role),
-	# and any user with an HD Agent record.
-	if not is_agent():
+	# Mirrors is_agent() inline so user_roles can be passed to _check_delete_permission.
+	# Allows: Administrator, users with HD Admin/Agent Manager/Agent roles, and users
+	# with an HD Agent record.
+	if not (
+		user == "Administrator"
+		or bool(user_roles & {"HD Admin", "Agent Manager", "Agent"})
+		or frappe.db.exists("HD Agent", {"name": user})
+	):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 	# Fetch the entry to verify existence and enforce ownership.
 	entry = frappe.get_doc("HD Time Entry", name)
 
 	# Ownership check: agents may only delete their own entries; privileged roles may
-	# delete any entry. Must be called explicitly here because ignore_permissions=True
-	# on frappe.delete_doc() bypasses the Frappe permission layer entirely, and the
-	# on_trash() hook alone is not sufficient to block unauthorized deletion in all paths.
-	_check_delete_permission(entry, frappe.session.user)
+	# delete any entry. Pre-fetched user_roles passed to avoid a second get_roles() call.
+	# Must be called explicitly here because ignore_permissions=True on frappe.delete_doc()
+	# bypasses the Frappe permission layer entirely, and the on_trash() hook alone is not
+	# sufficient to block unauthorized deletion in all paths.
+	_check_delete_permission(entry, user, user_roles=user_roles)
 
 	# ignore_permissions=True is required because the regular Agent role does not hold a
 	# Frappe-level delete grant on this DocType (only HD Admin / Agent Manager do).

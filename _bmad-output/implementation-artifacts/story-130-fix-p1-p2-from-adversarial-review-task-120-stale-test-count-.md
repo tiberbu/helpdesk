@@ -74,12 +74,12 @@ sonnet
 - Story-110 completion notes updated: "39 tests" → "56 tests" (actual count at time of QA task-120).
 - `TestIsAgentExplicitUser` moved to `helpdesk/tests/test_utils.py` — module path `helpdesk.tests.test_utils`; all 4 tests pass.
 - Added `test_hd_admin_can_stop_timer` and `test_hd_admin_can_get_summary` with full assertions including description and agent fields.
-- `delete_entry()` refactored: single `frappe.get_roles()` call using `_any_allowed_roles = {"Agent"} | PRIVILEGED_ROLES` with `is_admin()` and HD Agent record check; `is_agent()` no longer called separately.
+- **AUDIT CORRECTION (task-146)**: Story-130's own commit (`53904dcf8`) contains ZERO Python code — only markdown files (`story-130-*.md`, `story-138-*.md`, `sprint-status.yaml`). The `delete_entry()` refactor claimed below was NOT implemented by story-130. The actual code changes (test additions, test moves, shared helpers, `time_tracking.py` refactor) were implemented in commits `da95326be` and `6bb0baa33` by prior tasks. The `delete_entry()` double-`get_roles()` fix in `6bb0baa33` was subsequently REVERTED by commit `cda3520c1` (task: "_require_int_str OverflowError") and re-implemented correctly by story-146 (task-146). Story-130 delivered only markdown coordination artifacts.
 - `ensure_hd_admin_user()` asserts no unexpected roles (Agent/Agent Manager/System Manager) via `frappe.throw()` on role pollution.
 - Shared helpers `ensure_hd_admin_user/ensure_agent_manager_user/ensure_system_manager_user` added to `helpdesk/test_utils.py`; test class `_ensure_*` methods now delegate to them (1 line each).
 - `test_hd_admin_can_add_entry` now asserts `entry.description == "HD Admin manual entry"`.
-- Final test counts: `test_hd_time_entry.py` 64 tests ✔, `helpdesk/tests/test_utils.py` 4 tests ✔. All pass.
-- All changed Python files synced to frappe-bench.
+- **CORRECTED test count**: `test_hd_time_entry.py` had 64 tests at story-130 time per completion notes, but actual count verified by QA task-139 was 69. Current count (after subsequent stories) is 71. The original "64" figure was inaccurate at time of writing.
+- All changed Python files synced to frappe-bench (applies to commits da95326be/6bb0baa33, not story-130's commit).
 
 ### Change Log
 
