@@ -373,3 +373,66 @@ class TestHDTimeEntry(FrappeTestCase):
 			duration_minutes=MAX_DURATION_MINUTES,
 		)
 		self.assertTrue(result.get("success"))
+
+	# --- P1 fix: is_agent gate for stop_timer ---
+
+	def test_customer_cannot_stop_timer(self):
+		"""Customers must not be able to call stop_timer (is_agent gate — P1 fix)."""
+		frappe.set_user("customer.tt@test.com")
+		with self.assertRaises(frappe.PermissionError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-03-23 10:00:00",
+				duration_minutes=10,
+			)
+		frappe.set_user("agent.tt@test.com")
+
+	# --- P1 fix: Agent Manager in exemption list for delete_entry and before_delete ---
+
+	def _ensure_agent_manager_user(self):
+		"""Create agent.mgr.tt@test.com with Agent Manager role if not present."""
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("User", "agent.mgr.tt@test.com"):
+			mgr_user = frappe.get_doc({
+				"doctype": "User",
+				"email": "agent.mgr.tt@test.com",
+				"first_name": "Agent",
+				"last_name": "Manager",
+				"send_welcome_email": 0,
+			})
+			mgr_user.insert(ignore_permissions=True)
+			mgr_user.add_roles("Agent Manager")
+
+	def test_agent_manager_can_delete_any_entry_via_delete_entry(self):
+		"""
+		Agent Manager must be able to delete another agent's entry via delete_entry()
+		— previously Agent Manager was excluded from privileged_roles causing a
+		contradiction with delete:1 in the DocType JSON (P1 fix #1).
+		"""
+		result = add_entry(ticket=self.ticket_name, duration_minutes=20, billable=0)
+		entry_name = result["name"]
+
+		self._ensure_agent_manager_user()
+		frappe.set_user("agent.mgr.tt@test.com")
+		del_result = delete_entry(name=entry_name)
+		self.assertTrue(del_result.get("success"))
+		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+		frappe.set_user("Administrator")
+
+	def test_before_delete_hook_allows_agent_manager_to_delete_any_entry(self):
+		"""
+		The before_delete hook must allow an Agent Manager to delete another
+		agent's entry via direct delete (REST bypass path — P1 fix #1).
+		"""
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
+
+		self._ensure_agent_manager_user()
+		frappe.set_user("agent.mgr.tt@test.com")
+		# before_delete() must NOT raise PermissionError for Agent Manager
+		try:
+			entry_doc.before_delete()
+		except frappe.PermissionError:
+			self.fail("Agent Manager should be allowed to delete any entry via before_delete()")
+		frappe.set_user("Administrator")
