@@ -1,0 +1,23 @@
+{
+  "name": "@helpdesk/chat-widget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Embeddable chat widget for Frappe Helpdesk",
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build --watch",
+    "test": "vitest run",
+    "test:widget": "vitest run",
+    "check-bundle-size": "node scripts/check-bundle-size.mjs"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.5",
+    "jsdom": "^24.0.0",
+    "vite": "^5.2.8",
+    "vitest": "^1.4.0"
+  }
+}

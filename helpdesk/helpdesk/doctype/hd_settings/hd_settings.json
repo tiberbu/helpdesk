@@ -11,6 +11,7 @@
   "column_break_itil",
   "feature_flags_section",
   "chat_enabled",
+  "chat_response_timeout_seconds",
   "csat_enabled",
   "automation_enabled",
   "log_retention_days",
@@ -127,6 +128,14 @@
    "fieldname": "chat_enabled",
    "fieldtype": "Check",
    "label": "Enable Live Chat"
+  },
+  {
+   "fieldname": "chat_response_timeout_seconds",
+   "fieldtype": "Int",
+   "label": "Chat Response Timeout (seconds)",
+   "default": "120",
+   "description": "Seconds before auto-message is sent to customer when no agent responds (default 120)",
+   "insert_after": "chat_enabled"
   },
   {
    "default": "0",

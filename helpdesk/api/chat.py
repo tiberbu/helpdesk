@@ -12,7 +12,7 @@ Whitelisted methods:
 
 Security model (NFR-SE-02, ADR-05):
     - Customers authenticate via short-lived JWT in every send_message call.
-    - Agent endpoints require HD Agent / System Manager / HD Admin role.
+    - Agent endpoints require Agent / Agent Manager / HD Admin role (see helpdesk.utils.is_agent).
     - All message content is HTML-sanitized before storage (NFR-SE-06).
 """
 
@@ -20,6 +20,7 @@ import frappe
 from frappe import _
 
 from helpdesk.helpdesk.chat.jwt_helper import generate_chat_token, validate_chat_token
+from helpdesk.utils import is_agent
 
 
 # ---------------------------------------------------------------------------
@@ -44,9 +45,12 @@ def _sanitize(content: str) -> str:
 
 
 def _is_agent() -> bool:
-    """Return True if the current user has an agent-level role."""
-    user_roles = frappe.get_roles()
-    return bool({"HD Agent", "HD Admin", "System Manager", "Administrator"} & set(user_roles))
+    """Return True if the current user has an agent-level role.
+
+    Delegates to the canonical ``helpdesk.utils.is_agent`` so role names stay
+    consistent across the whole app.
+    """
+    return is_agent()
 
 
 def _append_system_message(session_name: str, text: str) -> None:
@@ -83,6 +87,8 @@ def create_session(email: str, name: str = "", subject: str = "", brand: str = "
     -------
     dict with keys: session_id, token, status
     """
+    _check_chat_enabled()
+
     # Validate email format
     if not email or not frappe.utils.validate_email_address(email):
         frappe.throw(_("A valid email address is required to start a chat."), frappe.ValidationError)
@@ -130,6 +136,8 @@ def send_message(session_id: str, content: str, token: str, attachment: str = ""
     -------
     dict with keys: message_id, sent_at
     """
+    _check_chat_enabled()
+
     # Authenticate customer
     validate_chat_token(token, session_id)
 
@@ -176,6 +184,7 @@ def send_message(session_id: str, content: str, token: str, attachment: str = ""
     return {
         "message_id": msg.message_id,
         "sent_at": str(msg.sent_at),
+        "status": "sent",
     }
 
 
@@ -194,6 +203,8 @@ def end_session(session_id: str, token: str = "") -> dict:
     -------
     dict with keys: session_id, status
     """
+    _check_chat_enabled()
+
     if not _is_agent():
         if not token:
             frappe.throw(_("Authentication token required."), frappe.AuthenticationError)
@@ -234,6 +245,8 @@ def get_sessions(status: str = "") -> list:
     -------
     list of dicts, ordered by started_at ascending.
     """
+    _check_chat_enabled()
+
     if not _is_agent():
         frappe.throw(_("Only agents can list chat sessions."), frappe.PermissionError)
 
@@ -280,6 +293,8 @@ def transfer_session(session_id: str, target_agent_email: str) -> dict:
     -------
     dict with keys: session_id, agent
     """
+    _check_chat_enabled()
+
     if not _is_agent():
         frappe.throw(_("Only agents can transfer chat sessions."), frappe.PermissionError)
 
@@ -326,13 +341,267 @@ def transfer_session(session_id: str, target_agent_email: str) -> dict:
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+@frappe.whitelist(allow_guest=True)
+def get_availability(brand: str = "") -> dict:
+    """Return whether any agents are currently available to chat.
+
+    Used by the widget to decide whether to show PreChatForm (online) or
+    OfflineForm (offline).  Since ``availability_status`` is not yet on
+    HD Agent, we fall back to checking ``is_active``.
+
+    Parameters
+    ----------
+    brand : str  Optional HD Brand name — reserved for future team filtering.
+
+    Returns
+    -------
+    dict with key: available (bool)
+    """
+    # HD Agent does not yet have availability_status; use is_active as proxy.
+    count = frappe.db.count("HD Agent", {"is_active": 1})
+    return {"available": count > 0}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_widget_config(brand: str = "") -> dict:
+    """Return branding configuration for the chat widget.
+
+    Parameters
+    ----------
+    brand : str  Optional HD Brand name.  Returns defaults when omitted or
+                 when HD Brand DocType does not exist yet.
+
+    Returns
+    -------
+    dict with keys: primary_color, logo, greeting, name
+    """
+    defaults = {
+        "primary_color": "#4f46e5",
+        "logo": None,
+        "greeting": "Hi! How can we help you today?",
+        "name": "Support",
+    }
+
+    if not brand or brand == "default":
+        return defaults
+
+    # HD Brand DocType may not exist yet — guard gracefully
+    if not frappe.db.exists("DocType", "HD Brand"):
+        return defaults
+
+    brand_doc = frappe.db.get_value(
+        "HD Brand",
+        brand,
+        ["primary_color", "logo", "chat_greeting", "name"],
+        as_dict=True,
+    )
+    if not brand_doc:
+        return defaults
+
+    return {
+        "primary_color": brand_doc.get("primary_color") or defaults["primary_color"],
+        "logo": brand_doc.get("logo"),
+        "greeting": brand_doc.get("chat_greeting") or defaults["greeting"],
+        "name": brand_doc.get("name") or defaults["name"],
+    }
+
+
+@frappe.whitelist(allow_guest=True)
+def create_offline_ticket(
+    name: str,
+    email: str,
+    subject: str,
+    message: str,
+    brand: str = "",
+) -> dict:
+    """Create an HD Ticket from the widget's offline "Leave a message" form.
+
+    Does NOT create a chat session — the customer will be followed up via
+    email using normal ticket workflow.
+
+    Parameters
+    ----------
+    name    : str  Customer display name.
+    email   : str  Customer email address.
+    subject : str  Ticket subject.
+    message : str  Message body.
+    brand   : str  HD Brand name (optional).
+
+    Returns
+    -------
+    dict with key: ticket_id
+    """
+    if not email or not frappe.utils.validate_email_address(email):
+        frappe.throw(_("A valid email address is required."), frappe.ValidationError)
+
+    sanitized_message = _sanitize(message)
+
+    # Elevate to Administrator: Guest lacks HD Ticket create permission (NFR-SE-02).
+    original_user = frappe.session.user
+    frappe.set_user("Administrator")
+    try:
+        from helpdesk.helpdesk.channels.base import ChannelMessage
+        from helpdesk.helpdesk.channels.normalizer import ChannelNormalizer
+
+        channel_msg = ChannelMessage(
+            source="portal",
+            sender_email=email.strip().lower(),
+            sender_name=(name or "").strip() or email.strip().lower(),
+            subject=subject.strip() or f"Message from {email}",
+            content=sanitized_message,
+            metadata={"brand": brand or None, "offline_form": True},
+        )
+        normalizer = ChannelNormalizer()
+        ticket = normalizer.process(channel_msg)
+        return {"ticket_id": ticket.name}
+
+    except Exception:
+        # Fallback: create ticket directly without channel normalizer
+        frappe.log_error(
+            frappe.get_traceback(),
+            "ChatAPI: create_offline_ticket channel normalizer failed — using fallback",
+        )
+        ticket = frappe.get_doc(
+            {
+                "doctype": "HD Ticket",
+                "subject": subject.strip() or f"Message from {email}",
+                "raised_by": email.strip().lower(),
+                "description": sanitized_message,
+                "via_customer_portal": 1,
+            }
+        )
+        ticket.insert(ignore_permissions=True)
+        return {"ticket_id": ticket.name}
+
+    finally:
+        frappe.set_user(original_user)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_messages(session_id: str, token: str) -> list:
+    """Return all messages for a chat session (paginated from oldest to newest).
+
+    Parameters
+    ----------
+    session_id : str  The HD Chat Session session_id.
+    token      : str  JWT issued by create_session (customer authentication).
+
+    Returns
+    -------
+    list of message dicts ordered by sent_at ascending.
+    """
+    validate_chat_token(token, session_id)
+
+    messages = frappe.db.get_all(
+        "HD Chat Message",
+        filters={"session": session_id},
+        fields=["message_id", "sender_type", "sender_email", "content", "sent_at", "is_read"],
+        order_by="sent_at asc",
+    )
+    return messages
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+
+@frappe.whitelist(allow_guest=True)
+def typing_start(session_id: str, token: str, sender_name: str = "") -> dict:
+    """Broadcast a typing-start indicator to the chat room (AC #3, Story 3.4).
+
+    Parameters
+    ----------
+    session_id  : str  HD Chat Session session_id.
+    token       : str  Customer JWT.
+    sender_name : str  Display name shown in the typing indicator.
+
+    Returns
+    -------
+    dict with key: ok (bool)
+    """
+    _check_chat_enabled()
+    from helpdesk.helpdesk.realtime.chat_handlers import handle_typing_start
+    handle_typing_start(session_id, token, sender_name)
+    return {"ok": True}
+
+
+@frappe.whitelist(allow_guest=True)
+def typing_stop(session_id: str, token: str) -> dict:
+    """Broadcast a typing-stop event to clear the remote typing indicator (AC #3, Story 3.4).
+
+    Parameters
+    ----------
+    session_id : str  HD Chat Session session_id.
+    token      : str  Customer JWT.
+
+    Returns
+    -------
+    dict with key: ok (bool)
+    """
+    _check_chat_enabled()
+    from helpdesk.helpdesk.realtime.chat_handlers import handle_typing_stop
+    handle_typing_stop(session_id, token)
+    return {"ok": True}
+
+
+@frappe.whitelist(allow_guest=True)
+def message_delivered(session_id: str, token: str, message_id: str) -> dict:
+    """Notify the sender that their message was delivered (AC #2, Story 3.4).
+
+    Parameters
+    ----------
+    session_id : str  HD Chat Session session_id.
+    token      : str  Recipient JWT.
+    message_id : str  HD Chat Message message_id that was delivered.
+
+    Returns
+    -------
+    dict with key: ok (bool)
+    """
+    _check_chat_enabled()
+    from helpdesk.helpdesk.realtime.chat_handlers import handle_message_delivered
+    handle_message_delivered(session_id, token, message_id)
+    return {"ok": True}
+
+
+@frappe.whitelist(allow_guest=True)
+def mark_messages_read(session_id: str, token: str, message_ids: list) -> dict:
+    """Mark messages as read and notify the sender (AC #2, Story 3.4).
+
+    Parameters
+    ----------
+    session_id  : str   HD Chat Session session_id.
+    token       : str   Recipient JWT.
+    message_ids : list  List of HD Chat Message message_id values.
+
+    Returns
+    -------
+    dict with key: ok (bool)
+    """
+    _check_chat_enabled()
+    from helpdesk.helpdesk.realtime.chat_handlers import handle_message_read
+    if isinstance(message_ids, str):
+        import json as _json
+        message_ids = _json.loads(message_ids)
+    handle_message_read(session_id, token, message_ids)
+    return {"ok": True}
+
+
 def _create_ticket_for_session(session_doc, first_message_content: str):
     """Create an HD Ticket for the session's first customer message.
 
     Uses the channel normalizer (Story 3.1 / ADR-07) to ensure all
     channel sources produce tickets through the same pathway.
+
+    Runs as Administrator so that guest-initiated chat sessions (send_message
+    is allow_guest=True) can create HD Tickets without a permission error.
     """
+    original_user = frappe.session.user
     try:
+        # Elevate to Administrator: Guest lacks HD Ticket create permission.
+        frappe.set_user("Administrator")
+
         from helpdesk.helpdesk.channels.base import ChannelMessage
         from helpdesk.helpdesk.channels.normalizer import ChannelNormalizer
 
@@ -356,3 +625,5 @@ def _create_ticket_for_session(session_doc, first_message_content: str):
             frappe.get_traceback(),
             "ChatAPI: failed to create ticket for session {0}".format(session_doc.session_id),
         )
+    finally:
+        frappe.set_user(original_user)

@@ -15,6 +15,7 @@
   "section_timing",
   "started_at",
   "ended_at",
+  "timeout_notified_at",
   "inactivity_timeout_minutes",
   "section_agent",
   "agent",
@@ -77,6 +78,14 @@
    "fieldname": "ended_at",
    "fieldtype": "Datetime",
    "label": "Ended At"
+  },
+  {
+   "fieldname": "timeout_notified_at",
+   "fieldtype": "Datetime",
+   "label": "Timeout Notified At",
+   "read_only": 1,
+   "description": "Timestamp when the response-timeout auto-message was sent; prevents duplicate messages",
+   "insert_after": "ended_at"
   },
   {
    "default": "30",
