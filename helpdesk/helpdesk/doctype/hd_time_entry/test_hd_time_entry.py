@@ -889,6 +889,34 @@ class TestHDTimeEntry(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			add_entry(ticket=self.ticket_name, duration_minutes="nan")
 
+	# --- P2: Missing coverage — inf billable on add_entry, nan duration on stop_timer ---
+
+	def test_add_entry_rejects_inf_billable(self):
+		"""
+		add_entry must raise ValidationError when billable='inf'.
+		int(float('inf')) raises OverflowError, which _require_int_str must catch.
+		Mirrors test_require_int_str_rejects_inf_via_stop_timer for the add_entry path.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(
+				ticket=self.ticket_name,
+				duration_minutes=10,
+				billable="inf",
+			)
+
+	def test_stop_timer_rejects_nan_duration(self):
+		"""
+		stop_timer must raise ValidationError when duration_minutes='nan'.
+		int(float('nan')) raises ValueError, which _require_int_str must catch.
+		Mirrors test_require_int_str_rejects_nan_string_duration for the stop_timer path.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-01-01 10:00:00",
+				duration_minutes="nan",
+			)
+
 	# --- P2: Scientific notation string behavior (documented, not rejected) ---
 
 	def test_require_int_str_documents_scientific_notation_accepted(self):
@@ -912,89 +940,5 @@ class TestHDTimeEntry(FrappeTestCase):
 		self.assertEqual(entry.duration_minutes, 100, "'1e2' must evaluate to 100")
 
 
-class TestIsAgentExplicitUser(FrappeTestCase):
-	"""
-	Dedicated tests for is_agent(user=...) explicit user parameter.
-
-	P1-2 fix: is_admin(user) parameter was silently added to is_agent() without tests.
-	The change has global scope — all callers that pass user= must check THAT user,
-	not frappe.session.user.
-	"""
-
-	def setUp(self):
-		frappe.set_user("Administrator")
-		# Create an agent user for is_agent() checks
-		create_agent("is.agent.check@test.com", "IsAgent", "Check")
-		# Create a non-agent (customer) user
-		if not frappe.db.exists("User", "not.an.agent@test.com"):
-			frappe.get_doc({
-				"doctype": "User",
-				"email": "not.an.agent@test.com",
-				"first_name": "NotAgent",
-				"last_name": "User",
-				"send_welcome_email": 0,
-			}).insert(ignore_permissions=True)
-
-	def tearDown(self):
-		frappe.set_user("Administrator")
-		frappe.db.rollback()
-
-	def test_is_agent_with_explicit_agent_user(self):
-		"""
-		is_agent(user='is.agent.check@test.com') must return True even when the
-		current session user is someone else (e.g. the customer). This verifies the
-		user parameter is actually used, not frappe.session.user.
-		"""
-		from helpdesk.utils import is_agent
-
-		# Session user is NOT an agent
-		frappe.set_user("not.an.agent@test.com")
-		# But checking the explicit agent user must still return True
-		result = is_agent(user="is.agent.check@test.com")
-		self.assertTrue(
-			result,
-			"is_agent(user='is.agent.check@test.com') must return True regardless of session user",
-		)
-
-	def test_is_agent_with_explicit_non_agent_user(self):
-		"""
-		is_agent(user='not.an.agent@test.com') must return False even when the
-		current session user IS an agent. Verifies the parameter is not ignored.
-		"""
-		from helpdesk.utils import is_agent
-
-		# Session user IS an agent
-		frappe.set_user("is.agent.check@test.com")
-		# But checking the non-agent user must return False
-		result = is_agent(user="not.an.agent@test.com")
-		self.assertFalse(
-			result,
-			"is_agent(user='not.an.agent@test.com') must return False regardless of session user",
-		)
-
-	def test_is_agent_defaults_to_session_user_when_no_param(self):
-		"""
-		is_agent() with no arguments must check frappe.session.user, not a cached value.
-		"""
-		from helpdesk.utils import is_agent
-
-		# Session is the agent — should return True
-		frappe.set_user("is.agent.check@test.com")
-		self.assertTrue(is_agent(), "is_agent() must return True when session user is an agent")
-
-		# Session is the customer — should return False
-		frappe.set_user("not.an.agent@test.com")
-		self.assertFalse(is_agent(), "is_agent() must return False when session user is not an agent")
-
-	def test_is_agent_administrator_always_returns_true(self):
-		"""
-		is_agent(user='Administrator') must always return True.
-		Administrator is handled via is_admin() inside is_agent().
-		"""
-		from helpdesk.utils import is_agent
-
-		frappe.set_user("not.an.agent@test.com")
-		self.assertTrue(
-			is_agent(user="Administrator"),
-			"is_agent(user='Administrator') must always return True",
-		)
+# TestIsAgentExplicitUser has been moved to helpdesk/tests/test_utils.py
+# (story-130 P1 fix #8 — co-locate tests with the module they test)

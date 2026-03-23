@@ -355,3 +355,9 @@ development_status:
   133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-: in-progress  # [quick-dev] Fix: _require_int_str OverflowError on inf/nan input (P1) + 
 
   134-qa-fix-require-int-str-overflowerror-on-inf-missing-stop-tim: review  # [adversarial-review] QA: Fix: _require_int_str OverflowError on inf + missing sto
+
+  135-qa-fix-require-int-str-inf-nan-500-error-p1-empty-commit-aud: review  # [adversarial-review] QA: Fix: _require_int_str inf/nan 500 error (P1) + empty com
+
+  136-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-logi: review  # [quick-dev] Fix: P0 bench test sync broken + P1 divergent delete_entry l
+
+  137-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-delete: in-progress  # [quick-dev] Fix: Wrong nan comment + non-string float NaN/Inf bypass + d

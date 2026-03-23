@@ -64,7 +64,7 @@ sonnet
 
 ### Completion Notes List
 
-- All 6 acceptance criteria satisfied; 39 tests pass (up from 37 — 2 new HD Admin tests added).
+- All 6 acceptance criteria satisfied; 56 tests pass (up from 37 — 2 new HD Admin tests added; subsequent stories added more tests bringing the total to 56 at time of QA task-120). Note: count updated by story-130 P1 fix #1.
 - `test_add_entry_rejects_invalid_string_duration` was never in the codebase; no removal needed.
 - Stale comments in `delete_entry()` were already corrected by a prior fix task; verified correct state.
 - Migration completed cleanly: HD Admin DocType permissions applied to DB.

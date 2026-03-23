@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.utils import now_datetime, get_datetime, cint
 
-from helpdesk.utils import is_agent
+from helpdesk.utils import is_admin, is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
@@ -37,9 +37,9 @@ def _require_int_str(value, param_name: str) -> None:
 			# cint("3.5") truncates to 3; int("3.5") raises ValueError.
 			int(float(value.strip()))
 		except (ValueError, OverflowError):
-			# ValueError: non-numeric string (e.g. "abc", "")
-			# OverflowError: int(float("inf")) / int(float("nan")) — Python raises
-			# OverflowError, not ValueError, so both must be caught.
+			# ValueError: non-numeric string (e.g. "abc", "") OR int(float("nan"))
+			# OverflowError: int(float("inf")) / int(float("-inf"))
+			# Both exception types must be caught to handle all invalid inputs.
 			frappe.throw(
 				_("{0} must be a valid integer").format(param_name),
 				frappe.ValidationError,
@@ -225,10 +225,20 @@ def delete_entry(name: str) -> dict:
 	Returns: { "success": True }
 	"""
 	# Pre-gate: only agents OR privileged-role users may delete.
-	# is_agent() covers: Administrator, HD Admin, Agent Manager, Agent.
-	user_roles = set(frappe.get_roles(frappe.session.user))
-	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
-	if not is_agent() and not is_privileged:
+	# Fetch roles once and derive both the agent-role check and the privileged-role check
+	# from that single set to avoid calling frappe.get_roles() twice.
+	# _any_allowed_roles is the union of:
+	#   - agent roles covered by is_agent(): "HD Admin", "Agent Manager", "Agent"
+	#   - PRIVILEGED_ROLES: "HD Admin", "Agent Manager", "System Manager"
+	# Combined: "Agent", "HD Admin", "Agent Manager", "System Manager"
+	user = frappe.session.user
+	user_roles = set(frappe.get_roles(user))
+	_any_allowed_roles = {"Agent"} | PRIVILEGED_ROLES
+	if not (
+		is_admin(user)
+		or bool(user_roles & _any_allowed_roles)
+		or frappe.db.exists("HD Agent", {"name": user})
+	):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 	# Fetch the entry to verify existence and enforce ownership.

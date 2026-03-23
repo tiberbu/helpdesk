@@ -23,21 +23,32 @@ from helpdesk.test_utils import make_status, make_ticket
 # ---------------------------------------------------------------------------
 
 _AUTO_CLOSE_STATUS = "Resolved"
+_CLOSED_STATUS = "Closed"
+
+
+def _setup_statuses():
+    """Ensure the required HD Ticket Status records exist."""
+    make_status(_AUTO_CLOSE_STATUS, "Resolved")
+    make_status(_CLOSED_STATUS, "Closed")
 
 
 def _configure_auto_close(status: str = _AUTO_CLOSE_STATUS, days: int = 1):
     """Enable auto-close in HD Settings and point it at *status*."""
-    make_status(_AUTO_CLOSE_STATUS, "Resolved")
-    frappe.db.set_single_value(
-        "HD Settings",
-        "auto_close_tickets",
-        1,
-    )
+    _setup_statuses()
+    frappe.db.set_single_value("HD Settings", "auto_close_tickets", 1)
     frappe.db.set_single_value("HD Settings", "auto_close_status", status)
     frappe.db.set_single_value("HD Settings", "auto_close_after_days", days)
 
 
-def _make_old_communication(ticket_name: str, days_old: int = 5):
+def _set_ticket_status(ticket_name, status: str):
+    """Directly write status into DB without triggering document hooks."""
+    frappe.db.sql(
+        "UPDATE `tabHD Ticket` SET `status` = %s WHERE `name` = %s",
+        [status, ticket_name],
+    )
+
+
+def _make_old_communication(ticket_name, days_old: int = 5):
     """Insert a Communication record dated *days_old* days in the past."""
     frappe.get_doc(
         {
@@ -46,7 +57,7 @@ def _make_old_communication(ticket_name: str, days_old: int = 5):
             "communication_medium": "Email",
             "subject": "Test communication",
             "reference_doctype": "HD Ticket",
-            "reference_name": ticket_name,
+            "reference_name": str(ticket_name),
             "communication_date": add_to_date(now_datetime(), days=-days_old),
             "sent_or_received": "Received",
         }
@@ -102,8 +113,8 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         _configure_auto_close(days=1)
 
         ticket = make_ticket(subject="Auto-close candidate")
-        # Directly set the status in DB to bypass insertion-time status logic.
-        frappe.db.set_value("HD Ticket", ticket.name, "status", _AUTO_CLOSE_STATUS)
+        # Directly set the status via raw SQL to avoid triggering ORM hooks.
+        _set_ticket_status(ticket.name, _AUTO_CLOSE_STATUS)
         _make_old_communication(ticket.name, days_old=5)
 
         close_tickets_after_n_days()
@@ -111,7 +122,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         ticket.reload()
         self.assertEqual(
             ticket.status,
-            "Closed",
+            _CLOSED_STATUS,
             "Ticket should have been auto-closed by the scheduler.",
         )
 
@@ -121,13 +132,13 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
 
     def test_no_action_when_feature_disabled(self):
         """When auto_close_tickets=0 the function exits early; tickets untouched."""
-        make_status(_AUTO_CLOSE_STATUS, "Resolved")
+        _setup_statuses()
         frappe.db.set_single_value("HD Settings", "auto_close_tickets", 0)
         frappe.db.set_single_value("HD Settings", "auto_close_status", _AUTO_CLOSE_STATUS)
         frappe.db.set_single_value("HD Settings", "auto_close_after_days", 1)
 
         ticket = make_ticket(subject="Should not close")
-        frappe.db.set_value("HD Ticket", ticket.name, "status", _AUTO_CLOSE_STATUS)
+        _set_ticket_status(ticket.name, _AUTO_CLOSE_STATUS)
         _make_old_communication(ticket.name, days_old=5)
 
         close_tickets_after_n_days()
@@ -147,24 +158,25 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         """A ValidationError on ticket A must not prevent ticket B from closing."""
         _configure_auto_close(days=1)
 
-        # Ticket A — has a mandatory unchecked checklist item → will fail validation
+        # Ticket A — add a mandatory unchecked checklist item WHILE status is
+        # still "Open" (so validate() doesn't throw on save), then set status
+        # to the auto-close value via raw SQL so the cron picks it up.
         ticket_a = make_ticket(subject="Checklist-blocked ticket")
-        frappe.db.set_value("HD Ticket", ticket_a.name, "status", _AUTO_CLOSE_STATUS)
-        # Reload to get fresh timestamps before appending child rows.
         ticket_a.reload()
         ticket_a.append(
             "ticket_checklist",
             {"item": "Required step", "is_mandatory": 1, "is_completed": 0},
         )
-        ticket_a.save(ignore_permissions=True)
+        ticket_a.save(ignore_permissions=True)  # status still "Open" → no guard
+        _set_ticket_status(ticket_a.name, _AUTO_CLOSE_STATUS)
         _make_old_communication(ticket_a.name, days_old=5)
 
         # Ticket B — clean, should close normally
         ticket_b = make_ticket(subject="Normal auto-close ticket")
-        frappe.db.set_value("HD Ticket", ticket_b.name, "status", _AUTO_CLOSE_STATUS)
+        _set_ticket_status(ticket_b.name, _AUTO_CLOSE_STATUS)
         _make_old_communication(ticket_b.name, days_old=5)
 
-        # Should not raise even though ticket_a will fail
+        # Should not raise even though ticket_a will fail checklist validation
         close_tickets_after_n_days()
 
         ticket_a.reload()
@@ -172,12 +184,12 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
 
         self.assertNotEqual(
             ticket_a.status,
-            "Closed",
+            _CLOSED_STATUS,
             "Ticket A should NOT be closed because its checklist is incomplete.",
         )
         self.assertEqual(
             ticket_b.status,
-            "Closed",
+            _CLOSED_STATUS,
             "Ticket B should be closed despite ticket A failing — error isolation required.",
         )
 
@@ -189,15 +201,15 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         """Mandatory unchecked checklist items must prevent auto-close."""
         _configure_auto_close(days=1)
 
+        # Add checklist while status is "Open" (no guard), then set status in DB.
         ticket = make_ticket(subject="Checklist test")
-        frappe.db.set_value("HD Ticket", ticket.name, "status", _AUTO_CLOSE_STATUS)
-        # Reload to get fresh timestamps before appending child rows.
         ticket.reload()
         ticket.append(
             "ticket_checklist",
             {"item": "Must be done first", "is_mandatory": 1, "is_completed": 0},
         )
-        ticket.save(ignore_permissions=True)
+        ticket.save(ignore_permissions=True)  # status still "Open" → no guard
+        _set_ticket_status(ticket.name, _AUTO_CLOSE_STATUS)
         _make_old_communication(ticket.name, days_old=5)
 
         # An error log entry should be created for this ticket
@@ -210,7 +222,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         ticket.reload()
         self.assertNotEqual(
             ticket.status,
-            "Closed",
+            _CLOSED_STATUS,
             "Ticket with incomplete mandatory checklist must NOT be auto-closed.",
         )
 

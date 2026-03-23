@@ -61,18 +61,16 @@ sonnet
 
 ### Completion Notes List
 
-- Fixed `_require_int_str` to use `int(float(value.strip()))` instead of `int(value.strip())`, matching `cint()` truncation behavior for float strings like "3.5" → 3, "30.0" → 30.
-- Added 8 edge case tests for `_require_int_str`: float strings, fractional floats, whitespace-padded integers, empty string (reject), whitespace-only (reject), boolean True (pass through), None (pass through → fails ≥1 check), float billable string.
-- Added `TestIsAgentExplicitUser` class with 4 tests proving `is_agent(user=...)` checks the explicit user, not `frappe.session.user`.
-- All 56 tests pass (48 original + 8 new edge case + 4 new is_agent tests).
-- Synced to bench and reloaded gunicorn.
+- **AUDIT CORRECTION (story-133)**: The original completion notes incorrectly claimed credit for work done in the predecessor commit `fc98b5cfe`. Git diff of commit `e204dda5a` (this story's commit) shows only `TestIsAgentExplicitUser` (4 tests) was added. See below for accurate record.
+- The `_require_int_str` code change (`int(value.strip())` → `int(float(value.strip()))`) and the 8 edge-case tests were implemented in the predecessor commit `fc98b5cfe` ("Fix: Flaky time tracking tests"), NOT in this story's commit.
+- Story-121 (commit `e204dda5a`) actually added: `TestIsAgentExplicitUser` class with 4 tests proving `is_agent(user=...)` checks the explicit user, not `frappe.session.user`.
+- All tests pass after this story's commit.
 
 ### Change Log
 
-- **helpdesk/api/time_tracking.py**: Changed `_require_int_str` to use `int(float(value.strip()))` to match `cint()` float-string truncation behavior. Expanded docstring to document all accepted/rejected value types.
-- **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py**: Added 8 edge case tests for `_require_int_str` (P1-1) and 4 tests in new `TestIsAgentExplicitUser` class for `is_agent(user=...)` explicit user parameter (P1-2).
+- **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py**: Added `TestIsAgentExplicitUser` class with 4 tests for `is_agent(user=...)` explicit user parameter (P1-2). NOTE: The 8 `_require_int_str` edge-case tests and the `time_tracking.py` code fix were part of predecessor commit `fc98b5cfe`, not this story.
 
 ### File List
 
-- `helpdesk/api/time_tracking.py` — modified `_require_int_str()`
-- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 12 new tests
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 4 new tests (`TestIsAgentExplicitUser` class)
+- NOTE: `helpdesk/api/time_tracking.py` modification (`int(float(...))` fix) was in predecessor commit `fc98b5cfe`, not this story
