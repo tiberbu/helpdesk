@@ -174,7 +174,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { createResource, Button, Badge, Dialog } from "frappe-ui";
+import { createResource, Button, Badge, Dialog, toast } from "frappe-ui";
 import LucidePlus from "~icons/lucide/plus";
 import LucideTimer from "~icons/lucide/timer";
 import LucideClock from "~icons/lucide/clock";
@@ -274,6 +274,9 @@ const startResource = createResource({
     );
     timerInterval = setInterval(tick, 1000);
   },
+  onError(err: any) {
+    toast.error(err?.messages?.[0] || __("Failed to start timer"));
+  },
 });
 
 function startTimer() {
@@ -328,6 +331,9 @@ const summaryResource = createResource({
   onSuccess(data: any) {
     summary.value = data;
   },
+  onError(err: any) {
+    toast.error(err?.messages?.[0] || __("Failed to load time summary"));
+  },
 });
 
 function loadSummary() {
@@ -352,6 +358,10 @@ const deleteResource = createResource({
   onSuccess() {
     deleteTarget.value = null;
     loadSummary();
+  },
+  onError(err: any) {
+    deleteTarget.value = null;
+    toast.error(err?.messages?.[0] || __("Failed to delete time entry"));
   },
 });
 

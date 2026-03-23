@@ -39,6 +39,7 @@
           :label="__('Description')"
           :placeholder="__('What did you work on? (optional)')"
           v-model="description"
+          :maxlength="500"
         />
 
         <!-- Billable -->

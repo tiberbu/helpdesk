@@ -66,6 +66,24 @@ class TestHDTimeEntry(FrappeTestCase):
 		self.assertEqual(entry.duration_minutes, 45)
 		self.assertEqual(str(entry.started_at), started_at)
 
+	def test_stop_timer_rejects_future_started_at(self):
+		"""started_at in the future must raise ValidationError."""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2099-01-01 00:00:00",
+				duration_minutes=10,
+			)
+
+	def test_stop_timer_rejects_invalid_started_at_format(self):
+		"""Unparseable started_at must raise ValidationError."""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="not-a-datetime",
+				duration_minutes=10,
+			)
+
 	# --- get_summary tests ---
 
 	def test_get_summary_returns_correct_totals(self):
@@ -95,6 +113,14 @@ class TestHDTimeEntry(FrappeTestCase):
 			"Entries should be sorted newest first",
 		)
 
+	def test_get_summary_blocked_for_customer(self):
+		"""Customers should not be able to access time summary data."""
+		add_entry(ticket=self.ticket_name, duration_minutes=30, billable=1)
+		frappe.set_user("customer.tt@test.com")
+		with self.assertRaises(frappe.PermissionError):
+			get_summary(ticket=self.ticket_name)
+		frappe.set_user("agent.tt@test.com")
+
 	# --- delete_entry tests ---
 
 	def test_delete_entry_removes_own_entry(self):
@@ -118,6 +144,31 @@ class TestHDTimeEntry(FrappeTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			delete_entry(name=entry_name)
 		frappe.set_user("agent.tt@test.com")
+
+	def test_delete_entry_admin_can_delete_any_entry(self):
+		"""HD Admin role should be able to delete another agent's time entry."""
+		# agent.tt creates an entry
+		result = add_entry(ticket=self.ticket_name, duration_minutes=25, billable=0)
+		entry_name = result["name"]
+
+		# Create an admin user and assign HD Admin role
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("User", "hd.admin.tt@test.com"):
+			admin_user = frappe.get_doc({
+				"doctype": "User",
+				"email": "hd.admin.tt@test.com",
+				"first_name": "HD",
+				"last_name": "Admin",
+				"send_welcome_email": 0,
+			})
+			admin_user.insert(ignore_permissions=True)
+			admin_user.add_roles("HD Admin")
+
+		frappe.set_user("hd.admin.tt@test.com")
+		del_result = delete_entry(name=entry_name)
+		self.assertTrue(del_result.get("success"))
+		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+		frappe.set_user("Administrator")
 
 	# --- Permission tests ---
 

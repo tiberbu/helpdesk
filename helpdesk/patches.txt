@@ -46,3 +46,4 @@ helpdesk.patches.v1_phase1.add_related_ticket_linking
 helpdesk.patches.v1_phase1.add_major_incident_fields
 helpdesk.patches.v1_phase1.add_incident_model_doctypes
 helpdesk.patches.v1_phase1.create_hd_time_entry
+helpdesk.patches.v1_phase1.reload_incident_model_for_link_field

@@ -1040,7 +1040,10 @@ class HDTicket(Document):
             self.status = self.default_open_status
 
     def set_status_category(self):
-        self.status_category = self.status_category or frappe.get_value(
+        # Always re-derive from current status — never short-circuit on stale value.
+        # The `or` guard was removed because it allowed status_category to remain
+        # e.g. "Paused" when status changed to "Resolved", bypassing resolution guards.
+        self.status_category = frappe.get_value(
             "HD Ticket Status",
             self.status,
             "category",

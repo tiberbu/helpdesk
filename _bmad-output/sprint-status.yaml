@@ -216,7 +216,13 @@ development_status:
 
   62-fix-story-1-9-qa-findings-missing-import-permission-gaps-iti: review  # [quick-dev] Fix: Story 1.9 QA findings -- missing __ import, permission 
 
-  63-qa-fix-story-1-9-qa-findings-missing-import-permission-gaps-: ready-for-dev  # [adversarial-review] QA: Fix: Story 1.9 QA findings -- missing __ import, permiss
+  63-qa-fix-story-1-9-qa-findings-missing-import-permission-gaps-: review  # [adversarial-review] QA: Fix: Story 1.9 QA findings -- missing __ import, permiss
   64-qa-story-1-7-time-tracking-timetracker-vue-tests-sidebar-int: backlog  # [adversarial-review] QA: Story 1.7 Time Tracking — TimeTracker.vue, Tests, Sideba
 
-  65-qa-fix-story-1-7-time-tracking-create-timetracker-vue-tests-: ready-for-dev  # [adversarial-review] QA: Fix: Story 1.7 Time Tracking — Create TimeTracker.vue, T
+  65-qa-fix-story-1-7-time-tracking-create-timetracker-vue-tests-: review  # [adversarial-review] QA: Fix: Story 1.7 Time Tracking — Create TimeTracker.vue, T
+
+  66-qa-fix-story-1-8-major-incident-p0-p1-issues-missing-post-in: review  # [adversarial-review] QA: Fix: Story 1.8 Major Incident — P0/P1 issues (missing po
+
+  67-fix-p1-issues-in-story-1-7-time-tracking-n-1-query-started-a: in-progress  # [quick-dev] Fix: P1 issues in Story 1.7 Time Tracking (N+1 query, starte
+
+  68-fix-p1-findings-from-qa-task-62-status-category-bypass-and-m: review  # [quick-dev] Fix: P1 findings from QA task-62 — status_category bypass an

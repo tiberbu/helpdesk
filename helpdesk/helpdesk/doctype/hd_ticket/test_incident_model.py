@@ -213,3 +213,49 @@ class TestIncidentModelApplication(FrappeTestCase):
 			doc.save()
 		except frappe.ValidationError as e:
 			self.fail(f"Resolution without checklist should be allowed: {e}")
+
+	# ---------------------------------------------------------------
+	# F-04: Permission guard — non-agent (customer) must get PermissionError
+	# ---------------------------------------------------------------
+
+	def test_apply_model_raises_permission_error_for_non_agent(self):
+		"""Customer user must not be able to apply an incident model (F-04)."""
+		customer_email = "im_customer_noagent@example.com"
+		# Create a plain user without Agent role — simulates a portal customer
+		if not frappe.db.exists("User", customer_email):
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": customer_email,
+					"first_name": "Customer",
+					"last_name": "NoAgent",
+					"send_welcome_email": 0,
+				}
+			).insert(ignore_permissions=True)
+
+		# Switch to the non-agent user and attempt to call apply_incident_model
+		frappe.set_user(customer_email)
+		with self.assertRaises(frappe.PermissionError):
+			apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+
+		# Restore agent user for tearDown
+		frappe.set_user(self.agent_email)
+
+	# ---------------------------------------------------------------
+	# F-05: ITIL-mode-disabled rejection — ValidationError when ITIL off
+	# ---------------------------------------------------------------
+
+	def test_apply_model_raises_validation_error_when_itil_disabled(self):
+		"""apply_incident_model must reject when itil_mode_enabled=0 (F-05)."""
+		# Disable ITIL mode mid-test (setUp has it enabled)
+		frappe.set_user("Administrator")
+		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
+		frappe.set_user(self.agent_email)
+
+		with self.assertRaises(frappe.ValidationError):
+			apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+
+		# Re-enable for remaining tearDown flow
+		frappe.set_user("Administrator")
+		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
+		frappe.set_user(self.agent_email)
