@@ -1277,12 +1277,3 @@ class TestHDTimeEntry(FrappeTestCase):
 			)
 		finally:
 			frappe.set_user("Administrator")
-
-
-
-# TestEnsureHelpersRolePollutionGuard has been moved to helpdesk/tests/test_utils.py
-# (story-189 P2 fix — co-locate tests with the module they test; same principle as
-# TestIsAgentExplicitUser move in story-130 P1 fix #8)
-
-# TestIsAgentExplicitUser has been moved to helpdesk/tests/test_utils.py
-# (story-130 P1 fix #8 — co-locate tests with the module they test)

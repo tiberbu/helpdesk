@@ -60,12 +60,24 @@ sonnet
 ### Change Log
 
 - `_bmad-output/implementation-artifacts/story-171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw.md`: Expanded File List from 4 to 14 entries (all files in commit d893b5e97); expanded Change Log with undeclared-file annotations for all 10 missing entries including detailed hd_ticket.py entry (P1-1, P1-2).
-- `helpdesk/helpdesk/tests/test_utils.py`: Added `TestEnsureHelpersRolePollutionGuard` class (3 tests) moved from test_hd_time_entry.py (P2).
+- `helpdesk/tests/test_utils.py`: Added `TestEnsureHelpersRolePollutionGuard` class (3 tests) moved from test_hd_time_entry.py (P2).
 - `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Removed `TestEnsureHelpersRolePollutionGuard` class; replaced with comment noting the move to test_utils.py (P2).
 
 ### File List
 
 - `_bmad-output/implementation-artifacts/story-171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw.md` (modified — P1-1, P1-2: expanded File List and Change Log)
-- `helpdesk/helpdesk/tests/test_utils.py` (modified — P2: added TestEnsureHelpersRolePollutionGuard class)
+- `helpdesk/tests/test_utils.py` (modified — P2: added TestEnsureHelpersRolePollutionGuard class)
 - `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified — P2: removed TestEnsureHelpersRolePollutionGuard class, replaced with move comment)
 - `_bmad-output/implementation-artifacts/story-189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde.md` (self — story tracking file)
+- `_bmad-output/implementation-artifacts/story-130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-180-qa-fix-redundant-except-types-operationalerror-kills-cron-ba.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-183-qa-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-c.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-188-qa-fix-p1-dead-agent-roles-import-zero-valueerror-test-cover.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-190-qa-fix-p1-hd-ticket-py-production-code-not-updated-savepoint.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/implementation-artifacts/story-192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun.md` (modified — UNDECLARED commit scope pollution)
+- `_bmad-output/sprint-status.yaml` (modified — UNDECLARED sprint metadata update)
+- `docs/qa-report-task-168.md` (created — UNDECLARED QA report from task #168)
+- `docs/qa-report-task-179.md` (created — UNDECLARED QA report from task #179)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (modified — UNDECLARED production test code change)

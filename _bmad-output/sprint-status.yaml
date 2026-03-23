@@ -499,3 +499,11 @@ development_status:
   199-qa-fix-p1-recursive-commit-scope-pollution-in-story-182-miss: review  # [adversarial-review] QA: Fix: P1 recursive commit-scope pollution in story-182 + 
 
   200-qa-fix-p1-autoclose-savepoint-defensive-gaps-handler-uses-de: review  # [adversarial-review] QA: Fix: P1 _autoclose_savepoint defensive gaps — handler us
+
+  201-qa-fix-p1-6th-recursive-commit-scope-pollution-in-task-184-u: review  # [adversarial-review] QA: Fix: P1 6th recursive commit-scope pollution in task-184
+
+  202-fix-p1-6th-recursive-commit-scope-pollution-in-task-189-wron: review  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-189 + w
+
+  203-fix-p1-commit-bf2e19d09-task-196-bundles-17-files-declaring-: in-progress  # [quick-dev] Fix: P1 commit bf2e19d09 (task-196) bundles 17 files declari
+
+  204-fix-p1-story-192-claims-credit-for-task-189-work-commit-scop: in-progress  # [quick-dev] Fix: P1 story-192 claims credit for task-189 work + commit-s
