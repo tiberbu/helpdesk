@@ -346,7 +346,7 @@ development_status:
 
   129-qa-fix-missing-on-trash-tests-for-system-manager-hd-admin-te: review  # [adversarial-review] QA: Fix: Missing on_trash tests for System Manager/HD Admin 
 
-  130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-: in-progress  # [quick-dev] Fix: P1/P2 from adversarial review task-120 — stale test cou
+  130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-: review  # [quick-dev] Fix: P1/P2 from adversarial review task-120 — stale test cou
 
   131-fix-require-int-str-overflowerror-on-inf-missing-stop-timer-: review  # [quick-dev] Fix: _require_int_str OverflowError on inf + missing stop_ti
 
@@ -361,3 +361,5 @@ development_status:
   136-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-logi: review  # [quick-dev] Fix: P0 bench test sync broken + P1 divergent delete_entry l
 
   137-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-delete: in-progress  # [quick-dev] Fix: Wrong nan comment + non-string float NaN/Inf bypass + d
+
+  138-qa-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-l: review  # [adversarial-review] QA: Fix: P0 bench test sync broken + P1 divergent delete_ent

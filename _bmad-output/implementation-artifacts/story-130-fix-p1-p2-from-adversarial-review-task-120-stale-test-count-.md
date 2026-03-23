@@ -1,6 +1,6 @@
 # Story: Fix: P1/P2 from adversarial review task-120 — stale test count, misplaced TestIsAgentExplicitUser, missing HD Admin stop_timer/get_summary tests
 
-Status: in-progress
+Status: done
 Task ID: mn3d425p5cv7av
 Task Number: #130
 Workflow: quick-dev
@@ -70,12 +70,31 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- All 8 acceptance criteria satisfied.
+- Story-110 completion notes updated: "39 tests" → "56 tests" (actual count at time of QA task-120).
+- `TestIsAgentExplicitUser` moved to `helpdesk/tests/test_utils.py` — module path `helpdesk.tests.test_utils`; all 4 tests pass.
+- Added `test_hd_admin_can_stop_timer` and `test_hd_admin_can_get_summary` with full assertions including description and agent fields.
+- `delete_entry()` refactored: single `frappe.get_roles()` call using `_any_allowed_roles = {"Agent"} | PRIVILEGED_ROLES` with `is_admin()` and HD Agent record check; `is_agent()` no longer called separately.
+- `ensure_hd_admin_user()` asserts no unexpected roles (Agent/Agent Manager/System Manager) via `frappe.throw()` on role pollution.
+- Shared helpers `ensure_hd_admin_user/ensure_agent_manager_user/ensure_system_manager_user` added to `helpdesk/test_utils.py`; test class `_ensure_*` methods now delegate to them (1 line each).
+- `test_hd_admin_can_add_entry` now asserts `entry.description == "HD Admin manual entry"`.
+- Final test counts: `test_hd_time_entry.py` 64 tests ✔, `helpdesk/tests/test_utils.py` 4 tests ✔. All pass.
+- All changed Python files synced to frappe-bench.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: updated imports, delegated `_ensure_*` to shared utils, added description assertion to `test_hd_admin_can_add_entry`, added `test_hd_admin_can_stop_timer` + `test_hd_admin_can_get_summary`, removed `TestIsAgentExplicitUser` class.
+- `helpdesk/tests/__init__.py`: new file (empty module marker).
+- `helpdesk/tests/test_utils.py`: new file — `TestIsAgentExplicitUser` moved here.
+- `helpdesk/test_utils.py`: added `ensure_hd_admin_user`, `ensure_agent_manager_user`, `ensure_system_manager_user` shared helpers.
+- `helpdesk/api/time_tracking.py`: refactored `delete_entry()` pre-gate to single `get_roles()` call; added `is_admin` import.
+- `_bmad-output/implementation-artifacts/story-110-*.md`: updated completion notes test count 39→56.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified)
+- `helpdesk/tests/__init__.py` (new)
+- `helpdesk/tests/test_utils.py` (new)
+- `helpdesk/test_utils.py` (modified)
+- `helpdesk/api/time_tracking.py` (modified)
+- `_bmad-output/implementation-artifacts/story-110-fix-p1-p2-findings-from-adversarial-review-task-108-missing-.md` (modified)
