@@ -236,4 +236,8 @@ development_status:
 
   73-fix-p1-findings-from-qa-task-69-status-category-none-regress: in-progress  # [quick-dev] Fix: P1 findings from QA task-69 — status_category None regr
 
-  74-fix-p1-issues-from-qa-task-71-tz-aware-crash-rest-delete-byp: in-progress  # [quick-dev] Fix: P1 issues from QA task-71 — tz-aware crash, REST delete
+  74-fix-p1-issues-from-qa-task-71-tz-aware-crash-rest-delete-byp: review  # [quick-dev] Fix: P1 issues from QA task-71 — tz-aware crash, REST delete
+
+  75-qa-fix-time-tracking-adversarial-review-findings-p1-p2: review  # [adversarial-review] QA: Fix: Time Tracking adversarial review findings (P1/P2)
+
+  76-qa-fix-p1-issues-tz-aware-crash-rest-delete-bypass-backend-m: ready-for-dev  # [adversarial-review] QA: Fix P1 issues — tz-aware crash, REST delete bypass, back

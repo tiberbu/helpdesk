@@ -48,7 +48,11 @@ def stop_timer(
 	except Exception:
 		frappe.throw(_("Invalid started_at datetime format."), frappe.ValidationError)
 
-	if started_at_dt > now_datetime():
+	# Strip timezone info to avoid TypeError when comparing tz-aware with naive datetimes.
+	# get_datetime() may return a tz-aware datetime (e.g. when the string includes "+00:00"),
+	# while now_datetime() always returns a naive datetime in the server's local time.
+	started_at_naive = started_at_dt.replace(tzinfo=None)
+	if started_at_naive > now_datetime():
 		frappe.throw(_("started_at cannot be in the future."), frappe.ValidationError)
 
 	duration_minutes = int(duration_minutes)
@@ -64,7 +68,8 @@ def stop_timer(
 			"billable": int(billable),
 			"description": description or "",
 			"timestamp": now_datetime(),
-			"started_at": started_at,
+			# Store as naive datetime string — MariaDB DATETIME col rejects tz-offset format
+			"started_at": started_at_naive,
 		}
 	)
 	entry.insert()

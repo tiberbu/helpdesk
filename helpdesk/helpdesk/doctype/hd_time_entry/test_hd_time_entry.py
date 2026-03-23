@@ -246,3 +246,66 @@ class TestHDTimeEntry(FrappeTestCase):
 			description=boundary_description,
 		)
 		self.assertTrue(result.get("success"))
+
+	# --- Timezone-aware started_at tests (Issue #1 fix) ---
+
+	def test_stop_timer_handles_tz_aware_started_at(self):
+		"""
+		stop_timer must not crash when started_at includes UTC offset (tz-aware datetime).
+		Previously raised TypeError: can't compare offset-naive and offset-aware datetimes.
+		"""
+		# ISO 8601 with UTC offset — get_datetime() returns tz-aware for this format
+		tz_aware_started_at = "2026-03-23T10:00:00+00:00"
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at=tz_aware_started_at,
+			duration_minutes=15,
+			description="Tz-aware session",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+
+	def test_stop_timer_tz_aware_future_still_rejected(self):
+		"""
+		A tz-aware started_at that is in the future must still be rejected,
+		even though we strip tzinfo for comparison.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2099-06-01T00:00:00+00:00",
+				duration_minutes=5,
+			)
+
+	# --- before_delete ownership hook tests (Issue #2 fix) ---
+
+	def test_before_delete_hook_blocks_other_agent_from_direct_delete(self):
+		"""
+		The before_delete hook must raise PermissionError when a different agent calls it.
+		This simulates the REST DELETE /api/resource/HD Time Entry/{name} bypass scenario.
+		We call entry_doc.before_delete() directly because the Frappe test framework may
+		run with elevated permissions that skip the doctype-level delete permission check.
+		"""
+		frappe.set_user("Administrator")
+		create_agent("agent3.tt@test.com", "Agent", "Three")
+		frappe.set_user("agent.tt@test.com")
+
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+
+		# Load the entry doc as agent3 and invoke the hook directly
+		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
+		frappe.set_user("agent3.tt@test.com")
+		with self.assertRaises(frappe.PermissionError):
+			entry_doc.before_delete()
+		frappe.set_user("agent.tt@test.com")
+
+	def test_before_delete_hook_allows_own_entry_direct_delete(self):
+		"""
+		The before_delete hook must allow an agent to delete their own entry via direct delete.
+		"""
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+		# Direct delete by owner — should succeed
+		frappe.delete_doc("HD Time Entry", entry_name, ignore_permissions=True)
+		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))

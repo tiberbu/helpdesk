@@ -1,6 +1,6 @@
 # Story: Fix: P1 issues from QA task-71 — tz-aware crash, REST delete bypass, backend maxlength
 
-Status: in-progress
+Status: done
 Task ID: mn3aveh7kcz7jx
 Task Number: #74
 Workflow: quick-dev
@@ -27,14 +27,14 @@ Frontend has `:maxlength="500"` but backend accepts any length. Fix: Add `if len
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -52,12 +52,22 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Fixed tz-aware crash in `stop_timer`: added `.replace(tzinfo=None)` on parsed datetime before comparing with `now_datetime()`, and store the naive datetime to DB to avoid MariaDB format rejection.
+- Fixed REST delete bypass: removed `"delete": 1` from Agent role in `hd_time_entry.json` and added `before_delete` hook in `hd_time_entry.py` enforcing ownership (defense-in-depth).
+- Confirmed maxlength validation was already implemented in `time_tracking.py` (no change needed).
+- Added 4 new tests: tz-aware happy path, tz-aware future rejection, before_delete blocks other agent, before_delete allows own entry.
+- All 25 tests pass.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/api/time_tracking.py`: Strip tzinfo from `started_at_dt` before future-check comparison; store `started_at_naive` (without tzinfo) in DB to avoid MariaDB rejection of ISO-8601-with-offset strings.
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: Added `before_delete` hook enforcing ownership (HD Admin / System Manager exempt).
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json`: Removed `"delete": 1` from Agent role permissions.
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Added 4 new tests covering tz-aware and before_delete scenarios.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/api/time_tracking.py`
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json`
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`

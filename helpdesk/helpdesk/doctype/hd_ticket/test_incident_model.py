@@ -55,6 +55,11 @@ class TestIncidentModelApplication(FrappeTestCase):
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
+		# F-06: explicitly delete the non-agent test user so it doesn't persist
+		# across test runs (db.rollback() is a no-op when a commit occurred mid-test).
+		noagent_email = "im_customer_noagent@example.com"
+		if frappe.db.exists("User", noagent_email):
+			frappe.delete_doc("User", noagent_email, ignore_permissions=True, force=True)
 		frappe.db.rollback()
 
 	# ---------------------------------------------------------------
@@ -215,28 +220,127 @@ class TestIncidentModelApplication(FrappeTestCase):
 			self.fail(f"Resolution without checklist should be allowed: {e}")
 
 	# ---------------------------------------------------------------
+	# F-02: Regression test — status_category must update when status changes
+	# ---------------------------------------------------------------
+
+	def test_status_category_updates_when_status_changes(self):
+		"""Regression for F-02: stale status_category bypass must not occur.
+
+		Sequence:
+		  1. Save ticket as Replied (category Paused)
+		  2. Change status to Resolved
+		  3. Verify status_category is Resolved, not stale Paused
+		"""
+		# Ensure Replied status with category Paused exists
+		if not frappe.db.exists("HD Ticket Status", "Replied"):
+			frappe.set_user("Administrator")
+			frappe.get_doc(
+				{
+					"doctype": "HD Ticket Status",
+					"label_agent": "Replied",
+					"category": "Paused",
+					"is_default": 0,
+				}
+			).insert(ignore_permissions=True)
+			frappe.set_user(self.agent_email)
+
+		if not frappe.db.exists("HD Ticket Status", "Resolved"):
+			frappe.set_user("Administrator")
+			frappe.get_doc(
+				{
+					"doctype": "HD Ticket Status",
+					"label_agent": "Resolved",
+					"category": "Resolved",
+					"is_default": 0,
+				}
+			).insert(ignore_permissions=True)
+			frappe.set_user(self.agent_email)
+
+		# Step 1: Set ticket status to Replied → category should become Paused
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		doc.status = "Replied"
+		doc.save(ignore_permissions=True)
+		doc.reload()
+		self.assertEqual(
+			doc.status_category,
+			"Paused",
+			"Expected status_category=Paused after setting status=Replied",
+		)
+
+		# Step 2: Change status to Resolved
+		doc.status = "Resolved"
+		doc.save(ignore_permissions=True)
+		doc.reload()
+
+		# Step 3: Verify status_category is now Resolved (not stale Paused)
+		self.assertEqual(
+			doc.status_category,
+			"Resolved",
+			"Expected status_category=Resolved after status changed to Resolved, "
+			"but got stale Paused — bypass regression detected",
+		)
+
+	# ---------------------------------------------------------------
 	# F-04: Permission guard — non-agent (customer) must get PermissionError
 	# ---------------------------------------------------------------
 
 	def test_apply_model_raises_permission_error_for_non_agent(self):
 		"""Customer user must not be able to apply an incident model (F-04)."""
-		customer_email = "im_customer_noagent@example.com"
+		self._noagent_email = "im_customer_noagent@example.com"
 		# Create a plain user without Agent role — simulates a portal customer
-		if not frappe.db.exists("User", customer_email):
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("User", self._noagent_email):
 			frappe.get_doc(
 				{
 					"doctype": "User",
-					"email": customer_email,
+					"email": self._noagent_email,
 					"first_name": "Customer",
 					"last_name": "NoAgent",
 					"send_welcome_email": 0,
 				}
 			).insert(ignore_permissions=True)
+		frappe.set_user(self.agent_email)
 
 		# Switch to the non-agent user and attempt to call apply_incident_model
-		frappe.set_user(customer_email)
+		frappe.set_user(self._noagent_email)
 		with self.assertRaises(frappe.PermissionError):
 			apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+
+		# Restore agent user for tearDown
+		frappe.set_user(self.agent_email)
+
+	# ---------------------------------------------------------------
+	# F-07: Permission guard for complete_checklist_item
+	# ---------------------------------------------------------------
+
+	def test_complete_checklist_item_raises_permission_error_for_non_agent(self):
+		"""Customer user must not be able to complete a checklist item (F-07)."""
+		# Apply model to get checklist rows
+		apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		self.assertTrue(len(doc.ticket_checklist) > 0, "Expected checklist rows after applying model")
+		item = doc.ticket_checklist[0]
+
+		noagent_email = "im_customer_noagent@example.com"
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("User", noagent_email):
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": noagent_email,
+					"first_name": "Customer",
+					"last_name": "NoAgent",
+					"send_welcome_email": 0,
+				}
+			).insert(ignore_permissions=True)
+		frappe.set_user(self.agent_email)
+
+		# Switch to non-agent and attempt to complete a checklist item
+		frappe.set_user(noagent_email)
+		with self.assertRaises(frappe.PermissionError):
+			complete_checklist_item(
+				ticket=str(self.ticket.name), checklist_item_name=item.name
+			)
 
 		# Restore agent user for tearDown
 		frappe.set_user(self.agent_email)
