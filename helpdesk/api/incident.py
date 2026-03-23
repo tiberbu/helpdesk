@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime
+from frappe.utils import now_datetime, get_datetime
 
 from helpdesk.utils import is_agent
 
@@ -178,6 +178,190 @@ def _assert_no_existing_link(ticket_a: str, ticket_b: str) -> None:
 		frappe.throw(
 			_("A link between {0} and {1} already exists.").format(ticket_a, ticket_b),
 			frappe.ValidationError,
+		)
+
+
+@frappe.whitelist()
+def flag_major_incident(ticket: str) -> dict:
+	"""
+	Flag or unflag a ticket as a major incident.
+
+	Toggling on sets is_major_incident=1 and major_incident_flagged_at to now,
+	and enqueues escalation notifications to major_incident_contacts.
+	Toggling off clears both fields.
+
+	Returns {"success": True, "is_major_incident": <new value>}.
+	Raises frappe.PermissionError if caller lacks Agent role.
+	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+	doc = frappe.get_doc("HD Ticket", ticket)
+
+	if doc.is_major_incident:
+		# Un-flag
+		doc.is_major_incident = 0
+		doc.major_incident_flagged_at = None
+		doc.flags.ignore_permissions = True
+		doc.save()
+		frappe.db.commit()  # nosemgrep
+		return {"success": True, "is_major_incident": 0}
+
+	# Flag
+	now = now_datetime()
+	doc.is_major_incident = 1
+	doc.major_incident_flagged_at = now
+	doc.flags.ignore_permissions = True
+	doc.save()
+
+	frappe.enqueue(
+		"helpdesk.api.incident._send_major_incident_notifications",
+		queue="short",
+		ticket=ticket,
+	)
+
+	frappe.db.commit()  # nosemgrep
+	return {"success": True, "is_major_incident": 1}
+
+
+@frappe.whitelist()
+def propagate_update(ticket: str, message: str) -> dict:
+	"""
+	Post a public comment on the major incident ticket and on every
+	directly linked ticket (HD Related Ticket child rows).
+
+	Returns {"success": True, "count": <number of tickets updated>}.
+	Raises frappe.PermissionError if caller lacks Agent role.
+	Raises frappe.ValidationError if ticket is not flagged as a major incident.
+	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+	if not frappe.db.get_value("HD Ticket", ticket, "is_major_incident"):
+		frappe.throw(
+			_("Ticket {0} is not a major incident.").format(ticket),
+			frappe.ValidationError,
+		)
+
+	user = frappe.session.user
+	message_escaped = frappe.utils.escape_html(message or "")
+
+	def _post_comment(ref_ticket):
+		comment = frappe.get_doc(
+			{
+				"doctype": "HD Ticket Comment",
+				"reference_ticket": ref_ticket,
+				"commented_by": user,
+				"content": _(
+					"[Major Incident Update from #{0}]: {1}"
+				).format(ticket, message_escaped),
+				"is_internal": 0,
+				"is_pinned": 0,
+			}
+		)
+		comment.insert(ignore_permissions=True)
+
+	# Post on the major incident ticket itself
+	_post_comment(ticket)
+
+	# Post on all linked tickets
+	linked_tickets = frappe.get_all(
+		"HD Related Ticket",
+		filters={"parent": ticket, "parenttype": "HD Ticket"},
+		pluck="ticket",
+	)
+	for linked in linked_tickets:
+		_post_comment(str(linked))
+
+	frappe.db.commit()  # nosemgrep
+	return {"success": True, "count": 1 + len(linked_tickets)}
+
+
+@frappe.whitelist()
+def get_major_incident_summary() -> list:
+	"""
+	Return all open major incidents with enriched data.
+
+	Each entry includes: name, subject, status, major_incident_flagged_at,
+	priority, linked_ticket_count, elapsed_minutes.
+	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+	incidents = frappe.get_all(
+		"HD Ticket",
+		filters={"is_major_incident": 1},
+		fields=["name", "subject", "status", "major_incident_flagged_at", "priority"],
+		order_by="major_incident_flagged_at desc",
+	)
+
+	now = now_datetime()
+	for inc in incidents:
+		# Count linked tickets
+		inc["linked_ticket_count"] = frappe.db.count(
+			"HD Related Ticket",
+			{"parent": inc["name"], "parenttype": "HD Ticket"},
+		)
+
+		# Elapsed time in minutes since flagged
+		flagged_at = inc.get("major_incident_flagged_at")
+		if flagged_at:
+			delta = now - get_datetime(flagged_at)
+			inc["elapsed_minutes"] = int(delta.total_seconds() / 60)
+		else:
+			inc["elapsed_minutes"] = 0
+
+	return incidents
+
+
+def _send_major_incident_notifications(ticket: str) -> None:
+	"""
+	Send email + in-app (Socket.IO) notifications to major_incident_contacts
+	when a major incident is flagged.  Runs in a background job.
+	"""
+	settings = frappe.get_single("HD Settings")
+	contacts_raw = getattr(settings, "major_incident_contacts", None) or ""
+
+	emails = [e.strip() for e in contacts_raw.replace("\n", ",").split(",") if e.strip()]
+	if not emails:
+		return
+
+	ticket_doc = frappe.get_doc("HD Ticket", ticket)
+	ticket_url = f"/helpdesk/tickets/{ticket}"
+	ticket_subject_escaped = frappe.utils.escape_html(ticket_doc.subject or str(ticket))
+	ticket_link = f"<a href='{ticket_url}'>{ticket_subject_escaped} (#{ticket})</a>"
+
+	subject = _("Major Incident Declared: #{0} — {1}").format(ticket, ticket_doc.subject or "")
+
+	# Build simple email body (template may not exist in all envs)
+	try:
+		body = frappe.render_template(
+			"helpdesk/templates/major_incident_alert.html",
+			{"ticket": ticket_doc, "ticket_link": ticket_link},
+		)
+	except Exception:
+		body = _(
+			"A major incident has been declared: {0}.<br>Please review immediately."
+		).format(ticket_link)
+
+	for email in emails:
+		# Email notification
+		frappe.sendmail(
+			recipients=[email],
+			subject=subject,
+			message=body,
+			delayed=False,
+		)
+
+		# In-app realtime notification (Socket.IO room per agent email)
+		frappe.publish_realtime(
+			event="major_incident_declared",
+			message={
+				"ticket": ticket,
+				"subject": ticket_doc.subject or "",
+				"url": ticket_url,
+			},
+			room=f"agent:{email}",
 		)
 
 

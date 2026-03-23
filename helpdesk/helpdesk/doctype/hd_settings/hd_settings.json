@@ -16,6 +16,8 @@
   "itil_matrix_section",
   "priority_matrix",
   "category_required_on_resolution",
+  "major_incident_section_settings",
+  "major_incident_contacts",
   "priority_section",
   "default_priority",
   "column_break_nvbf",
@@ -159,6 +161,19 @@
    "fieldname": "category_required_on_resolution",
    "fieldtype": "Check",
    "label": "Require Category on Resolution"
+  },
+  {
+   "depends_on": "eval:doc.itil_mode_enabled==1",
+   "fieldname": "major_incident_section_settings",
+   "fieldtype": "Section Break",
+   "label": "Major Incident Notifications"
+  },
+  {
+   "depends_on": "eval:doc.itil_mode_enabled==1",
+   "description": "Comma-separated list of email addresses to notify when a major incident is flagged.",
+   "fieldname": "major_incident_contacts",
+   "fieldtype": "Small Text",
+   "label": "Major Incident Contacts"
   },
   {
    "fieldname": "assignment_rules_section",

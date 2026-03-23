@@ -1,6 +1,10 @@
 <template>
   <div v-if="ticket.doc?.name" class="flex-1">
     <TicketHeader :viewers="viewers" />
+
+    <!-- Major Incident Banner -->
+    <MajorIncidentBanner />
+
     <div class="h-full flex overflow-hidden">
       <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Tabs & Communication Area -->
@@ -15,6 +19,56 @@
       :name="ticket.data?.contact?.name"
       @onUpdate="ticket.reload"
     />
+
+    <!-- Major Incident Flag Confirmation -->
+    <Dialog
+      v-model="showMajorIncidentDialog"
+      :options="{
+        title: ticket.doc?.is_major_incident
+          ? __('Remove Major Incident Flag')
+          : __('Declare Major Incident'),
+        size: 'sm',
+      }"
+    >
+      <template #body-content>
+        <p class="text-sm text-ink-gray-6">
+          <template v-if="!ticket.doc?.is_major_incident">
+            {{
+              __(
+                'This will flag ticket #{0} as a Major Incident and send escalation notifications to all configured contacts. Are you sure?',
+                [ticket.doc?.name]
+              )
+            }}
+          </template>
+          <template v-else>
+            {{
+              __(
+                'Remove the Major Incident flag from ticket #{0}?',
+                [ticket.doc?.name]
+              )
+            }}
+          </template>
+        </p>
+      </template>
+      <template #actions>
+        <Button
+          variant="subtle"
+          :label="__('Cancel')"
+          @click="showMajorIncidentDialog = false"
+        />
+        <Button
+          variant="solid"
+          :theme="ticket.doc?.is_major_incident ? 'gray' : 'red'"
+          :label="
+            ticket.doc?.is_major_incident
+              ? __('Remove Flag')
+              : __('Declare Major Incident')
+          "
+          :loading="flagResource.loading"
+          @click="doFlagMajorIncident"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -22,6 +76,7 @@
 import TicketActivityPanel from "@/components/ticket-agent/TicketActivityPanel.vue";
 import TicketHeader from "@/components/ticket-agent/TicketHeader.vue";
 import TicketSidebar from "@/components/ticket-agent/TicketSidebar.vue";
+import MajorIncidentBanner from "@/components/ticket/MajorIncidentBanner.vue";
 import SetContactPhoneModal from "@/components/ticket/SetContactPhoneModal.vue";
 import { useActiveViewers } from "@/composables/realtime";
 import { reloadTicket, useTicket } from "@/composables/useTicket";
@@ -38,7 +93,7 @@ import {
   TicketContactSymbol,
   TicketSymbol,
 } from "@/types";
-import { createResource, toast, usePageMeta } from "frappe-ui";
+import { Button, Dialog, createResource, toast, usePageMeta } from "frappe-ui";
 import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { showCommentBox, showEmailBox } from "./modalStates";
@@ -118,6 +173,33 @@ watch(
   },
   { immediate: true }
 );
+
+// Major incident flag dialog
+const showMajorIncidentDialog = ref(false);
+
+const flagResource = createResource({
+  url: "helpdesk.api.incident.flag_major_incident",
+  onSuccess() {
+    showMajorIncidentDialog.value = false;
+    reloadTicket(props.ticketId);
+    toast.success(
+      ticket.value?.doc?.is_major_incident
+        ? __("Major incident flag removed.")
+        : __("Ticket declared as major incident.")
+    );
+  },
+  onError(err: any) {
+    const msg = err?.messages?.[0] || __("Failed to update major incident flag.");
+    toast.error(msg);
+  },
+});
+
+function doFlagMajorIncident() {
+  flagResource.submit({ ticket: props.ticketId });
+}
+
+// Expose for TicketHeader or other consumers
+provide("showMajorIncidentDialog", showMajorIncidentDialog);
 
 type TicketUpdateData = {
   ticket_id: string;

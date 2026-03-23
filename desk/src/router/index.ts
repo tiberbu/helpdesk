@@ -112,6 +112,13 @@ const routes = [
     component: () => import("@/pages/dashboard/Dashboard.vue"),
   },
   {
+    path: "/major-incidents",
+    name: "MajorIncidents",
+    component: () =>
+      import("@/pages/major-incidents/MajorIncidentDashboard.vue"),
+    meta: { auth: true, agent: true },
+  },
+  {
     path: "/call-logs",
     name: "CallLogs",
     component: () => import("@/pages/call-logs/CallLogs.vue"),

@@ -43,3 +43,4 @@ helpdesk.patches.v1_phase1.add_category_fields_to_hd_ticket
 helpdesk.patches.v1_phase1.create_default_categories
 helpdesk.patches.v1_phase1.add_is_internal_to_hd_ticket_comment
 helpdesk.patches.v1_phase1.add_related_ticket_linking
+helpdesk.patches.v1_phase1.add_major_incident_fields

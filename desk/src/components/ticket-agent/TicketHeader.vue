@@ -107,11 +107,13 @@ import {
   onMounted,
   PropType,
   ref,
+  Ref,
   useTemplateRef,
   watchEffect,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import LucideMerge from "~icons/lucide/merge";
+import LucideAlertTriangle from "~icons/lucide/alert-triangle";
 import { IndicatorIcon } from "../icons";
 import TicketNavigation from "./TicketNavigation.vue";
 import TicketSLA from "./TicketSLA.vue";
@@ -132,6 +134,7 @@ const ticketStatusStore = useTicketStatusStore();
 const ticket = inject(TicketSymbol);
 const customizations = inject(CustomizationSymbol);
 const activities = inject(ActivitiesSymbol);
+const showMajorIncidentDialog = inject<Ref<boolean>>("showMajorIncidentDialog", ref(false));
 
 const showSubjectDialog = ref(false);
 
@@ -207,6 +210,18 @@ const defaultActions = computed(() => {
       onClick: () => (showMergeModal.value = true),
     });
   }
+
+  // Major Incident flag/unflag
+  items.push({
+    label: ticket.value?.doc?.is_major_incident
+      ? __("Remove Major Incident Flag")
+      : __("Declare Major Incident"),
+    icon: LucideAlertTriangle,
+    onClick: () => {
+      showMajorIncidentDialog.value = true;
+    },
+  });
+
   return [
     {
       group: __("Default actions"),
