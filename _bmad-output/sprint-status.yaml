@@ -201,7 +201,7 @@ development_status:
 
   54-qa-story-1-6-related-ticket-linking: review  # [adversarial-review] QA: Story 1.6: Related Ticket Linking
 
-  55-qa-story-1-7-per-ticket-time-tracking: cancelled  # [adversarial-review] QA: Story 1.7: Per-Ticket Time Tracking
+  55-qa-story-1-7-per-ticket-time-tracking: review  # [adversarial-review] QA: Story 1.7: Per-Ticket Time Tracking
 
   56-qa-story-1-7-per-ticket-time-tracking-re-run-with-playwright: review  # [adversarial-review] QA: Story 1.7 Per-Ticket Time Tracking (re-run with Playwrig
 
@@ -279,7 +279,7 @@ development_status:
 
   95-qa-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps: review  # [adversarial-review] QA: Fix TimeTracker.vue bench drift + P2 defense-in-depth ga
 
-  96-qa-fix-time-tracking-adversarial-review-p1-p2-findings: backlog  # [adversarial-review] QA: Fix: Time Tracking adversarial review P1/P2 findings
+  96-qa-fix-time-tracking-adversarial-review-p1-p2-findings: review  # [adversarial-review] QA: Fix: Time Tracking adversarial review P1/P2 findings
 
   97-qa-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps-: review  # [adversarial-review] QA: Fix: TimeTracker.vue bench drift + P2 defense-in-depth g
 
@@ -514,12 +514,16 @@ development_status:
 
   207-fix-p1-unguarded-commit-in-autoclose-loop-asymmetric-validat: review  # [quick-dev] Fix: P1 unguarded commit() in autoclose loop + asymmetric Va
 
-  208-qa-fix-p1-story-192-claims-credit-for-task-189-work-commit-s: ready-for-dev  # [adversarial-review] QA: Fix: P1 story-192 claims credit for task-189 work + comm
+  208-qa-fix-p1-story-192-claims-credit-for-task-189-work-commit-s: review  # [adversarial-review] QA: Fix: P1 story-192 claims credit for task-189 work + comm
 
-  209-fix-p1-7th-recursive-commit-scope-pollution-root-cause-is-au: ready-for-dev  # [quick-dev] Fix: P1 7th recursive commit-scope pollution — root cause is
+  209-fix-p1-7th-recursive-commit-scope-pollution-root-cause-is-au: in-progress  # [quick-dev] Fix: P1 7th recursive commit-scope pollution — root cause is
 
   210-fix-p1-7th-recursive-commit-scope-pollution-in-task-202-stal: in-progress  # [quick-dev] Fix: P1 7th recursive commit-scope pollution in task-202 + s
 
-  211-fix-p1-task-203-commit-5c626bfce-modifies-7-files-declaring-: in-progress  # [quick-dev] Fix: P1 task-203 commit 5c626bfce modifies 7 files declaring
+  211-fix-p1-task-203-commit-5c626bfce-modifies-7-files-declaring-: review  # [quick-dev] Fix: P1 task-203 commit 5c626bfce modifies 7 files declaring
 
-  212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe: review  # [adversarial-review] QA: Fix P1 unguarded commit() + asymmetric ValidationError +
+  212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe: ready-for-dev  # [adversarial-review] QA: Fix P1 unguarded commit() + asymmetric ValidationError +
+
+  213-qa-fix-p1-unguarded-commit-in-autoclose-loop-asymmetric-vali: ready-for-dev  # [adversarial-review] QA: Fix: P1 unguarded commit() in autoclose loop + asymmetri
+
+  214-fix-p1-story-204-claims-credit-for-task-203-work-commit-scop: ready-for-dev  # [quick-dev] Fix: P1 story-204 claims credit for task-203 work + commit-s
