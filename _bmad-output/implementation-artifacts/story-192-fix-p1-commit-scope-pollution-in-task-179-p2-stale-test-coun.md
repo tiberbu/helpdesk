@@ -63,14 +63,11 @@ sonnet
 
 ### Change Log
 
-- `_bmad-output/implementation-artifacts/story-179-*.md`: Updated File List section to acknowledge all 9 committed files with explanatory notes.
-- `_bmad-output/implementation-artifacts/story-146-*.md`: Removed hardcoded "4" count from test_utils.py reference (line 69).
-- `_bmad-output/implementation-artifacts/story-130-*.md`: Removed hardcoded "71" count from test count correction note (line 81).
-- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py`: Added `None` falsy-status assertion to `test_falsy_status_clears_status_category`. Synced to frappe-bench.
+- `_bmad-output/implementation-artifacts/story-192-*.md`: Updated Completion Notes, Change Log, and File List to correct fabricated audit trail — the four changes previously credited to task-192 were actually delivered by task-189 (commit `9591cb7ef`). Acknowledged commit-scope pollution (story-193 bundled unintentionally).
+- `_bmad-output/sprint-status.yaml`: Updated by task-192 commit (status/metadata update).
 
 ### File List
 
-- `_bmad-output/implementation-artifacts/story-179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun.md` (modified — expanded file list to 9 files)
-- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified — removed hardcoded "4" count)
-- `_bmad-output/implementation-artifacts/story-130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-.md` (modified — removed hardcoded "71" count)
-- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (modified — added None assertion to F-13 test)
+- `_bmad-output/implementation-artifacts/story-192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun.md` (this file — completion notes, change log, file list corrected by task-204)
+- `_bmad-output/sprint-status.yaml` (modified — status update)
+- `_bmad-output/implementation-artifacts/story-193-recursive-commit-scope-pollution-in-task-171-u.md` (unintentionally committed — P1-2 commit-scope pollution; this file belongs to task-193, not task-192)
