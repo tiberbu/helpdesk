@@ -1110,6 +1110,142 @@ class TestHDTimeEntry(FrappeTestCase):
 		finally:
 			frappe.set_user("Administrator")
 
+	# --- P2: Administrator short-circuit in _check_delete_permission ---
+
+	def test_check_delete_permission_administrator_always_allowed(self):
+		"""
+		Administrator must always pass _check_delete_permission regardless of
+		the entry's agent field value — the explicit 'if user == "Administrator":
+		return' short-circuit must fire before any role lookup.
+
+		This test exercises _check_delete_permission directly so the assertion
+		is unambiguous: no PermissionError must be raised for Administrator even
+		when entry.agent is a different user.
+		"""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
+			_check_delete_permission,
+		)
+
+		# Create an entry owned by agent.tt (not Administrator)
+		frappe.set_user("agent.tt@test.com")
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_doc = frappe.get_doc("HD Time Entry", result["name"])
+
+		# Administrator calling _check_delete_permission must not raise
+		frappe.set_user("Administrator")
+		try:
+			_check_delete_permission(entry_doc, "Administrator")
+			# No exception = test passes
+		except frappe.PermissionError:
+			self.fail(
+				"_check_delete_permission raised PermissionError for Administrator — "
+				"the explicit Administrator short-circuit guard is broken."
+			)
+
+	def test_delete_entry_administrator_can_delete_any_entry(self):
+		"""
+		Administrator must be able to delete any agent's entry via delete_entry()
+		— end-to-end companion to test_check_delete_permission_administrator_always_allowed.
+		"""
+		# Create entry as agent.tt, then delete as Administrator
+		frappe.set_user("agent.tt@test.com")
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+
+		frappe.set_user("Administrator")
+		del_result = delete_entry(name=entry_name)
+		self.assertTrue(del_result.get("success"))
+		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+
+	# --- P2: Dual-role System Manager + Agent user ---
+
+	def _ensure_sm_agent_user(self, email="sm.agent.tt@test.com"):
+		"""Create a user with both System Manager and Agent roles."""
+		frappe.set_user("Administrator")
+		if not frappe.db.exists("User", email):
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": email,
+					"first_name": "SM",
+					"last_name": "Agent",
+					"send_welcome_email": 0,
+				}
+			).insert(ignore_permissions=True)
+		for role in ("Agent", "System Manager"):
+			if not frappe.db.exists("Has Role", {"parent": email, "role": role}):
+				frappe.get_doc(
+					{
+						"doctype": "Has Role",
+						"parenttype": "User",
+						"parentfield": "roles",
+						"parent": email,
+						"role": role,
+					}
+				).insert(ignore_permissions=True)
+
+	def test_system_manager_with_agent_role_can_delete_own_entry(self):
+		"""
+		A user who holds BOTH System Manager AND Agent roles must be allowed to
+		delete their own time entry via delete_entry().
+
+		The is_agent() pre-gate passes because Agent is in AGENT_ROLES.
+		The ownership check passes because entry.agent == user.
+
+		Previously, hardcoding the role set in delete_entry() without the Agent
+		role would have incorrectly blocked this user.
+		"""
+		sm_agent_email = "sm.agent.tt@test.com"
+		self._ensure_sm_agent_user(sm_agent_email)
+
+		# Create entry as agent.tt (SM+Agent user may not have ticket write perms)
+		frappe.set_user("agent.tt@test.com")
+		result = add_entry(ticket=self.ticket_name, duration_minutes=5, billable=0)
+		entry_name = result["name"]
+
+		# Update agent field to sm_agent_email so ownership check passes
+		frappe.set_user("Administrator")
+		frappe.db.set_value("HD Time Entry", entry_name, "agent", sm_agent_email)
+
+		# SM+Agent user deletes their own entry via delete_entry()
+		frappe.set_user(sm_agent_email)
+		try:
+			del_result = delete_entry(name=entry_name)
+			self.assertTrue(del_result.get("success"))
+			self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_on_trash_system_manager_with_agent_role_can_delete_own_entry(self):
+		"""
+		The on_trash hook must allow a dual-role SM+Agent user to delete their
+		own entry — the is_agent() pre-gate passes because Agent is in AGENT_ROLES,
+		and the ownership check passes because entry.agent == user.
+		"""
+		sm_agent_email = "sm.agent.tt@test.com"
+		self._ensure_sm_agent_user(sm_agent_email)
+
+		# Create entry as agent.tt then reassign to sm_agent
+		frappe.set_user("agent.tt@test.com")
+		result = add_entry(ticket=self.ticket_name, duration_minutes=5, billable=0)
+		entry_name = result["name"]
+
+		frappe.set_user("Administrator")
+		frappe.db.set_value("HD Time Entry", entry_name, "agent", sm_agent_email)
+		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
+
+		# on_trash() must NOT raise PermissionError
+		frappe.set_user(sm_agent_email)
+		try:
+			entry_doc.on_trash()
+		except frappe.PermissionError:
+			self.fail(
+				"on_trash() raised PermissionError for a user with both SM and Agent "
+				"roles — the is_agent() pre-gate incorrectly blocked a valid agent."
+			)
+		finally:
+			frappe.set_user("Administrator")
+
 
 # TestIsAgentExplicitUser has been moved to helpdesk/tests/test_utils.py
 # (story-130 P1 fix #8 — co-locate tests with the module they test)

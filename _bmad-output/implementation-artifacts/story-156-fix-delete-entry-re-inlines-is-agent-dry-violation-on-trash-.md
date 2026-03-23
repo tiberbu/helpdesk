@@ -1,6 +1,6 @@
 # Story: Fix: delete_entry re-inlines is_agent() DRY violation + on_trash missing pre-gate
 
-Status: in-progress
+Status: done
 Task ID: mn3e59u7bmv6hc
 Task Number: #156
 Workflow: quick-dev
@@ -25,17 +25,17 @@ Recommended fixes:
 
 ## Acceptance Criteria
 
-- [ ] Add optional user_roles param to is_agent() in utils.py
-- [ ] Replace inline role check in delete_entry with is_agent(user_roles=user_roles)
-- [ ] Add is_agent() call to on_trash() as a pre-gate, or add a test proving Frappe perm layer blocks System Manager REST DELETE
-- [ ] Add negative tests for System Manager on add_entry/start_timer/stop_timer/get_summary
+- [x] Add optional user_roles param to is_agent() in utils.py
+- [x] Replace inline role check in delete_entry with is_agent(user_roles=user_roles)
+- [x] Add is_agent() call to on_trash() as a pre-gate, or add a test proving Frappe perm layer blocks System Manager REST DELETE
+- [x] Add negative tests for System Manager on add_entry/start_timer/stop_timer/get_summary
 
 ## Tasks / Subtasks
 
-- [ ] Add optional user_roles param to is_agent() in utils.py
-- [ ] Replace inline role check in delete_entry with is_agent(user_roles=user_roles)
-- [ ] Add is_agent() call to on_trash() as a pre-gate, or add a test proving Frappe perm layer blocks System Manager REST DELETE
-- [ ] Add negative tests for System Manager on add_entry/start_timer/stop_timer/get_summary
+- [x] Add optional user_roles param to is_agent() in utils.py
+- [x] Replace inline role check in delete_entry with is_agent(user_roles=user_roles)
+- [x] Add is_agent() call to on_trash() as a pre-gate, or add a test proving Frappe perm layer blocks System Manager REST DELETE
+- [x] Add negative tests for System Manager on add_entry/start_timer/stop_timer/get_summary
 
 ## Dev Notes
 
@@ -53,12 +53,21 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Fixed P1 DRY violation: added `user_roles` optional param to `is_agent()` in utils.py and replaced the inline role check in `delete_entry()` with `is_agent(user_roles=user_roles)`. A linter also extracted an `AGENT_ROLES` frozenset constant to further eliminate duplication (addresses Finding 4 as well).
+- Fixed P1 security gap: added explicit `is_agent()` pre-gate to `on_trash()` — blocks bare System Manager users who own their own entries from deleting via REST DELETE path.
+- Added 5 new tests: System Manager blocked on add_entry, start_timer, stop_timer, get_summary, and on_trash with own entry. All 76 tests pass.
+- Dev and bench copies synced.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/utils.py`: Added `user_roles: set = None` param to `is_agent()`; added `AGENT_ROLES` frozenset constant as single source of truth for agent role names.
+- `helpdesk/api/time_tracking.py`: `delete_entry()` — replaced inline role check with `is_agent(user_roles=user_roles)`.
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: Added `from helpdesk.utils import is_agent`; added `is_agent()` pre-gate to `on_trash()`.
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Added 5 new negative tests for bare System Manager on all API endpoints + on_trash own-entry scenario.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/utils.py` (modified)
+- `helpdesk/api/time_tracking.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified)

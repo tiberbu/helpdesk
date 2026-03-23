@@ -1,6 +1,6 @@
 # Story: Fix: P1 inline is_agent() reimplementation in delete_entry + P2 on_trash missing pre-gate + P2 SM create/write inconsistency
 
-Status: in-progress
+Status: done
 Task ID: mn3e4hzar67uwy
 Task Number: #155
 Workflow: quick-dev
@@ -39,14 +39,14 @@ Created: 2026-03-23T16:18:59.816Z
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -64,12 +64,25 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1 fix: Added `AGENT_ROLES = frozenset({"HD Admin", "Agent Manager", "Agent"})` constant to `utils.py`; `is_agent()` now references it — single source of truth, no drift possible.
+- P1 fix: `delete_entry()` in `time_tracking.py` now calls `is_agent(user_roles=user_roles)` — hand-rolled inline role check eliminated.
+- P2 fix: `on_trash()` in `hd_time_entry.py` has `is_agent()` pre-gate — bare SM who owns their own entry via REST POST cannot bypass ownership check.
+- P2 fix: SM permissions in `hd_time_entry.json` reduced to read-only (removed `create:1`, `write:1`) — aligns with stated policy that bare SM users are not agents.
+- P2 fix: Added 4 new tests covering Administrator short-circuit in `_check_delete_permission`, end-to-end Administrator delete, and dual-role SM+Agent (both via `delete_entry` and `on_trash`).
+- All 80 tests pass (8.771s).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/utils.py`: Added `AGENT_ROLES` module-level frozenset constant; `is_agent()` uses it; `is_agent()` short-circuits early for Administrator.
+- `helpdesk/api/time_tracking.py`: `delete_entry()` pre-gate now calls `is_agent(user_roles=user_roles)` — no more inline hardcoded role set.
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: `on_trash()` adds `is_agent(user)` pre-gate before delegating to `_check_delete_permission`.
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json`: Removed `create:1` and `write:1` from System Manager permissions entry.
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Added 4 new tests: `test_check_delete_permission_administrator_always_allowed`, `test_delete_entry_administrator_can_delete_any_entry`, `test_system_manager_with_agent_role_can_delete_own_entry`, `test_on_trash_system_manager_with_agent_role_can_delete_own_entry`.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/utils.py`
+- `helpdesk/api/time_tracking.py`
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json`
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`
