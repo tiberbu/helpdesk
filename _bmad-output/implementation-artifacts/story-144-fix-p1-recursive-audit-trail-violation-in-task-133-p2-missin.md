@@ -72,4 +72,8 @@ sonnet
 
 - `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — audit trail correction
 - `_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md` — stale reference fix
-- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 2 new tests
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 2 new tests (test_require_int_str_rejects_1e309_overflow_duration, test_stop_timer_rejects_nan_billable)
+- `_bmad-output/implementation-artifacts/story-144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin.md` — this story file (completion notes updated on task close)
+- `_bmad-output/implementation-artifacts/story-145-qa-fix-delete-entry-reimplements-is-agent-inline-consolidate.md` — touched by commit f09670196 (sprint sync)
+- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` — touched by commit f09670196 (sprint sync)
+- `_bmad-output/sprint-status.yaml` — updated sprint status

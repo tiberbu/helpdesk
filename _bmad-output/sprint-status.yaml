@@ -385,8 +385,10 @@ development_status:
 
   149-qa-fix-system-manager-delete-permission-contradictory-betwee: review  # [adversarial-review] QA: Fix: System Manager delete permission contradictory betw
 
-  150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-: in-progress  # [quick-dev] Fix: P1 story-133 still claims 7 inf/nan tests (actual 5-6) 
+  150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-: review  # [quick-dev] Fix: P1 story-133 still claims 7 inf/nan tests (actual 5-6) 
 
   151-qa-fix-system-manager-delete-permission-contradictory-betwee: review  # [adversarial-review] QA: Fix: System Manager delete permission contradictory betw
 
-  152-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud: ready-for-dev  # [adversarial-review] QA: Fix P1 delete_entry double get_roles + stale test count 
+  152-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud: review  # [adversarial-review] QA: Fix P1 delete_entry double get_roles + stale test count 
+
+  153-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud: ready-for-dev  # [adversarial-review] QA: Fix: P1 delete_entry double get_roles + stale test count

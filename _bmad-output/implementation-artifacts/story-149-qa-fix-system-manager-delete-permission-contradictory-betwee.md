@@ -1,6 +1,6 @@
 # Story: QA: Fix: System Manager delete permission contradictory between delete_entry API and REST DELETE
 
-Status: in-progress
+Status: complete
 Task ID: mn3e0q7pvtcap4
 Task Number: #149
 Workflow: adversarial-review
@@ -40,20 +40,20 @@ Code review for story-148 permission fix.
 
 ## Acceptance Criteria
 
-- [ ] PRIVILEGED_ROLES = frozenset({"HD Admin", "Agent Manager"}) — System Manager excluded
-- [ ] DocType JSON System Manager block has no delete:1
-- [ ] test_on_trash_blocks_system_manager_delete passes (expects PermissionError)
-- [ ] test_delete_entry_system_manager_blocked_at_pre_gate has no frappe.db.commit() in finally block
-- [ ] All 71 tests pass
+- [x] PRIVILEGED_ROLES = frozenset({"HD Admin", "Agent Manager"}) — System Manager excluded
+- [x] DocType JSON System Manager block has no delete:1
+- [x] test_on_trash_blocks_system_manager_delete passes (expects PermissionError)
+- [x] test_delete_entry_system_manager_blocked_at_pre_gate has no frappe.db.commit() in finally block
+- [x] All 71 tests pass
 
 ## Tasks / Subtasks
 
-- [ ] Review PRIVILEGED_ROLES constant — confirm System Manager absent
-- [ ] Review hd_time_entry.json System Manager block — confirm no delete:1
-- [ ] Review _check_delete_permission docstring quality and accuracy
-- [ ] Review test changes — confirm inverted assertion is correct and isolation fix is correct
-- [ ] Confirm no other references to System Manager in delete permission logic remain
-- [ ] Run full test suite and confirm 71 pass
+- [x] Review PRIVILEGED_ROLES constant — confirm System Manager absent
+- [x] Review hd_time_entry.json System Manager block — confirm no delete:1
+- [x] Review _check_delete_permission docstring quality and accuracy
+- [x] Review test changes — confirm inverted assertion is correct and isolation fix is correct
+- [x] Confirm no other references to System Manager in delete permission logic remain
+- [x] Run full test suite and confirm 71 pass
 
 ## Dev Notes
 
@@ -71,12 +71,12 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+Adversarial review completed. 11 findings (1 P1, 5 P2, 5 P3). Core fix is correct — PRIVILEGED_ROLES and DocType JSON are consistent, tests pass (71/71). Key concerns: inline is_agent() reimplementation in delete_entry() creates drift risk (P1), on_trash() lacks pre-gate despite docstring claiming callers must enforce one (P2), System Manager still has create/write perms contradicting the "not agents" policy (P2). Full report: docs/qa-report-task-149.md
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created docs/qa-report-task-149.md — adversarial review report with 11 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- docs/qa-report-task-149.md (created)
