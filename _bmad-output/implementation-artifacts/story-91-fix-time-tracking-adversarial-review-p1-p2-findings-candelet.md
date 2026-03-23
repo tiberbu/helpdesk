@@ -1,6 +1,6 @@
 # Story: Fix: Time Tracking adversarial review P1/P2 findings (canDelete Agent Manager, __ import, frontend validation)
 
-Status: in-progress
+Status: done
 Task ID: mn3bneu2wt63yw
 Task Number: #91
 Workflow: quick-dev
