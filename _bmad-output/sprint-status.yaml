@@ -395,7 +395,7 @@ development_status:
 
   154-qa-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-: review  # [adversarial-review] QA: Fix: P1 story-133 still claims 7 inf/nan tests (actual 5
 
-  155-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p2-o: in-progress  # [quick-dev] Fix: P1 inline is_agent() reimplementation in delete_entry +
+  155-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p2-o: review  # [quick-dev] Fix: P1 inline is_agent() reimplementation in delete_entry +
 
   156-fix-delete-entry-re-inlines-is-agent-dry-violation-on-trash-: review  # [quick-dev] Fix: delete_entry re-inlines is_agent() DRY violation + on_t
 
@@ -404,3 +404,5 @@ development_status:
   158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco: in-progress  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-150 + P2 i
 
   159-qa-fix-delete-entry-dry-violation-on-trash-missing-is-agent-: ready-for-dev  # [adversarial-review] QA: Fix delete_entry DRY violation + on_trash missing is_age
+
+  160-qa-fix-delete-entry-re-inlines-is-agent-dry-violation-on-tra: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry re-inlines is_agent() DRY violation + 
