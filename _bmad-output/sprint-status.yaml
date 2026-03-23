@@ -141,7 +141,7 @@ development_status:
   9-architecture-frappe-helpdesk-phase-1-technical-design: done  # [solutioning] Architecture — Frappe Helpdesk Phase 1 Technical Design
   8-ux-design-spec-helpdesk-agent-customer-portals: done  # [ux-design] UX Design Spec — Helpdesk Agent & Customer Portals
   7-prd-frappe-helpdesk-phase-1-requirements: done  # [planning] PRD — Frappe Helpdesk Phase 1 Requirements
-  12-prd-frappe-helpdesk-phase-1-requirements: review  # [planning] PRD — Frappe Helpdesk Phase 1 Requirements
+  12-prd-frappe-helpdesk-phase-1-requirements: done  # [planning] PRD — Frappe Helpdesk Phase 1 Requirements
   13-ux-design-spec-helpdesk-agent-customer-portals: review  # [ux-design] UX Design Spec — Helpdesk Agent & Customer Portals
   14-architecture-frappe-helpdesk-phase-1-technical-design: review  # [solutioning] Architecture — Frappe Helpdesk Phase 1 Technical Design
   15-epics-stories-frappe-helpdesk-phase-1-breakdown: review  # [solutioning] Epics & Stories — Frappe Helpdesk Phase 1 Breakdown
@@ -171,11 +171,11 @@ development_status:
   30-story-3-1-channel-abstraction-layer: review  # [dev-story] Story 3.1: Channel Abstraction Layer
   31-story-3-2-chat-session-management-backend: review  # [dev-story] Story 3.2: Chat Session Management Backend
   32-story-3-3-embeddable-chat-widget: review  # [create-story] Story 3.3: Embeddable Chat Widget
-  33-story-3-4-real-time-chat-communication: done  # [dev-story] Story 3.4: Real-Time Chat Communication
+  33-story-3-4-real-time-chat-communication: review  # [dev-story] Story 3.4: Real-Time Chat Communication
 
   # New tasks (added by Claude Studio)
-  34-story-3-5-agent-chat-interface: ready-for-dev  # [create-story] Story 3.5: Agent Chat Interface
-  35-story-3-6-chat-to-ticket-transcript-and-follow-up: ready-for-dev  # [create-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
+  34-story-3-5-agent-chat-interface: review  # [create-story] Story 3.5: Agent Chat Interface
+  35-story-3-6-chat-to-ticket-transcript-and-follow-up: review  # [dev-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
   36-story-3-7-csat-survey-infrastructure-and-delivery: ready-for-dev  # [create-story] Story 3.7: CSAT Survey Infrastructure and Delivery
   37-story-3-8-multi-brand-configuration: ready-for-dev  # [create-story] Story 3.8: Multi-Brand Configuration
   38-story-4-1-business-hours-sla-calculation-engine: review  # [create-story] Story 4.1: Business Hours SLA Calculation Engine
@@ -557,3 +557,11 @@ development_status:
   228-qa-story-3-3-embeddable-chat-widget: review  # [playwright-qa] QA: Story 3.3: Embeddable Chat Widget
 
   229-fix-story-3-3-embeddable-chat-widget-wrong-api-paths-offline: review  # [quick-dev] Fix: Story 3.3 Embeddable Chat Widget — wrong API paths + of
+
+  230-qa-story-3-4-real-time-chat-communication: review  # [playwright-qa] QA: Story 3.4: Real-Time Chat Communication
+
+  231-fix-story-3-4-real-time-chat-communication-wrong-api-path-in: review  # [quick-dev] Fix: Story 3.4 Real-Time Chat Communication — wrong API path
+
+  232-qa-story-3-5-agent-chat-interface: review  # [playwright-qa] QA: Story 3.5: Agent Chat Interface
+
+  233-fix-story-3-5-agent-chat-interface-agent-send-message-jwt-by: review  # [quick-dev] Fix: Story 3.5 Agent Chat Interface — agent send_message JWT

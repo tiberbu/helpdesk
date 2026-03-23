@@ -87,6 +87,61 @@ class ChatAdapter(ChannelAdapter):
             timestamp=timestamp,
         )
 
+    def normalize_from_doc(self, hd_chat_message) -> ChannelMessage:
+        """
+        Convert an HD Chat Message Frappe document into a ChannelMessage.
+
+        Used by the HD Chat Message after_insert hook (Story 3.6) to store
+        every chat message as an HD Ticket communication.
+
+        Parameters
+        ----------
+        hd_chat_message : frappe.model.document.Document
+            An HD Chat Message document with fields: session, sender_type,
+            sender_email, content, sent_at.
+
+        Returns
+        -------
+        ChannelMessage with source="chat", ticket_id resolved from the
+        linked HD Chat Session, and sender_type in metadata.
+        """
+        import frappe
+
+        session_id = hd_chat_message.session or ""
+        ticket_id = None
+        if session_id:
+            ticket_id = frappe.db.get_value("HD Chat Session", session_id, "ticket") or None
+
+        sender_email = hd_chat_message.sender_email or ""
+        # For agent messages the email is set; for system messages use "System"
+        sender_name = sender_email or "System"
+        sender_type = hd_chat_message.sender_type or "customer"
+
+        content = hd_chat_message.content or ""
+
+        subject = f"Chat session {session_id}" if session_id else "Chat message"
+
+        timestamp = _parse_chat_timestamp(
+            getattr(hd_chat_message, "sent_at", None)
+            or getattr(hd_chat_message, "creation", None)
+        )
+
+        return ChannelMessage(
+            source=self.SOURCE,
+            sender_email=sender_email,
+            sender_name=sender_name,
+            subject=subject,
+            content=content,
+            attachments=[],
+            metadata={
+                "chat_session_id": session_id,
+                "message_name": hd_chat_message.name,
+                "sender_type": sender_type,
+            },
+            ticket_id=ticket_id,
+            timestamp=timestamp,
+        )
+
 
 def _parse_chat_timestamp(value) -> datetime:
     """Return a datetime from various timestamp representations."""
