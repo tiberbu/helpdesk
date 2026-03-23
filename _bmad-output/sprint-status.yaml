@@ -275,10 +275,15 @@ development_status:
 
   93-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps-qa-: review  # [quick-dev] Fix: TimeTracker.vue bench drift + P2 defense-in-depth gaps 
 
-  94-fix-p1s-from-adversarial-review-task-90-dedup-delete-entry-l: in-progress  # [quick-dev] Fix: P1s from adversarial review task-90 — dedup delete_entr
+  94-fix-p1s-from-adversarial-review-task-90-dedup-delete-entry-l: review  # [quick-dev] Fix: P1s from adversarial review task-90 — dedup delete_entr
 
   95-qa-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps: review  # [adversarial-review] QA: Fix TimeTracker.vue bench drift + P2 defense-in-depth ga
 
   96-qa-fix-time-tracking-adversarial-review-p1-p2-findings: backlog  # [adversarial-review] QA: Fix: Time Tracking adversarial review P1/P2 findings
 
   97-qa-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps-: review  # [adversarial-review] QA: Fix: TimeTracker.vue bench drift + P2 defense-in-depth g
+
+  99-fix-p1-findings-from-adversarial-review-task-92-none-status-: in-progress  # [quick-dev] Fix: P1 findings from adversarial review task-92 — None stat
+  98-qa-fix-time-tracking-adversarial-review-p1-p2-findings-cande: review  # [adversarial-review] QA: Fix: Time Tracking adversarial review P1/P2 findings (ca
+
+  100-qa-fix-p1s-from-adversarial-review-task-90-dedup-delete-entr: ready-for-dev  # [adversarial-review] QA: Fix: P1s from adversarial review task-90 — dedup delete_

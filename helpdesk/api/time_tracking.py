@@ -9,7 +9,6 @@ from helpdesk.utils import is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
-	PRIVILEGED_ROLES,
 	_check_delete_permission,
 )
 

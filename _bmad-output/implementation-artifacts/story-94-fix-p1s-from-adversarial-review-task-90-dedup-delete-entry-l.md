@@ -1,6 +1,6 @@
 # Story: Fix: P1s from adversarial review task-90 — dedup delete_entry logic, auto-close crash guard, frozenset PRIVILEGED_ROLES, bench sync
 
-Status: in-progress
+Status: done
 Task ID: mn3bw03oesh6ec
 Task Number: #94
 Workflow: quick-dev
@@ -31,14 +31,14 @@ Sync TimeTracker.vue to bench and rebuild frontend.
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -56,12 +56,20 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1 #1: Removed inline `is_privileged`/`PRIVILEGED_ROLES` check from `delete_entry()` in `time_tracking.py`. Now only `is_agent()` pre-gates the function; all ownership/role logic is delegated entirely to `_check_delete_permission()`. Also removed now-unused `PRIVILEGED_ROLES` import.
+- P1 #7: Wrapped per-ticket `doc.save()` in `close_tickets_after_n_days()` with `try/except Exception`. Failed tickets are logged via `frappe.log_error` and rolled back; the loop continues with remaining tickets.
+- P2 #12: Changed `PRIVILEGED_ROLES` from `set` to `frozenset` in `hd_time_entry.py`.
+- P2 #3: Verified `TimeTracker.vue` is identical between dev and bench (diff clean). Bench built assets (15:16) are newer than source (15:12) — no rebuild required.
+- All Python files synced to bench; gunicorn reloaded.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/api/time_tracking.py`: Removed `PRIVILEGED_ROLES` from import; simplified `delete_entry()` to only `is_agent()` pre-gate + `_check_delete_permission()`.
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: `PRIVILEGED_ROLES` changed from `set` to `frozenset`.
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py`: Auto-close loop wrapped in `try/except` with `frappe.log_error` + `frappe.db.rollback()`.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/api/time_tracking.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified)
