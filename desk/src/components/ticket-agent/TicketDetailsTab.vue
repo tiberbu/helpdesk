@@ -5,6 +5,17 @@
     <div class="px-5 pb-4 flex flex-col">
       <!-- User avatar with buttons -->
       <TicketContact />
+      <!-- Source badge: shown for non-email channels (e.g. Chat) -->
+      <div
+        v-if="ticket?.doc?.source && ticket.doc.source !== 'Email'"
+        class="mb-2 -mt-1"
+      >
+        <Badge
+          :label="ticket.doc.source"
+          theme="blue"
+          size="sm"
+        />
+      </div>
       <!-- Core Fields -->
       <div>
         <div
@@ -97,7 +108,7 @@ import {
   TicketSymbol,
 } from "@/types";
 import { computed, inject, ref } from "vue";
-import { createResource, toast } from "frappe-ui";
+import { Badge, createResource, toast } from "frappe-ui";
 import { storeToRefs } from "pinia";
 import { __ } from "@/translation";
 import { useTicketStatusStore } from "@/stores/ticketStatus";

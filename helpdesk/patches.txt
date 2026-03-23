@@ -52,3 +52,4 @@ helpdesk.patches.v1_phase1.create_hd_chat_session
 helpdesk.patches.v1_phase1.create_hd_chat_message
 helpdesk.patches.v1_phase1.add_chat_realtime_fields
 helpdesk.patches.v1_phase1.add_chat_availability_to_agent
+helpdesk.patches.v1_phase1.add_source_field_to_hd_ticket

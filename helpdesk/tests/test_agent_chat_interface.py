@@ -3,10 +3,11 @@
 Covers:
   - accept_session: marks active, enforces max_concurrent_chats, sets accepted_at
   - set_availability: persists chat_availability on HD Agent
-  - get_agent_sessions: returns only the requesting agent's sessions
+  - get_agent_sessions: returns agent's own sessions + unassigned waiting queue
   - get_transfer_targets: returns online agents excluding self
   - transfer_session: reassigns agent, appends system message
   - get_availability: reflects chat_availability field (not just is_active)
+  - send_message: agents bypass JWT, customers still require JWT
 
 NFR-M-01: ≥80% line coverage on new backend code.
 NFR-SE-02: Role check enforced — non-agents cannot accept/transfer sessions.
@@ -248,6 +249,36 @@ class TestGetAgentSessions(unittest.TestCase):
         self.assertEqual(len(matching), 1)
         self.assertIn("unread_count", matching[0])
 
+    def test_includes_unassigned_waiting_sessions(self):
+        """Unassigned waiting sessions (the queue) must appear in get_agent_sessions (fix Issue 2 P1)."""
+        waiting = _make_session(status="waiting")
+        self._sessions.append(waiting.session_id)
+        # No agent assigned — simulates a new customer chat waiting in queue
+
+        frappe.set_user(self.agent_email)
+        from helpdesk.api.chat import get_agent_sessions
+
+        results = get_agent_sessions()
+        ids = [r["session_id"] for r in results]
+        self.assertIn(waiting.session_id, ids)
+
+    def test_excludes_active_unassigned_sessions(self):
+        """Active sessions belonging to other agents should NOT appear."""
+        other_agent_doc = create_agent("agent_sessions_other@helpdesk.test")
+        self._agents.append(other_agent_doc.name)
+
+        other_active = _make_session(status="active")
+        other_active.agent = other_agent_doc.name
+        other_active.save(ignore_permissions=True)
+        self._sessions.append(other_active.session_id)
+
+        frappe.set_user(self.agent_email)
+        from helpdesk.api.chat import get_agent_sessions
+
+        results = get_agent_sessions()
+        ids = [r["session_id"] for r in results]
+        self.assertNotIn(other_active.session_id, ids)
+
 
 class TestGetTransferTargets(unittest.TestCase):
     def setUp(self):
@@ -348,3 +379,96 @@ class TestGetAvailabilityUpdated(unittest.TestCase):
         # We just verify the function runs without error here.
         result = get_availability()
         self.assertIn("available", result)
+
+
+class TestAgentSendMessage(unittest.TestCase):
+    """Agent send_message should bypass JWT and record sender as agent (fix Issue 1 P0)."""
+
+    def setUp(self):
+        frappe.set_user("Administrator")
+        self._sessions = []
+        self._agents = []
+        frappe.db.set_value("HD Settings", None, "chat_enabled", 1)
+
+        self.agent_email = "agent_send_msg@helpdesk.test"
+        self.agent_doc = create_agent(self.agent_email)
+        self._agents.append(self.agent_doc.name)
+
+        # Create an active session assigned to this agent
+        self.session = _make_session(status="active")
+        self.session.agent = self.agent_doc.name
+        self.session.save(ignore_permissions=True)
+        self._sessions.append(self.session.session_id)
+
+    def tearDown(self):
+        frappe.set_user("Administrator")
+        for name in self._sessions:
+            try:
+                frappe.delete_doc(
+                    "HD Chat Session", name, ignore_missing=True, force=True
+                )
+            except Exception:
+                pass
+        # Clean up HD Chat Messages for test sessions
+        for sid in self._sessions:
+            try:
+                for msg in frappe.get_all(
+                    "HD Chat Message", filters={"session": sid}, pluck="name"
+                ):
+                    frappe.delete_doc("HD Chat Message", msg, ignore_missing=True, force=True)
+            except Exception:
+                pass
+        for name in self._agents:
+            try:
+                frappe.delete_doc("HD Agent", name, ignore_missing=True, force=True)
+            except Exception:
+                pass
+        frappe.db.commit()
+
+    def test_agent_can_send_without_jwt(self):
+        """Agent must be able to send a message with an invalid/empty token (JWT bypassed)."""
+        frappe.set_user(self.agent_email)
+        from helpdesk.api.chat import send_message
+        from unittest.mock import patch
+
+        with patch("frappe.publish_realtime"):
+            result = send_message(
+                session_id=self.session.session_id,
+                content="Hello from agent",
+                token="__agent__",  # Not a valid JWT — should be bypassed
+            )
+
+        self.assertIn("message_id", result)
+        self.assertEqual(result["status"], "sent")
+
+        # Verify the message was recorded with correct sender metadata
+        msg = frappe.db.get_value(
+            "HD Chat Message",
+            {"session": self.session.session_id, "message_id": result["message_id"]},
+            ["sender_type", "sender_email"],
+            as_dict=True,
+        )
+        self.assertEqual(msg.sender_type, "agent")
+        self.assertEqual(msg.sender_email, self.agent_email)
+
+    def test_agent_send_realtime_event_has_agent_sender_type(self):
+        """Realtime event published by agent send_message must carry sender_type=agent."""
+        frappe.set_user(self.agent_email)
+        from helpdesk.api.chat import send_message
+        from unittest.mock import patch, call
+
+        captured = []
+
+        def _capture(*args, **kwargs):
+            captured.append(kwargs.get("message", {}))
+
+        with patch("frappe.publish_realtime", side_effect=_capture):
+            send_message(
+                session_id=self.session.session_id,
+                content="Realtime test",
+                token="",
+            )
+
+        realtime_msgs = [m for m in captured if m and m.get("session_id") == self.session.session_id]
+        self.assertTrue(len(realtime_msgs) >= 1)
+        self.assertEqual(realtime_msgs[0].get("sender_type"), "agent")

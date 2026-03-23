@@ -138,8 +138,10 @@ def send_message(session_id: str, content: str, token: str, attachment: str = ""
     """
     _check_chat_enabled()
 
-    # Authenticate customer
-    validate_chat_token(token, session_id)
+    is_agent_sender = _is_agent()
+    if not is_agent_sender:
+        # Authenticate customer via JWT
+        validate_chat_token(token, session_id)
 
     session_doc = frappe.get_doc("HD Chat Session", session_id)
 
@@ -152,8 +154,8 @@ def send_message(session_id: str, content: str, token: str, attachment: str = ""
         {
             "doctype": "HD Chat Message",
             "session": session_id,
-            "sender_type": "customer",
-            "sender_email": session_doc.customer_email,
+            "sender_type": "agent" if is_agent_sender else "customer",
+            "sender_email": frappe.session.user if is_agent_sender else session_doc.customer_email,
             "content": sanitized,
             "sent_at": frappe.utils.now_datetime(),
             "attachment": attachment or None,
@@ -173,7 +175,7 @@ def send_message(session_id: str, content: str, token: str, attachment: str = ""
                 "session_id": session_id,
                 "message_id": msg.message_id,
                 "content": sanitized,
-                "sender_type": "customer",
+                "sender_type": "agent" if is_agent_sender else "customer",
                 "sent_at": str(msg.sent_at),
             },
             room=f"chat:{session_id}",
@@ -712,27 +714,44 @@ def get_agent_sessions(status: str = "") -> list:
     if not agent_name:
         return []
 
-    filters = {"agent": agent_name}
-    if status:
-        filters["status"] = status
-    else:
-        filters["status"] = ["in", ["waiting", "active"]]
+    _fields = [
+        "session_id",
+        "customer_email",
+        "customer_name",
+        "status",
+        "started_at",
+        "accepted_at",
+        "agent",
+        "ticket",
+    ]
 
-    sessions = frappe.db.get_all(
-        "HD Chat Session",
-        filters=filters,
-        fields=[
-            "session_id",
-            "customer_email",
-            "customer_name",
-            "status",
-            "started_at",
-            "accepted_at",
-            "agent",
-            "ticket",
-        ],
-        order_by="started_at asc",
-    )
+    if status:
+        # Filtered view: only return sessions matching the requested status
+        filters = {"agent": agent_name, "status": status}
+        sessions = frappe.db.get_all(
+            "HD Chat Session",
+            filters=filters,
+            fields=_fields,
+            order_by="started_at asc",
+        )
+    else:
+        # Default view: agent's own active sessions + all unassigned waiting sessions (queue)
+        assigned_active = frappe.db.get_all(
+            "HD Chat Session",
+            filters={"agent": agent_name, "status": "active"},
+            fields=_fields,
+            order_by="started_at asc",
+        )
+        # Unassigned waiting sessions form the chat queue visible to all agents
+        waiting_queue = frappe.db.get_all(
+            "HD Chat Session",
+            filters={"agent": ["in", ["", None]], "status": "waiting"},
+            fields=_fields,
+            order_by="started_at asc",
+        )
+        # Merge, deduplicating by session_id (in case agent has a waiting session assigned)
+        seen = {s["session_id"] for s in assigned_active}
+        sessions = assigned_active + [s for s in waiting_queue if s["session_id"] not in seen]
 
     for session in sessions:
         session["unread_count"] = frappe.db.count(
