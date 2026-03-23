@@ -1,6 +1,6 @@
 # Story: Story 1.5: @Mention Notifications in Internal Notes
 
-Status: review
+Status: done
 Task ID: mn2g9tyj48o8aw
 Task Number: #21
 Workflow: dev-story
