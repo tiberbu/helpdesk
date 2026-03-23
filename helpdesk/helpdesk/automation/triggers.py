@@ -15,6 +15,11 @@ TRIGGER_TYPES = [
     "ticket_assigned",
     "ticket_resolved",
     "ticket_reopened",
+    # SLA-based triggers: fired externally by the SLA monitor cron job
+    # (not via Frappe doc_events). The engine's evaluate(ticket, trigger_type)
+    # is called directly by sla_monitor.check_sla_breaches().
+    "sla_warning",
+    "sla_breached",
 ]
 
 # Maps Frappe doc event -> trigger_type.

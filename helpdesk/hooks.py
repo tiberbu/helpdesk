@@ -38,6 +38,12 @@ scheduler_events = {
         "helpdesk.search.build_index_if_not_exists",
         "helpdesk.search.download_corpus",
     ],
+    "cron": {
+        # SLA monitor: fires sla_warning and sla_breached automation triggers
+        "*/5 * * * *": [
+            "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.check_sla_breaches"
+        ],
+    },
     "daily": [
         "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days"
     ],

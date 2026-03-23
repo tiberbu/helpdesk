@@ -121,10 +121,24 @@
       </table>
     </div>
   </div>
+
+  <!-- Delete confirmation dialog -->
+  <Dialog
+    v-model="deleteConfirm.show"
+    :options="{
+      title: __('Delete Rule'),
+      message: deleteConfirm.rule ? __('Are you sure you want to delete \'{0}\'? This action cannot be undone.').replace('{0}', deleteConfirm.rule.rule_name || deleteConfirm.rule.name) : '',
+      actions: [
+        { label: __('Delete'), variant: 'solid', theme: 'red', onClick: confirmDelete },
+        { label: __('Cancel'), onClick: () => (deleteConfirm.show = false) },
+      ],
+    }"
+  />
 </template>
 
 <script setup lang="ts">
-import { Badge, Button, LoadingIndicator, createListResource, usePageMeta, call } from "frappe-ui"
+import { ref } from "vue"
+import { Badge, Button, Dialog, LoadingIndicator, createListResource, usePageMeta, call } from "frappe-ui"
 import { useRouter } from "vue-router"
 import { useAuthStore } from "@/stores/auth"
 import { __ } from "@/translation"
@@ -138,6 +152,8 @@ usePageMeta(() => ({ title: "Automation Rules" }))
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+const deleteConfirm = ref<{ show: boolean; rule: any }>({ show: false, rule: null })
 
 const rules = createListResource({
   doctype: "HD Automation Rule",
@@ -178,8 +194,14 @@ async function toggleEnabled(rule: any) {
   await rules.reload()
 }
 
-async function deleteRule(rule: any) {
-  if (!confirm(__("Delete rule '{0}'?").replace("{0}", rule.rule_name || rule.name))) return
+function deleteRule(rule: any) {
+  deleteConfirm.value = { show: true, rule }
+}
+
+async function confirmDelete() {
+  const rule = deleteConfirm.value.rule
+  deleteConfirm.value = { show: false, rule: null }
+  if (!rule) return
   await call("frappe.client.delete", { doctype: "HD Automation Rule", name: rule.name })
   await rules.reload()
 }

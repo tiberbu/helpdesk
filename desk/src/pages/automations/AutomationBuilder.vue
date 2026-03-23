@@ -47,9 +47,19 @@
       </div>
     </div>
 
+    <!-- Access denied -->
+    <div
+      v-if="!authStore.isAdmin"
+      class="flex flex-col items-center justify-center flex-1 gap-3 text-ink-gray-4"
+    >
+      <LucideLock class="h-10 w-10 text-gray-400" />
+      <p class="text-base font-medium text-gray-600">{{ __("Access Restricted") }}</p>
+      <p class="text-sm text-gray-400">{{ __("Only administrators can manage automation rules.") }}</p>
+    </div>
+
     <!-- Loading -->
     <div
-      v-if="loading"
+      v-else-if="loading"
       class="flex items-center justify-center flex-1"
     >
       <LoadingIndicator :scale="6" />
@@ -241,7 +251,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { Badge, Button, Dialog, FormControl, LoadingIndicator, call, usePageMeta } from "frappe-ui"
+import { Badge, Button, Dialog, FormControl, LoadingIndicator, call, toast, usePageMeta } from "frappe-ui"
 import { useAuthStore } from "@/stores/auth"
 import { __ } from "@/translation"
 import RuleTriggerSelect from "@/components/automation/RuleTriggerSelect.vue"
@@ -255,6 +265,7 @@ import LucideCheck from "~icons/lucide/check"
 import LucideX from "~icons/lucide/x"
 import LucidePlay from "~icons/lucide/play"
 import LucideMinus from "~icons/lucide/minus"
+import LucideLock from "~icons/lucide/lock"
 
 const route = useRoute()
 const router = useRouter()
@@ -332,15 +343,15 @@ async function saveRule() {
   showErrors.value = true
 
   if (!formState.value.rule_name?.trim()) {
-    alert(__("Rule name is required."))
+    toast.warning(__("Rule name is required."))
     return
   }
   if (!formState.value.trigger_type) {
-    alert(__("Please select a trigger."))
+    toast.warning(__("Please select a trigger."))
     return
   }
   if (actionsState.value.length === 0) {
-    alert(__("Add at least one action."))
+    toast.warning(__("Add at least one action."))
     return
   }
 
@@ -353,7 +364,7 @@ async function saveRule() {
       trigger_type: formState.value.trigger_type,
       priority_order: Number(formState.value.priority_order) || 10,
       enabled: formState.value.enabled ? 1 : 0,
-      conditions: JSON.stringify(conditionsState.value.conditions || []),
+      conditions: JSON.stringify({ logic: conditionsState.value.logic || "AND", conditions: conditionsState.value.conditions || [] }),
       actions: JSON.stringify(actionsState.value),
     }
 
@@ -367,7 +378,10 @@ async function saveRule() {
       })
     }
     showErrors.value = false
+    toast.success(__("Automation rule saved."))
     router.push({ name: "AutomationList" })
+  } catch (e: any) {
+    toast.error(e?.messages?.[0] || e?.message || __("Failed to save rule."))
   } finally {
     saving.value = false
   }
@@ -393,7 +407,7 @@ async function runTest() {
     })
     testResult.value = result
   } catch (e: any) {
-    alert(e?.message || __("Error running test."))
+    toast.error(e?.messages?.[0] || e?.message || __("Error running test."))
   } finally {
     testLoading.value = false
   }

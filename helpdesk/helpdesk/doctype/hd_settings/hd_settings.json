@@ -13,6 +13,7 @@
   "chat_enabled",
   "csat_enabled",
   "automation_enabled",
+  "sla_warning_thresholds",
   "itil_matrix_section",
   "priority_matrix",
   "category_required_on_resolution",
@@ -139,6 +140,13 @@
    "fieldname": "automation_enabled",
    "fieldtype": "Check",
    "label": "Enable Workflow Automation"
+  },
+  {
+   "default": "[30, 15, 5]",
+   "description": "JSON list of minutes before SLA breach at which sla_warning automation triggers fire. Default: [30, 15, 5]",
+   "fieldname": "sla_warning_thresholds",
+   "fieldtype": "JSON",
+   "label": "SLA Warning Thresholds (minutes before breach)"
   },
   {
    "depends_on": "eval:doc.itil_mode_enabled==1",
