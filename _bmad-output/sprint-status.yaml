@@ -223,6 +223,9 @@ development_status:
 
   66-qa-fix-story-1-8-major-incident-p0-p1-issues-missing-post-in: review  # [adversarial-review] QA: Fix: Story 1.8 Major Incident — P0/P1 issues (missing po
 
-  67-fix-p1-issues-in-story-1-7-time-tracking-n-1-query-started-a: in-progress  # [quick-dev] Fix: P1 issues in Story 1.7 Time Tracking (N+1 query, starte
+  67-fix-p1-issues-in-story-1-7-time-tracking-n-1-query-started-a: review  # [quick-dev] Fix: P1 issues in Story 1.7 Time Tracking (N+1 query, starte
 
   68-fix-p1-findings-from-qa-task-62-status-category-bypass-and-m: review  # [quick-dev] Fix: P1 findings from QA task-62 — status_category bypass an
+
+  69-qa-fix-p1-findings-from-qa-task-62-status-category-bypass-an: ready-for-dev  # [adversarial-review] QA: Fix: P1 findings from QA task-62 — status_category bypas
+  70-qa-fix-p1-issues-in-story-1-7-time-tracking: review  # [adversarial-review] QA: Fix P1 issues in Story 1.7 Time Tracking
