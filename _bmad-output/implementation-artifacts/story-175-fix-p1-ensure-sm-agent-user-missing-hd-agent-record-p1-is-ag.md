@@ -1,6 +1,6 @@
 # Story: Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 is_agent identity contract + P2 on_trash wasteful get_roles + P2 PRIVILEGED_ROLES auto-derivation risk
 
-Status: in-progress
+Status: done
 Task ID: mn3esjuxkt6loh
 Task Number: #175
 Workflow: quick-dev
