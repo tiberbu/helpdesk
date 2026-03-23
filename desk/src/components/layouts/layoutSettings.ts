@@ -2,6 +2,7 @@ import LucideBookOpen from "~icons/lucide/book-open";
 import LucideContact2 from "~icons/lucide/contact-2";
 import LucideTicket from "~icons/lucide/ticket";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
+import LucideZap from "~icons/lucide/zap";
 import { OrganizationsIcon } from "../icons";
 import PhoneIcon from "../icons/PhoneIcon.vue";
 import LucideHome from "~icons/lucide/home";
@@ -42,6 +43,11 @@ export const agentPortalSidebarOptions = [
     label: __("Major Incidents"),
     icon: LucideAlertTriangle,
     to: "MajorIncidents",
+  },
+  {
+    label: __("Automations"),
+    icon: LucideZap,
+    to: "AutomationList",
   },
 ];
 

@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import { h } from "vue"
 import { __ } from "@/translation"
 import LucideTicket from "~icons/lucide/ticket"
 import LucideRefreshCw from "~icons/lucide/refresh-cw"
@@ -43,6 +42,7 @@ import LucideAlertOctagon from "~icons/lucide/alert-octagon"
 import LucideStar from "~icons/lucide/star"
 import LucideMessageSquare from "~icons/lucide/message-square"
 import LucideMessageSquareOff from "~icons/lucide/message-square-off"
+import { TRIGGER_OPTIONS as _OPTIONS } from "./triggerOptions"
 
 defineProps<{
   modelValue: string
@@ -52,66 +52,9 @@ defineEmits<{
   (e: "update:modelValue", value: string): void
 }>()
 
-export const TRIGGER_OPTIONS = [
-  {
-    value: "ticket_created",
-    label: "Ticket Created",
-    description: "Fires when a new ticket is submitted",
-    icon: LucideTicket,
-  },
-  {
-    value: "ticket_updated",
-    label: "Ticket Updated",
-    description: "Fires on every save of an existing ticket",
-    icon: LucideRefreshCw,
-  },
-  {
-    value: "ticket_assigned",
-    label: "Ticket Assigned",
-    description: "Fires when a ticket is assigned to an agent",
-    icon: LucideUserCheck,
-  },
-  {
-    value: "ticket_resolved",
-    label: "Ticket Resolved",
-    description: "Fires when ticket status changes to Resolved or Closed",
-    icon: LucideCheckCircle,
-  },
-  {
-    value: "ticket_reopened",
-    label: "Ticket Reopened",
-    description: "Fires when a resolved ticket is reopened",
-    icon: LucideRotateCcw,
-  },
-  {
-    value: "sla_warning",
-    label: "SLA Warning",
-    description: "Fires when a ticket approaches its SLA breach threshold",
-    icon: LucideAlertTriangle,
-  },
-  {
-    value: "sla_breached",
-    label: "SLA Breached",
-    description: "Fires when a ticket exceeds its SLA resolution time",
-    icon: LucideAlertOctagon,
-  },
-  {
-    value: "csat_received",
-    label: "CSAT Response Received",
-    description: "Fires when a customer submits a satisfaction rating",
-    icon: LucideStar,
-  },
-  {
-    value: "chat_started",
-    label: "Chat Started",
-    description: "Fires when a new live chat session begins",
-    icon: LucideMessageSquare,
-  },
-  {
-    value: "chat_ended",
-    label: "Chat Ended",
-    description: "Fires when a live chat session ends",
-    icon: LucideMessageSquareOff,
-  },
-]
+const TRIGGER_OPTIONS = _OPTIONS.map((t, i) => ({
+  ...t,
+  icon: [LucideTicket, LucideRefreshCw, LucideUserCheck, LucideCheckCircle, LucideRotateCcw,
+         LucideAlertTriangle, LucideAlertOctagon, LucideStar, LucideMessageSquare, LucideMessageSquareOff][i],
+}))
 </script>

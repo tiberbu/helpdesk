@@ -119,6 +119,19 @@ const routes = [
     meta: { auth: true, agent: true },
   },
   {
+    path: "/automations",
+    name: "AutomationList",
+    component: () => import("@/pages/automations/AutomationList.vue"),
+    meta: { auth: true, agent: true },
+  },
+  {
+    path: "/automations/:id",
+    name: "AutomationBuilder",
+    component: () => import("@/pages/automations/AutomationBuilder.vue"),
+    props: true,
+    meta: { auth: true, agent: true },
+  },
+  {
     path: "/call-logs",
     name: "CallLogs",
     component: () => import("@/pages/call-logs/CallLogs.vue"),

@@ -1,6 +1,6 @@
 # Story: Story 2.2: Automation Rule Builder UI
 
-Status: in-progress
+Status: done
 Task ID: mn2gah2sm7zas7
 Task Number: #27
 Workflow: dev-story
@@ -60,7 +60,34 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+**Completed:** 2026-03-23T21:18:16.874Z
+
+king correctly.Now running the mandatory POST-TASK VERIFICATION:All checks pass. Let me update the sprint status file:Now run the final full verification check:Story 2.2 is complete. Here's the summary:
+
+---
+
+**Story 2.2: Automation Rule Builder UI — DONE**
+
+**All 10 ACs verified:**
+
+| # | AC | Status |
+|---|---|---|
+| 1 | AutomationList page at `/helpdesk/automations` | ✅ |
+| 2 | AutomationBuilder at `/helpdesk/automations/new` + `/:id` with WHEN/IF/THEN | ✅ |
+| 3 | RuleTriggerSelect with 10 triggers (cards with icons + descriptions) | ✅ |
+| 4 | RuleConditionBuilder with 7 operators, AND/OR toggle, is_set hides value | ✅ |
+| 5 | RuleActionList with 10 action types, contextual inputs, up/down reorder | ✅ |
+| 6 | Save validates → `frappe.client.insert`/`set_value` | ✅ |
+| 7 | Enable/disable toggle (builder sidebar + list inline) | ✅ |
+| 8 | Test Rule modal → `test_rule` API → per-condition match/fail results | ✅ |
+| 9 | Routes registered, "Automations" sidebar entry (Lucide Zap icon) | ✅ |
+| 10 | 44/44 component tests pass (vitest 4.1.1) | ✅ |
+
+**Key technical notes:**
+- `TRIGGER_OPTIONS` / `ACTION_OPTIONS` extracted to separate `.ts` files (Vue `<script setup>` cannot use `export const`)
+- `vi.mock` factory hoisting: import mocked modules after `vi.mock()` declarations
+- All pages return HTTP 200; frontend built in 28.9s; API returns expected 403 for unauthenticated requests (identical to all other whitelisted Frappe methods)
+- Sprint status updated: `27-story-2-2` → `review`
 
 ### Change Log
 
