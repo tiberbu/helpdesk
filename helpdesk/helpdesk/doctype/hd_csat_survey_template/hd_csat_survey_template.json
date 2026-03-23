@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "creation": "2026-03-23 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "template_name",
+  "is_default",
+  "subject",
+  "intro_text",
+  "logo_url",
+  "primary_color"
+ ],
+ "fields": [
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Name",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Default Template"
+  },
+  {
+   "default": "How would you rate your support experience?",
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "label": "Email Subject"
+  },
+  {
+   "default": "We'd love to hear about your recent support experience. Please take a moment to rate it.",
+   "fieldname": "intro_text",
+   "fieldtype": "Long Text",
+   "label": "Intro Text"
+  },
+  {
+   "fieldname": "logo_url",
+   "fieldtype": "Data",
+   "label": "Logo URL"
+  },
+  {
+   "default": "#4F46E5",
+   "fieldname": "primary_color",
+   "fieldtype": "Color",
+   "label": "Primary Color"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "autoname": "field:template_name",
+ "name": "HD CSAT Survey Template",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HD Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "template_name",
+ "sort_order": "ASC",
+ "states": []
+}

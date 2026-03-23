@@ -14,6 +14,11 @@
   "chat_response_timeout_seconds",
   "max_concurrent_chats",
   "csat_enabled",
+  "csat_survey_section",
+  "csat_delay_hours",
+  "csat_frequency_days",
+  "csat_token_expiry_days",
+  "csat_unsubscribed_emails",
   "automation_enabled",
   "log_retention_days",
   "sla_warning_thresholds",
@@ -144,6 +149,44 @@
    "fieldname": "csat_enabled",
    "fieldtype": "Check",
    "label": "Enable CSAT Surveys"
+  },
+  {
+   "depends_on": "eval:doc.csat_enabled==1",
+   "fieldname": "csat_survey_section",
+   "fieldtype": "Section Break",
+   "label": "CSAT Survey Settings"
+  },
+  {
+   "default": "24",
+   "depends_on": "eval:doc.csat_enabled==1",
+   "description": "Hours after ticket resolution to wait before sending CSAT survey email. Default: 24.",
+   "fieldname": "csat_delay_hours",
+   "fieldtype": "Int",
+   "label": "Survey Delay (hours)"
+  },
+  {
+   "default": "7",
+   "depends_on": "eval:doc.csat_enabled==1",
+   "description": "Minimum days between CSAT surveys per customer. If a customer received a survey within this period, no new survey is sent. Default: 7.",
+   "fieldname": "csat_frequency_days",
+   "fieldtype": "Int",
+   "label": "Frequency Limit (days)"
+  },
+  {
+   "default": "7",
+   "depends_on": "eval:doc.csat_enabled==1",
+   "description": "Days until CSAT survey link expires. Clicking an expired link shows a graceful error page. Default: 7.",
+   "fieldname": "csat_token_expiry_days",
+   "fieldtype": "Int",
+   "label": "Survey Link Expiry (days)"
+  },
+  {
+   "depends_on": "eval:doc.csat_enabled==1",
+   "description": "JSON list of customer email addresses that have unsubscribed from CSAT surveys. Managed automatically via unsubscribe links.",
+   "fieldname": "csat_unsubscribed_emails",
+   "fieldtype": "JSON",
+   "label": "CSAT Unsubscribed Emails",
+   "read_only": 1
   },
   {
    "default": "0",

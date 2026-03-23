@@ -49,6 +49,10 @@ scheduler_events = {
         "*/1 * * * *": [
             "helpdesk.helpdesk.chat.response_timeout.check_unanswered_sessions",
         ],
+        # CSAT survey batch send: enqueues survey emails for eligible resolved tickets (Story 3.7)
+        "0 */1 * * *": [
+            "helpdesk.helpdesk.doctype.hd_csat_response.csat_scheduler.send_pending_surveys",
+        ],
     },
     "daily": [
         "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days",

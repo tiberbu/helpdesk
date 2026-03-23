@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subject }}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f9fafb; margin: 0; padding: 0; }
+    .container { max-width: 560px; margin: 32px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .header { background: {{ primary_color or '#4F46E5' }}; padding: 28px 32px; text-align: center; }
+    .header img { max-height: 40px; max-width: 160px; }
+    .body { padding: 32px; }
+    h2 { color: #111827; font-size: 20px; margin: 0 0 8px 0; }
+    p { color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 24px 0; }
+    .stars { text-align: center; margin: 24px 0; }
+    .stars a { display: inline-block; text-decoration: none; margin: 0 6px; font-size: 36px; line-height: 1; }
+    .stars a:hover { opacity: 0.8; }
+    .ticket-ref { color: #9ca3af; font-size: 13px; margin-bottom: 24px; }
+    .divider { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+    .footer { padding: 0 32px 28px; text-align: center; }
+    .footer p { color: #9ca3af; font-size: 12px; margin: 0; }
+    .footer a { color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      {% if logo_url %}
+        <img src="{{ logo_url }}" alt="Support">
+      {% else %}
+        <span style="color:#fff;font-size:20px;font-weight:600;">Support</span>
+      {% endif %}
+    </div>
+
+    <div class="body">
+      <h2>{{ subject }}</h2>
+      <p>{{ intro_text }}</p>
+
+      {% if ticket_subject %}
+        <p class="ticket-ref">Ticket: <strong>{{ ticket_subject }}</strong> ({{ ticket_id }})</p>
+      {% endif %}
+
+      <div class="stars">
+        {# One-click-to-rate: each star is a direct GET link that submits the rating (UX-DR-05) #}
+        {% for n in range(1, 6) %}
+          <a href="{{ base_url }}/api/method/helpdesk.api.csat.submit_rating?token={{ token }}&rating={{ n }}"
+             title="{{ n }} star{% if n > 1 %}s{% endif %}">
+            {% if n == 1 %}⭐{% elif n == 2 %}⭐{% elif n == 3 %}⭐{% elif n == 4 %}⭐{% else %}⭐{% endif %}
+          </a>
+        {% endfor %}
+      </div>
+
+      <p style="text-align:center;font-size:13px;color:#9ca3af;">
+        1 = Very Dissatisfied &nbsp;|&nbsp; 5 = Very Satisfied
+      </p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="footer">
+      <p>
+        You received this because you recently had a support interaction with us.<br>
+        <a href="{{ base_url }}/api/method/helpdesk.api.csat.unsubscribe?token={{ token }}">Unsubscribe</a>
+        from future surveys.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
