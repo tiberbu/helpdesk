@@ -360,8 +360,13 @@ development_status:
 
   136-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-logi: review  # [quick-dev] Fix: P0 bench test sync broken + P1 divergent delete_entry l
 
-  137-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-delete: in-progress  # [quick-dev] Fix: Wrong nan comment + non-string float NaN/Inf bypass + d
+  137-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-delete: review  # [quick-dev] Fix: Wrong nan comment + non-string float NaN/Inf bypass + d
 
   138-qa-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-l: review  # [adversarial-review] QA: Fix: P0 bench test sync broken + P1 divergent delete_ent
 
   139-qa-fix-p1-p2-from-adversarial-review-task-120-stale-test-cou: review  # [adversarial-review] QA: Fix: P1/P2 from adversarial review task-120 — stale test
+
+  140-qa-fix-require-int-str-overflowerror-on-inf-nan-input-p1-sto: review  # [adversarial-review] QA: Fix: _require_int_str OverflowError on inf/nan input (P1
+
+  142-fix-delete-entry-reimplements-is-agent-inline-consolidate-pe: ready-for-dev  # [quick-dev] Fix: delete_entry reimplements is_agent inline - consolidate
+  141-qa-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-del: review  # [adversarial-review] QA: Fix: Wrong nan comment + non-string float NaN/Inf bypass

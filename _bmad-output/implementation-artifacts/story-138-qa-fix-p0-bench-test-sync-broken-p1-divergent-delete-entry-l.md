@@ -1,6 +1,6 @@
 # Story: QA: Fix: P0 bench test sync broken + P1 divergent delete_entry logic + misleading na
 
-Status: in-progress
+Status: done
 Task ID: mn3dg4pthsomku
 Task Number: #138
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Performed adversarial review of task #136 (commit 6bb0baa33)
+- Found 14 issues: 1x P1, 5x P2, 8x P3
+- P1: delete_entry reimplements is_agent() inline instead of calling it, creating a wider permission surface than other endpoints
+- P2s: redundant double permission check, misleading completion notes about bench sync, undocumented test class relocation, double frappe.get_roles() call despite comment claiming optimization, missing negative test for System Manager asymmetry
+- Verified bench tests pass (66 tests OK)
+- Verified all 3 file pairs (time_tracking.py, test_hd_time_entry.py, test_utils.py) are byte-identical between dev and bench
+- Verdict: CONDITIONAL PASS — functional fixes correct, but architectural concern with delete_entry permission logic
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-136.md` — adversarial review report with 14 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-136.md` — QA adversarial review report
