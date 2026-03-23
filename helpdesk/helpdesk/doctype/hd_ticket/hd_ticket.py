@@ -93,6 +93,7 @@ class HDTicket(Document):
     def validate(self):
         self.validate_feedback()
         self.validate_priority_matrix()
+        self.validate_category()
 
     def validate_priority_matrix(self):
         """Calculate priority from Impact x Urgency matrix when ITIL Mode is enabled.
@@ -121,6 +122,35 @@ class HDTicket(Document):
         calculated_priority = matrix.get(key)
         if calculated_priority:
             self.priority = calculated_priority
+
+    def validate_category(self):
+        """Enforce category requirement on resolution and sub_category parent match.
+
+        AC #7: category required when resolving if setting is enabled.
+        AC #8: sub_category must belong to selected category.
+        """
+        is_resolving = self.status_category == "Resolved"
+
+        if is_resolving and frappe.db.get_single_value(
+            "HD Settings", "category_required_on_resolution"
+        ):
+            if not self.category:
+                frappe.throw(
+                    _("A category must be selected before resolving this ticket."),
+                    frappe.ValidationError,
+                )
+
+        if self.sub_category and self.category:
+            parent = frappe.db.get_value(
+                "HD Ticket Category", self.sub_category, "parent_category"
+            )
+            if parent != self.category:
+                frappe.throw(
+                    _(
+                        "Sub Category '{0}' does not belong to Category '{1}'."
+                    ).format(self.sub_category, self.category),
+                    frappe.ValidationError,
+                )
 
     def before_save(self):
         self.apply_sla()

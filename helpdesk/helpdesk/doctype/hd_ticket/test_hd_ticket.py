@@ -903,3 +903,123 @@ class TestPriorityMatrix(IntegrationTestCase):
     def tearDown(self):
         frappe.db.delete("HD Ticket")
         _disable_itil_mode()
+
+
+def _make_category(name, parent_category=None):
+    """Create an HD Ticket Category, skipping if it already exists."""
+    if not frappe.db.exists("HD Ticket Category", name):
+        doc = frappe.get_doc(
+            {
+                "doctype": "HD Ticket Category",
+                "name": name,
+                "parent_category": parent_category,
+                "is_active": 1,
+            }
+        )
+        doc.insert(ignore_permissions=True)
+
+
+def _delete_category(name):
+    frappe.delete_doc(
+        "HD Ticket Category", name, force=True, ignore_missing=True
+    )
+
+
+class TestCategoryValidation(IntegrationTestCase):
+    """
+    Unit tests for Story 1.3: server-side category / sub-category validation.
+
+    Covers:
+    - AC #7: category required on resolution when setting is enabled
+    - AC #8: sub_category must belong to selected category
+    """
+
+    def setUp(self):
+        frappe.db.delete("HD Ticket")
+        _make_category("Test-Cat-Parent")
+        _make_category("Test-Cat-Child", parent_category="Test-Cat-Parent")
+        _make_category("Test-Cat-Other-Parent")
+        _make_category("Test-Cat-Other-Child", parent_category="Test-Cat-Other-Parent")
+        frappe.db.set_single_value(
+            "HD Settings", "category_required_on_resolution", 0
+        )
+
+    def tearDown(self):
+        frappe.db.delete("HD Ticket")
+        for cat in [
+            "Test-Cat-Child",
+            "Test-Cat-Other-Child",
+            "Test-Cat-Parent",
+            "Test-Cat-Other-Parent",
+        ]:
+            _delete_category(cat)
+        frappe.db.set_single_value(
+            "HD Settings", "category_required_on_resolution", 0
+        )
+
+    def _resolve_ticket(self, **kwargs):
+        """Create a ticket and move it to Resolved status_category."""
+        resolved_status = frappe.get_all(
+            "HD Ticket Status", filters={"category": "Resolved"}, pluck="name", limit=1
+        )
+        if not resolved_status:
+            frappe.get_doc(
+                {"doctype": "HD Ticket Status", "name": "Resolved", "category": "Resolved"}
+            ).insert(ignore_permissions=True)
+            self.addCleanup(
+                frappe.delete_doc, "HD Ticket Status", "Resolved", force=True, ignore_missing=True
+            )
+            status_name = "Resolved"
+        else:
+            status_name = resolved_status[0]
+
+        ticket = make_ticket(**kwargs)
+        ticket.status = status_name
+        ticket.status_category = "Resolved"
+        return ticket
+
+    # ------------------------------------------------------------------
+    # AC #7: Category required on resolution when setting is enabled
+    # ------------------------------------------------------------------
+
+    def test_category_required_on_resolution_enabled(self):
+        """Resolving without category raises ValidationError when setting is on (AC #7)."""
+        frappe.db.set_single_value(
+            "HD Settings", "category_required_on_resolution", 1
+        )
+        ticket = self._resolve_ticket()
+        self.assertRaises(frappe.ValidationError, ticket.validate_category)
+
+    def test_category_required_on_resolution_disabled(self):
+        """Resolving without category is allowed when setting is off (AC #7)."""
+        frappe.db.set_single_value(
+            "HD Settings", "category_required_on_resolution", 0
+        )
+        ticket = self._resolve_ticket()
+        # Should not raise
+        ticket.validate_category()
+
+    def test_no_category_no_sub_category_resolves_ok_when_disabled(self):
+        """Ticket with neither category nor sub_category resolves fine when disabled."""
+        ticket = self._resolve_ticket()
+        ticket.category = ""
+        ticket.sub_category = ""
+        ticket.validate_category()  # no exception
+
+    # ------------------------------------------------------------------
+    # AC #8: sub_category must belong to selected category
+    # ------------------------------------------------------------------
+
+    def test_sub_category_mismatch_rejected(self):
+        """sub_category from wrong parent raises ValidationError (AC #8)."""
+        ticket = make_ticket()
+        ticket.category = "Test-Cat-Parent"
+        ticket.sub_category = "Test-Cat-Other-Child"  # belongs to Other-Parent
+        self.assertRaises(frappe.ValidationError, ticket.validate_category)
+
+    def test_sub_category_valid_accepted(self):
+        """sub_category that matches selected category passes validation (AC #8)."""
+        ticket = make_ticket()
+        ticket.category = "Test-Cat-Parent"
+        ticket.sub_category = "Test-Cat-Child"
+        ticket.validate_category()  # no exception

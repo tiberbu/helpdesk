@@ -15,6 +15,7 @@
   "automation_enabled",
   "itil_matrix_section",
   "priority_matrix",
+  "category_required_on_resolution",
   "priority_section",
   "default_priority",
   "column_break_nvbf",
@@ -150,6 +151,14 @@
    "fieldname": "priority_matrix",
    "fieldtype": "JSON",
    "label": "ITIL Priority Matrix"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.itil_mode_enabled==1",
+   "description": "When enabled, agents must select a category before resolving a ticket.",
+   "fieldname": "category_required_on_resolution",
+   "fieldtype": "Check",
+   "label": "Require Category on Resolution"
   },
   {
    "fieldname": "assignment_rules_section",

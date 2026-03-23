@@ -151,16 +151,17 @@
   {
    "fieldname": "category",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Category",
-   "options": "HD Ticket Category"
+   "options": "HD Ticket Category",
+   "search_index": 1
   },
   {
+   "depends_on": "eval:doc.category",
    "fieldname": "sub_category",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Sub Category",
-   "options": "HD Ticket Category"
+   "options": "HD Ticket Category",
+   "search_index": 1
   },
   {
    "fieldname": "ticket_split_from",

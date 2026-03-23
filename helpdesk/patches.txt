@@ -39,3 +39,5 @@ helpdesk.patches.add_agent_manager_perms_in_assignment_rule
 helpdesk.patches.set_std_views_non_public
 helpdesk.patches.v1_phase1.add_itil_feature_flags
 helpdesk.patches.v1_phase1.add_impact_urgency_to_hd_ticket
+helpdesk.patches.v1_phase1.add_category_fields_to_hd_ticket
+helpdesk.patches.v1_phase1.create_default_categories

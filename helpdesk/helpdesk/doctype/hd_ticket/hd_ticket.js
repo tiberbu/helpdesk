@@ -6,10 +6,14 @@ frappe.ui.form.on("HD Ticket", {
     if (frm.is_new()) return;
     frm.call("mark_seen");
     apply_itil_mode(frm);
+    // Apply cascading filter for sub_category if category already set (AC #4)
+    apply_sub_category_filter(frm);
   },
 
   refresh(frm) {
     apply_itil_mode(frm);
+    // Re-apply cascading filter on refresh for existing tickets (AC #4)
+    apply_sub_category_filter(frm);
   },
 
   impact(frm) {
@@ -19,28 +23,40 @@ frappe.ui.form.on("HD Ticket", {
   urgency(frm) {
     update_priority_read_only(frm);
   },
+
+  // Cascading filter: when category changes, filter sub_category (AC #4, #5)
+  category(frm) {
+    apply_sub_category_filter(frm);
+    // Clear sub_category when category is cleared (AC #4)
+    if (!frm.doc.category) {
+      frm.set_value("sub_category", "");
+    }
+    frm.refresh_field("sub_category");
+  },
 });
 
 function apply_itil_mode(frm) {
   frappe.db.get_single_value("HD Settings", "itil_mode_enabled").then((itil_mode_enabled) => {
-    const itil_fields = ["impact", "urgency", "category", "sub_category"];
+    // Only impact and urgency are gated behind ITIL mode (AC #3 — category/sub_category
+    // are visible in both Simple and ITIL modes for routing and reporting purposes).
+    const itil_only_fields = ["impact", "urgency"];
 
     if (itil_mode_enabled) {
-      // ITIL Mode: show ITIL fields
-      itil_fields.forEach((field) => {
+      // ITIL Mode: show impact and urgency fields
+      itil_only_fields.forEach((field) => {
         frm.set_df_property(field, "hidden", 0);
       });
-      // Priority is read-only only when both impact and urgency are set (AC #3, #6)
+      // Priority is read-only when both impact and urgency are set (AC #3, #6)
       update_priority_read_only(frm);
     } else {
-      // Simple Mode: hide ITIL fields, priority is editable
-      itil_fields.forEach((field) => {
+      // Simple Mode: hide only impact/urgency; category/sub_category remain visible
+      itil_only_fields.forEach((field) => {
         frm.set_df_property(field, "hidden", 1);
       });
       frm.set_df_property("priority", "read_only", 0);
     }
 
-    frm.refresh_fields(["priority", ...itil_fields]);
+    frm.refresh_fields(["priority", ...itil_only_fields]);
   });
 }
 
@@ -52,4 +68,24 @@ function update_priority_read_only(frm) {
   const matrix_active = frm.doc.impact && frm.doc.urgency;
   frm.set_df_property("priority", "read_only", matrix_active ? 1 : 0);
   frm.refresh_field("priority");
+}
+
+/**
+ * Apply cascading sub_category filter based on currently selected category (AC #4, #5).
+ * When category is set, sub_category only shows children of that category.
+ * When category is cleared, sub_category filter is removed and value is cleared.
+ */
+function apply_sub_category_filter(frm) {
+  if (frm.doc.category) {
+    frm.set_query("sub_category", function () {
+      return {
+        filters: { parent_category: frm.doc.category },
+      };
+    });
+  } else {
+    // No category selected — remove the filter
+    frm.set_query("sub_category", function () {
+      return {};
+    });
+  }
 }

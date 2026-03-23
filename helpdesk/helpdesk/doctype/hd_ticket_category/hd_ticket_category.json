@@ -10,14 +10,23 @@
  "engine": "InnoDB",
  "field_order": [
   "parent_category",
+  "is_active",
   "description"
  ],
  "fields": [
   {
    "fieldname": "parent_category",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Parent Category",
    "options": "HD Ticket Category"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
   },
   {
    "fieldname": "description",
@@ -53,31 +62,22 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Support Team",
+   "role": "Agent Manager",
    "share": 1,
    "write": 1
   },
   {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
    "read": 1,
-   "report": 1,
    "role": "Agent",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "role": "All",
    "select": 1
   }
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "sort_field": "modified",
- "sort_order": "DESC",
+ "search_fields": "name,parent_category",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "states": [],
+ "title_field": "name",
  "track_changes": 1
 }
