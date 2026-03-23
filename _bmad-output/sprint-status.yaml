@@ -156,7 +156,7 @@ development_status:
   5-itil-compliance-doc-missing-update-all-research-docs-with-la: done  # [research] ITIL Compliance Doc (missing) + Update all research docs wit
 
   # New tasks (added by Claude Studio)
-  20-story-1-4-internal-notes-on-tickets: ready-for-dev  # [create-story] Story 1.4: Internal Notes on Tickets
+  20-story-1-4-internal-notes-on-tickets: review  # [create-story] Story 1.4: Internal Notes on Tickets
   21-story-1-5-mention-notifications-in-internal-notes: ready-for-dev  # [create-story] Story 1.5: @Mention Notifications in Internal Notes
   22-story-1-6-related-ticket-linking: ready-for-dev  # [create-story] Story 1.6: Related Ticket Linking
   23-story-1-7-per-ticket-time-tracking: ready-for-dev  # [create-story] Story 1.7: Per-Ticket Time Tracking

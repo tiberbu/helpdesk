@@ -33,6 +33,10 @@
                 v-else-if="activity.type === 'comment'"
                 class="text-gray-600 absolute left-[7.5px]"
               />
+              <InternalNoteIcon
+                v-else-if="activity.type === 'internal_note'"
+                class="text-amber-600 absolute left-[7.5px]"
+              />
               <FeatherIcon
                 v-else-if="activity.type === 'call'"
                 :name="
@@ -60,6 +64,11 @@
             />
             <CommentBox
               v-else-if="activity.type === 'comment'"
+              :activity="activity"
+              @update="() => emit('update')"
+            />
+            <InternalNote
+              v-else-if="activity.type === 'internal_note'"
               :activity="activity"
               @update="() => emit('update')"
             />
@@ -93,6 +102,11 @@
         @click="communicationAreaRef?.toggleCommentBox() ?? toggleCommentBox()"
       />
       <Button
+        v-else-if="title == 'Internal Notes'"
+        label="Add Internal Note"
+        @click="communicationAreaRef?.toggleInternalNoteBox() ?? toggleInternalNoteBox()"
+      />
+      <Button
         v-else-if="title == 'Calls'"
         label="Make a Call"
         @click="makeCall()"
@@ -108,9 +122,14 @@ import {
   CommentIcon,
   DotIcon,
   EmailIcon,
+  InternalNoteIcon,
   PhoneIcon,
 } from "@/components/icons";
-import { toggleCommentBox, toggleEmailBox } from "@/pages/ticket/modalStates";
+import {
+  toggleCommentBox,
+  toggleEmailBox,
+  toggleInternalNoteBox,
+} from "@/pages/ticket/modalStates";
 import { useUserStore } from "@/stores/user";
 import { TicketActivity } from "@/types";
 import { isElementInViewport } from "@/utils";
@@ -145,8 +164,14 @@ const props = defineProps({
 
 const emit = defineEmits(["email:reply", "update"]);
 
+const CallArea = defineAsyncComponent(
+  () => import("@/components/CallArea.vue")
+);
 const CommentBox = defineAsyncComponent(
   () => import("@/components/CommentBox.vue")
+);
+const InternalNote = defineAsyncComponent(
+  () => import("@/components/InternalNote.vue")
 );
 const EmailArea = defineAsyncComponent(
   () => import("@/components/EmailArea.vue")
@@ -172,6 +197,9 @@ const emptyText = computed(() => {
   } else if (props.title == "Calls") {
     text = "No Calls";
     return text;
+  } else if (props.title == "Internal Notes") {
+    text = "No Internal Notes";
+    return text;
   }
 });
 
@@ -183,6 +211,8 @@ const emptyTextIcon = computed(() => {
     icon = CommentIcon;
   } else if (props.title == "Calls") {
     icon = PhoneIcon;
+  } else if (props.title == "Internal Notes") {
+    icon = InternalNoteIcon;
   }
   return h(icon, { class: "text-gray-500" });
 });

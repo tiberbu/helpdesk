@@ -25,6 +25,16 @@
             <CommentIcon class="h-4" />
           </template>
         </Button>
+        <Button
+          variant="ghost"
+          label="Internal Note"
+          :class="[showInternalNoteBox ? '!bg-amber-100 hover:!bg-amber-50 !text-amber-700' : '']"
+          @click="toggleInternalNoteBox()"
+        >
+          <template #prefix>
+            <InternalNoteIcon class="h-4 text-amber-600" />
+          </template>
+        </Button>
         <TypingIndicator :ticketId="ticketId" />
       </div>
     </div>
@@ -91,16 +101,53 @@
         "
       />
     </div>
+    <div
+      ref="internalNoteBoxRef"
+      v-show="showInternalNoteBox"
+      @keydown.ctrl.enter.capture.stop="submitInternalNote"
+      @keydown.meta.enter.capture.stop="submitInternalNote"
+    >
+      <InternalNoteTextEditor
+        ref="internalNoteTextEditorRef"
+        :label="
+          isMobileView
+            ? 'Add Note'
+            : isMac
+            ? 'Add Note (⌘ + ⏎)'
+            : 'Add Note (Ctrl + ⏎)'
+        "
+        :ticketId="ticketId"
+        :editable="showInternalNoteBox"
+        :doctype="doctype"
+        @submit="
+          () => {
+            showInternalNoteBox = false;
+            emit('update');
+          }
+        "
+        @discard="
+          () => {
+            showInternalNoteBox = false;
+          }
+        "
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { CommentTextEditor, EmailEditor, TypingIndicator } from "@/components";
-import { CommentIcon, EmailIcon } from "@/components/icons/";
+import InternalNoteTextEditor from "@/components/InternalNoteTextEditor.vue";
+import { CommentIcon, EmailIcon, InternalNoteIcon } from "@/components/icons/";
 import { useDevice } from "@/composables";
 import { useScreenSize } from "@/composables/screen";
 import { useShortcut } from "@/composables/shortcuts";
-import { showCommentBox, showEmailBox } from "@/pages/ticket/modalStates";
+import {
+  showCommentBox,
+  showEmailBox,
+  showInternalNoteBox,
+  toggleInternalNoteBox,
+} from "@/pages/ticket/modalStates";
 import { ref, watch } from "vue";
 import { onClickOutside } from "@vueuse/core";
 
@@ -112,12 +159,17 @@ let doc = defineModel();
 // let doc = inject(TicketSymbol)?.value.doc
 const emailEditorRef = ref(null);
 const commentTextEditorRef = ref(null);
+const internalNoteTextEditorRef = ref(null);
 const emailBoxRef = ref(null);
 const commentBoxRef = ref(null);
+const internalNoteBoxRef = ref(null);
 
 function toggleEmailBox() {
   if (showCommentBox.value) {
     showCommentBox.value = false;
+  }
+  if (showInternalNoteBox.value) {
+    showInternalNoteBox.value = false;
   }
   showEmailBox.value = !showEmailBox.value;
 }
@@ -125,6 +177,9 @@ function toggleEmailBox() {
 function toggleCommentBox() {
   if (showEmailBox.value) {
     showEmailBox.value = false;
+  }
+  if (showInternalNoteBox.value) {
+    showInternalNoteBox.value = false;
   }
   showCommentBox.value = !showCommentBox.value;
 }
@@ -137,6 +192,12 @@ function submitEmail() {
 
 function submitComment() {
   if (commentTextEditorRef.value.submitComment()) {
+    emit("update");
+  }
+}
+
+function submitInternalNote() {
+  if (internalNoteTextEditorRef.value.submitNote()) {
     emit("update");
   }
 }
@@ -200,17 +261,30 @@ watch(
   }
 );
 
+watch(
+  () => showInternalNoteBox.value,
+  (value) => {
+    if (value) {
+      internalNoteTextEditorRef.value?.editor?.commands?.focus();
+    }
+  }
+);
+
 useShortcut("r", () => {
   toggleEmailBox();
 });
 useShortcut("c", () => {
   toggleCommentBox();
 });
+useShortcut("n", () => {
+  toggleInternalNoteBox();
+});
 
 defineExpose({
   replyToEmail,
   toggleEmailBox,
   toggleCommentBox,
+  toggleInternalNoteBox,
   editor: emailEditorRef,
 });
 
@@ -231,6 +305,18 @@ onClickOutside(
   () => {
     if (showCommentBox.value) {
       showCommentBox.value = false;
+    }
+  },
+  {
+    ignore: [".tippy-box", ".tippy-content"],
+  }
+);
+
+onClickOutside(
+  internalNoteBoxRef,
+  () => {
+    if (showInternalNoteBox.value) {
+      showInternalNoteBox.value = false;
     }
   },
   {

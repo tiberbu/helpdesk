@@ -615,6 +615,25 @@ class HDTicket(Document):
         c.commented_by = frappe.session.user
         c.content = content
         c.is_pinned = False
+        c.is_internal = False
+        c.reference_ticket = self.name
+        c.save()
+        for attachment in attachments:
+            self.attach_file_with_doc(
+                "HD Ticket Comment", c.name, attachment.get("file_url")
+            )
+
+    @frappe.whitelist()
+    def new_internal_note(self, content: str, attachments: list[str] = []):
+        if not is_agent():
+            frappe.throw(
+                _("You are not permitted to add an internal note"), frappe.PermissionError
+            )
+        c = frappe.new_doc("HD Ticket Comment")
+        c.commented_by = frappe.session.user
+        c.content = content
+        c.is_pinned = False
+        c.is_internal = True
         c.reference_ticket = self.name
         c.save()
         for attachment in attachments:

@@ -54,6 +54,7 @@ import {
   ActivityIcon,
   CommentIcon,
   EmailIcon,
+  InternalNoteIcon,
   PhoneIcon,
 } from "@/components/icons";
 import { useActiveTabManager } from "@/composables/useActiveTabManager";
@@ -99,6 +100,11 @@ const tabs: ComputedRef<TabObject[]> = computed(() => {
       label: "Comments",
       icon: CommentIcon,
     },
+    {
+      name: "internal_note",
+      label: "Internal Notes",
+      icon: InternalNoteIcon,
+    },
   ];
 
   if (isCallingEnabled.value) {
@@ -143,7 +149,8 @@ const _activities = computed(() => {
   const commentProps = activities.value.data.comments.map((comment) => {
     return {
       name: comment.name,
-      type: "comment",
+      // Internal notes get a distinct type for separate rendering and filtering
+      type: comment.is_internal ? "internal_note" : "comment",
       key: comment.creation,
       commentedBy: comment.commented_by,
       commenter: comment.user.name,
@@ -243,7 +250,11 @@ const _activities = computed(() => {
 
 function filterActivities(eventType: TicketTab) {
   if (eventType === "activity") {
-    return _activities.value;
+    // Activity tab shows everything except internal notes — these are agent-only
+    // and should not clutter the general activity timeline
+    return _activities.value.filter(
+      (activity) => activity.type !== "internal_note"
+    );
   }
   return _activities.value.filter((activity) => activity.type === eventType);
 }

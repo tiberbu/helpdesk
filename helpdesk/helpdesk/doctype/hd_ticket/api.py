@@ -203,19 +203,23 @@ def get_comments(ticket: str):
     if not frappe.has_permission("HD Ticket Comment", "read"):
         return []
     QBComment = frappe.qb.DocType("HD Ticket Comment")
-    comments = (
+    query = (
         frappe.qb.from_(QBComment)
         .select(
             QBComment.commented_by,
             QBComment.content,
             QBComment.creation,
             QBComment.is_pinned,
+            QBComment.is_internal,
             QBComment.name,
         )
         .where(QBComment.reference_ticket == ticket)
         .orderby(QBComment.creation, order=Order.asc)
-        .run(as_dict=True)
     )
+    # Non-agents must not see internal notes (NFR-SE-01)
+    if not is_agent():
+        query = query.where(QBComment.is_internal == 0)
+    comments = query.run(as_dict=True)
     for c in comments:
         c.user = get_user_info_for_avatar(c.commented_by)
         c.attachments = get_attachments("HD Ticket Comment", c.name)
