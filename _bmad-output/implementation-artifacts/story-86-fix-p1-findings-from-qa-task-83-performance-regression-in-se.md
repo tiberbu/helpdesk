@@ -1,6 +1,6 @@
 # Story: Fix: P1 findings from QA task-83 — performance regression in set_status_category, Closed category bypass in checklist guard
 
-Status: in-progress
+Status: done
 Task ID: mn3bhqpf1gaegm
 Task Number: #86
 Workflow: quick-dev
@@ -29,14 +29,14 @@ Line 104: `if self.status_category not in ("Resolved",):` does not include "Clos
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -54,12 +54,22 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- F-01: Restored fast path in `set_status_category()` — skips DB query when status is unchanged and `status_category` is already set. Re-derives only when status changed or category is missing. Added F-05 fix: clears stale `status_category` when the referenced HD Ticket Status record has been deleted.
+- F-02: Added `"Closed"` to the checklist guard in `validate_checklist_before_resolution()`. Removed `ignore_validate=True` from `close_tickets_after_n_days()` so the auto-close scheduler no longer bypasses validation.
+- F-03: Added `_pre_existing_statuses` snapshot in `setUp`; `tearDown` now explicitly deletes any `_TEST_STATUS_NAMES` records that were created by the test (guards against `db.rollback()` no-ops after mid-test commits).
+- F-04: Replaced fragile English-substring exception matching in the migration patch with numeric MySQL/MariaDB error code check (`e.args[0] == 1146`).
+- All 17 `test_incident_model` tests pass; 10 `test_internal_notes` tests pass; no regressions.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: F-01 — restored fast path + F-05 stale category clear in `set_status_category()`
+- 2026-03-23: F-02 — added "Closed" to checklist guard; removed `ignore_validate=True` from auto-close scheduler
+- 2026-03-23: F-03 — added setUp snapshot + tearDown cleanup for HD Ticket Status records in `test_incident_model.py`
+- 2026-03-23: F-04 — numeric error code check in migration patch
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified — F-01, F-02, F-05)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (modified — F-03)
+- `helpdesk/patches/v1_phase1/reload_incident_model_for_link_field.py` (modified — F-04)
+- (All three also synced to `/home/ubuntu/frappe-bench/apps/helpdesk/`)

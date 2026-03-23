@@ -1,6 +1,6 @@
 # Story: QA: Fix: Time Tracking QA P1/P2 findings (bench sync, tz-aware crash, toast API, is_agent gaps)
 
-Status: in-progress
+Status: complete
 Task ID: mn3birt253exl1
 Task Number: #88
 Workflow: adversarial-review
@@ -65,12 +65,15 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 13 findings (1 P1, 8 P2, 3 P3)
+- P1: Frontend `canDelete()` excludes Agent Manager role — functional gap with backend
+- Key P2s: missing `__` import in script setup, no frontend upper-bound validation, duplicated permission logic in delete_entry, no XSS sanitization on description, localStorage race conditions, duration/started_at integrity gap
+- Report saved to `docs/qa-report-task-88-adversarial-review.md`
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-88-adversarial-review.md` — full adversarial review report
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-88-adversarial-review.md` (created)
