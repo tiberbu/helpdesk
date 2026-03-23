@@ -78,7 +78,7 @@ sonnet
 - `ensure_hd_admin_user()` asserts no unexpected roles (Agent/Agent Manager/System Manager) via `raise AssertionError(...)` on role pollution.
 - Shared helpers `ensure_hd_admin_user/ensure_agent_manager_user/ensure_system_manager_user` added to `helpdesk/test_utils.py`; test class `_ensure_*` methods now delegate to them (1 line each).
 - `test_hd_admin_can_add_entry` now asserts `entry.description == "HD Admin manual entry"`.
-- **CORRECTED test count**: `test_hd_time_entry.py` had 64 tests at story-130 time per completion notes, but actual count verified by QA task-139 was 69. Current count (after subsequent stories) is 71. The original "64" figure was inaccurate at time of writing.
+- **CORRECTED test count**: `test_hd_time_entry.py` had 64 tests at story-130 time per completion notes, but actual count verified by QA task-139 was 69. The original "64" figure was inaccurate at time of writing. (Point-in-time count for current state removed — hardcoded counts become stale as the suite grows.)
 - All changed Python files synced to frappe-bench (applies to commits da95326be/6bb0baa33, not story-130's commit).
 
 ### Change Log

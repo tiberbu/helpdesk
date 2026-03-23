@@ -76,10 +76,30 @@ sonnet
 - `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json`: Removed `"share": 1` from System Manager role entry (P1-3).
 - `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Added `TestEnsureHelpersRolePollutionGuard` class with 3 tests for ensure_* AssertionError behavior (P2-4).
 - DB: `bench migrate` run to sync System Manager `share` permission removal.
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py`: **UNDECLARED — commit scope pollution** — rewrote `close_tickets_after_n_days()`: replaced `db_savepoint` context manager with `_autoclose_savepoint()` CM using manual `frappe.db.savepoint()` / `release_savepoint()` / `rollback()` calls; broadened except from `ValidationError` to bare `Exception` (noqa: BLE001). Test coverage for the new behavior was added in subsequent task (d92e3c378) in `test_close_tickets.py` test `(f) test_unexpected_error_is_logged`.
+- `_bmad-output/implementation-artifacts/story-161-*.md`: **UNDECLARED — commit scope pollution** — status/checkbox/completion updates for task #161.
+- `_bmad-output/implementation-artifacts/story-162-*.md`: **UNDECLARED — commit scope pollution** — status/checkbox/completion updates for task #162.
+- `_bmad-output/implementation-artifacts/story-167-*.md`: **UNDECLARED — commit scope pollution** — new skeleton story file for task #167.
+- `_bmad-output/implementation-artifacts/story-175-*.md`: **UNDECLARED — commit scope pollution** — new skeleton story file for task #175.
+- `_bmad-output/implementation-artifacts/story-176-*.md`: **UNDECLARED — commit scope pollution** — new skeleton story file for task #176.
+- `_bmad-output/sprint-status.yaml`: **UNDECLARED — commit scope pollution** — sprint metadata update.
+- `docs/qa-report-task-155.md`: **UNDECLARED — commit scope pollution** — QA report from task #155 (created by task #161).
+- `docs/qa-report-task-158.md`: **UNDECLARED — commit scope pollution** — QA report from task #158 (created by task #162).
+- `_bmad-output/implementation-artifacts/story-171-*.md` (self): story tracking file updated.
 
 ### File List
 
-- `_bmad-output/implementation-artifacts/story-163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-.md` (modified — P1-1)
-- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified — P1-2)
-- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json` (modified — P1-3, share removed from System Manager)
-- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified — P2-4, new TestEnsureHelpersRolePollutionGuard class)
+- `_bmad-output/implementation-artifacts/story-163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-.md` (modified — P1-1, declared change)
+- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified — P1-2, declared change)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json` (modified — P1-3, share removed from System Manager, declared change)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified — P2-4, new TestEnsureHelpersRolePollutionGuard class, declared change)
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified — UNDECLARED cron refactor: _autoclose_savepoint CM + broad Exception handler)
+- `_bmad-output/implementation-artifacts/story-161-qa-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p.md` (modified — UNDECLARED status updates)
+- `_bmad-output/implementation-artifacts/story-162-qa-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-i.md` (modified — UNDECLARED status updates)
+- `_bmad-output/implementation-artifacts/story-167-qa-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-tra.md` (created — UNDECLARED skeleton story file)
+- `_bmad-output/implementation-artifacts/story-175-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is-ag.md` (created — UNDECLARED skeleton story file)
+- `_bmad-output/implementation-artifacts/story-176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc.md` (created — UNDECLARED skeleton story file)
+- `_bmad-output/sprint-status.yaml` (modified — UNDECLARED sprint metadata)
+- `docs/qa-report-task-155.md` (created — UNDECLARED QA report from task #155)
+- `docs/qa-report-task-158.md` (created — UNDECLARED QA report from task #158)
+- `_bmad-output/implementation-artifacts/story-171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw.md` (self — story tracking file)

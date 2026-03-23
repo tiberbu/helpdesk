@@ -134,3 +134,98 @@ class TestIsAgentExplicitUser(FrappeTestCase):
 			result,
 			"is_agent(user=session_user, user_roles=...) must not raise and must return True for an agent",
 		)
+
+
+class TestEnsureHelpersRolePollutionGuard(FrappeTestCase):
+	"""
+	Verify that ensure_hd_admin_user(), ensure_agent_manager_user(), and
+	ensure_system_manager_user() raise AssertionError when the target user already
+	exists with unexpected (polluted) roles.
+
+	These tests deliberately provision users with mixed roles and confirm that the
+	safety assertion in each ensure_* helper fires as expected.  This guards against
+	regressions where the assertion might be weakened or removed.
+
+	Moved here from test_hd_time_entry.py by story-189 P2 fix — tests for
+	test_utils.py helpers belong in this module (same convention as
+	TestIsAgentExplicitUser move in story-130 P1 fix #8).
+	"""
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+
+	def test_ensure_hd_admin_user_raises_on_polluted_roles(self):
+		"""
+		ensure_hd_admin_user() must raise AssertionError if the target user holds
+		any of: Agent, Agent Manager, System Manager.
+		"""
+		from helpdesk.test_utils import ensure_hd_admin_user
+
+		email = "polluted.hd.admin.tt@test.com"
+		frappe.set_user("Administrator")
+		# Create user with both HD Admin AND Agent roles (pollution)
+		if not frappe.db.exists("User", email):
+			user = frappe.get_doc({
+				"doctype": "User",
+				"email": email,
+				"first_name": "Polluted",
+				"last_name": "HDAdmin",
+				"send_welcome_email": 0,
+			})
+			user.insert(ignore_permissions=True)
+			user.add_roles("HD Admin", "Agent")  # Agent is an unexpected role for HD Admin
+
+		with self.assertRaises(AssertionError) as ctx:
+			ensure_hd_admin_user(email)
+		self.assertIn("Agent", str(ctx.exception))
+
+	def test_ensure_agent_manager_user_raises_on_polluted_roles(self):
+		"""
+		ensure_agent_manager_user() must raise AssertionError if the target user
+		holds any of: Agent, HD Admin, System Manager.
+		"""
+		from helpdesk.test_utils import ensure_agent_manager_user
+
+		email = "polluted.agent.mgr.tt@test.com"
+		frappe.set_user("Administrator")
+		# Create user with both Agent Manager AND HD Admin roles (pollution)
+		if not frappe.db.exists("User", email):
+			user = frappe.get_doc({
+				"doctype": "User",
+				"email": email,
+				"first_name": "Polluted",
+				"last_name": "AgentMgr",
+				"send_welcome_email": 0,
+			})
+			user.insert(ignore_permissions=True)
+			user.add_roles("Agent Manager", "HD Admin")  # HD Admin is unexpected
+
+		with self.assertRaises(AssertionError) as ctx:
+			ensure_agent_manager_user(email)
+		self.assertIn("HD Admin", str(ctx.exception))
+
+	def test_ensure_system_manager_user_raises_on_polluted_roles(self):
+		"""
+		ensure_system_manager_user() must raise AssertionError if the target user
+		holds any of: Agent, HD Admin, Agent Manager.
+		"""
+		from helpdesk.test_utils import ensure_system_manager_user
+
+		email = "polluted.sys.mgr.tt@test.com"
+		frappe.set_user("Administrator")
+		# Create user with both System Manager AND Agent Manager roles (pollution)
+		if not frappe.db.exists("User", email):
+			user = frappe.get_doc({
+				"doctype": "User",
+				"email": email,
+				"first_name": "Polluted",
+				"last_name": "SysMgr",
+				"send_welcome_email": 0,
+			})
+			user.insert(ignore_permissions=True)
+			user.add_roles("System Manager", "Agent Manager")  # Agent Manager is unexpected
+
+		with self.assertRaises(AssertionError) as ctx:
+			ensure_system_manager_user(email)
+		self.assertIn("Agent Manager", str(ctx.exception))

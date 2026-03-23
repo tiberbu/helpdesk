@@ -460,8 +460,14 @@ development_status:
 
   187-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-fals: review  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-176 + f
 
-  188-qa-fix-p1-dead-agent-roles-import-zero-valueerror-test-cover: ready-for-dev  # [adversarial-review] QA: Fix: P1 dead AGENT_ROLES import + zero ValueError test c
+  188-qa-fix-p1-dead-agent-roles-import-zero-valueerror-test-cover: review  # [adversarial-review] QA: Fix: P1 dead AGENT_ROLES import + zero ValueError test c
 
-  189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde: in-progress  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-171 + u
+  189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde: review  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-171 + u
 
-  190-qa-fix-p1-hd-ticket-py-production-code-not-updated-savepoint: ready-for-dev  # [adversarial-review] QA: Fix: P1 hd_ticket.py production code not updated — savep
+  190-qa-fix-p1-hd-ticket-py-production-code-not-updated-savepoint: review  # [adversarial-review] QA: Fix: P1 hd_ticket.py production code not updated — savep
+
+  191-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-f: ready-for-dev  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-176
+
+  192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun: in-progress  # [quick-dev] Fix: P1 commit-scope pollution in task-179 + P2 stale test c
+
+  193-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: ready-for-dev  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171

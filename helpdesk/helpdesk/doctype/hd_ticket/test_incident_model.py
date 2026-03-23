@@ -604,7 +604,7 @@ class TestIncidentModelApplication(FrappeTestCase):
 		doc = frappe.get_doc("HD Ticket", self.ticket.name)
 		# Seed a known non-None status_category to prove it gets cleared.
 		doc.status_category = "Open"
-		# Clear status to simulate the falsy-status path.
+		# Clear status to simulate the falsy-status path (empty string).
 		doc.status = ""
 		# Call the hook directly — same path triggered by before_validate.
 		doc.set_status_category()
@@ -612,6 +612,16 @@ class TestIncidentModelApplication(FrappeTestCase):
 			doc.status_category,
 			"Expected status_category=None when status is empty string, "
 			"but got a stale non-None value — F-13 guard not working",
+		)
+
+		# Also verify None status (not just empty string) clears status_category.
+		doc.status_category = "Open"
+		doc.status = None
+		doc.set_status_category()
+		self.assertIsNone(
+			doc.status_category,
+			"Expected status_category=None when status is None, "
+			"but got a stale non-None value — F-13 guard not working for None",
 		)
 
 	def test_save_raises_validation_error_when_status_has_no_category(self):

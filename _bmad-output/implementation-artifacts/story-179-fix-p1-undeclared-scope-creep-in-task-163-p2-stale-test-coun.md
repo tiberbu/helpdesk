@@ -67,6 +67,14 @@ sonnet
 
 ### File List
 
+All 9 files present in commit `0dc9def81` are acknowledged below. The 6 extra files beyond the 3 originally declared were committed alongside intended changes — a recurrence of commit-scope pollution (task description P1):
+
 - `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (modified — added F-13 test)
 - `_bmad-output/implementation-artifacts/story-130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-.md` (modified)
 - `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified)
+- `_bmad-output/implementation-artifacts/story-170-qa-fix-p2-findings-from-adversarial-review-of-story-122-fixe.md` (extra — from task #170, committed unintentionally)
+- `_bmad-output/implementation-artifacts/story-174-qa-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-.md` (extra — from task #174, committed unintentionally)
+- `_bmad-output/implementation-artifacts/story-179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun.md` (this file — committed as part of the task)
+- `_bmad-output/implementation-artifacts/story-182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-.md` (extra — from task #182, committed unintentionally)
+- `_bmad-output/sprint-status.yaml` (extra — committed unintentionally)
+- `docs/qa-report-task-164.md` (extra — from QA task #164, committed unintentionally)

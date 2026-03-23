@@ -1,6 +1,6 @@
 # Story: Fix: P1 5th recursive commit-scope pollution in task-171 + undeclared hd_ticket.py cron refactor
 
-Status: in-progress
+Status: done
 Task ID: mn3f6ntmvh6ufj
 Task Number: #189
 Workflow: quick-dev
@@ -27,14 +27,14 @@ TestEnsureHelpersRolePollutionGuard tests validate test_utils.py functions but a
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -52,12 +52,20 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **P1-1 fixed**: story-171 File List expanded from 4 to 14 entries — all 10 undeclared files now listed with "UNDECLARED — commit scope pollution" annotations. Full list confirmed from `git show d893b5e97 --name-only`.
+- **P1-2 fixed**: story-171 Change Log updated with a detailed entry for the undeclared `hd_ticket.py` refactor describing: replacement of `db_savepoint` CM with `_autoclose_savepoint()`, broadened `Exception` handler, and a reference to the test coverage added in subsequent commit `d92e3c378` via `test_close_tickets.py test_unexpected_error_is_logged`. No new test was needed — it already exists.
+- **P2 fixed**: `TestEnsureHelpersRolePollutionGuard` (3 tests) moved from `test_hd_time_entry.py` to `helpdesk/tests/test_utils.py` — co-located with the `test_utils.py` module they test, consistent with the convention established by story-130. Both test suites verified: `helpdesk.tests.test_utils` runs 9 tests OK (6 prior + 3 moved), `hd_time_entry` runs 80 tests OK (correctly 3 fewer). Net test count unchanged.
+- Bench copies synced for both modified Python files.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `_bmad-output/implementation-artifacts/story-171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw.md`: Expanded File List from 4 to 14 entries (all files in commit d893b5e97); expanded Change Log with undeclared-file annotations for all 10 missing entries including detailed hd_ticket.py entry (P1-1, P1-2).
+- `helpdesk/helpdesk/tests/test_utils.py`: Added `TestEnsureHelpersRolePollutionGuard` class (3 tests) moved from test_hd_time_entry.py (P2).
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Removed `TestEnsureHelpersRolePollutionGuard` class; replaced with comment noting the move to test_utils.py (P2).
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw.md` (modified — P1-1, P1-2: expanded File List and Change Log)
+- `helpdesk/helpdesk/tests/test_utils.py` (modified — P2: added TestEnsureHelpersRolePollutionGuard class)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified — P2: removed TestEnsureHelpersRolePollutionGuard class, replaced with move comment)
+- `_bmad-output/implementation-artifacts/story-189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde.md` (self — story tracking file)
