@@ -432,7 +432,7 @@ development_status:
 
   173-qa-fix-redundant-except-types-operationalerror-kills-cron-ba: review  # [adversarial-review] QA: Fix: Redundant except types + OperationalError kills cro
 
-  174-qa-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-: ready-for-dev  # [adversarial-review] QA: Fix: P1 test deadlocks in test_close_tickets + P2 redund
+  174-qa-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-: review  # [adversarial-review] QA: Fix: P1 test deadlocks in test_close_tickets + P2 redund
 
   175-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is-ag: review  # [quick-dev] Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 i
 
@@ -442,6 +442,10 @@ development_status:
 
   178-qa-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-: ready-for-dev  # [adversarial-review] QA: Fix: P1 4th recursive commit-scope pollution in story-15
 
-  179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun: in-progress  # [quick-dev] Fix: P1 undeclared scope creep in task-163 + P2 stale test c
+  179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun: review  # [quick-dev] Fix: P1 undeclared scope creep in task-163 + P2 stale test c
 
   180-qa-fix-redundant-except-types-operationalerror-kills-cron-ba: ready-for-dev  # [adversarial-review] QA: Fix: Redundant except types + OperationalError kills cro
+
+  181-qa-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is: ready-for-dev  # [adversarial-review] QA: Fix: P1 _ensure_sm_agent_user missing HD Agent record + 
+
+  182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: in-progress  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co

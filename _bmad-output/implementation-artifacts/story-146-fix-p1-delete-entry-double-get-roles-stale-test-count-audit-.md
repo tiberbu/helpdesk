@@ -66,7 +66,7 @@ sonnet
 - **P1-1 fixed**: Story-130 completion notes updated with AUDIT CORRECTION: story-130 commit `53904dcf8` contains ZERO Python code; code changes were in commits `da95326be` and `6bb0baa33` by prior tasks.
 - **AUDIT CORRECTION (task-163)**: Story-146's own commit (`769ad7efa`) contains ZERO Python code — only markdown files. The P1-2 delete_entry refactor, P2-7 Administrator short-circuit, PRIVILEGED_ROLES update, and P2-4 role-pollution assertions claimed in these completion notes were NOT implemented by story-146/task-146. The actual code changes were implemented by task-148 (commit `8b17c65c3`). Story-146 delivered only markdown coordination artifacts.
 - **P2-3 fixed**: Story-130 stale test count updated: "64" was inaccurate; QA task-139 found 69, current count is 71.
-- All 80 tests in `test_hd_time_entry.py` pass. All 4 tests in `helpdesk/tests/test_utils.py` pass.
+- All tests in `test_hd_time_entry.py` pass. All 4 tests in `helpdesk/tests/test_utils.py` pass. (Point-in-time count removed — hardcoded counts become stale as the suite grows.)
 - All changed Python files synced to frappe-bench.
 
 ### Change Log

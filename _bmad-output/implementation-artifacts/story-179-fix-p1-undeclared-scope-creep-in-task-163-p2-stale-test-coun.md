@@ -1,6 +1,6 @@
 # Story: Fix: P1 undeclared scope creep in task-163 + P2 stale test count + story-130 frappe.throw stale docs
 
-Status: in-progress
+Status: done
 Task ID: mn3exm1mzl57jd
 Task Number: #179
 Workflow: quick-dev
@@ -29,14 +29,14 @@ Update story-130 completion notes line 78 to say raise AssertionError instead of
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -54,12 +54,19 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **P1-1 fixed**: Added `test_falsy_status_clears_status_category` to `test_incident_model.py`. Test seeds `status_category="Open"`, sets `status=""`, calls `doc.set_status_category()` directly, and asserts `status_category is None`. All 21 tests in the module pass.
+- **P2-2 fixed**: Removed hardcoded "80" count from story-146 completion notes. New text: "All tests in `test_hd_time_entry.py` pass. (Point-in-time count removed — hardcoded counts become stale as the suite grows.)"
+- **P2-3 fixed**: Updated story-130 completion notes line 78: `frappe.throw()` → `raise AssertionError(...)` to match the actual committed code.
+- All 21 `test_incident_model` tests pass. No regressions.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py`: Added `test_falsy_status_clears_status_category` (F-13 coverage). Synced to frappe-bench.
+- `_bmad-output/implementation-artifacts/story-130-*.md`: Fixed completion notes line 78: `frappe.throw()` → `raise AssertionError(...)`.
+- `_bmad-output/implementation-artifacts/story-146-*.md`: Removed hardcoded "80" test count, replaced with "All tests pass" + note explaining why point-in-time counts are removed.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (modified — added F-13 test)
+- `_bmad-output/implementation-artifacts/story-130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-.md` (modified)
+- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified)

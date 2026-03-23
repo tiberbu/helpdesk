@@ -587,6 +587,33 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.db.commit()  # nosemgrep
 		frappe.set_user(self.agent_email)
 
+	# ---------------------------------------------------------------
+	# F-13: falsy status must clear status_category to None
+	# ---------------------------------------------------------------
+
+	def test_falsy_status_clears_status_category(self):
+		"""F-13: When status is empty/falsy, set_status_category() must set
+		status_category to None so downstream guards never see a stale value.
+
+		Commit 0a45dc533 added this guard.  This test covers the specific path:
+		  1. status_category has a non-None value ("Open")
+		  2. status is set to empty string
+		  3. set_status_category() is called (before_validate hook)
+		  4. status_category must be None (not the stale "Open")
+		"""
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		# Seed a known non-None status_category to prove it gets cleared.
+		doc.status_category = "Open"
+		# Clear status to simulate the falsy-status path.
+		doc.status = ""
+		# Call the hook directly — same path triggered by before_validate.
+		doc.set_status_category()
+		self.assertIsNone(
+			doc.status_category,
+			"Expected status_category=None when status is empty string, "
+			"but got a stale non-None value — F-13 guard not working",
+		)
+
 	def test_save_raises_validation_error_when_status_has_no_category(self):
 		"""F-02 path (b): Saving a ticket whose HD Ticket Status record exists
 		but has an empty category field must raise ValidationError with the
