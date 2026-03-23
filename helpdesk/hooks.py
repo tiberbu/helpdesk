@@ -40,8 +40,10 @@ scheduler_events = {
     ],
     "cron": {
         # SLA monitor: fires sla_warning and sla_breached automation triggers
+        # Chat session cleanup: ends inactive sessions (Story 3.2)
         "*/5 * * * *": [
-            "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.check_sla_breaches"
+            "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.check_sla_breaches",
+            "helpdesk.helpdesk.chat.session_cleanup.cleanup_inactive_sessions",
         ],
     },
     "daily": [

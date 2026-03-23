@@ -48,3 +48,5 @@ helpdesk.patches.v1_phase1.add_incident_model_doctypes
 helpdesk.patches.v1_phase1.create_hd_time_entry
 helpdesk.patches.v1_phase1.reload_incident_model_for_link_field
 helpdesk.patches.v1_phase1.add_sla_warning_thresholds_setting
+helpdesk.patches.v1_phase1.create_hd_chat_session
+helpdesk.patches.v1_phase1.create_hd_chat_message

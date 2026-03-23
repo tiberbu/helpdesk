@@ -169,7 +169,7 @@ development_status:
 
   # New tasks (added by Claude Studio)
   30-story-3-1-channel-abstraction-layer: review  # [dev-story] Story 3.1: Channel Abstraction Layer
-  31-story-3-2-chat-session-management-backend: ready-for-dev  # [create-story] Story 3.2: Chat Session Management Backend
+  31-story-3-2-chat-session-management-backend: review  # [dev-story] Story 3.2: Chat Session Management Backend
   32-story-3-3-embeddable-chat-widget: ready-for-dev  # [create-story] Story 3.3: Embeddable Chat Widget
   33-story-3-4-real-time-chat-communication: ready-for-dev  # [create-story] Story 3.4: Real-Time Chat Communication
 
@@ -545,3 +545,7 @@ development_status:
   222-qa-story-2-4-automation-execution-logging: review  # [adversarial-review] QA: Story 2.4: Automation Execution Logging
 
   223-fix-story-2-4-automation-execution-logging-missing-indexes-s: review  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — Missing indexe
+
+  224-qa-story-3-1-channel-abstraction-layer: review  # [adversarial-review] QA: Story 3.1: Channel Abstraction Layer
+
+  225-fix-story-3-1-channel-abstraction-layer-uncommitted-code-is-: review  # [quick-dev] Fix: Story 3.1 Channel Abstraction Layer — uncommitted code 
