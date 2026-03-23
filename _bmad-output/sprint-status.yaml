@@ -208,10 +208,13 @@ development_status:
   57-qa-story-1-8-major-incident-flag-and-workflow: review  # [adversarial-review] QA: Story 1.8: Major Incident Flag and Workflow
 
   58-qa-story-1-8-major-incident-flag-and-workflow: review  # [adversarial-review] QA: Story 1.8: Major Incident Flag and Workflow
-  59-fix-story-1-7-time-tracking-create-timetracker-vue-tests-sid: in-progress  # [quick-dev] Fix: Story 1.7 Time Tracking — Create TimeTracker.vue, Tests
+  59-fix-story-1-7-time-tracking-create-timetracker-vue-tests-sid: review  # [quick-dev] Fix: Story 1.7 Time Tracking — Create TimeTracker.vue, Tests
 
   60-fix-story-1-8-major-incident-p0-p1-issues-missing-post-incid: in-progress  # [quick-dev] Fix: Story 1.8 Major Incident — P0/P1 issues (missing post-i
 
   61-qa-story-1-9-incident-models-templates: review  # [adversarial-review] QA: Story 1.9: Incident Models / Templates
 
   62-fix-story-1-9-qa-findings-missing-import-permission-gaps-iti: review  # [quick-dev] Fix: Story 1.9 QA findings -- missing __ import, permission 
+
+  63-qa-fix-story-1-9-qa-findings-missing-import-permission-gaps-: ready-for-dev  # [adversarial-review] QA: Fix: Story 1.9 QA findings -- missing __ import, permiss
+  64-qa-story-1-7-time-tracking-timetracker-vue-tests-sidebar-int: backlog  # [adversarial-review] QA: Story 1.7 Time Tracking — TimeTracker.vue, Tests, Sideba

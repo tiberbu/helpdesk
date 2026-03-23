@@ -72,6 +72,9 @@
       @item-toggled="onChecklistItemToggled"
     />
 
+    <!-- Post-Incident Review panel (visible when ticket is a major incident) -->
+    <PostIncidentReview v-if="ticket?.doc?.name" />
+
     <!-- Time Tracker panel -->
     <TimeTracker
       v-if="ticket?.doc?.name"
@@ -98,6 +101,7 @@ import { createResource, toast } from "frappe-ui";
 import { __ } from "@/translation";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
 import TicketField from "../TicketField.vue";
+import PostIncidentReview from "../ticket/PostIncidentReview.vue";
 import RelatedTickets from "../ticket/RelatedTickets.vue";
 import TicketChecklist from "../ticket/TicketChecklist.vue";
 import TimeTracker from "../ticket/TimeTracker.vue";

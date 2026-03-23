@@ -62,6 +62,7 @@ interface MajorIncident {
   major_incident_flagged_at: string;
   linked_ticket_count: number;
   elapsed_minutes: number;
+  affected_customer_count: number;
 }
 
 const props = defineProps<{ incident: MajorIncident }>();

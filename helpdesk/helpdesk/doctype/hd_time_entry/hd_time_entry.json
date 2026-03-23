@@ -81,7 +81,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "HD Agent",
+   "role": "Agent",
    "share": 1,
    "write": 1
   },
@@ -93,7 +93,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "HD Admin",
+   "role": "Agent Manager",
    "share": 1,
    "write": 1
   },
