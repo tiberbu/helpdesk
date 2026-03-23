@@ -518,11 +518,11 @@ development_status:
 
   209-fix-p1-7th-recursive-commit-scope-pollution-root-cause-is-au: in-progress  # [quick-dev] Fix: P1 7th recursive commit-scope pollution — root cause is
 
-  210-fix-p1-7th-recursive-commit-scope-pollution-in-task-202-stal: in-progress  # [quick-dev] Fix: P1 7th recursive commit-scope pollution in task-202 + s
+  210-fix-p1-7th-recursive-commit-scope-pollution-in-task-202-stal: review  # [quick-dev] Fix: P1 7th recursive commit-scope pollution in task-202 + s
 
   211-fix-p1-task-203-commit-5c626bfce-modifies-7-files-declaring-: review  # [quick-dev] Fix: P1 task-203 commit 5c626bfce modifies 7 files declaring
 
-  212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe: ready-for-dev  # [adversarial-review] QA: Fix P1 unguarded commit() + asymmetric ValidationError +
+  212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe: review  # [adversarial-review] QA: Fix P1 unguarded commit() + asymmetric ValidationError +
 
   213-qa-fix-p1-unguarded-commit-in-autoclose-loop-asymmetric-vali: ready-for-dev  # [adversarial-review] QA: Fix: P1 unguarded commit() in autoclose loop + asymmetri
 
