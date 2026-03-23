@@ -450,12 +450,16 @@ development_status:
 
   182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: review  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co
 
-  183-qa-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-c: ready-for-dev  # [adversarial-review] QA: Fix: P1 undeclared scope creep in task-163 + P2 stale te
+  183-qa-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-c: review  # [adversarial-review] QA: Fix: P1 undeclared scope creep in task-163 + P2 stale te
 
   184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage: review  # [quick-dev] Fix: P1 dead AGENT_ROLES import + zero ValueError test cover
 
-  185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm: in-progress  # [quick-dev] Fix: P1 hd_ticket.py production code not updated — savepoint
+  185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm: review  # [quick-dev] Fix: P1 hd_ticket.py production code not updated — savepoint
 
   186-qa-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-comm: ready-for-dev  # [adversarial-review] QA: Fix: P1 dev/bench desync in utils.py + hd_time_entry.py 
 
-  187-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-fals: ready-for-dev  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-176 + f
+  187-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-fals: in-progress  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-176 + f
+
+  188-qa-fix-p1-dead-agent-roles-import-zero-valueerror-test-cover: ready-for-dev  # [adversarial-review] QA: Fix: P1 dead AGENT_ROLES import + zero ValueError test c
+
+  189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde: in-progress  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-171 + u

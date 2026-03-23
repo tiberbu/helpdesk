@@ -1,6 +1,6 @@
 # Story: Fix: P1 hd_ticket.py production code not updated — savepoint CM + exception simplification never applied
 
-Status: in-progress
+Status: done
 Task ID: mn3f2xhivbgs5l
 Task Number: #185
 Workflow: quick-dev
@@ -37,8 +37,8 @@ The else branch (lines 1561-1569) with frappe.log_error() for unexpected excepti
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -56,12 +56,18 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1-a fixed: `_autoclose_savepoint` context manager added to `hd_ticket.py`. Manual `frappe.db.savepoint()` / `frappe.db.release_savepoint()` / `frappe.db.rollback(save_point=...)` calls inside the loop are gone; loop body is now `with _autoclose_savepoint(ticket):`.
+- P1-b fixed: `except Exception as exc` + `isinstance(exc, frappe.ValidationError)` replaced with proper `except frappe.ValidationError as exc` / `except Exception` hierarchy inside the CM.
+- P2 fixed: `test_checklist_validation_blocks_auto_close` now asserts `mock_logger.warning.assert_called_once()` and checks message contains ticket name. `test_stale_ticket_does_not_exist_is_skipped` now asserts warning was logged with ticket name + "validation" in the message.
+- P3 fixed: New `test_unexpected_error_is_logged` test covers the `except Exception` branch (OperationalError/deadlock), asserting `frappe.log_error` is called with the ticket name in the title.
+- All 6 tests pass (1.683s). Both files synced to bench.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `hd_ticket.py`: Added `from contextlib import contextmanager` import; added `_autoclose_savepoint(ticket)` CM before `close_tickets_after_n_days`; replaced 16-line manual savepoint/try/except/isinstance block with `with _autoclose_savepoint(ticket):` (3 lines).
+- `test_close_tickets.py`: Added `mock_logger` assertions to `test_checklist_validation_blocks_auto_close` and `test_stale_ticket_does_not_exist_is_skipped`; added new `test_unexpected_error_is_logged` test (section f).
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified + synced to bench)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (modified + synced to bench)

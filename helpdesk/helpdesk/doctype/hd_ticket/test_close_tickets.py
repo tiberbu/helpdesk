@@ -315,7 +315,9 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         _set_ticket_status_raw(ticket.name, _AUTO_CLOSE_STATUS)
         _age_all_communications(ticket.name, days_old=5)
 
-        close_tickets_after_n_days()
+        mock_logger = mock.MagicMock()
+        with mock.patch("frappe.logger", return_value=mock_logger):
+            close_tickets_after_n_days()
 
         ticket.reload()
         self.assertNotEqual(
@@ -323,10 +325,11 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
             _CLOSED_STATUS,
             "Ticket with incomplete mandatory checklist must NOT be auto-closed.",
         )
-        # ValidationError (checklist guard) is logged at WARNING level via
-        # frappe.logger().warning(), not via frappe.log_error() — so no Error
-        # Log entry is expected.  The important invariant is that the ticket is
-        # not closed and the cron batch does not crash.
+        # ValidationError (checklist guard) must be logged at WARNING level —
+        # not via frappe.log_error() which is reserved for unexpected errors.
+        mock_logger.warning.assert_called_once()
+        warning_msg = mock_logger.warning.call_args[0][0]
+        self.assertIn(str(ticket.name), warning_msg)
 
     # ------------------------------------------------------------------
     # (e) Stale reference — DoesNotExistError is caught and logged
@@ -364,10 +367,66 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
 
         # Must not raise — DoesNotExistError (a ValidationError subclass) is
         # logged at WARNING level and the loop continues.
-        with mock.patch("frappe.get_doc", side_effect=_selective_missing):
+        mock_logger = mock.MagicMock()
+        with mock.patch("frappe.get_doc", side_effect=_selective_missing), mock.patch(
+            "frappe.logger", return_value=mock_logger
+        ):
             try:
                 close_tickets_after_n_days()
             except Exception as exc:
                 self.fail(
                     f"close_tickets_after_n_days() must not propagate DoesNotExistError; got: {exc}"
                 )
+
+        # DoesNotExistError (ValidationError subclass) must be logged at WARNING,
+        # not via frappe.log_error() (which is reserved for unexpected exceptions).
+        mock_logger.warning.assert_called_once()
+        warning_msg = mock_logger.warning.call_args[0][0]
+        self.assertIn(str(ticket.name), warning_msg)
+        self.assertIn("validation", warning_msg)
+
+    # ------------------------------------------------------------------
+    # (f) Unexpected error — OperationalError is logged via frappe.log_error
+    # ------------------------------------------------------------------
+
+    def test_unexpected_error_is_logged(self):
+        """An OperationalError (e.g. deadlock) is logged via frappe.log_error and
+        the cron batch continues — the exception must not propagate.
+
+        This covers the else-branch in _autoclose_savepoint for non-ValidationError
+        exceptions.
+        """
+        _configure_auto_close(days=1)
+
+        ticket = self._track_ticket(make_ticket(subject="Deadlock-prone ticket"))
+        _make_old_communication(ticket.name, days_old=5)
+        ticket.reload()
+        ticket.status = _AUTO_CLOSE_STATUS
+        ticket.save(ignore_permissions=True)
+        _age_all_communications(ticket.name, days_old=5)
+
+        _real_get_doc = frappe.get_doc
+
+        def _raise_operational(*args, **kwargs):
+            doctype = args[0] if args else kwargs.get("doctype", "")
+            if doctype == "HD Ticket":
+                raise frappe.db.OperationalError("Deadlock found when trying to get lock")
+            return _real_get_doc(*args, **kwargs)
+
+        with mock.patch("frappe.get_doc", side_effect=_raise_operational), mock.patch(
+            "frappe.log_error"
+        ) as mock_log_error:
+            try:
+                close_tickets_after_n_days()
+            except Exception as exc:
+                self.fail(
+                    f"close_tickets_after_n_days() must not propagate OperationalError; got: {exc}"
+                )
+
+        # Unexpected exception must be logged via frappe.log_error (ERROR level).
+        mock_log_error.assert_called_once()
+        call_kwargs = mock_log_error.call_args
+        title_arg = call_kwargs.kwargs.get("title") or (
+            call_kwargs.args[0] if call_kwargs.args else ""
+        )
+        self.assertIn(str(ticket.name), title_arg)
