@@ -953,6 +953,40 @@ class TestHDTimeEntry(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			add_entry(ticket=self.ticket_name, duration_minutes=float("-inf"))
 
+	# --- P2-1: 1e309 overflows to inf → OverflowError must be caught ---
+
+	def test_require_int_str_rejects_1e309_overflow_duration(self):
+		"""
+		'1e309' passed as duration_minutes must raise ValidationError.
+
+		float('1e309') evaluates to float('inf') because it overflows the IEEE 754
+		double range, and int(float('inf')) raises OverflowError.  The task
+		description for story-133 explicitly listed '1e309' as a required test case
+		alongside 'inf', 'nan', '-inf', but it was omitted from the original
+		implementation.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="1e309")
+
+	# --- P2-3: stop_timer with billable='nan' must be rejected ---
+
+	def test_stop_timer_rejects_nan_billable(self):
+		"""
+		stop_timer must raise ValidationError when billable='nan'.
+
+		int(float('nan')) raises ValueError, which _require_int_str must catch.
+		This completes the inf/nan matrix: stop_timer + billable='inf' was already
+		tested in test_require_int_str_rejects_inf_via_stop_timer, but the nan
+		case on the billable param was missing (P2-3 from QA report task-140).
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-01-01 10:00:00",
+				duration_minutes=10,
+				billable="nan",
+			)
+
 	# --- P2: Scientific notation string behavior (documented, not rejected) ---
 
 	def test_require_int_str_documents_scientific_notation_accepted(self):

@@ -69,8 +69,10 @@ sonnet
 ### Change Log
 
 - **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py**: Added `TestIsAgentExplicitUser` class with 4 tests for `is_agent(user=...)` explicit user parameter (P1-2). NOTE: The 8 `_require_int_str` edge-case tests and the `time_tracking.py` code fix were part of predecessor commit `fc98b5cfe`, not this story.
+- **RELOCATION NOTE (story-130 P1 fix #8)**: `TestIsAgentExplicitUser` was subsequently moved from `test_hd_time_entry.py` to `helpdesk/tests/test_utils.py` to co-locate tests with the module they test. The class no longer resides in `test_hd_time_entry.py`; a comment at the bottom of that file notes the relocation.
 
 ### File List
 
-- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 4 new tests (`TestIsAgentExplicitUser` class)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 4 new tests (`TestIsAgentExplicitUser` class); NOTE: class later relocated to `helpdesk/tests/test_utils.py` (story-130)
+- `helpdesk/tests/test_utils.py` — current home of `TestIsAgentExplicitUser` after story-130 relocation
 - NOTE: `helpdesk/api/time_tracking.py` modification (`int(float(...))` fix) was in predecessor commit `fc98b5cfe`, not this story

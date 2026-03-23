@@ -1,6 +1,6 @@
 # Story: Fix: P1 recursive audit trail violation in task-133 + P2 missing 1e309 test + stale story-121 file reference
 
-Status: in-progress
+Status: done
 Task ID: mn3dpjub124oao
 Task Number: #144
 Workflow: quick-dev
@@ -31,14 +31,14 @@ The inf/nan test matrix is incomplete: no test for stop_timer with billable=nan.
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -56,12 +56,20 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **P1 (story-133 audit trail)**: Rewrote story-133 Completion Notes, Change Log, and File List to accurately distinguish what `da95326be` contributed (the `except (ValueError, OverflowError)` fix + 7 string inf/nan tests) vs what `cda3520c1` (story-133's own commit) contributed (float NaN/Inf bypass guard + `import math` + `is_admin` import removal + 3 Python float tests).
+- **P2-1 (1e309 test)**: Added `test_require_int_str_rejects_1e309_overflow_duration` to `test_hd_time_entry.py`. `float("1e309")` overflows to `float("inf")` and `int(float("inf"))` raises `OverflowError`, which the `except (ValueError, OverflowError)` clause catches.
+- **P2-2 (story-121 stale ref)**: Added `RELOCATION NOTE` to story-121 Change Log and File List noting that `TestIsAgentExplicitUser` was moved from `test_hd_time_entry.py` to `helpdesk/tests/test_utils.py` in story-130.
+- **P2-3 (nan billable test)**: Added `test_stop_timer_rejects_nan_billable` to `test_hd_time_entry.py`. Completes the inf/nan billable matrix for `stop_timer`.
+- Test file synced to bench copy.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- **_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md**: Rewrote Completion Notes, Change Log, and File List to accurately attribute work between `da95326be` and `cda3520c1`.
+- **_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md**: Added RELOCATION NOTE in Change Log and File List for `TestIsAgentExplicitUser` moved to `helpdesk/tests/test_utils.py`.
+- **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py**: Added `test_require_int_str_rejects_1e309_overflow_duration` (P2-1) and `test_stop_timer_rejects_nan_billable` (P2-3).
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — audit trail correction
+- `_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md` — stale reference fix
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 2 new tests

@@ -50,20 +50,23 @@ sonnet
 
 ### Completion Notes List
 
-- **P1-1 (OverflowError fix)**: `_require_int_str()` in `helpdesk/api/time_tracking.py` already had `except (ValueError, OverflowError):` committed in predecessor commit `da95326be`. The fix catches `OverflowError` from `int(float("inf"))`, `int(float("-inf"))`, and `int(float("1e309"))` which all raise `OverflowError`, not `ValueError`.
-- **P1-1 (inf/nan tests)**: 7 tests for inf/nan/-inf/Infinity inputs were committed in `da95326be`: `test_require_int_str_rejects_inf_via_stop_timer`, `test_require_int_str_rejects_infinity_string_duration`, `test_require_int_str_rejects_inf_string_as_duration_add_entry`, `test_require_int_str_rejects_negative_inf_string_duration`, `test_require_int_str_rejects_nan_string_duration`, `test_require_int_str_documents_scientific_notation_accepted`, plus the P1 OverflowError for inf/Infinity path via stop_timer.
+- **AUDIT CORRECTION (story-144)**: The original completion notes and File List for this story incorrectly described what story-133's own commit (`cda3520c1`) contributed vs what was in the predecessor commit (`da95326be`). Corrected below.
+- **P1-1 (OverflowError fix — da95326be, NOT cda3520c1)**: `except ValueError:` → `except (ValueError, OverflowError):` in `_require_int_str()` was committed in predecessor `da95326be`. Story-133's commit found it already in place and did NOT re-apply it.
+- **P1-1 (inf/nan string tests — da95326be, NOT cda3520c1)**: The 7 string-based inf/nan/-inf/Infinity tests (`test_require_int_str_rejects_inf_via_stop_timer`, etc.) were committed in `da95326be`, not in story-133's commit.
+- **P1-1 (Python float NaN/Inf bypass guard — cda3520c1, this story)**: Story-133's commit (`cda3520c1`) added: `import math`, removed unused `is_admin` import, updated `_require_int_str` docstring, added Python float NaN/Inf bypass guard, and added 3 tests for `float('nan')`, `float('inf')`, `float('-inf')` as non-string inputs.
 - **P1-2 (story-121 audit trail)**: Story-121 completion notes corrected (committed in `da95326be`). Story-121 only added `TestIsAgentExplicitUser` (4 tests). The 8 `_require_int_str` edge-case tests and the `int(float(value.strip()))` code fix were in predecessor commit `fc98b5cfe`, not story-121.
-- Bench copy of `time_tracking.py` already in sync. Gunicorn serving latest code.
 - All existing tests continue to pass; no regressions introduced.
 
 ### Change Log
 
-- **helpdesk/api/time_tracking.py** (committed in da95326be): Changed `except ValueError:` → `except (ValueError, OverflowError):` in `_require_int_str()`. Added inline comment explaining both exception types.
-- **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py** (committed in da95326be): Added 7 tests covering inf/nan/-inf/Infinity/1e309 inputs and documenting scientific notation acceptance behavior.
-- **_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md** (committed in da95326be): Corrected completion notes to accurately reflect that story-121 contributed only 4 tests (TestIsAgentExplicitUser), not 12. Predecessor commit `fc98b5cfe` owns the 8 edge-case tests and code fix.
+- **helpdesk/api/time_tracking.py** (committed in **da95326be**, NOT cda3520c1): Changed `except ValueError:` → `except (ValueError, OverflowError):` in `_require_int_str()`. Added inline comment explaining both exception types.
+- **helpdesk/api/time_tracking.py** (committed in **cda3520c1**, this story): Added `import math`, removed unused `is_admin` import, updated `_require_int_str` docstring, added Python float NaN/Inf bypass guard (`math.isnan`/`math.isinf` check).
+- **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py** (committed in **da95326be**, NOT cda3520c1): Added 7 string-based tests covering inf/nan/-inf/Infinity inputs.
+- **helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py** (committed in **cda3520c1**, this story): Added 3 Python float bypass tests (`test_require_int_str_rejects_float_nan_python_float`, `test_require_int_str_rejects_float_inf_python_float`, `test_require_int_str_rejects_float_negative_inf_python_float`).
+- **_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md** (committed in **da95326be**): Corrected completion notes to accurately reflect that story-121 contributed only 4 tests (TestIsAgentExplicitUser), not 12. Predecessor commit `fc98b5cfe` owns the 8 edge-case tests and code fix.
 
 ### File List
 
-- `helpdesk/api/time_tracking.py` — fixed `except ValueError:` → `except (ValueError, OverflowError):`
-- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — added 7 inf/nan/Infinity rejection tests
-- `_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md` — corrected audit trail
+- `helpdesk/api/time_tracking.py` — (da95326be) `except (ValueError, OverflowError)` fix; (cda3520c1) float NaN/Inf bypass guard + import cleanup
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — (da95326be) 7 string inf/nan tests; (cda3520c1) 3 Python float bypass tests
+- `_bmad-output/implementation-artifacts/story-121-fix-require-int-str-float-string-mismatch-p1-undocumented-is.md` — corrected audit trail (committed in da95326be)
