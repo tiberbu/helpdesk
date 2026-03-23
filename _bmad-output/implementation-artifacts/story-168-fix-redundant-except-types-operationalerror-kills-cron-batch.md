@@ -1,6 +1,6 @@
 # Story: Fix: Redundant except types + OperationalError kills cron batch + stale cache docstring
 
-Status: in-progress
+Status: complete
 Task ID: mn3eiurk00ajtj
 Task Number: #168
 Workflow: quick-dev
@@ -30,14 +30,14 @@ File: hd_ticket.py:1045-1063 — Docstring claims cache is invalidated when HD T
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -55,12 +55,17 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- F-01: Removed redundant `frappe.LinkValidationError` and `frappe.DoesNotExistError` from except clause — both are subclasses of `frappe.ValidationError`. Replaced entire tuple with `except Exception as exc` to also fix F-02.
+- F-02: Changed narrowed except clause back to `except Exception` so OperationalErrors (deadlock, lock timeout) don't crash the cron batch. ValidationError logged at WARNING; unexpected exceptions logged at ERROR via `frappe.log_error()`. All exceptions continue the loop.
+- F-03: Added explicit `NOTE — cross-process cache staleness` section to `set_status_category()` docstring clarifying that `frappe.get_cached_value()` is in-process only (not shared across Gunicorn workers), with explanation of acceptable risk window.
+- F-06: Already covered — `test_save_raises_validation_error_when_status_has_no_category` (line 590 of test_incident_model.py) tests the identical empty-category branch. No new test needed.
+- All 20 tests in test_incident_model pass with changes applied.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: hd_ticket.py — F-01+F-02: replaced `except (frappe.ValidationError, frappe.LinkValidationError, frappe.DoesNotExistError)` with `except Exception as exc` + differential log levels; F-03: expanded docstring with cross-process staleness note.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (F-01, F-02, F-03)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` (F-06 — pre-existing test confirmed sufficient, no changes needed)

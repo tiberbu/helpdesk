@@ -1,6 +1,6 @@
 # Story: Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash double get_roles + is_agent semantic trap
 
-Status: in-progress
+Status: done
 Task ID: mn3ela4l06tm0g
 Task Number: #169
 Workflow: quick-dev
@@ -30,19 +30,19 @@ Recommended fixes:
 
 ## Acceptance Criteria
 
-- [ ] Define PRIVILEGED_ROLES = AGENT_ROLES - {"Agent"} in utils.py or derive in hd_time_entry.py
-- [ ] Pre-fetch user_roles in on_trash() and pass to both is_agent() and _check_delete_permission()
-- [ ] Fix type annotation to set | None = None
-- [ ] Add assertion or docstring warning about user/user_roles identity mismatch
-- [ ] Standardize calling convention to use keyword arguments
+- [x] Define PRIVILEGED_ROLES = AGENT_ROLES - {"Agent"} in utils.py or derive in hd_time_entry.py
+- [x] Pre-fetch user_roles in on_trash() and pass to both is_agent() and _check_delete_permission()
+- [x] Fix type annotation to set | None = None
+- [x] Add assertion or docstring warning about user/user_roles identity mismatch
+- [x] Standardize calling convention to use keyword arguments
 
 ## Tasks / Subtasks
 
-- [ ] Define PRIVILEGED_ROLES = AGENT_ROLES - {"Agent"} in utils.py or derive in hd_time_entry.py
-- [ ] Pre-fetch user_roles in on_trash() and pass to both is_agent() and _check_delete_permission()
-- [ ] Fix type annotation to set | None = None
-- [ ] Add assertion or docstring warning about user/user_roles identity mismatch
-- [ ] Standardize calling convention to use keyword arguments
+- [x] Define PRIVILEGED_ROLES = AGENT_ROLES - {"Agent"} in utils.py or derive in hd_time_entry.py
+- [x] Pre-fetch user_roles in on_trash() and pass to both is_agent() and _check_delete_permission()
+- [x] Fix type annotation to set | None = None
+- [x] Add assertion or docstring warning about user/user_roles identity mismatch
+- [x] Standardize calling convention to use keyword arguments
 
 ## Dev Notes
 
@@ -60,12 +60,16 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- All 5 acceptance criteria implemented. No behavioral change — PRIVILEGED_ROLES derives to the same set as before ({"HD Admin", "Agent Manager"}). on_trash() now fetches roles once and passes to both helpers via keyword args. is_agent() type annotation fixed. Identity mismatch documented in docstring with safe-pattern example.
+- 80/80 hd_time_entry tests pass on bench.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/utils.py`: Fixed `is_agent()` type annotation `set = None` → `set | None = None`; added identity-contract docstring warning with recommended calling pattern.
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: Derived `PRIVILEGED_ROLES = AGENT_ROLES - {"Agent"}` from imported `AGENT_ROLES`; fixed `on_trash()` to pre-fetch `user_roles` once and pass to both `is_agent(user=user, user_roles=user_roles)` and `_check_delete_permission(self, user, user_roles=user_roles)` using keyword args.
+- Synced both files to `/home/ubuntu/frappe-bench/apps/helpdesk/`.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/utils.py` (modified)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified)
