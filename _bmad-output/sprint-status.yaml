@@ -409,13 +409,13 @@ development_status:
 
   161-qa-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p: review  # [adversarial-review] QA: Fix: P1 inline is_agent() reimplementation in delete_ent
 
-  162-qa-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-i: ready-for-dev  # [adversarial-review] QA: Fix: P1 recursive commit-scope pollution in story-150 + 
+  162-qa-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-i: review  # [adversarial-review] QA: Fix: P1 recursive commit-scope pollution in story-150 + 
 
   163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-: review  # [quick-dev] Fix: P1 hd_time_entry.json out of sync + recursive audit tra
 
   164-fix-p2-findings-from-adversarial-review-of-story-122-fixes: review  # [quick-dev] Fix: P2 findings from adversarial review of Story #122 fixes
 
-  165-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-exc: in-progress  # [quick-dev] Fix: P1 test deadlocks in test_close_tickets + P2 redundant 
+  165-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-exc: review  # [quick-dev] Fix: P1 test deadlocks in test_close_tickets + P2 redundant 
   166-qa-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-tra: review  # [adversarial-review] QA: Fix: P1 hd_time_entry.json out of sync + recursive audit
 
   167-qa-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-tra: ready-for-dev  # [adversarial-review] QA: Fix: P1 hd_time_entry.json out of sync + recursive audit
@@ -427,3 +427,7 @@ development_status:
   170-qa-fix-p2-findings-from-adversarial-review-of-story-122-fixe: ready-for-dev  # [adversarial-review] QA: Fix: P2 findings from adversarial review of Story #122 f
 
   171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw: in-progress  # [quick-dev] Fix: P1 commit-scope pollution in task-163 + stale frappe.th
+
+  172-qa-fix-p1-privileged-roles-agent-roles-unsync-on-trash-doubl: ready-for-dev  # [adversarial-review] QA: Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash d
+
+  173-qa-fix-redundant-except-types-operationalerror-kills-cron-ba: ready-for-dev  # [adversarial-review] QA: Fix: Redundant except types + OperationalError kills cro

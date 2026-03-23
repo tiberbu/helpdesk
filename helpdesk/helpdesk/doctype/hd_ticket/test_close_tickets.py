@@ -5,9 +5,12 @@ Tests for the close_tickets_after_n_days scheduler function.
 
 Covers:
   (a) happy path — eligible ticket is auto-closed
-  (b) error isolation — a validation failure on one ticket does not prevent
+  (b) feature-flag off — nothing happens
+  (c) error isolation — a validation failure on one ticket does not prevent
       subsequent eligible tickets from being closed
-  (c) checklist guard — a mandatory unchecked checklist item blocks auto-close
+  (d) checklist guard — a mandatory unchecked checklist item blocks auto-close
+  (e) stale reference — DoesNotExistError (ticket deleted between query and close)
+      is caught and logged without aborting the cron batch
 
 Implementation notes:
   - Communications must be inserted with sent_or_received="Sent" (outgoing) so
@@ -19,7 +22,18 @@ Implementation notes:
   - For checklist tests the status must be changed via raw SQL AFTER the
     communication is inserted, because an ORM save with "Resolved" status +
     unchecked mandatory items would raise ValidationError in the test itself.
+
+Cleanup strategy (P2 fix):
+  - setUp records only the HD Settings originals — it does NOT nuke all tickets.
+  - Each test calls self._track_ticket(make_ticket(...)) to register created
+    tickets for per-record cleanup.
+  - tearDown deletes only tracked tickets (+ their communications) via explicit
+    frappe.db.delete() + frappe.db.commit(), which is robust against the
+    frappe.db.commit() calls made by close_tickets_after_n_days() itself
+    (MEMORY.md pattern: explicit delete+commit instead of rollback).
 """
+
+import unittest.mock as mock
 
 import frappe
 from frappe.tests import IntegrationTestCase
@@ -122,6 +136,12 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
     # ------------------------------------------------------------------
 
     def setUp(self):
+        # Per-record tracking list — populated by _track_ticket().
+        # tearDown only deletes tickets that this test created, avoiding
+        # the destructive frappe.db.delete("HD Ticket") that nuked all
+        # tickets in the DB (P2 fix).
+        self._created_tickets = []
+
         # Preserve HD Settings so each test starts from a known state.
         self._orig_auto_close = frappe.db.get_single_value(
             "HD Settings", "auto_close_tickets"
@@ -132,10 +152,18 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         self._orig_days = frappe.db.get_single_value(
             "HD Settings", "auto_close_after_days"
         )
-        frappe.db.delete("HD Ticket")
-        frappe.db.delete("Communication", {"reference_doctype": "HD Ticket"})
+
+    def _track_ticket(self, ticket):
+        """Register *ticket* for per-record cleanup in tearDown.
+
+        Returns the ticket doc unchanged so callers can use it fluently:
+            ticket = self._track_ticket(make_ticket(subject="..."))
+        """
+        self._created_tickets.append(str(ticket.name))
+        return ticket
 
     def tearDown(self):
+        # Restore HD Settings first (before commit).
         frappe.db.set_single_value(
             "HD Settings", "auto_close_tickets", self._orig_auto_close or 0
         )
@@ -145,8 +173,22 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         frappe.db.set_single_value(
             "HD Settings", "auto_close_after_days", self._orig_days or 14
         )
-        frappe.db.delete("HD Ticket")
-        frappe.db.delete("Communication", {"reference_doctype": "HD Ticket"})
+
+        # Delete only the tickets created by this test (per-record cleanup).
+        # Using frappe.db.delete() + explicit commit instead of relying on
+        # rollback, because close_tickets_after_n_days() calls frappe.db.commit()
+        # which makes tearDown's implicit rollback a no-op (MEMORY.md pattern).
+        if self._created_tickets:
+            frappe.db.delete(
+                "Communication",
+                {
+                    "reference_doctype": "HD Ticket",
+                    "reference_name": ["in", self._created_tickets],
+                },
+            )
+            for ticket_name in self._created_tickets:
+                frappe.db.delete("HD Ticket", {"name": ticket_name})
+
         frappe.db.commit()  # nosemgrep
 
     # ------------------------------------------------------------------
@@ -157,7 +199,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         """A ticket in the auto-close status with old communication is closed."""
         _configure_auto_close(days=1)
 
-        ticket = make_ticket(subject="Auto-close candidate")
+        ticket = self._track_ticket(make_ticket(subject="Auto-close candidate"))
         # Create outgoing communication first (status still "Open") so the
         # on_communication_update hook fires without triggering any guards.
         _make_old_communication(ticket.name, days_old=5)
@@ -179,7 +221,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         )
 
     # ------------------------------------------------------------------
-    # (a2) Feature-flag off — nothing happens
+    # (b) Feature-flag off — nothing happens
     # ------------------------------------------------------------------
 
     def test_no_action_when_feature_disabled(self):
@@ -189,7 +231,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         frappe.db.set_single_value("HD Settings", "auto_close_status", _AUTO_CLOSE_STATUS)
         frappe.db.set_single_value("HD Settings", "auto_close_after_days", 1)
 
-        ticket = make_ticket(subject="Should not close")
+        ticket = self._track_ticket(make_ticket(subject="Should not close"))
         _make_old_communication(ticket.name, days_old=5)
         ticket.reload()
         ticket.status = _AUTO_CLOSE_STATUS
@@ -206,7 +248,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         )
 
     # ------------------------------------------------------------------
-    # (b) Error isolation — failing ticket does not block subsequent ones
+    # (c) Error isolation — failing ticket does not block subsequent ones
     # ------------------------------------------------------------------
 
     def test_error_isolation_between_tickets(self):
@@ -214,7 +256,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         _configure_auto_close(days=1)
 
         # --- Ticket A: mandatory unchecked checklist item → will block auto-close ---
-        ticket_a = make_ticket(subject="Checklist-blocked ticket")
+        ticket_a = self._track_ticket(make_ticket(subject="Checklist-blocked ticket"))
         ticket_a.reload()
         ticket_a.append(
             "ticket_checklist",
@@ -228,7 +270,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         _age_all_communications(ticket_a.name, days_old=5)
 
         # --- Ticket B: clean ticket, should close normally ---
-        ticket_b = make_ticket(subject="Normal auto-close ticket")
+        ticket_b = self._track_ticket(make_ticket(subject="Normal auto-close ticket"))
         _make_old_communication(ticket_b.name, days_old=5)
         ticket_b.reload()
         ticket_b.status = _AUTO_CLOSE_STATUS
@@ -253,14 +295,14 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         )
 
     # ------------------------------------------------------------------
-    # (c) Checklist guard — mandatory item blocks auto-close
+    # (d) Checklist guard — mandatory item blocks auto-close
     # ------------------------------------------------------------------
 
     def test_checklist_validation_blocks_auto_close(self):
         """Mandatory unchecked checklist items must prevent auto-close."""
         _configure_auto_close(days=1)
 
-        ticket = make_ticket(subject="Checklist test")
+        ticket = self._track_ticket(make_ticket(subject="Checklist test"))
         ticket.reload()
         ticket.append(
             "ticket_checklist",
@@ -293,4 +335,55 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
             log_count_after,
             log_count_before,
             "An error log entry should be written when auto-close fails due to validation.",
+        )
+
+    # ------------------------------------------------------------------
+    # (e) Stale reference — DoesNotExistError is caught and logged
+    # ------------------------------------------------------------------
+
+    def test_stale_ticket_does_not_exist_is_skipped(self):
+        """Ticket deleted between the selection query and the close attempt is skipped.
+
+        DoesNotExistError is a subclass of ValidationError, so the savepoint
+        context manager should catch it, roll back the iteration, log an error,
+        and continue — exactly like a checklist ValidationError.
+        """
+        _configure_auto_close(days=1)
+
+        # Create a real ticket that qualifies for auto-close so the SQL query
+        # will return its name.
+        ticket = self._track_ticket(make_ticket(subject="Ghost ticket - will vanish"))
+        _make_old_communication(ticket.name, days_old=5)
+        ticket.reload()
+        ticket.status = _AUTO_CLOSE_STATUS
+        ticket.save(ignore_permissions=True)
+        _age_all_communications(ticket.name, days_old=5)
+
+        log_count_before = frappe.db.count(
+            "Error Log", {"method": ["like", "%Auto-close failed%"]}
+        )
+
+        # Simulate the ticket being deleted after the query but before
+        # frappe.get_doc() is called.  We use a selective side_effect so that
+        # only "HD Ticket" lookups raise DoesNotExistError; calls for other
+        # doctypes (e.g. "Error Log" inside frappe.log_error) proceed normally.
+        _real_get_doc = frappe.get_doc
+
+        def _selective_missing(*args, **kwargs):
+            doctype = args[0] if args else kwargs.get("doctype", "")
+            if doctype == "HD Ticket":
+                raise frappe.DoesNotExistError("Ticket does not exist")
+            return _real_get_doc(*args, **kwargs)
+
+        with mock.patch("frappe.get_doc", side_effect=_selective_missing):
+            # Must not raise — the error should be caught and logged.
+            close_tickets_after_n_days()
+
+        log_count_after = frappe.db.count(
+            "Error Log", {"method": ["like", "%Auto-close failed%"]}
+        )
+        self.assertGreater(
+            log_count_after,
+            log_count_before,
+            "An error log entry must be written for a stale (deleted) ticket reference.",
         )

@@ -1,6 +1,6 @@
 # Story: Fix: P1 test deadlocks in test_close_tickets + P2 redundant exception hierarchy + destructive setUp
 
-Status: in-progress
+Status: done
 Task ID: mn3ei12wkl7kag
 Task Number: #165
 Workflow: quick-dev
@@ -33,14 +33,14 @@ Replace manual savepoint/release/rollback with the built-in context manager for 
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -58,12 +58,22 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1 (deadlock): Replaced destructive `frappe.db.delete("HD Ticket")` in setUp/tearDown with per-record tracking via `self._created_tickets` list. tearDown now deletes only test-created tickets + commits explicitly (MEMORY.md pattern). This prevents lock contention between tests when `close_tickets_after_n_days()` commits mid-test.
+- P2 (exception): Replaced `except Exception as exc` + isinstance check with `except frappe.ValidationError` (covers DoesNotExistError and LinkValidationError as subclasses). Updated logging to use `frappe.log_error()` for all validation failures (consistent with test expectations).
+- P2 (savepoint CM): Replaced manual `frappe.db.savepoint()` / `frappe.db.release_savepoint()` / `frappe.db.rollback()` with `frappe.database.database.savepoint` context manager (`db_savepoint`). Traceback is captured before re-raising so it can be logged after the CM rolls back the iteration.
+- P2 (DoesNotExistError test): Added `test_stale_ticket_does_not_exist_is_skipped` using a selective `mock.patch("frappe.get_doc")` that raises only for `"HD Ticket"` doctypes, allowing `frappe.log_error`'s internal `get_doc("Error Log", ...)` to proceed normally.
+- All 5 tests pass: `Ran 5 tests in 1.674s OK`
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Added `from frappe.database.database import savepoint as db_savepoint` import to hd_ticket.py
+- 2026-03-23: Replaced manual savepoint/release/rollback loop with `db_savepoint` CM + `except frappe.ValidationError` in `close_tickets_after_n_days()`
+- 2026-03-23: Rewrote test_close_tickets.py setUp/tearDown for per-record cleanup; added `_track_ticket()` helper; updated all test methods; added `test_stale_ticket_does_not_exist_is_skipped`
+- 2026-03-23: Synced both files to /home/ubuntu/frappe-bench/apps/helpdesk/
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified: import + loop body)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (modified: full rewrite of setUp/tearDown + new test)
+- `/home/ubuntu/frappe-bench/apps/helpdesk/helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (synced)
+- `/home/ubuntu/frappe-bench/apps/helpdesk/helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (synced)
