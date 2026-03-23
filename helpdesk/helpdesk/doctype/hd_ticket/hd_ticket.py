@@ -1580,7 +1580,16 @@ def _autoclose_savepoint(ticket):
             frappe.log_error(title=_pending_log[0], message=_pending_log[1])
         except Exception:  # noqa: BLE001
             # Last-resort fallback when DB is unreachable — at least emit to log.
-            frappe.logger().error(_pending_log[0] + "\n" + str(_pending_log[1] or ""))
+            # F-01 fix: guard this call too; if the logger itself raises we must
+            # not propagate — this is an absolute last resort.
+            try:
+                frappe.logger().error(
+                    _pending_log[0]
+                    + "\n"
+                    + (str(_pending_log[1]) if _pending_log[1] is not None else "")
+                )
+            except Exception:  # noqa: BLE001
+                pass  # absolute last resort — nothing more we can do
 
 
 def close_tickets_after_n_days():
@@ -1628,11 +1637,19 @@ def close_tickets_after_n_days():
         try:
             frappe.db.commit()  # nosemgrep — persist close or error log
         except Exception:  # noqa: BLE001
-            # F-01: guard the commit itself — a dead connection between CM exit
-            # and commit must not kill the entire cron batch.
+            # F-02 fix: commit failed — likely a dead DB connection.  Attempt a
+            # rollback to leave the connection in a clean state, then break the
+            # loop.  Continuing would cause every subsequent ticket to fail too,
+            # creating a silent failure cascade (the exact bug this fixes).
             try:
                 frappe.logger().error(
-                    f"Auto-close: frappe.db.commit() failed for ticket {ticket}"
+                    f"Auto-close: frappe.db.commit() failed for ticket {ticket}; "
+                    "aborting remaining tickets to prevent failure cascade"
                 )
             except Exception:  # noqa: BLE001
                 pass  # last resort — nothing more we can do
+            try:
+                frappe.db.rollback()
+            except Exception:  # noqa: BLE001
+                pass  # ignore rollback errors — connection may already be dead
+            break  # dead connection — abort remaining tickets
