@@ -164,7 +164,7 @@ development_status:
   25-story-1-9-incident-models-templates: review  # [create-story] Story 1.9: Incident Models / Templates
   26-story-2-1-automation-rule-doctype-and-engine-core: review  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
   27-story-2-2-automation-rule-builder-ui: review  # [dev-story] Story 2.2: Automation Rule Builder UI
-  28-story-2-3-sla-based-automation-triggers: in-progress  # [create-story] Story 2.3: SLA-Based Automation Triggers
+  28-story-2-3-sla-based-automation-triggers: review  # [create-story] Story 2.3: SLA-Based Automation Triggers
   29-story-2-4-automation-execution-logging: ready-for-dev  # [create-story] Story 2.4: Automation Execution Logging
 
   # New tasks (added by Claude Studio)
