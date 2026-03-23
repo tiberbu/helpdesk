@@ -1,6 +1,6 @@
 # Story: Fix: Reverted savepoint isolation + broad except in close_tickets_after_n_days (P1s from QA task-116)
 
-Status: in-progress
+Status: done
 Task ID: mn3cyabpids6so
 Task Number: #125
 Workflow: quick-dev
@@ -31,14 +31,14 @@ Add tests covering: (a) happy path auto-close, (b) error isolation — failing t
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -56,12 +56,16 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1 #1: Re-added named savepoint isolation (`_sp = f"sp_autoclose_{ticket}"`) around each iteration. `frappe.db.savepoint(name)` is an instance method (not a context manager), so the pattern uses explicit savepoint/release_savepoint/rollback calls.
+- P1 #2: Narrowed except clause from `except Exception:` to `except (frappe.ValidationError, frappe.LinkValidationError, frappe.DoesNotExistError):`.
+- P1 #3: Added 4 integration tests in `test_close_tickets.py` — all pass. Root cause of prior test failures: `after_insert` creates a Communication with `communication_date=NOW()`, causing `MAX(communication_date)` to block the SQL query. Fixed by adding `_age_all_communications()` helper that backdates all communications after setup.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `hd_ticket.py`: Replaced bare `except Exception:` with narrow exception tuple; replaced broken `with frappe.db.savepoint():` with correct named savepoint pattern using `frappe.db.savepoint(_sp)` / `release_savepoint` / `rollback(save_point=_sp)`.
+- `test_close_tickets.py` (new): 4 integration tests covering happy path, feature-flag disabled, error isolation, and checklist validation guard.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified — lines 1515–1542)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (created)

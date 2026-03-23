@@ -77,6 +77,24 @@ def _make_old_communication(ticket_name, days_old: int = 5):
     ).insert(ignore_permissions=True)
 
 
+def _age_all_communications(ticket_name, days_old: int = 5):
+    """Backdate every Communication linked to *ticket_name* to *days_old* days ago.
+
+    The HD Ticket after_insert hook calls create_communication_via_contact(),
+    which inserts a Communication with communication_date=NOW().  Because the
+    auto-close SQL query uses MAX(communication_date), that fresh record would
+    prevent the ticket from appearing in the result set.  This helper forces
+    all communications — including the auto-created one — to be older than the
+    auto-close threshold so the query finds the ticket as expected.
+    """
+    old_date = add_to_date(now_datetime(), days=-days_old)
+    frappe.db.sql(
+        "UPDATE `tabCommunication` SET communication_date = %s"
+        " WHERE reference_doctype = 'HD Ticket' AND reference_name = %s",
+        (old_date, str(ticket_name)),
+    )
+
+
 def _set_ticket_status_raw(ticket_name, status: str):
     """Update ticket status via raw SQL, bypassing the ORM validate() hooks.
 
@@ -147,6 +165,9 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         ticket.reload()
         ticket.status = _AUTO_CLOSE_STATUS
         ticket.save(ignore_permissions=True)
+        # Backdate ALL communications (including the one auto-created by
+        # after_insert) so MAX(communication_date) satisfies the threshold.
+        _age_all_communications(ticket.name, days_old=5)
 
         close_tickets_after_n_days()
 
@@ -173,6 +194,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         ticket.reload()
         ticket.status = _AUTO_CLOSE_STATUS
         ticket.save(ignore_permissions=True)
+        _age_all_communications(ticket.name, days_old=5)
 
         close_tickets_after_n_days()
 
@@ -203,6 +225,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         _make_old_communication(ticket_a.name, days_old=5)
         # Set status via raw SQL to avoid triggering validate_checklist_before_resolution.
         _set_ticket_status_raw(ticket_a.name, _AUTO_CLOSE_STATUS)
+        _age_all_communications(ticket_a.name, days_old=5)
 
         # --- Ticket B: clean ticket, should close normally ---
         ticket_b = make_ticket(subject="Normal auto-close ticket")
@@ -210,6 +233,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         ticket_b.reload()
         ticket_b.status = _AUTO_CLOSE_STATUS
         ticket_b.save(ignore_permissions=True)
+        _age_all_communications(ticket_b.name, days_old=5)
 
         # Must not raise even though ticket_a will fail checklist validation.
         close_tickets_after_n_days()
@@ -247,6 +271,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         _make_old_communication(ticket.name, days_old=5)
         # Set status via raw SQL to avoid triggering validate_checklist_before_resolution.
         _set_ticket_status_raw(ticket.name, _AUTO_CLOSE_STATUS)
+        _age_all_communications(ticket.name, days_old=5)
 
         log_count_before = frappe.db.count(
             "Error Log", {"method": ["like", "%Auto-close failed%"]}
