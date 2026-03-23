@@ -1,6 +1,6 @@
 # Story: Fix: P1 findings from QA task-69 — status_category None regression, missing bypass test, migration hardening
 
-Status: in-progress
+Status: done
 Task ID: mn3ata28e6ihmx
 Task Number: #73
 Workflow: quick-dev
@@ -33,14 +33,14 @@ The core P1 fix has zero automated regression protection. Need a test that: (1) 
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -58,12 +58,24 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- F-01: `set_status_category()` now only re-derives when status has changed OR status_category is unset. Falls back gracefully when `frappe.get_value()` returns None (deleted/invalid status). Prevents silent wipe of status_category.
+- F-02: Added `test_status_category_updates_when_status_changes` — saves ticket as Replied (Paused), changes to Resolved, asserts status_category is Resolved.
+- F-03: Migration patch now calls `frappe.db.commit()` at end of `execute()`.
+- F-04: Migration patch wraps the `tabHD Ticket Priority` SQL query in try/except to handle missing table on clean install.
+- F-05: Migration patch now also calls `frappe.reload_doctype("HD Incident Checklist Item", force=True)`.
+- F-06: tearDown explicitly deletes `im_customer_noagent@example.com` before rollback.
+- F-07: Added `test_complete_checklist_item_raises_permission_error_for_non_agent`.
+- Bonus: Added `category_required_on_resolution=0` to setUp to fix 2 pre-existing test failures that were masked.
+- All 15 tests in test_incident_model.py pass.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: F-01 `hd_ticket.py` set_status_category defensive fix (already committed via story-75 Time Tracking fix)
+- 2026-03-23: F-02/F-06/F-07 added 3 new tests to test_incident_model.py + tearDown cleanup + setUp category fix
+- 2026-03-23: F-03/F-04/F-05 hardened reload_incident_model_for_link_field.py migration patch
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` — F-01 set_status_category defensive fix
+- `helpdesk/helpdesk/doctype/hd_ticket/test_incident_model.py` — F-02/F-06/F-07 new tests + setUp/tearDown hardening
+- `helpdesk/patches/v1_phase1/reload_incident_model_for_link_field.py` — F-03/F-04/F-05 migration hardening

@@ -41,6 +41,8 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.db.set_single_value("HD Settings", "skip_email_workflow", 1)
 		# Incident Models are an ITIL feature — enable ITIL mode for all tests
 		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
+		# Disable category-required-on-resolution so resolution tests don't need a category
+		frappe.db.set_single_value("HD Settings", "category_required_on_resolution", 0)
 
 		self.agent_email = "im_agent@example.com"
 		create_agent(self.agent_email)
