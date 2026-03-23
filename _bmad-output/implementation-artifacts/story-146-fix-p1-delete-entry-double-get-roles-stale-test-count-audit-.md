@@ -73,7 +73,7 @@ sonnet
 
 - `helpdesk/api/time_tracking.py`: Refactored `delete_entry()` — single `get_roles()` call, inlined is_agent() logic, passes `user_roles` to `_check_delete_permission()`. Removed now-redundant `is_agent()` call from pre-gate. Updated comments (P1-2, P2-5).
 - `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: Added `user_roles` optional param to `_check_delete_permission()`. Added explicit Administrator short-circuit. Removed `System Manager` from `PRIVILEGED_ROLES` (now only HD Admin + Agent Manager). Updated docstrings (P2-7).
-- `helpdesk/test_utils.py`: Added role-pollution `frappe.throw()` assertions to `ensure_agent_manager_user()` and `ensure_system_manager_user()` (P2-4).
+- `helpdesk/test_utils.py`: Added role-pollution `raise AssertionError(...)` guards to `ensure_agent_manager_user()` and `ensure_system_manager_user()` (P2-4). Note: story-163/task-163 later converted these from the originally planned `frappe.throw()` approach to `raise AssertionError(...)` — the actual committed code uses `AssertionError`, not `frappe.throw()`.
 - `_bmad-output/implementation-artifacts/story-130-*.md`: Updated completion notes with AUDIT CORRECTION and corrected test count (P1-1, P2-3).
 
 ### File List

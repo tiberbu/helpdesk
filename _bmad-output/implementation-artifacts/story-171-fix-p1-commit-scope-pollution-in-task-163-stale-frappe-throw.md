@@ -1,6 +1,6 @@
 # Story: Fix: P1 commit-scope pollution in task-163 + stale frappe.throw ref in story-146 + on_trash double get_roles
 
-Status: in-progress
+Status: done
 Task ID: mn3enktsmbjchx
 Task Number: #171
 Workflow: quick-dev
@@ -37,14 +37,14 @@ Add a test that deliberately pollutes roles and verifies AssertionError is raise
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -62,12 +62,24 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- **P1-1 fixed**: Story-163 completion notes and file list updated with the two undeclared Python files that were in commit `0a45dc533`: `hd_ticket.py` (F-13 status_category clearing) and `test_incident_model.py` (test docstring/assertion update). Added a UNDECLARED FILES NOTE section to the completion notes and added both files to the File List.
+- **P1-2 fixed**: Story-146 change log line 76 updated — "Added role-pollution `frappe.throw()` assertions" corrected to "Added role-pollution `raise AssertionError(...)` guards". Added clarifying note that story-163 converted the original frappe.throw() plan to AssertionError.
+- **P1-3 fixed**: Removed `share: 1` from System Manager in `hd_time_entry.json` (dev + bench copies synced). `bench migrate` run to apply the permission change to the DB. System Manager for HD Time Entry is now strictly read-only (read, print, export, report, email — no share, no write, no create, no delete).
+- **P2-7 confirmed already fixed**: `on_trash()` in `hd_time_entry.py` already pre-fetches `user_roles` once and passes them to both `is_agent()` and `_check_delete_permission()`. This was fixed in a prior story (task-156). No code change needed.
+- **P2-4 fixed**: Added `TestEnsureHelpersRolePollutionGuard` test class to `test_hd_time_entry.py` with 3 tests that deliberately create users with polluted roles and verify each `ensure_*` helper raises `AssertionError`. All 83 tests pass (80 previous + 3 new).
+- All changes synced to frappe-bench.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `_bmad-output/implementation-artifacts/story-163-*.md`: Added UNDECLARED FILES NOTE block and two missing entries to File List (P1-1).
+- `_bmad-output/implementation-artifacts/story-146-*.md`: Updated change log line 76 — frappe.throw() → raise AssertionError() with clarifying note (P1-2).
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json`: Removed `"share": 1` from System Manager role entry (P1-3).
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py`: Added `TestEnsureHelpersRolePollutionGuard` class with 3 tests for ensure_* AssertionError behavior (P2-4).
+- DB: `bench migrate` run to sync System Manager `share` permission removal.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `_bmad-output/implementation-artifacts/story-163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-.md` (modified — P1-1)
+- `_bmad-output/implementation-artifacts/story-146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-.md` (modified — P1-2)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.json` (modified — P1-3, share removed from System Manager)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (modified — P2-4, new TestEnsureHelpersRolePollutionGuard class)
