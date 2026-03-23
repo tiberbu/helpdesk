@@ -65,7 +65,21 @@ sonnet
 
 ### File List
 
-- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified)
-- `helpdesk/utils.py` (modified)
-- `helpdesk/tests/test_utils.py` (modified)
-- `_bmad-output/implementation-artifacts/story-169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g.md` (corrected)
+CORRECTION (story-197): Original File List declared only 4 files. Commit 4bff11be6 touched 13 files total. The 9 undeclared files are listed below with explanation.
+
+**Declared files (4)**:
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified — dead AGENT_ROLES import removed)
+- `helpdesk/utils.py` (modified — type annotations fixed, ValueError identity contract)
+- `helpdesk/tests/test_utils.py` (modified — ValueError test coverage added)
+- `_bmad-output/implementation-artifacts/story-169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g.md` (corrected — fabricated audit trail fixed)
+
+**Undeclared files (9) — committed in same commit but not listed in original File List**:
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified — PRODUCTION CODE: _autoclose_savepoint() CM added + close_tickets_after_n_days() rewrite; this is scope of story-185 but was committed here)
+- `docs/qa-report-task-171.md` (new — QA report from task #177, should have been committed in that QA task)
+- `docs/qa-report-task-176.md` (new — QA report from task #178, should have been committed in that QA task)
+- `_bmad-output/implementation-artifacts/story-177-qa-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-th.md` (status change — story-177 marked done; scope belongs to task #177)
+- `_bmad-output/implementation-artifacts/story-178-qa-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-.md` (status change — story-178 marked done; scope belongs to task #178)
+- `_bmad-output/implementation-artifacts/story-181-qa-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is.md` (new — story-181 created as in-progress; born fabricated as its referenced work was already committed here)
+- `_bmad-output/implementation-artifacts/story-185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm.md` (new — story-185 created as in-progress; born fabricated as its referenced work was already committed here)
+- `_bmad-output/sprint-status.yaml` (modified — sprint status updates)
+- `_bmad-output/implementation-artifacts/story-184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage.md` (this story file itself — meta, but undeclared in original File List)

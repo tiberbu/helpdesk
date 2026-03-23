@@ -371,12 +371,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         with mock.patch("frappe.get_doc", side_effect=_selective_missing), mock.patch(
             "frappe.logger", return_value=mock_logger
         ):
-            try:
-                close_tickets_after_n_days()
-            except Exception as exc:
-                self.fail(
-                    f"close_tickets_after_n_days() must not propagate DoesNotExistError; got: {exc}"
-                )
+            close_tickets_after_n_days()
 
         # DoesNotExistError (ValidationError subclass) must be logged at WARNING,
         # not via frappe.log_error() (which is reserved for unexpected exceptions).
@@ -416,12 +411,7 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
         with mock.patch("frappe.get_doc", side_effect=_raise_operational), mock.patch(
             "frappe.log_error"
         ) as mock_log_error:
-            try:
-                close_tickets_after_n_days()
-            except Exception as exc:
-                self.fail(
-                    f"close_tickets_after_n_days() must not propagate OperationalError; got: {exc}"
-                )
+            close_tickets_after_n_days()
 
         # Unexpected exception must be logged via frappe.log_error (ERROR level).
         mock_log_error.assert_called_once()
@@ -430,3 +420,80 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
             call_kwargs.args[0] if call_kwargs.args else ""
         )
         self.assertIn(str(ticket.name), title_arg)
+
+    # ------------------------------------------------------------------
+    # (g) Multi-ticket OperationalError isolation (F-03)
+    # ------------------------------------------------------------------
+
+    def test_multi_ticket_operational_error_isolation(self):
+        """OperationalError on ticket A must not prevent ticket B from closing.
+
+        Covers F-03: the except Exception path in _autoclose_savepoint must
+        isolate per-ticket failures when close_tickets_after_n_days processes
+        multiple tickets in a single batch.  Previously only ValidationError
+        was covered by test_error_isolation_between_tickets; this test covers
+        the OperationalError (non-ValidationError) code path with 2+ tickets.
+        """
+        _configure_auto_close(days=1)
+
+        # --- Ticket A: will raise OperationalError during close attempt ---
+        ticket_a = self._track_ticket(
+            make_ticket(subject="OperationalError isolation - ticket A")
+        )
+        _make_old_communication(ticket_a.name, days_old=5)
+        ticket_a.reload()
+        ticket_a.status = _AUTO_CLOSE_STATUS
+        ticket_a.save(ignore_permissions=True)
+        _age_all_communications(ticket_a.name, days_old=5)
+        ticket_a_name = str(ticket_a.name)
+
+        # --- Ticket B: clean ticket, should close normally ---
+        ticket_b = self._track_ticket(
+            make_ticket(subject="OperationalError isolation - ticket B")
+        )
+        _make_old_communication(ticket_b.name, days_old=5)
+        ticket_b.reload()
+        ticket_b.status = _AUTO_CLOSE_STATUS
+        ticket_b.save(ignore_permissions=True)
+        _age_all_communications(ticket_b.name, days_old=5)
+
+        _real_get_doc = frappe.get_doc
+
+        def _raise_for_ticket_a(*args, **kwargs):
+            """Raise OperationalError only when fetching ticket A; delegate all
+            other get_doc calls to the real implementation."""
+            if args and args[0] == "HD Ticket" and str(args[1]) == ticket_a_name:
+                raise frappe.db.OperationalError(
+                    "Deadlock found when trying to get lock"
+                )
+            return _real_get_doc(*args, **kwargs)
+
+        # Must not raise — OperationalError on ticket A must be swallowed by
+        # _autoclose_savepoint, logged via frappe.log_error, and the loop must
+        # continue to close ticket B.
+        with mock.patch(
+            "frappe.get_doc", side_effect=_raise_for_ticket_a
+        ), mock.patch("frappe.log_error") as mock_log_error:
+            close_tickets_after_n_days()
+
+        ticket_a.reload()
+        ticket_b.reload()
+
+        self.assertNotEqual(
+            ticket_a.status,
+            _CLOSED_STATUS,
+            "Ticket A must NOT be closed — OperationalError prevented its close.",
+        )
+        self.assertEqual(
+            ticket_b.status,
+            _CLOSED_STATUS,
+            "Ticket B must be closed despite the OperationalError on ticket A "
+            "(savepoint isolation required).",
+        )
+        # OperationalError on ticket A must be logged via frappe.log_error.
+        mock_log_error.assert_called_once()
+        call_kwargs = mock_log_error.call_args
+        title_arg = call_kwargs.kwargs.get("title") or (
+            call_kwargs.args[0] if call_kwargs.args else ""
+        )
+        self.assertIn(ticket_a_name, title_arg)

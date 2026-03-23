@@ -56,11 +56,16 @@ sonnet
 
 ### Completion Notes List
 
+CORRECTION (story-197): This story was "born fabricated" — it was created with Status: in-progress but its described implementation was ALREADY COMMITTED in the same commit (4bff11be6eee6d53514931c3f84950e513195635) that created this story file. The task-184 agent bundled story-185's work into task-184's commit. See QA report docs/qa-report-task-184.md Finding #3 and Finding #1.
+
+The following changes were delivered in commit 4bff11be6 (task-184's commit, NOT a dedicated story-185 commit):
 - P1-a fixed: `_autoclose_savepoint` context manager added to `hd_ticket.py`. Manual `frappe.db.savepoint()` / `frappe.db.release_savepoint()` / `frappe.db.rollback(save_point=...)` calls inside the loop are gone; loop body is now `with _autoclose_savepoint(ticket):`.
 - P1-b fixed: `except Exception as exc` + `isinstance(exc, frappe.ValidationError)` replaced with proper `except frappe.ValidationError as exc` / `except Exception` hierarchy inside the CM.
 - P2 fixed: `test_checklist_validation_blocks_auto_close` now asserts `mock_logger.warning.assert_called_once()` and checks message contains ticket name. `test_stale_ticket_does_not_exist_is_skipped` now asserts warning was logged with ticket name + "validation" in the message.
 - P3 fixed: New `test_unexpected_error_is_logged` test covers the `except Exception` branch (OperationalError/deadlock), asserting `frappe.log_error` is called with the ticket name in the title.
 - All 6 tests pass (1.683s). Both files synced to bench.
+
+This story has no independent commit of its own. Its work is attributable to commit 4bff11be6.
 
 ### Change Log
 

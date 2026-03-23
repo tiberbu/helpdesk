@@ -472,9 +472,9 @@ development_status:
 
   193-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: review  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171
 
-  194-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: ready-for-dev  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171
+  194-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: review  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171
 
-  195-qa-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-c: ready-for-dev  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-179 + P2 stale te
+  195-qa-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-c: review  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-179 + P2 stale te
 
   197-fix-p1-6th-recursive-commit-scope-pollution-in-task-184-unde: in-progress  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-184 + u
   196-fix-p1-recursive-commit-scope-pollution-in-story-182-missing: review  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-182 + miss
@@ -494,4 +494,6 @@ development_status:
 # files; documentation from another task must be declared with "(task #NNN)".
 # =============================================================
 
-  198-fix-p1-autoclose-savepoint-defensive-gaps-handler-uses-dead-: in-progress  # [quick-dev] Fix: P1 _autoclose_savepoint defensive gaps — handler uses d
+  198-fix-p1-autoclose-savepoint-defensive-gaps-handler-uses-dead-: review  # [quick-dev] Fix: P1 _autoclose_savepoint defensive gaps — handler uses d
+
+  199-qa-fix-p1-recursive-commit-scope-pollution-in-story-182-miss: review  # [adversarial-review] QA: Fix: P1 recursive commit-scope pollution in story-182 + 

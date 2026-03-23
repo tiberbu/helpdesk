@@ -1,6 +1,6 @@
 # Story: Fix: P1 _autoclose_savepoint defensive gaps — handler uses dead DB + Error Log lost in savepoint scope + missing multi-ticket OperationalError test
 
-Status: in-progress
+Status: done
 Task ID: mn3fhg1z9se3eg
 Task Number: #198
 Workflow: quick-dev
@@ -34,8 +34,8 @@ Created: 2026-03-23T16:57:06.287Z
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -53,12 +53,21 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- F-01 fixed: Both `frappe.db.rollback(save_point=_sp)` calls (ValidationError and Exception handlers) are now wrapped in inner `try/except` to survive DB connection failures.
+- F-02 fixed: `frappe.log_error()` moved OUTSIDE the `try/except` block using `_pending_log` tuple. It now executes after the savepoint scope, ensuring the Error Log document lands in the post-rollback transaction committed by the caller's `frappe.db.commit()`. The log call itself is also guarded with defensive try/except that falls back to `frappe.logger().error()`.
+- F-03 fixed: Added `test_multi_ticket_operational_error_isolation` test — two tickets where ticket A raises `OperationalError`, ticket B still closes. Asserts ticket A not closed, ticket B closed, and `frappe.log_error` called once.
+- F-04 fixed: Removed `try/except self.fail()` anti-pattern from tests (e) `test_stale_ticket_does_not_exist_is_skipped` and (f) `test_unexpected_error_is_logged`. Both now call `close_tickets_after_n_days()` directly.
+- All 7 tests pass (6 existing + 1 new).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: hd_ticket.py — rewrote `_autoclose_savepoint` with `_pending_log` pattern (F-02) and defensive try/except on all rollback calls (F-01).
+- 2026-03-23: test_close_tickets.py — removed try/except self.fail anti-pattern (F-04), added `test_multi_ticket_operational_error_isolation` (F-03).
+- 2026-03-23: Both files synced to bench copy; all 7 tests pass.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (modified — `_autoclose_savepoint`)
+- `helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (modified — tests e, f, + new test g)
+- `/home/ubuntu/frappe-bench/apps/helpdesk/helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` (synced)
+- `/home/ubuntu/frappe-bench/apps/helpdesk/helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` (synced)

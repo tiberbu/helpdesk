@@ -1513,23 +1513,57 @@ def _autoclose_savepoint(ticket):
     rolled back and a WARNING is logged — these are not bugs.  On any other
     exception the savepoint is rolled back and frappe.log_error() is called so
     on-call is alerted, but the cron batch continues.
+
+    Defensive design:
+      F-01 — frappe.db.rollback() calls are wrapped in try/except so that a DB
+              connection failure (e.g. "MySQL server has gone away") in the
+              rollback itself does not kill the cron batch.
+      F-02 — frappe.log_error() is deferred until AFTER the savepoint scope.
+              Inside the savepoint, the Error Log document would be rolled back
+              with the savepoint, silently losing the record.  Capturing the
+              traceback and logging it after the try/except ensures the write
+              lands in the post-rollback transaction committed by the caller.
+              The log call itself is also guarded so a still-broken connection
+              falls back to the Python logger instead of propagating (F-01).
     """
     _sp = f"sp_autoclose_{ticket}"
     frappe.db.savepoint(_sp)
+    _pending_log = None  # (title, message) captured for post-savepoint logging
     try:
         yield
         frappe.db.release_savepoint(_sp)
     except frappe.ValidationError as exc:
-        frappe.db.rollback(save_point=_sp)
+        # F-01: defensive rollback — connection may be dead after the exception.
+        try:
+            frappe.db.rollback(save_point=_sp)
+        except Exception:  # noqa: BLE001
+            pass  # best-effort; connection may be broken
         frappe.logger().warning(
             f"Auto-close skipped ticket {ticket} (validation): {exc}"
         )
     except Exception:  # noqa: BLE001
-        frappe.db.rollback(save_point=_sp)
-        frappe.log_error(
-            title=f"Auto-close failed for ticket {ticket}",
-            message=frappe.get_traceback(),
+        # F-01: defensive rollback — if this IS a connection failure, swallow it.
+        try:
+            frappe.db.rollback(save_point=_sp)
+        except Exception:  # noqa: BLE001
+            pass  # best-effort; connection may be broken
+        # F-02: capture traceback now but defer frappe.log_error() until the
+        # block below (outside the savepoint scope) so the Error Log document
+        # is committed by the caller's frappe.db.commit(), not rolled back.
+        _pending_log = (
+            f"Auto-close failed for ticket {ticket}",
+            frappe.get_traceback(),
         )
+    # F-02: write Error Log AFTER savepoint scope — the savepoint has already
+    # been rolled back above, so this write goes into the post-rollback
+    # transaction and will be committed by the caller's frappe.db.commit().
+    # F-01: guard the write itself in case the connection is still broken.
+    if _pending_log:
+        try:
+            frappe.log_error(title=_pending_log[0], message=_pending_log[1])
+        except Exception:  # noqa: BLE001
+            # Last-resort fallback when DB is unreachable — at least emit to log.
+            frappe.logger().error(_pending_log[0] + "\n" + _pending_log[1])
 
 
 def close_tickets_after_n_days():
