@@ -54,7 +54,7 @@ onUnmounted(() => {
 async function fetchHistory() {
   isLoading.value = true
   try {
-    const url = `${props.siteUrl}/api/method/helpdesk.helpdesk.api.chat.get_messages?session_id=${encodeURIComponent(props.sessionId)}&token=${encodeURIComponent(props.token)}`
+    const url = `${props.siteUrl}/api/method/helpdesk.api.chat.get_messages?session_id=${encodeURIComponent(props.sessionId)}&token=${encodeURIComponent(props.token)}`
     const res = await fetch(url, { headers: { Accept: 'application/json' } })
     if (res.ok) {
       const data = await res.json()
@@ -163,7 +163,7 @@ async function sendMessage() {
   scrollToBottom()
 
   try {
-    const url = `${props.siteUrl}/api/method/helpdesk.helpdesk.api.chat.send_message`
+    const url = `${props.siteUrl}/api/method/helpdesk.api.chat.send_message`
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -253,7 +253,7 @@ function markMessageRead(messageId, senderType) {
  * POST to a Frappe whitelisted API method.
  */
 function callApi(method, body) {
-  const url = `${props.siteUrl}/api/method/helpdesk.helpdesk.api.chat.${method}`
+  const url = `${props.siteUrl}/api/method/helpdesk.api.chat.${method}`
   return fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
