@@ -5,6 +5,8 @@ import frappe
 from frappe import _
 from frappe.utils import now_datetime
 
+from helpdesk.utils import is_agent
+
 
 @frappe.whitelist()
 def apply_incident_model(ticket: str, model: str) -> dict:
@@ -21,7 +23,12 @@ def apply_incident_model(ticket: str, model: str) -> dict:
 	        "checklist_items_count": int
 	    }
 	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
+
+	if not frappe.db.get_single_value("HD Settings", "itil_mode_enabled"):
+		frappe.throw(_("Incident Models require ITIL mode to be enabled"), frappe.ValidationError)
 
 	ticket_doc = frappe.get_doc("HD Ticket", ticket)
 	model_doc = frappe.get_doc("HD Incident Model", model)
@@ -58,7 +65,6 @@ def apply_incident_model(ticket: str, model: str) -> dict:
 		)
 
 	ticket_doc.save()
-	frappe.db.commit()  # nosemgrep
 
 	return {
 		"success": True,
@@ -83,7 +89,12 @@ def complete_checklist_item(ticket: str, checklist_item_name: str) -> dict:
 	        "completed_at": str | None
 	    }
 	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
+
+	if not frappe.db.get_single_value("HD Settings", "itil_mode_enabled"):
+		frappe.throw(_("Incident Models require ITIL mode to be enabled"), frappe.ValidationError)
 
 	ticket_doc = frappe.get_doc("HD Ticket", ticket)
 	checklist_row = None
@@ -112,7 +123,6 @@ def complete_checklist_item(ticket: str, checklist_item_name: str) -> dict:
 		checklist_row.completed_at = now_datetime()
 
 	ticket_doc.save()
-	frappe.db.commit()  # nosemgrep
 
 	return {
 		"success": True,

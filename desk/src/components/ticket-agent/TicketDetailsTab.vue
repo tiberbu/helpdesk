@@ -71,6 +71,12 @@
       :checklist="ticket.doc.ticket_checklist"
       @item-toggled="onChecklistItemToggled"
     />
+
+    <!-- Time Tracker panel -->
+    <TimeTracker
+      v-if="ticket?.doc?.name"
+      :ticket-id="String(ticket.doc.name)"
+    />
   </div>
 </template>
 
@@ -89,9 +95,12 @@ import {
 } from "@/types";
 import { computed, inject, ref } from "vue";
 import { createResource, toast } from "frappe-ui";
+import { __ } from "@/translation";
+import { useTicketStatusStore } from "@/stores/ticketStatus";
 import TicketField from "../TicketField.vue";
 import RelatedTickets from "../ticket/RelatedTickets.vue";
 import TicketChecklist from "../ticket/TicketChecklist.vue";
+import TimeTracker from "../ticket/TimeTracker.vue";
 import AssignTo from "./AssignTo.vue";
 import TicketContact from "./TicketContact.vue";
 
@@ -101,6 +110,7 @@ const customizations = inject(CustomizationSymbol);
 const activities = inject(ActivitiesSymbol);
 const { getFields, getField } = getMeta("HD Ticket");
 const { notifyTicketUpdate } = useNotifyTicketUpdate(ticket.value?.name);
+const ticketStatusStore = useTicketStatusStore();
 
 // ticket_type, priority, customer, agent_group
 const coreFields = computed(() => {
@@ -213,11 +223,10 @@ function handleFieldUpdate(
 ) {
   if (ticket.value.doc[fieldname] == value) return;
 
-  // Client-side resolution guard: block if mandatory checklist items are incomplete
-  if (
-    fieldname === "status" &&
-    (value === "Resolved" || value === "Closed")
-  ) {
+  // Client-side resolution guard: block if mandatory checklist items are incomplete.
+  // Check status_category so "Duplicate" (also Resolved category) is caught as well.
+  const newStatusCategory = ticketStatusStore.getStatus(value as string)?.category;
+  if (fieldname === "status" && newStatusCategory === "Resolved") {
     const checklist: any[] = ticket.value.doc.ticket_checklist ?? [];
     const incomplete = checklist.filter(
       (item: any) => item.is_mandatory && !item.is_completed

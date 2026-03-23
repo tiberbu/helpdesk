@@ -27,7 +27,7 @@
       />
     </div>
 
-    <!-- Elapsed time & linked tickets -->
+    <!-- Elapsed time, linked tickets & affected customers -->
     <div class="flex items-center gap-4 text-xs text-ink-gray-5">
       <span>
         <LucideClock class="inline h-3 w-3 mr-0.5" />
@@ -36,6 +36,10 @@
       <span v-if="incident.linked_ticket_count">
         <LucideLink class="inline h-3 w-3 mr-0.5" />
         {{ __("{0} linked ticket(s)", [incident.linked_ticket_count]) }}
+      </span>
+      <span v-if="incident.affected_customer_count">
+        <LucideUsers class="inline h-3 w-3 mr-0.5" />
+        {{ __("{0} affected customer(s)", [incident.affected_customer_count]) }}
       </span>
     </div>
   </div>
@@ -48,6 +52,7 @@ import { useRouter } from "vue-router";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
 import LucideClock from "~icons/lucide/clock";
 import LucideLink from "~icons/lucide/link";
+import LucideUsers from "~icons/lucide/users";
 
 interface MajorIncident {
   name: string;

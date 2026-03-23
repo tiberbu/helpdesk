@@ -108,18 +108,23 @@ const totalMinutes = computed(
 const showDurationError = computed(() => touched.value && totalMinutes.value < 1);
 const isValid = computed(() => totalMinutes.value >= 1);
 
-const saveUrl = computed(() =>
-  props.mode === "stop-timer"
-    ? "helpdesk.api.time_tracking.stop_timer"
-    : "helpdesk.api.time_tracking.add_entry"
-);
-
-const saveResource = createResource({
-  url: saveUrl.value,
+const stopTimerResource = createResource({
+  url: "helpdesk.api.time_tracking.stop_timer",
   onSuccess() {
     emit("saved");
   },
 });
+
+const addEntryResource = createResource({
+  url: "helpdesk.api.time_tracking.add_entry",
+  onSuccess() {
+    emit("saved");
+  },
+});
+
+const saveResource = computed(() =>
+  props.mode === "stop-timer" ? stopTimerResource : addEntryResource
+);
 
 function save() {
   touched.value = true;
@@ -136,6 +141,6 @@ function save() {
     params.started_at = props.startedAt;
   }
 
-  saveResource.submit(params);
+  saveResource.value.submit(params);
 }
 </script>

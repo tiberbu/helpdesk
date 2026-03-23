@@ -99,6 +99,8 @@ import { HDTicketStatus } from "@/types/doctypes";
 import { getIcon } from "@/utils";
 import { Breadcrumbs, call, Dropdown, toast } from "frappe-ui";
 import { __ } from "@/translation";
+import { useConfigStore } from "@/stores/config";
+import { storeToRefs } from "pinia";
 import {
   computed,
   ComputedRef,
@@ -137,6 +139,7 @@ const activities = inject(ActivitiesSymbol);
 const showMajorIncidentDialog = inject<Ref<boolean>>("showMajorIncidentDialog", ref(false));
 
 const showSubjectDialog = ref(false);
+const { itilModeEnabled } = storeToRefs(useConfigStore());
 
 const { notifyTicketUpdate } = useNotifyTicketUpdate(ticket.value?.name);
 const statusDropdown = computed(() => {
@@ -211,16 +214,18 @@ const defaultActions = computed(() => {
     });
   }
 
-  // Major Incident flag/unflag
-  items.push({
-    label: ticket.value?.doc?.is_major_incident
-      ? __("Remove Major Incident Flag")
-      : __("Declare Major Incident"),
-    icon: LucideAlertTriangle,
-    onClick: () => {
-      showMajorIncidentDialog.value = true;
-    },
-  });
+  // Major Incident flag/unflag (only visible when ITIL mode is enabled)
+  if (itilModeEnabled.value) {
+    items.push({
+      label: ticket.value?.doc?.is_major_incident
+        ? __("Remove Major Incident Flag")
+        : __("Declare Major Incident"),
+      icon: LucideAlertTriangle,
+      onClick: () => {
+        showMajorIncidentDialog.value = true;
+      },
+    });
+  }
 
   return [
     {

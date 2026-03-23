@@ -128,6 +128,7 @@ import LucideBell from "~icons/lucide/bell";
 import LucideLayoutDashboard from "~icons/lucide/layout-dashboard";
 
 import { useAuthStore } from "@/stores/auth";
+import { useConfigStore } from "@/stores/config";
 import { isCustomerPortal } from "@/utils";
 import Apps from "../Apps.vue";
 import {
@@ -144,6 +145,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const telephonyStore = useTelephonyStore();
 const { isCallingEnabled } = storeToRefs(telephonyStore);
+const { itilModeEnabled } = storeToRefs(useConfigStore());
 
 const allViews = computed(() => {
   let items = isCustomerPortal.value
@@ -152,6 +154,9 @@ const allViews = computed(() => {
 
   if (!isCallingEnabled.value) {
     items = items.filter((item) => item.label !== "Call Logs");
+  }
+  if (!itilModeEnabled.value) {
+    items = items.filter((item) => item.label !== "Major Incidents");
   }
 
   const options = [

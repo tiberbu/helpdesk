@@ -50,8 +50,7 @@ def stop_timer(
 			"started_at": started_at,
 		}
 	)
-	entry.insert(ignore_permissions=True)
-	frappe.db.commit()
+	entry.insert()
 
 	return {"name": entry.name, "success": True}
 
@@ -85,10 +84,33 @@ def add_entry(
 			"timestamp": now_datetime(),
 		}
 	)
-	entry.insert(ignore_permissions=True)
-	frappe.db.commit()
+	entry.insert()
 
 	return {"name": entry.name, "success": True}
+
+
+@frappe.whitelist()
+def delete_entry(name: str) -> dict:
+	"""
+	Delete an HD Time Entry.
+
+	Agents may only delete their own entries; HD Admin / System Manager may delete any.
+
+	Returns: { "success": True }
+	"""
+	entry = frappe.get_doc("HD Time Entry", name)
+
+	is_admin = frappe.db.get_value(
+		"Has Role",
+		{"parent": frappe.session.user, "role": ["in", ["HD Admin", "System Manager"]]},
+		"name",
+	)
+
+	if entry.agent != frappe.session.user and not is_admin:
+		frappe.throw(_("You can only delete your own time entries."), frappe.PermissionError)
+
+	frappe.delete_doc("HD Time Entry", name)
+	return {"success": True}
 
 
 @frappe.whitelist()

@@ -39,6 +39,8 @@ class TestIncidentModelApplication(FrappeTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 		frappe.db.set_single_value("HD Settings", "skip_email_workflow", 1)
+		# Incident Models are an ITIL feature — enable ITIL mode for all tests
+		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
 
 		self.agent_email = "im_agent@example.com"
 		create_agent(self.agent_email)
@@ -52,6 +54,7 @@ class TestIncidentModelApplication(FrappeTestCase):
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
+		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
 		frappe.db.rollback()
 
 	# ---------------------------------------------------------------

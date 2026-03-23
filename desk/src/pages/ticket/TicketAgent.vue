@@ -179,13 +179,14 @@ const showMajorIncidentDialog = ref(false);
 
 const flagResource = createResource({
   url: "helpdesk.api.incident.flag_major_incident",
-  onSuccess() {
+  onSuccess(data: { success: boolean; is_major_incident: number }) {
     showMajorIncidentDialog.value = false;
     reloadTicket(props.ticketId);
+    // Use the API response value (not the stale doc) to determine the correct message
     toast.success(
-      ticket.value?.doc?.is_major_incident
-        ? __("Major incident flag removed.")
-        : __("Ticket declared as major incident.")
+      data.is_major_incident
+        ? __("Ticket declared as major incident.")
+        : __("Major incident flag removed.")
     );
   },
   onError(err: any) {

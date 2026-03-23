@@ -54,9 +54,9 @@
   },
   {
    "fieldname": "default_priority",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Default Priority",
-   "options": "\nLow\nMedium\nHigh\nUrgent"
+   "options": "HD Ticket Priority"
   },
   {
    "fieldname": "default_team",

@@ -21,6 +21,7 @@ class TestMajorIncidentFlagAndWorkflow(FrappeTestCase):
     def setUp(self):
         frappe.set_user("Administrator")
         frappe.db.set_single_value("HD Settings", "skip_email_workflow", 1)
+        frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
 
         self.agent_email = "mi_agent@example.com"
         self.customer_email = "mi_customer@example.com"
@@ -35,8 +36,10 @@ class TestMajorIncidentFlagAndWorkflow(FrappeTestCase):
     def tearDown(self):
         frappe.set_user("Administrator")
         frappe.db.set_single_value("HD Settings", "skip_email_workflow", 0)
+        frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
 
-        # Clean up comments created during tests
+        # Explicitly delete comments first (child records), then the ticket itself.
+        # frappe.db.rollback() is unreliable because API methods call frappe.db.commit().
         for comment in frappe.get_all(
             "HD Ticket Comment",
             filters={"reference_ticket": self.ticket_id},
@@ -44,7 +47,13 @@ class TestMajorIncidentFlagAndWorkflow(FrappeTestCase):
         ):
             frappe.delete_doc("HD Ticket Comment", comment, force=True)
 
-        frappe.db.rollback()
+        # Remove any related-ticket links so the ticket can be deleted cleanly
+        frappe.db.delete("HD Related Ticket", {"parent": self.ticket_id})
+
+        if frappe.db.exists("HD Ticket", self.ticket_id):
+            frappe.delete_doc("HD Ticket", self.ticket_id, force=True)
+
+        frappe.db.commit()  # nosemgrep
 
     # ------------------------------------------------------------------
     # AC-1 / AC-2: Flag and unflag

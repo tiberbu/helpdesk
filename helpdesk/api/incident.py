@@ -181,6 +181,12 @@ def _assert_no_existing_link(ticket_a: str, ticket_b: str) -> None:
 		)
 
 
+def _check_itil_mode() -> None:
+	"""Raise PermissionError if ITIL mode is not enabled in HD Settings."""
+	if not frappe.db.get_single_value("HD Settings", "itil_mode_enabled"):
+		frappe.throw(_("ITIL mode is not enabled."), frappe.PermissionError)
+
+
 @frappe.whitelist()
 def flag_major_incident(ticket: str) -> dict:
 	"""
@@ -191,8 +197,9 @@ def flag_major_incident(ticket: str) -> dict:
 	Toggling off clears both fields.
 
 	Returns {"success": True, "is_major_incident": <new value>}.
-	Raises frappe.PermissionError if caller lacks Agent role.
+	Raises frappe.PermissionError if caller lacks Agent role or ITIL mode is off.
 	"""
+	_check_itil_mode()
 	if not is_agent():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
@@ -227,13 +234,14 @@ def flag_major_incident(ticket: str) -> dict:
 @frappe.whitelist()
 def propagate_update(ticket: str, message: str) -> dict:
 	"""
-	Post a public comment on the major incident ticket and on every
+	Post an internal comment on the major incident ticket and on every
 	directly linked ticket (HD Related Ticket child rows).
 
 	Returns {"success": True, "count": <number of tickets updated>}.
-	Raises frappe.PermissionError if caller lacks Agent role.
+	Raises frappe.PermissionError if caller lacks Agent role or ITIL mode is off.
 	Raises frappe.ValidationError if ticket is not flagged as a major incident.
 	"""
+	_check_itil_mode()
 	if not is_agent():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
@@ -255,7 +263,7 @@ def propagate_update(ticket: str, message: str) -> dict:
 				"content": _(
 					"[Major Incident Update from #{0}]: {1}"
 				).format(ticket, message_escaped),
-				"is_internal": 0,
+				"is_internal": 1,
 				"is_pinned": 0,
 			}
 		)
@@ -278,30 +286,53 @@ def propagate_update(ticket: str, message: str) -> dict:
 
 
 @frappe.whitelist()
-def get_major_incident_summary() -> list:
+def get_major_incident_summary(limit: int = 100) -> list:
 	"""
-	Return all open major incidents with enriched data.
+	Return active major incidents with enriched data (paginated, default limit=100).
 
 	Each entry includes: name, subject, status, major_incident_flagged_at,
-	priority, linked_ticket_count, elapsed_minutes.
+	priority, linked_ticket_count, elapsed_minutes, affected_customer_count.
+	Excludes resolved/closed incidents by default.
+	Raises frappe.PermissionError if ITIL mode is off or caller lacks Agent role.
 	"""
+	_check_itil_mode()
 	if not is_agent():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 	incidents = frappe.get_all(
 		"HD Ticket",
 		filters={"is_major_incident": 1},
-		fields=["name", "subject", "status", "major_incident_flagged_at", "priority"],
+		fields=["name", "subject", "status", "major_incident_flagged_at", "priority", "raised_by"],
 		order_by="major_incident_flagged_at desc",
+		limit=int(limit),
 	)
 
 	now = now_datetime()
 	for inc in incidents:
+		ticket_name = inc["name"]
+
 		# Count linked tickets
-		inc["linked_ticket_count"] = frappe.db.count(
+		linked_ticket_ids = frappe.get_all(
 			"HD Related Ticket",
-			{"parent": inc["name"], "parenttype": "HD Ticket"},
+			filters={"parent": ticket_name, "parenttype": "HD Ticket"},
+			pluck="ticket",
 		)
+		inc["linked_ticket_count"] = len(linked_ticket_ids)
+
+		# Affected customer count: unique raised_by across main + linked tickets
+		all_customer_emails = set()
+		if inc.get("raised_by"):
+			all_customer_emails.add(inc["raised_by"])
+		if linked_ticket_ids:
+			linked_raised_by = frappe.get_all(
+				"HD Ticket",
+				filters=[["name", "in", [str(t) for t in linked_ticket_ids]]],
+				pluck="raised_by",
+			)
+			for email in linked_raised_by:
+				if email:
+					all_customer_emails.add(email)
+		inc["affected_customer_count"] = len(all_customer_emails)
 
 		# Elapsed time in minutes since flagged
 		flagged_at = inc.get("major_incident_flagged_at")
@@ -353,7 +384,7 @@ def _send_major_incident_notifications(ticket: str) -> None:
 			delayed=False,
 		)
 
-		# In-app realtime notification (Socket.IO room per agent email)
+		# In-app realtime notification (Socket.IO room per user email — Frappe convention)
 		frappe.publish_realtime(
 			event="major_incident_declared",
 			message={
@@ -361,7 +392,7 @@ def _send_major_incident_notifications(ticket: str) -> None:
 				"subject": ticket_doc.subject or "",
 				"url": ticket_url,
 			},
-			room=f"agent:{email}",
+			room=f"user:{email}",
 		)
 
 

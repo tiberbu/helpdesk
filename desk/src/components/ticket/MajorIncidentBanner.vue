@@ -47,7 +47,7 @@
       <p class="text-sm text-ink-gray-6 mb-3">
         {{
           __(
-            'Post an update comment on this ticket and all {0} linked ticket(s). Customers and agents on those tickets will see this message.',
+            'Post an internal update comment on this ticket and all {0} linked ticket(s). Only agents will see this message.',
             [linkedCount]
           )
         }}
@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { TicketSymbol } from "@/types";
 import { Button, Dialog, FormControl, createResource, toast } from "frappe-ui";
-import { computed, inject, ref } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
 import LucideMegaphone from "~icons/lucide/megaphone";
 
@@ -90,16 +90,52 @@ const ticket = inject(TicketSymbol);
 const showPropagateDialog = ref(false);
 const propagateMessage = ref("");
 
+// Reactive "now" updated every 30 seconds so elapsedText stays live
+const now = ref(Date.now());
+let timerHandle: ReturnType<typeof setInterval> | null = null;
+
+onMounted(() => {
+  timerHandle = setInterval(() => {
+    now.value = Date.now();
+  }, 30_000);
+});
+
+onUnmounted(() => {
+  if (timerHandle !== null) {
+    clearInterval(timerHandle);
+    timerHandle = null;
+  }
+});
+
+// Fetch related tickets count from the API for accuracy
+// (child table data in doc may not always be populated)
+const relatedTicketsResource = createResource({
+  url: "helpdesk.api.incident.get_related_tickets",
+  auto: false,
+});
+
+// Reload whenever the ticket changes and is a major incident
+const ticketName = computed(() => ticket?.value?.doc?.name);
+import { watch } from "vue";
+watch(
+  ticketName,
+  (name) => {
+    if (name) relatedTicketsResource.submit({ ticket: String(name) });
+  },
+  { immediate: true }
+);
+
 const linkedCount = computed(
-  () => (ticket?.value?.doc?.related_tickets || []).length
+  () =>
+    relatedTicketsResource.data?.length ??
+    (ticket?.value?.doc?.related_tickets || []).length
 );
 
 const elapsedText = computed(() => {
   const flaggedAt = ticket?.value?.doc?.major_incident_flagged_at;
   if (!flaggedAt) return "—";
-  const diff = Math.floor(
-    (Date.now() - new Date(flaggedAt).getTime()) / 1000
-  );
+  // now.value is updated by the interval, making this reactive
+  const diff = Math.floor((now.value - new Date(flaggedAt).getTime()) / 1000);
   if (diff < 60) return `${diff}s`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ${Math.floor((diff % 3600) / 60)}m`;

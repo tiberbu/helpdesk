@@ -551,12 +551,14 @@
    "label": "Prevention Measures"
   },
   {
+   "depends_on": "eval:frappe.db.get_single_value('HD Settings', 'itil_mode_enabled')",
    "fieldname": "incident_model",
    "fieldtype": "Link",
    "label": "Incident Model",
    "options": "HD Incident Model"
   },
   {
+   "depends_on": "eval:frappe.db.get_single_value('HD Settings', 'itil_mode_enabled')",
    "fieldname": "ticket_checklist",
    "fieldtype": "Table",
    "label": "Checklist",

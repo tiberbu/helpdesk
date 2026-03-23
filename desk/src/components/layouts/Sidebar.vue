@@ -182,6 +182,7 @@ import {
   showEmailBox,
 } from "@/pages/ticket/modalStates";
 import { useAuthStore } from "@/stores/auth";
+import { useConfigStore } from "@/stores/config";
 import { useNotificationStore } from "@/stores/notification";
 import { useSidebarStore } from "@/stores/sidebar";
 import { capture } from "@/telemetry";
@@ -240,6 +241,7 @@ const { isExpanded, width } = storeToRefs(useSidebarStore());
 const device = useDevice();
 const telephonyStore = useTelephonyStore();
 const { isCallingEnabled } = storeToRefs(telephonyStore);
+const { itilModeEnabled } = storeToRefs(useConfigStore());
 
 const showShortcutsModal = ref(false);
 const showCommandPalette = ref(false);
@@ -255,6 +257,9 @@ const allViews = computed(() => {
 
   if (!isCallingEnabled.value) {
     items = items.filter((item) => item.label !== __("Call Logs"));
+  }
+  if (!itilModeEnabled.value) {
+    items = items.filter((item) => item.label !== __("Major Incidents"));
   }
 
   const options = [
