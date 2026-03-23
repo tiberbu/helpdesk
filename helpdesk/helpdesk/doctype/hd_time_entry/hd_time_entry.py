@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from helpdesk.utils import AGENT_ROLES, is_agent
+from helpdesk.utils import is_agent
 
 MAX_DESCRIPTION_LENGTH = 500  # Issue #11: single source of truth for description limit
 MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound

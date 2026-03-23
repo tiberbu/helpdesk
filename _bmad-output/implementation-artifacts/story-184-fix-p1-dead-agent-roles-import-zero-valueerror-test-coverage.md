@@ -1,6 +1,6 @@
 # Story: Fix: P1 dead AGENT_ROLES import + zero ValueError test coverage + story-169 audit trail fabrication
 
-Status: in-progress
+Status: done
 Task ID: mn3f255cogzvqz
 Task Number: #184
 Workflow: quick-dev
@@ -29,8 +29,8 @@ P1 findings from adversarial review docs/qa-report-task-169.md:
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -48,12 +48,24 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Finding 1 (P1): story-169 AC-1 updated to `[~]` (intentionally rejected) with full rationale — explicit PRIVILEGED_ROLES enumeration prevents silent privilege-escalation from future AGENT_ROLES additions.
+- Finding 2 (P1): story-169 Change Log and File List corrected — original claims were fabricated; commit d57b258ce had ZERO changes to utils.py or hd_time_entry.py. Accurate notes added.
+- Finding 3 (P1): Removed dead `AGENT_ROLES` import from hd_time_entry.py (line 7). Synced to bench.
+- Finding 4 (P1): Added 2 ValueError coverage tests to test_utils.py: `test_is_agent_raises_valueerror_for_mismatched_user_with_roles` and `test_is_agent_no_valueerror_when_user_matches_session`. All 6 tests pass.
+- Finding 5 (P2): Fixed `user: str = None` → `user: str | None = None` in both `is_admin()` and `is_agent()` in utils.py. Synced to bench.
+- All 83 hd_time_entry tests pass; all 6 test_utils tests pass. No regressions.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py`: Removed unused `AGENT_ROLES` from import (dead import after intentional revert).
+- `helpdesk/utils.py`: Fixed `is_admin()` and `is_agent()` `user` parameter annotation from `str = None` to `str | None = None`.
+- `helpdesk/tests/test_utils.py`: Added `test_is_agent_raises_valueerror_for_mismatched_user_with_roles` and `test_is_agent_no_valueerror_when_user_matches_session`.
+- `_bmad-output/implementation-artifacts/story-169-*.md`: Corrected AC-1 (marked intentionally rejected with rationale), corrected Change Log and File List (removed fabricated claims).
+- Synced hd_time_entry.py, utils.py, test_utils.py to `/home/ubuntu/frappe-bench/apps/helpdesk/`.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` (modified)
+- `helpdesk/utils.py` (modified)
+- `helpdesk/tests/test_utils.py` (modified)
+- `_bmad-output/implementation-artifacts/story-169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g.md` (corrected)

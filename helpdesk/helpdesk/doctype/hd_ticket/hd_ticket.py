@@ -1,5 +1,6 @@
 import json
 import uuid
+from contextlib import contextmanager
 from datetime import timedelta
 from email.utils import parseaddr
 from functools import lru_cache
@@ -1503,6 +1504,34 @@ def remove_guest_ticket_creation_permission():
 customer_not_allowed_fields = ["customer"]
 
 
+@contextmanager
+def _autoclose_savepoint(ticket):
+    """Context manager that wraps one auto-close iteration in a named savepoint.
+
+    On success the savepoint is released.  On ValidationError (expected failure
+    modes: checklist guards, DoesNotExist, stale references) the savepoint is
+    rolled back and a WARNING is logged — these are not bugs.  On any other
+    exception the savepoint is rolled back and frappe.log_error() is called so
+    on-call is alerted, but the cron batch continues.
+    """
+    _sp = f"sp_autoclose_{ticket}"
+    frappe.db.savepoint(_sp)
+    try:
+        yield
+        frappe.db.release_savepoint(_sp)
+    except frappe.ValidationError as exc:
+        frappe.db.rollback(save_point=_sp)
+        frappe.logger().warning(
+            f"Auto-close skipped ticket {ticket} (validation): {exc}"
+        )
+    except Exception:  # noqa: BLE001
+        frappe.db.rollback(save_point=_sp)
+        frappe.log_error(
+            title=f"Auto-close failed for ticket {ticket}",
+            message=frappe.get_traceback(),
+        )
+
+
 def close_tickets_after_n_days():
     if frappe.db.get_single_value("HD Settings", "auto_close_tickets") == 0:
         return
@@ -1534,37 +1563,15 @@ def close_tickets_after_n_days():
 
     # cant do set_value because SLA will not be applied as setting directly to db and doc is not running.
     for ticket in tickets_to_close:
-        # Create a named savepoint so a failure in one iteration only rolls back
-        # that iteration's DB changes — previously-committed closures stay intact.
-        # Catch ALL exceptions so a single bad ticket (e.g. transient
-        # OperationalError / deadlock) never aborts the entire cron batch.
-        # Log at WARNING for expected ValidationError modes; ERROR for unexpected.
-        _sp = f"sp_autoclose_{ticket}"
-        frappe.db.savepoint(_sp)
-        try:
+        # _autoclose_savepoint wraps each iteration in a named savepoint so a
+        # failure on one ticket only rolls back that iteration's DB changes —
+        # previously-committed closures stay intact.  Logging is handled inside
+        # the CM (WARNING for ValidationError, ERROR for unexpected exceptions).
+        with _autoclose_savepoint(ticket):
             doc = frappe.get_doc("HD Ticket", ticket)
             doc.status = "Closed"
             # F-02: do NOT set ignore_validate=True here — that bypassed the
             # validate_checklist_before_resolution() guard entirely.  Auto-close
             # must respect the same validation rules as a manual close.
             doc.save(ignore_permissions=True)
-            frappe.db.release_savepoint(_sp)
-        except Exception as exc:  # noqa: BLE001
-            # Roll back only this iteration's DB changes; continue the batch.
-            frappe.db.rollback(save_point=_sp)  # nosemgrep — undo this iteration only
-            if isinstance(exc, frappe.ValidationError):
-                # Expected failure modes: checklist guards, missing links,
-                # stale references.  Log at WARNING — these are not bugs.
-                frappe.logger().warning(
-                    f"Auto-close skipped ticket {ticket} (validation): {exc}"
-                )
-            else:
-                # Unexpected failures: OperationalError (deadlock, lock timeout),
-                # PermissionError, etc.  Log at ERROR so on-call is alerted, but
-                # continue processing remaining tickets — one bad ticket must not
-                # abort the entire cron batch.
-                frappe.log_error(
-                    title=f"Auto-close failed for ticket {ticket}",
-                    message=frappe.get_traceback(),
-                )
         frappe.db.commit()  # nosemgrep — persist close or error log

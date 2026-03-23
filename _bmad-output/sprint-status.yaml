@@ -446,12 +446,16 @@ development_status:
 
   180-qa-fix-redundant-except-types-operationalerror-kills-cron-ba: ready-for-dev  # [adversarial-review] QA: Fix: Redundant except types + OperationalError kills cro
 
-  181-qa-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is: ready-for-dev  # [adversarial-review] QA: Fix: P1 _ensure_sm_agent_user missing HD Agent record + 
+  181-qa-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is: review  # [adversarial-review] QA: Fix: P1 _ensure_sm_agent_user missing HD Agent record + 
 
   182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: review  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co
 
   183-qa-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-c: ready-for-dev  # [adversarial-review] QA: Fix: P1 undeclared scope creep in task-163 + P2 stale te
 
-  184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage: in-progress  # [quick-dev] Fix: P1 dead AGENT_ROLES import + zero ValueError test cover
+  184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage: review  # [quick-dev] Fix: P1 dead AGENT_ROLES import + zero ValueError test cover
 
-  185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm: ready-for-dev  # [quick-dev] Fix: P1 hd_ticket.py production code not updated — savepoint
+  185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm: in-progress  # [quick-dev] Fix: P1 hd_ticket.py production code not updated — savepoint
+
+  186-qa-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-comm: ready-for-dev  # [adversarial-review] QA: Fix: P1 dev/bench desync in utils.py + hd_time_entry.py 
+
+  187-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-fals: ready-for-dev  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-176 + f

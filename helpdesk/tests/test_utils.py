@@ -96,3 +96,41 @@ class TestIsAgentExplicitUser(FrappeTestCase):
 			is_agent(user="Administrator"),
 			"is_agent(user='Administrator') must always return True",
 		)
+
+	def test_is_agent_raises_valueerror_for_mismatched_user_with_roles(self):
+		"""
+		ValueError must be raised when user_roles are pre-fetched for the current
+		session user but is_agent() is called with a *different* user.
+
+		This enforces the identity contract: pre-fetched roles are only valid for
+		frappe.session.user.  Passing them for a different user would silently
+		produce incorrect permission decisions (privilege escalation or denial).
+		"""
+		from helpdesk.utils import is_agent
+
+		# Session user is the agent
+		frappe.set_user("is.agent.check@test.com")
+		# user_roles fetched for the current session user (is.agent.check@test.com)
+		session_user_roles = set(frappe.get_roles(frappe.session.user))
+
+		# Calling is_agent() for a *different* user with these mismatched roles
+		# must raise ValueError — not silently return a wrong answer.
+		with self.assertRaises(ValueError):
+			is_agent(user="not.an.agent@test.com", user_roles=session_user_roles)
+
+	def test_is_agent_no_valueerror_when_user_matches_session(self):
+		"""
+		No ValueError must be raised when user equals the current session user
+		and user_roles are provided — this is the valid, intended calling pattern.
+		"""
+		from helpdesk.utils import is_agent
+
+		frappe.set_user("is.agent.check@test.com")
+		user_roles = set(frappe.get_roles(frappe.session.user))
+
+		# Same user as session — must succeed and return True (is an agent)
+		result = is_agent(user=frappe.session.user, user_roles=user_roles)
+		self.assertTrue(
+			result,
+			"is_agent(user=session_user, user_roles=...) must not raise and must return True for an agent",
+		)

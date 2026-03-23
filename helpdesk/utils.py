@@ -33,7 +33,7 @@ def check_permissions(doctype, parent, doc=None):
         )
 
 
-def is_admin(user: str = None) -> bool:
+def is_admin(user: str | None = None) -> bool:
     """
     Check whether `user` is an admin
 
@@ -50,7 +50,7 @@ def is_admin(user: str = None) -> bool:
 AGENT_ROLES = frozenset({"HD Admin", "Agent Manager", "Agent"})
 
 
-def is_agent(user: str = None, user_roles: set | None = None) -> bool:
+def is_agent(user: str | None = None, user_roles: set | None = None) -> bool:
     """
     Check whether `user` is an agent
 
