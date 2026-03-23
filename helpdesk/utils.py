@@ -44,21 +44,28 @@ def is_admin(user: str = None) -> bool:
     return user == "Administrator"
 
 
-def is_agent(user: str = None) -> bool:
+# Single source of truth for roles that qualify a user as an agent.
+# Used by is_agent() and importable by other modules (e.g. time_tracking.py) to avoid
+# hardcoding the same role set in multiple places — see QA report task-149 P1 finding.
+AGENT_ROLES = frozenset({"HD Admin", "Agent Manager", "Agent"})
+
+
+def is_agent(user: str = None, user_roles: set = None) -> bool:
     """
     Check whether `user` is an agent
 
     :param user: User to check against, defaults to current user
+    :param user_roles: Pre-fetched set of role names (optional). If provided,
+        this set is used instead of calling frappe.get_roles(), avoiding a
+        redundant DB/cache hit when the caller already holds the roles.
     :return: Whether `user` is an agent
     """
     user = user or frappe.session.user
-    # Fetch roles once and store as a set to avoid redundant DB/cache calls.
-    roles = set(frappe.get_roles(user))
-    return (
-        is_admin(user)
-        or bool(roles & {"HD Admin", "Agent Manager", "Agent"})
-        or bool(frappe.db.exists("HD Agent", {"name": user}))
-    )
+    if is_admin(user):
+        return True
+    # Use pre-fetched roles if provided; otherwise fetch once from DB/cache.
+    roles = user_roles if user_roles is not None else set(frappe.get_roles(user))
+    return bool(roles & AGENT_ROLES) or bool(frappe.db.exists("HD Agent", {"name": user}))
 
 
 def publish_event(

@@ -1016,5 +1016,100 @@ class TestHDTimeEntry(FrappeTestCase):
 		self.assertEqual(entry.duration_minutes, 100, "'1e2' must evaluate to 100")
 
 
+	# --- Negative tests: bare System Manager blocked on all API endpoints ---
+
+	def test_system_manager_cannot_add_entry(self):
+		"""
+		A bare System Manager user (no Agent/HD Admin role) must be blocked
+		by the is_agent() pre-gate in add_entry() — verifies that the pre-gate
+		is effective for all write endpoints, not just delete_entry.
+		"""
+		# Create an entry as agent first so the ticket exists in a valid state.
+		# Then switch to System Manager to verify add_entry is blocked.
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_system_manager_cannot_start_timer(self):
+		"""
+		A bare System Manager user (no Agent/HD Admin role) must be blocked
+		by the is_agent() pre-gate in start_timer().
+		"""
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				start_timer(ticket=self.ticket_name)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_system_manager_cannot_stop_timer(self):
+		"""
+		A bare System Manager user (no Agent/HD Admin role) must be blocked
+		by the is_agent() pre-gate in stop_timer().
+		"""
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				stop_timer(
+					ticket=self.ticket_name,
+					started_at="2026-01-01 10:00:00",
+					duration_minutes=10,
+				)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_system_manager_cannot_get_summary(self):
+		"""
+		A bare System Manager user (no Agent/HD Admin role) must be blocked
+		by the is_agent() pre-gate in get_summary() — customers and non-agents
+		must not see internal time tracking / billing data.
+		"""
+		# Create an entry as agent so the summary would have data if the block fails
+		frappe.set_user("agent.tt@test.com")
+		add_entry(ticket=self.ticket_name, duration_minutes=30, billable=1)
+
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				get_summary(ticket=self.ticket_name)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_system_manager_cannot_delete_via_on_trash(self):
+		"""
+		A bare System Manager user who owns their own entry (created via direct
+		REST POST) must still be blocked by the is_agent() pre-gate in on_trash().
+
+		This tests the specific vulnerability described in Finding 2 of
+		qa-report-task-148.md: entry.agent == user passes _check_delete_permission,
+		but the is_agent() pre-gate in on_trash() must catch it first.
+		"""
+		# Create an entry as agent, then load it and pretend System Manager owns it
+		frappe.set_user("agent.tt@test.com")
+		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
+		entry_name = result["name"]
+
+		# Manually set agent to sys.mgr.tt@test.com to simulate REST POST creation
+		frappe.set_user("Administrator")
+		frappe.db.set_value("HD Time Entry", entry_name, "agent", "sys.mgr.tt@test.com")
+		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
+
+		self._ensure_system_manager_user()
+		frappe.set_user("sys.mgr.tt@test.com")
+		try:
+			# on_trash() MUST raise PermissionError even when entry.agent == user
+			with self.assertRaises(frappe.PermissionError):
+				entry_doc.on_trash()
+		finally:
+			frappe.set_user("Administrator")
+
+
 # TestIsAgentExplicitUser has been moved to helpdesk/tests/test_utils.py
 # (story-130 P1 fix #8 — co-locate tests with the module they test)

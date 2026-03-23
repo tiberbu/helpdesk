@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from helpdesk.utils import is_agent
 
 MAX_DESCRIPTION_LENGTH = 500  # Issue #11: single source of truth for description limit
 MAX_DURATION_MINUTES = 1440  # Issue #13: 24-hour upper bound
@@ -76,13 +77,22 @@ class HDTimeEntry(Document):
 
 	def on_trash(self):
 		"""
-		Enforce ownership on all delete paths including direct REST DELETE
-		(e.g. DELETE /api/resource/HD Time Entry/{name}).
+		Enforce agent-only access and ownership on all delete paths including
+		direct REST DELETE (e.g. DELETE /api/resource/HD Time Entry/{name}).
 
 		Frappe calls on_trash (not before_delete) from frappe.delete_doc() /
 		doc.delete(), so this is the correct hook to intercept all deletion paths.
 
+		Pre-gate: only agents may delete time entries at all.  This blocks bare
+		System Manager users who own their own entries (created via direct REST POST)
+		from deleting them — the ownership check in _check_delete_permission would
+		allow that case because entry.agent == user passes, so the is_agent() guard
+		here is the only layer that catches it.
+
 		Delegates to the shared _check_delete_permission helper (Issue #9) so the
-		logic is defined in exactly one place and cannot drift.
+		ownership logic is defined in exactly one place and cannot drift.
 		"""
-		_check_delete_permission(self, frappe.session.user)
+		user = frappe.session.user
+		if not is_agent(user):
+			frappe.throw(_("Not permitted"), frappe.PermissionError)
+		_check_delete_permission(self, user)

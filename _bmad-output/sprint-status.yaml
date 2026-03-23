@@ -336,7 +336,7 @@ development_status:
 
   124-qa-fix-require-int-str-float-string-mismatch-p1-undocumented: review  # [adversarial-review] QA: Fix: _require_int_str float-string mismatch (P1) + undoc
 
-  125-fix-reverted-savepoint-isolation-broad-except-in-close-ticke: in-progress  # [quick-dev] Fix: Reverted savepoint isolation + broad except in close_ti
+  125-fix-reverted-savepoint-isolation-broad-except-in-close-ticke: review  # [quick-dev] Fix: Reverted savepoint isolation + broad except in close_ti
 
   126-fix-missing-on-trash-tests-for-system-manager-hd-admin-test-: review  # [quick-dev] Fix: Missing on_trash tests for System Manager/HD Admin + te
 
@@ -391,4 +391,10 @@ development_status:
 
   152-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud: review  # [adversarial-review] QA: Fix P1 delete_entry double get_roles + stale test count 
 
-  153-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud: ready-for-dev  # [adversarial-review] QA: Fix: P1 delete_entry double get_roles + stale test count
+  153-qa-fix-p1-delete-entry-double-get-roles-stale-test-count-aud: review  # [adversarial-review] QA: Fix: P1 delete_entry double get_roles + stale test count
+
+  154-qa-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-: review  # [adversarial-review] QA: Fix: P1 story-133 still claims 7 inf/nan tests (actual 5
+
+  155-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p2-o: in-progress  # [quick-dev] Fix: P1 inline is_agent() reimplementation in delete_entry +
+
+  156-fix-delete-entry-re-inlines-is-agent-dry-violation-on-trash-: in-progress  # [quick-dev] Fix: delete_entry re-inlines is_agent() DRY violation + on_t

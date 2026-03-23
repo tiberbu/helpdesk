@@ -237,19 +237,13 @@ def delete_entry(name: str) -> dict:
 	Returns: { "success": True }
 	"""
 	user = frappe.session.user
-	# Fetch roles ONCE and reuse for both the pre-gate check and the ownership check
-	# below, avoiding a redundant frappe.get_roles() DB/cache hit.
+	# Fetch roles ONCE and pass to both is_agent() and _check_delete_permission()
+	# to avoid a redundant frappe.get_roles() DB/cache hit.
 	user_roles = set(frappe.get_roles(user))
 
 	# Pre-gate: only agents may delete time entries.
-	# Mirrors is_agent() inline so user_roles can be passed to _check_delete_permission.
-	# Allows: Administrator, users with HD Admin/Agent Manager/Agent roles, and users
-	# with an HD Agent record.
-	if not (
-		user == "Administrator"
-		or bool(user_roles & {"HD Admin", "Agent Manager", "Agent"})
-		or frappe.db.exists("HD Agent", {"name": user})
-	):
+	# Delegates to the canonical is_agent() — DRY, single source of truth.
+	if not is_agent(user_roles=user_roles):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 	# Fetch the entry to verify existence and enforce ownership.

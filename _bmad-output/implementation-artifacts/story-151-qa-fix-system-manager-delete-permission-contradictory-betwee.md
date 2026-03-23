@@ -1,6 +1,6 @@
 # Story: QA: Fix: System Manager delete permission contradictory between delete_entry API and
 
-Status: in-progress
+Status: done
 Task ID: mn3e15gutsc4hv
 Task Number: #151
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,17 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Produced adversarial review report: `docs/qa-report-task-148.md`
+- 13 findings: 2x P1, 3x P2, 8x P3
+- P1-1: delete_entry re-inlines is_agent() logic (DRY violation regression from task #142)
+- P1-2: on_trash() has no is_agent() pre-gate, relies on _check_delete_permission + Frappe perm layer
+- All 3 stated ACs from task #148 met; verdict is CONDITIONAL PASS
+- 71 tests confirmed passing; dev/bench copies byte-identical
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-148.md` — adversarial review report with 13 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-148.md` (created)

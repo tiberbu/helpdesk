@@ -1,6 +1,6 @@
 # Story: QA: Fix: System Manager delete permission contradictory between delete_entry API and REST DELETE
 
-Status: complete
+Status: done
 Task ID: mn3e0q7pvtcap4
 Task Number: #149
 Workflow: adversarial-review
