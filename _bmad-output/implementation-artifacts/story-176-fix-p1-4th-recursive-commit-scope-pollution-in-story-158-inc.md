@@ -57,7 +57,8 @@ sonnet
 
 - **P1 (story-158 File List)**: Expanded File List from 4 to 10 entries to reflect all files in commit `752897a89`. Added 6 out-of-scope entries (story-128, story-153, story-159, sprint-status.yaml, qa-report-story-127, qa-report-task-146) with annotation "bundled by tooling (out-of-scope; commit scope pollution artifact)" to make the pollution transparent without falsifying the record.
 - **P2 (story-133 File List line 72)**: Added "+ 2 HD Admin tests" to the test count description for `test_hd_time_entry.py` in the da95326be entry. The HD Admin tests (`test_hd_admin_can_stop_timer`, `test_hd_admin_can_get_summary`) were already attributed in the Change Log and Completion Notes — this brings the File List inline with them.
-- No source code changes; no regressions possible. This is a documentation-only fix.
+- **Commit scope note**: The commit `fb0c46668` for this story bundled 5 additional files beyond the 3 in-scope documentation files. These were tooling artifacts (automated commit staging picked up uncommitted changes from prior tasks). The 5 bundled files are listed in the File List below with the "bundled by tooling" label. The substantive changes they contain (`is_agent()` ValueError guard, `PRIVILEGED_ROLES` static enumeration, `test_close_tickets.py` assertion update) were intentional improvements carried over from prior work — see story-187 for full review and disposition.
+- **Corrected**: The original Completion Note "No source code changes; no regressions possible. This is a documentation-only fix." was incorrect. This commit modified 3 Python source files (`utils.py`, `hd_time_entry.py`, `test_close_tickets.py`) with substantive logic changes in addition to the intended documentation updates.
 
 ### Change Log
 
@@ -66,6 +67,14 @@ sonnet
 
 ### File List
 
+**In-scope (3 files — intended changes):**
 - `_bmad-output/implementation-artifacts/story-158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco.md` — File List expanded to 10 entries
 - `_bmad-output/implementation-artifacts/story-133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-.md` — File List line 72 updated with HD Admin test count
 - `_bmad-output/implementation-artifacts/story-176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc.md` — this story file
+
+**Out-of-scope (5 files — bundled by tooling; commit scope pollution artifact):**
+- `_bmad-output/implementation-artifacts/story-170-qa-fix-p2-findings-from-adversarial-review-of-story-122-fixe.md` — new 83-line file created by prior task, staged by tooling
+- `_bmad-output/sprint-status.yaml` — status updated from `ready-for-dev` to `review` for task 170, staged by tooling
+- `helpdesk/helpdesk/doctype/hd_ticket/test_close_tickets.py` — Error Log count assertions replaced with `mock_logger.warning.assert_called_once()` (reflects updated logging path); see story-187 for review
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` — `PRIVILEGED_ROLES` changed from `AGENT_ROLES - {"Agent"}` to explicit `frozenset({"HD Admin", "Agent Manager"})`; see story-187 for review
+- `helpdesk/utils.py` — `is_agent()` now raises `ValueError` when `user_roles` is passed for a non-session user; see story-187 for review
