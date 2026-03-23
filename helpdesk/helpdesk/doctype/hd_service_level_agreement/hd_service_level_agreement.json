@@ -28,6 +28,8 @@
   "column_break_baqo",
   "ticket_reopen_status",
   "support_and_resolution_section_break",
+  "timezone",
+  "column_break_timezone",
   "holiday_list",
   "support_and_resolution"
  ],
@@ -81,6 +83,18 @@
    "fieldname": "support_and_resolution_section_break",
    "fieldtype": "Section Break",
    "label": "Working Hours"
+  },
+  {
+   "default": "UTC",
+   "description": "Timezone for business hours calculation. Working hours and holidays are interpreted in this timezone.",
+   "fieldname": "timezone",
+   "fieldtype": "Select",
+   "label": "Timezone",
+   "options": "UTC\nUS/Eastern\nUS/Central\nUS/Mountain\nUS/Pacific\nEurope/London\nEurope/Paris\nEurope/Berlin\nAsia/Kolkata\nAsia/Tokyo\nAsia/Singapore\nAsia/Dubai\nAustralia/Sydney\nAustralia/Melbourne\nAmerica/Sao_Paulo\nAmerica/Mexico_City\nAfrica/Nairobi\nAfrica/Lagos"
+  },
+  {
+   "fieldname": "column_break_timezone",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "support_and_resolution",

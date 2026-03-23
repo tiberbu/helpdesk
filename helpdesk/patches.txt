@@ -58,3 +58,4 @@ helpdesk.patches.v1_phase1.create_hd_csat_response
 helpdesk.patches.v1_phase1.create_hd_csat_survey_template
 helpdesk.patches.v1_phase1.create_hd_brand
 helpdesk.patches.v1_phase1.add_brand_field_to_hd_ticket
+helpdesk.patches.v1_phase1.add_business_hours_to_sla

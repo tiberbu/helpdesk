@@ -16,8 +16,17 @@ from frappe.utils import (
 )
 
 from helpdesk.utils import capture_event, get_context, is_json_valid, publish_event
+from helpdesk.utils.business_hours import (
+    calculate_business_minutes,
+    subtract_pause_minutes,
+    _normalize_time,
+)
 
 from .utils import convert_to_seconds
+
+# Redis cache TTLs
+_SLA_CONFIG_CACHE_TTL = 3600   # 1 hour — SLA working hours config
+_HOLIDAY_CACHE_TTL = 86400     # 24 hours — holiday list dates
 
 
 class HDServiceLevelAgreement(Document):
@@ -329,9 +338,9 @@ class HDServiceLevelAgreement(Document):
         remaining_target_time = priority.get(
             target, 0
         )  # time for response or resolution in seconds
-        holidays = (
+        holidays = set(
             self.get_holidays()
-        )  # From Holiday List, returns a list of holiday dates
+        )  # From Holiday List, returns a set of holiday dates
         days_list = get_weekdays()  # list of weekdays, ["Monday", "Tuesday", ...]
         working_days = (
             self.get_workdays()
@@ -401,8 +410,11 @@ class HDServiceLevelAgreement(Document):
         return start_time <= date_time < end_time
 
     def calc_elapsed_time(self, start_time, end_time):
-        """
-        Calculate working time between start_time and end_time, excluding holidays and non-working hours
+        """Calculate working time between start_time and end_time.
+
+        Uses business-hours-aware calculation when service days are configured.
+        Returns working seconds (integer), excluding holidays and non-working hours.
+        Falls back to calendar seconds when no working hours are configured.
 
         :param start_time: Start datetime
         :param end_time: End datetime
@@ -414,61 +426,61 @@ class HDServiceLevelAgreement(Document):
         if start_time >= end_time:
             return 0
 
-        holidays = set(self.get_holidays())
-        workdays = self.get_workdays()
+        service_days = self._get_service_days_config()
+        holidays = self.get_holidays_set()
+        tz = self.timezone or "UTC"
 
-        total_seconds = 0
-        current_date = start_time.date()
-        end_date = end_time.date()
+        # If no service days configured, fall back to raw calendar seconds
+        if not service_days:
+            return int((end_time - start_time).total_seconds())
 
-        while current_date <= end_date:
-            # Skip holidays
-            if current_date in holidays:
-                current_date = add_to_date(current_date, days=1)
+        minutes = calculate_business_minutes(
+            start_time, end_time, service_days, holidays, tz
+        )
+        return minutes * 60
+
+    def _get_service_days_config(self) -> list[dict]:
+        """Return service days as a list of dicts (cached in Redis).
+
+        Each dict has:  weekday (int 0-6), start_time (timedelta), end_time (timedelta)
+        """
+        cache_key = f"sla:config:{self.name}"
+        cached = frappe.cache().get_value(cache_key)
+        if cached is not None:
+            return cached
+
+        days_list = get_weekdays()  # ["Monday", "Tuesday", ...]
+        service_days = []
+        for row in self.support_and_resolution:
+            try:
+                weekday_idx = days_list.index(row.workday)
+            except ValueError:
                 continue
+            service_days.append({
+                "weekday": weekday_idx,
+                "start_time": row.start_time,
+                "end_time": row.end_time,
+            })
 
-            day_name = get_weekdays()[current_date.weekday()]
-
-            # Skip non-working days
-            if day_name not in workdays:
-                current_date = add_to_date(current_date, days=1)
-                continue
-
-            workday = workdays[day_name]
-            work_start_seconds = workday.start_time.total_seconds()
-            work_end_seconds = workday.end_time.total_seconds()
-
-            # Calculate day boundaries in seconds
-            if current_date == start_time.date():
-                # First day - convert start time to seconds since midnight
-                start_time_seconds = convert_to_seconds(start_time)
-                day_start_seconds = max(start_time_seconds, work_start_seconds)
-            else:
-                day_start_seconds = work_start_seconds
-
-            if current_date == end_time.date():
-                # Last day - convert end time to seconds since midnight
-                end_time_seconds = convert_to_seconds(end_time)
-                day_end_seconds = min(end_time_seconds, work_end_seconds)
-            else:
-                day_end_seconds = work_end_seconds
-
-            # adding to final total seconds by end - start
-            if day_start_seconds < day_end_seconds:
-                total_seconds += day_end_seconds - day_start_seconds
-
-            current_date = add_to_date(current_date, days=1)
-
-        return total_seconds
+        frappe.cache().set_value(cache_key, service_days, expires_in_sec=_SLA_CONFIG_CACHE_TTL)
+        return service_days
 
     def get_holidays(self):
-        res = []
+        """Return list of holiday dates, cached in Redis."""
         if not self.holiday_list:
-            return res
+            return []
+        cache_key = f"sla:holiday_set:{self.holiday_list}"
+        cached = frappe.cache().get_value(cache_key)
+        if cached is not None:
+            return cached
         holiday_list = frappe.get_doc("HD Service Holiday List", self.holiday_list)
-        for row in holiday_list.holidays:
-            res.append(row.holiday_date)
+        res = [row.holiday_date for row in holiday_list.holidays]
+        frappe.cache().set_value(cache_key, res, expires_in_sec=_HOLIDAY_CACHE_TTL)
         return res
+
+    def get_holidays_set(self):
+        """Return holiday dates as a set for O(1) lookup."""
+        return set(self.get_holidays())
 
     def get_priorities(self):
         """
@@ -491,8 +503,15 @@ class HDServiceLevelAgreement(Document):
     def after_insert(self):
         capture_event("sla_created")
 
+    def on_update(self):
+        """Invalidate Redis caches for this SLA's config."""
+        frappe.cache().delete_value(f"sla:config:{self.name}")
+        if self.holiday_list:
+            frappe.cache().delete_value(f"sla:holiday_set:{self.holiday_list}")
+
     def on_trash(self):
         self.handle_default_sla_deletion()
+        frappe.cache().delete_value(f"sla:config:{self.name}")
 
     def handle_default_sla_deletion(self):
         if not self.default_sla:
