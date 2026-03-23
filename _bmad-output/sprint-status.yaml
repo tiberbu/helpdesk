@@ -157,7 +157,7 @@ development_status:
 
   # New tasks (added by Claude Studio)
   20-story-1-4-internal-notes-on-tickets: review  # [create-story] Story 1.4: Internal Notes on Tickets
-  21-story-1-5-mention-notifications-in-internal-notes: ready-for-dev  # [create-story] Story 1.5: @Mention Notifications in Internal Notes
+  21-story-1-5-mention-notifications-in-internal-notes: review  # [dev-story] Story 1.5: @Mention Notifications in Internal Notes
   22-story-1-6-related-ticket-linking: ready-for-dev  # [create-story] Story 1.6: Related Ticket Linking
   23-story-1-7-per-ticket-time-tracking: ready-for-dev  # [create-story] Story 1.7: Per-Ticket Time Tracking
   24-story-1-8-major-incident-flag-and-workflow: ready-for-dev  # [create-story] Story 1.8: Major Incident Flag and Workflow
@@ -194,3 +194,5 @@ development_status:
   49-story-6-3-csat-analytics-dashboard: review  # [create-story] Story 6.3: CSAT Analytics Dashboard
   50-story-6-4-mttr-and-incident-reporting: review  # [create-story] Story 6.4: MTTR and Incident Reporting
   51-story-6-5-time-tracking-reports: review  # [create-story] Story 6.5: Time Tracking Reports
+
+  52-qa-story-1-4-internal-notes-on-tickets: review  # [adversarial-review] QA: Story 1.4: Internal Notes on Tickets

@@ -50,6 +50,15 @@ class HDNotification(Document):
 
     def after_insert(self):
         if self.notification_type == "Mention":
+            # Emit real-time event so the mentioned agent's notification bell
+            # updates immediately without requiring a page refresh.
+            frappe.publish_realtime(
+                "helpdesk:new-notification",
+                {"notification_type": self.notification_type},
+                user=self.user_to,
+                after_commit=True,
+            )
+
             skip_email_workflow = frappe.db.get_single_value(
                 "HD Settings", "skip_email_workflow"
             )

@@ -67,6 +67,13 @@ export const useNotificationStore = defineStore("notification", () => {
     resource.reload();
   });
 
+  // Reload notification list when a new @mention notification is delivered
+  // to this user via real-time, so the bell badge updates immediately.
+  $socket.on("helpdesk:new-notification", () => {
+    if (isCustomerPortal.value) return;
+    resource.reload();
+  });
+
   return {
     clear,
     data,
