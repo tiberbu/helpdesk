@@ -19,6 +19,7 @@
   "cb00",
   "ticket_type",
   "agent_group",
+  "brand",
   "category",
   "sub_category",
   "incident_model",
@@ -157,6 +158,13 @@
    "fieldtype": "Link",
    "label": "Team",
    "options": "HD Team"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Brand",
+   "options": "HD Brand"
   },
   {
    "fieldname": "category",

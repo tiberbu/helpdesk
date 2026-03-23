@@ -137,11 +137,11 @@ def _send_csat_email(ticket_id: str, csat_response_name: str) -> None:
 		response = frappe.get_doc("HD CSAT Response", csat_response_name)
 		ticket = frappe.get_doc("HD Ticket", ticket_id)
 
-		# Fetch survey template (default fallback if none configured)
+		# Fetch survey template: brand-specific first, then default fallback
 		from helpdesk.helpdesk.doctype.hd_csat_survey_template.hd_csat_survey_template import (
 			get_default_template,
 		)
-		template = get_default_template()
+		template = _get_brand_template(ticket) or get_default_template()
 
 		base_url = frappe.utils.get_url()
 
@@ -173,3 +173,30 @@ def _send_csat_email(ticket_id: str, csat_response_name: str) -> None:
 			title="CSAT Survey Error",
 			message=f"Failed to send CSAT email for ticket {ticket_id} (response {csat_response_name})",
 		)
+
+
+def _get_brand_template(ticket) -> "frappe._dict | None":
+	"""Return the CSAT survey template linked to the ticket's brand, or None.
+
+	Looks up ``HD Brand.csat_template`` for the ticket's brand, then fetches
+	that template's fields.  Returns ``None`` when the ticket has no brand, the
+	brand has no template, or the template document does not exist.
+	"""
+	brand_name = getattr(ticket, "brand", None)
+	if not brand_name:
+		return None
+
+	if not frappe.db.exists("DocType", "HD Brand"):
+		return None
+
+	csat_template_name = frappe.db.get_value("HD Brand", brand_name, "csat_template")
+	if not csat_template_name:
+		return None
+
+	template = frappe.db.get_value(
+		"HD CSAT Survey Template",
+		csat_template_name,
+		["template_name", "subject", "intro_text", "logo_url", "primary_color"],
+		as_dict=True,
+	)
+	return template or None

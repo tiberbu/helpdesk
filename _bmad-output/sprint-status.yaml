@@ -176,8 +176,8 @@ development_status:
   # New tasks (added by Claude Studio)
   34-story-3-5-agent-chat-interface: review  # [create-story] Story 3.5: Agent Chat Interface
   35-story-3-6-chat-to-ticket-transcript-and-follow-up: review  # [dev-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
-  36-story-3-7-csat-survey-infrastructure-and-delivery: ready-for-dev  # [create-story] Story 3.7: CSAT Survey Infrastructure and Delivery
-  37-story-3-8-multi-brand-configuration: ready-for-dev  # [create-story] Story 3.8: Multi-Brand Configuration
+  36-story-3-7-csat-survey-infrastructure-and-delivery: review  # [dev-story] Story 3.7: CSAT Survey Infrastructure and Delivery
+  37-story-3-8-multi-brand-configuration: review  # [dev-story] Story 3.8: Multi-Brand Configuration
   38-story-4-1-business-hours-sla-calculation-engine: review  # [create-story] Story 4.1: Business Hours SLA Calculation Engine
   39-story-4-2-proactive-sla-breach-alerts: review  # [create-story] Story 4.2: Proactive SLA Breach Alerts
   40-story-4-3-sla-compliance-dashboard: review  # [create-story] Story 4.3: SLA Compliance Dashboard
@@ -565,3 +565,7 @@ development_status:
   232-qa-story-3-5-agent-chat-interface: review  # [playwright-qa] QA: Story 3.5: Agent Chat Interface
 
   233-fix-story-3-5-agent-chat-interface-agent-send-message-jwt-by: review  # [quick-dev] Fix: Story 3.5 Agent Chat Interface — agent send_message JWT
+
+  234-qa-story-3-6-chat-to-ticket-transcript-and-follow-up: review  # [playwright-qa] QA: Story 3.6: Chat-to-Ticket Transcript and Follow-up
+
+  235-qa-story-3-7-csat-survey-infrastructure-and-delivery: review  # [playwright-qa] QA: Story 3.7: CSAT Survey Infrastructure and Delivery

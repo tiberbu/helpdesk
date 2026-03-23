@@ -26,6 +26,8 @@ import { useAuthStore } from "@/stores/auth";
 import General from "./General/General.vue";
 import SettingsGear from "~icons/lucide/settings";
 import SavedReplyIcon from "../icons/SavedReplyIcon.vue";
+import BrandsConfig from "./Brands/BrandsConfig.vue";
+import LucideTag from "~icons/lucide/tag";
 
 export const showSettingsModal = ref(false);
 
@@ -120,6 +122,12 @@ export const tabs = computed(() => {
           icon: markRaw(SavedReplyIcon),
           component: markRaw(SavedReplies),
         },
+        {
+          label: __("Brands"),
+          icon: markRaw(LucideTag),
+          component: markRaw(BrandsConfig),
+          condition: () => auth.isAdmin,
+        },
       ],
     },
     {
@@ -165,7 +173,8 @@ type TabName =
   | "Assignment Rules"
   | "Field Dependencies"
   | "Telephony"
-  | "Saved Replies";
+  | "Saved Replies"
+  | "Brands";
 
 export const setActiveSettingsTab = (tabName: TabName) => {
   activeTab.value =

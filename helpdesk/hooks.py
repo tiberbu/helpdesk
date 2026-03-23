@@ -85,8 +85,14 @@ doc_events = {
         "validate": "helpdesk.extends.assignment_rule.on_assignment_rule_validate",
     },
     "HD Ticket": {
+        "before_insert": "helpdesk.overrides.hd_ticket_brand.assign_brand_from_email",
         "after_insert": "helpdesk.helpdesk.automation.engine.on_ticket_created",
         "on_update": "helpdesk.helpdesk.automation.engine.on_ticket_updated",
+    },
+    "HD Brand": {
+        "on_update": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
+        "after_insert": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
+        "on_trash": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
     },
 }
 
