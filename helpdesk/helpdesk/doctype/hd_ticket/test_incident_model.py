@@ -226,11 +226,15 @@ class TestIncidentModelApplication(FrappeTestCase):
 	# ---------------------------------------------------------------
 
 	def test_status_category_updates_when_status_changes(self):
-		"""Regression for F-02: stale status_category bypass must not occur.
+		"""F-02 regression: stale status_category bypass must not occur.
+
+		Uses the real agent user workflow (no ignore_permissions=True) so that
+		check_update_perms() and all before_validate hooks run — the same path
+		as a production save from the agent portal.
 
 		Sequence:
-		  1. Save ticket as Replied (category Paused)
-		  2. Change status to Resolved
+		  1. Save ticket as Replied (category Paused) — as agent, no bypass
+		  2. Change status to Resolved — as agent, no bypass
 		  3. Verify status_category is Resolved, not stale Paused
 		"""
 		# Ensure Replied status with category Paused exists
@@ -258,10 +262,11 @@ class TestIncidentModelApplication(FrappeTestCase):
 			).insert(ignore_permissions=True)
 			frappe.set_user(self.agent_email)
 
-		# Step 1: Set ticket status to Replied → category should become Paused
+		# Step 1: Set ticket status to Replied → category should become Paused.
+		# Saved as the agent user (real production path — no ignore_permissions).
 		doc = frappe.get_doc("HD Ticket", self.ticket.name)
 		doc.status = "Replied"
-		doc.save(ignore_permissions=True)
+		doc.save()
 		doc.reload()
 		self.assertEqual(
 			doc.status_category,
@@ -269,9 +274,9 @@ class TestIncidentModelApplication(FrappeTestCase):
 			"Expected status_category=Paused after setting status=Replied",
 		)
 
-		# Step 2: Change status to Resolved
+		# Step 2: Change status to Resolved — still as agent, no bypass.
 		doc.status = "Resolved"
-		doc.save(ignore_permissions=True)
+		doc.save()
 		doc.reload()
 
 		# Step 3: Verify status_category is now Resolved (not stale Paused)
@@ -281,6 +286,65 @@ class TestIncidentModelApplication(FrappeTestCase):
 			"Expected status_category=Resolved after status changed to Resolved, "
 			"but got stale Paused — bypass regression detected",
 		)
+
+	def test_replied_to_resolved_blocked_by_incomplete_checklist(self):
+		"""F-03 regression: Replied→Resolved with incomplete mandatory checklist
+		must raise ValidationError.
+
+		This is the original P1 bug scenario: if status_category stayed stale as
+		'Paused' when status changed to 'Resolved', validate_checklist_before_resolution()
+		would short-circuit (seeing non-Resolved category) and allow the save.
+
+		With the F-01 fix (set_status_category always re-derives), status_category is
+		corrected to 'Resolved' before validate() runs, so the checklist guard fires.
+		"""
+		# Ensure required HD Ticket Status records exist
+		if not frappe.db.exists("HD Ticket Status", "Replied"):
+			frappe.set_user("Administrator")
+			frappe.get_doc(
+				{
+					"doctype": "HD Ticket Status",
+					"label_agent": "Replied",
+					"category": "Paused",
+					"is_default": 0,
+				}
+			).insert(ignore_permissions=True)
+			frappe.set_user(self.agent_email)
+
+		if not frappe.db.exists("HD Ticket Status", "Resolved"):
+			frappe.set_user("Administrator")
+			frappe.get_doc(
+				{
+					"doctype": "HD Ticket Status",
+					"label_agent": "Resolved",
+					"category": "Resolved",
+					"is_default": 0,
+				}
+			).insert(ignore_permissions=True)
+			frappe.set_user(self.agent_email)
+
+		# Apply model — creates 2 mandatory + 1 optional checklist items, all incomplete
+		apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+
+		# Move ticket to Replied (Paused category) via real save
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		doc.status = "Replied"
+		doc.save()
+		doc.reload()
+		self.assertEqual(doc.status_category, "Paused")
+
+		# Attempt Replied→Resolved with NO mandatory items completed.
+		# set_status_category() will re-derive status_category to "Resolved",
+		# then validate_checklist_before_resolution() must fire and block the save.
+		doc.status = "Resolved"
+		with self.assertRaises(
+			frappe.ValidationError,
+			msg=(
+				"Expected ValidationError when resolving a ticket with incomplete "
+				"mandatory checklist items — checklist guard was bypassed"
+			),
+		):
+			doc.save()
 
 	# ---------------------------------------------------------------
 	# F-04: Permission guard — non-agent (customer) must get PermissionError
@@ -360,6 +424,42 @@ class TestIncidentModelApplication(FrappeTestCase):
 
 		with self.assertRaises(frappe.ValidationError):
 			apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+
+		# Re-enable for remaining tearDown flow
+		frappe.set_user("Administrator")
+		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
+		frappe.set_user(self.agent_email)
+
+	def test_complete_checklist_item_raises_when_itil_disabled(self):
+		"""F-06: complete_checklist_item must reject when itil_mode_enabled=0.
+
+		This was the original F-08 finding — no test existed to prove that the
+		ITIL-disabled guard on complete_checklist_item actually fires.
+		"""
+		# First apply the model while ITIL is enabled (setUp enables it)
+		apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
+		doc = frappe.get_doc("HD Ticket", self.ticket.name)
+		self.assertTrue(
+			len(doc.ticket_checklist) > 0,
+			"Expected checklist rows after applying model",
+		)
+		item = doc.ticket_checklist[0]
+
+		# Disable ITIL mode
+		frappe.set_user("Administrator")
+		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
+		frappe.set_user(self.agent_email)
+
+		with self.assertRaises(
+			frappe.ValidationError,
+			msg=(
+				"Expected ValidationError when calling complete_checklist_item "
+				"with ITIL mode disabled"
+			),
+		):
+			complete_checklist_item(
+				ticket=str(self.ticket.name), checklist_item_name=item.name
+			)
 
 		# Re-enable for remaining tearDown flow
 		frappe.set_user("Administrator")

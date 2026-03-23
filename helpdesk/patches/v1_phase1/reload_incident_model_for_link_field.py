@@ -32,13 +32,17 @@ def execute():
 			""",
 			as_dict=True,
 		)
-	except Exception:
-		# Table may not exist on a clean install — skip validation in that case.
+	except Exception as e:
+		# F-04: Only suppress table-not-found errors (MySQL/MariaDB error 1146).
+		# Re-raise anything else so unexpected failures are visible.
+		err_str = str(e)
+		if "doesn't exist" not in err_str and "1146" not in err_str:
+			raise
 		frappe.logger().warning(
 			"reload_incident_model_for_link_field: tabHD Ticket Priority not found, "
 			"skipping invalid default_priority cleanup"
 		)
-		frappe.db.commit()  # F-03
+		# F-05: Do NOT commit on the exception path — nothing was changed.
 		return
 
 	if invalid_models:

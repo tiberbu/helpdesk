@@ -1040,13 +1040,11 @@ class HDTicket(Document):
             self.status = self.default_open_status
 
     def set_status_category(self):
-        # Re-derive when status has changed or when status_category is not yet set.
-        # When neither condition holds the existing value is already correct, so skip
-        # to avoid silently wiping status_category when status is None/empty or
-        # references a deleted HD Ticket Status record.
-        if not self.has_value_changed("status") and self.status_category:
-            return
-
+        # Always re-derive status_category from the current status value.
+        # The has_value_changed guard was removed: a pre-populated status_category
+        # that doesn't match the current status (e.g. set via API/import) must be
+        # corrected.  The only safe skip is when status itself is empty/unset —
+        # in that case there is nothing to look up.
         if not self.status:
             return
 
@@ -1055,7 +1053,8 @@ class HDTicket(Document):
             self.status,
             "category",
         )
-        # Only update if the lookup succeeds; otherwise keep the existing value.
+        # Only update if the lookup succeeds; otherwise keep the existing value
+        # (guards against deleted HD Ticket Status records).
         if new_category:
             self.status_category = new_category
 

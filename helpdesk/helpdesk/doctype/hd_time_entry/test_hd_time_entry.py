@@ -309,3 +309,67 @@ class TestHDTimeEntry(FrappeTestCase):
 		# Direct delete by owner — should succeed
 		frappe.delete_doc("HD Time Entry", entry_name, ignore_permissions=True)
 		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+
+	# --- Issue #2 fix: tz-aware started_at with non-UTC offset ---
+
+	def test_stop_timer_ist_offset_not_rejected_as_future(self):
+		"""
+		A started_at with +05:30 (IST) that is in the past relative to UTC must
+		NOT be rejected as future.
+
+		Previously, replace(tzinfo=None) kept the wall-clock time (e.g. 23:50)
+		without converting, making it appear as "23:50 local" against a UTC server
+		clock — incorrectly rejected as future when UTC equivalent was only 18:20.
+		"""
+		# 2020-01-01T23:50:00+05:30 = 2020-01-01T18:20:00Z — clearly in the past
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at="2020-01-01T23:50:00+05:30",
+			duration_minutes=15,
+			description="IST offset session",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+
+	# --- Issue #3/#4 fix: description length enforced at model layer (direct REST bypass) ---
+
+	def test_validate_rejects_description_over_500_chars_via_direct_insert(self):
+		"""
+		validate() must catch description > 500 chars even on direct REST insert,
+		bypassing the API layer check in time_tracking.py.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "HD Time Entry",
+					"ticket": self.ticket_name,
+					"agent": "agent.tt@test.com",
+					"duration_minutes": 10,
+					"description": "x" * 501,
+					"timestamp": frappe.utils.now_datetime(),
+				}
+			).insert(ignore_permissions=True)
+
+	# --- Issue #13 fix: upper bound on duration_minutes ---
+
+	def test_validate_rejects_duration_over_max(self):
+		"""
+		validate() must reject duration_minutes > MAX_DURATION_MINUTES (1440 / 24 h).
+		"""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import MAX_DURATION_MINUTES
+
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(
+				ticket=self.ticket_name,
+				duration_minutes=MAX_DURATION_MINUTES + 1,
+			)
+
+	def test_validate_accepts_duration_at_max_boundary(self):
+		"""Duration equal to MAX_DURATION_MINUTES (1440) must be accepted."""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import MAX_DURATION_MINUTES
+
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes=MAX_DURATION_MINUTES,
+		)
+		self.assertTrue(result.get("success"))

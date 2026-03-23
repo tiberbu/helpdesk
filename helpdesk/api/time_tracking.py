@@ -3,9 +3,13 @@
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime, get_datetime
+from frappe.utils import now_datetime, get_datetime, convert_utc_to_system_timezone
 
 from helpdesk.utils import is_agent
+from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
+	MAX_DESCRIPTION_LENGTH,
+	_check_delete_permission,
+)
 
 
 @frappe.whitelist()
@@ -36,11 +40,16 @@ def stop_timer(
 
 	Returns: { "name": "<entry_name>", "success": True }
 	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 
-	# Validate description length server-side (frontend maxlength=500 is not enforced by API)
-	if description and len(description) > 500:
-		frappe.throw(_("Description must not exceed 500 characters."), frappe.ValidationError)
+	# Validate description length server-side (frontend maxlength is not enforced by REST)
+	if description and len(description) > MAX_DESCRIPTION_LENGTH:
+		frappe.throw(
+			_("Description must not exceed {0} characters.").format(MAX_DESCRIPTION_LENGTH),
+			frappe.ValidationError,
+		)
 
 	# Validate started_at: must be parseable and not in the future
 	try:
@@ -48,10 +57,14 @@ def stop_timer(
 	except Exception:
 		frappe.throw(_("Invalid started_at datetime format."), frappe.ValidationError)
 
-	# Strip timezone info to avoid TypeError when comparing tz-aware with naive datetimes.
-	# get_datetime() may return a tz-aware datetime (e.g. when the string includes "+00:00"),
-	# while now_datetime() always returns a naive datetime in the server's local time.
-	started_at_naive = started_at_dt.replace(tzinfo=None)
+	# Convert to server timezone before stripping tzinfo for correct comparison with
+	# now_datetime() (which returns naive local time). A plain .replace(tzinfo=None)
+	# would compare UTC wall-clock against local time, producing wrong results when
+	# the server is not in UTC.
+	if started_at_dt.tzinfo is not None:
+		started_at_naive = convert_utc_to_system_timezone(started_at_dt).replace(tzinfo=None)
+	else:
+		started_at_naive = started_at_dt
 	if started_at_naive > now_datetime():
 		frappe.throw(_("started_at cannot be in the future."), frappe.ValidationError)
 
@@ -89,11 +102,16 @@ def add_entry(
 
 	Returns: { "name": "<entry_name>", "success": True }
 	"""
+	if not is_agent():
+		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 
-	# Validate description length server-side (frontend maxlength=500 is not enforced by API)
-	if description and len(description) > 500:
-		frappe.throw(_("Description must not exceed 500 characters."), frappe.ValidationError)
+	# Validate description length server-side (frontend maxlength is not enforced by REST)
+	if description and len(description) > MAX_DESCRIPTION_LENGTH:
+		frappe.throw(
+			_("Description must not exceed {0} characters.").format(MAX_DESCRIPTION_LENGTH),
+			frappe.ValidationError,
+		)
 
 	duration_minutes = int(duration_minutes)
 	if duration_minutes < 1:
@@ -120,24 +138,25 @@ def delete_entry(name: str) -> dict:
 	"""
 	Delete an HD Time Entry.
 
-	Agents may only delete their own entries; HD Admin / System Manager may delete any.
+	Agents may only delete their own entries; HD Admin / Agent Manager /
+	System Manager may delete any.
 
 	Returns: { "success": True }
 	"""
 	entry = frappe.get_doc("HD Time Entry", name)
 
-	is_hd_admin = frappe.db.get_value(
-		"Has Role",
-		{"parent": frappe.session.user, "role": ["in", ["HD Admin", "System Manager"]]},
-		"name",
-	)
+	# Issue #12: use frappe.get_roles() instead of direct Has Role table query.
+	# Issue #1: include Agent Manager (holds delete:1 in DocType JSON).
+	privileged_roles = {"HD Admin", "Agent Manager", "System Manager"}
+	user_roles = set(frappe.get_roles(frappe.session.user))
+	is_privileged = bool(user_roles & privileged_roles)
 
-	# Non-agents who are also not HD Admin / System Manager are blocked entirely
-	if not is_agent() and not is_hd_admin:
+	# Non-agents who are also not privileged are blocked entirely
+	if not is_agent() and not is_privileged:
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
-	if entry.agent != frappe.session.user and not is_hd_admin:
-		frappe.throw(_("You can only delete your own time entries."), frappe.PermissionError)
+	# Issue #9: delegate ownership check to shared helper — single source of truth.
+	_check_delete_permission(entry, frappe.session.user)
 
 	# Use ignore_permissions=True since we've already done our own permission check above
 	frappe.delete_doc("HD Time Entry", name, ignore_permissions=True)
