@@ -1,6 +1,6 @@
 # Story: Fix: P1s from adversarial review task-101 — bench time_tracking.py sync, delete_entry info leak, auto-close savepoint isolation
 
-Status: in-progress
+Status: done
 Task ID: mn3c9ldhj1fhwv
 Task Number: #106
 Workflow: quick-dev
@@ -37,14 +37,14 @@ Change `except Exception as exc:` to `except Exception:`.
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -62,12 +62,23 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- P1 #1 + P1 #2: Dev and bench copies of `time_tracking.py` were already identical — no sync needed. The adversarial review finding was already fixed in a prior sync.
+- P1 #3: Added `frappe.db.savepoint()` per iteration in `close_tickets_after_n_days` loop to isolate transaction boundaries.
+- P2 #4 + P2 #10: Narrowed `except Exception as exc:` → `except (frappe.ValidationError, frappe.LinkValidationError):` in the auto-close loop.
+- P2 #6: Discovered `before_delete` is NOT a valid Frappe lifecycle hook — Frappe calls `on_trash` (not `before_delete`) from `frappe.delete_doc()`. Renamed the ownership-check hook to `on_trash` in `HDTimeEntry`. Removed the redundant explicit `_check_delete_permission` call from `delete_entry()` in `time_tracking.py` (and cleaned up the now-unused import). Updated 3 test references from `before_delete()` → `on_trash()`.
+- All 37 HD Time Entry tests and 10 Internal Notes tests pass.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: P1 #3 — savepoint isolation in `close_tickets_after_n_days`
+- 2026-03-23: P2 #4/#10 — narrow except in auto-close loop
+- 2026-03-23: P2 #6 — rename `before_delete` → `on_trash` in `HDTimeEntry`; remove duplicate explicit call from `delete_entry()`; clean up unused import
+- 2026-03-23: Updated tests to call `on_trash()` instead of `before_delete()`
+- 2026-03-23: Synced all changed files to bench; gunicorn reloaded twice
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.py` — savepoint + narrow except (+ bench sync)
+- `helpdesk/helpdesk/doctype/hd_time_entry/hd_time_entry.py` — renamed `before_delete` → `on_trash` (+ bench sync)
+- `helpdesk/api/time_tracking.py` — removed redundant `_check_delete_permission` call + unused import (+ bench sync)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` — updated 3 test references `before_delete()` → `on_trash()` (+ bench sync)

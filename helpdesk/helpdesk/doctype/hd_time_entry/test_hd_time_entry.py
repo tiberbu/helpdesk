@@ -149,13 +149,8 @@ class TestHDTimeEntry(FrappeTestCase):
 			delete_entry(name=entry_name)
 		frappe.set_user("agent.tt@test.com")
 
-	def test_delete_entry_admin_can_delete_any_entry(self):
-		"""HD Admin role should be able to delete another agent's time entry."""
-		# agent.tt creates an entry
-		result = add_entry(ticket=self.ticket_name, duration_minutes=25, billable=0)
-		entry_name = result["name"]
-
-		# Create an admin user and assign HD Admin role
+	def _ensure_hd_admin_user(self):
+		"""Create hd.admin.tt@test.com with HD Admin role only (no Agent role)."""
 		frappe.set_user("Administrator")
 		if not frappe.db.exists("User", "hd.admin.tt@test.com"):
 			admin_user = frappe.get_doc({
@@ -168,10 +163,51 @@ class TestHDTimeEntry(FrappeTestCase):
 			admin_user.insert(ignore_permissions=True)
 			admin_user.add_roles("HD Admin")
 
+	def test_delete_entry_admin_can_delete_any_entry(self):
+		"""HD Admin role should be able to delete another agent's time entry."""
+		# agent.tt creates an entry
+		result = add_entry(ticket=self.ticket_name, duration_minutes=25, billable=0)
+		entry_name = result["name"]
+
+		self._ensure_hd_admin_user()
 		frappe.set_user("hd.admin.tt@test.com")
 		del_result = delete_entry(name=entry_name)
 		self.assertTrue(del_result.get("success"))
 		self.assertFalse(frappe.db.exists("HD Time Entry", entry_name))
+		frappe.set_user("Administrator")
+
+	# --- HD Admin add_entry / start_timer tests ---
+
+	def test_hd_admin_can_add_entry(self):
+		"""
+		HD Admin user (no Agent role) must be able to call add_entry() and create
+		a time entry — verifies the full is_agent() permission chain for HD Admin.
+		"""
+		self._ensure_hd_admin_user()
+		frappe.set_user("hd.admin.tt@test.com")
+		result = add_entry(
+			ticket=self.ticket_name,
+			duration_minutes=15,
+			description="HD Admin manual entry",
+			billable=0,
+		)
+		self.assertTrue(result.get("success"))
+		entry = frappe.get_doc("HD Time Entry", result["name"])
+		self.assertEqual(entry.duration_minutes, 15)
+		self.assertEqual(entry.agent, "hd.admin.tt@test.com")
+		frappe.set_user("Administrator")
+
+	def test_hd_admin_can_start_timer(self):
+		"""
+		HD Admin user (no Agent role) must be able to call start_timer() and receive
+		a started_at timestamp — verifies is_agent() gate passes for HD Admin role.
+		"""
+		self._ensure_hd_admin_user()
+		frappe.set_user("hd.admin.tt@test.com")
+		result = start_timer(ticket=self.ticket_name)
+		self.assertIn("started_at", result)
+		self.assertIsInstance(result["started_at"], str)
+		self.assertTrue(len(result["started_at"]) > 0)
 		frappe.set_user("Administrator")
 
 	# --- Permission tests ---
@@ -281,14 +317,15 @@ class TestHDTimeEntry(FrappeTestCase):
 				duration_minutes=5,
 			)
 
-	# --- before_delete ownership hook tests (Issue #2 fix) ---
+	# --- on_trash ownership hook tests (Issue #2 fix) ---
 
 	def test_before_delete_hook_blocks_other_agent_from_direct_delete(self):
 		"""
-		The before_delete hook must raise PermissionError when a different agent calls it.
+		The on_trash hook must raise PermissionError when a different agent calls it.
 		This simulates the REST DELETE /api/resource/HD Time Entry/{name} bypass scenario.
-		We call entry_doc.before_delete() directly because the Frappe test framework may
+		We call entry_doc.on_trash() directly because the Frappe test framework may
 		run with elevated permissions that skip the doctype-level delete permission check.
+		Note: Frappe calls on_trash (not before_delete) from frappe.delete_doc().
 		"""
 		frappe.set_user("Administrator")
 		create_agent("agent3.tt@test.com", "Agent", "Three")
@@ -301,7 +338,7 @@ class TestHDTimeEntry(FrappeTestCase):
 		entry_doc = frappe.get_doc("HD Time Entry", entry_name)
 		frappe.set_user("agent3.tt@test.com")
 		with self.assertRaises(frappe.PermissionError):
-			entry_doc.before_delete()
+			entry_doc.on_trash()
 		frappe.set_user("agent.tt@test.com")
 
 	def test_before_delete_hook_allows_own_entry_direct_delete(self):
@@ -391,7 +428,7 @@ class TestHDTimeEntry(FrappeTestCase):
 			)
 		frappe.set_user("agent.tt@test.com")
 
-	# --- P1 fix: Agent Manager in exemption list for delete_entry and before_delete ---
+	# --- P1 fix: Agent Manager in exemption list for delete_entry and on_trash ---
 
 	def _ensure_agent_manager_user(self):
 		"""Create agent.mgr.tt@test.com with Agent Manager role if not present."""
@@ -425,8 +462,9 @@ class TestHDTimeEntry(FrappeTestCase):
 
 	def test_before_delete_hook_allows_agent_manager_to_delete_any_entry(self):
 		"""
-		The before_delete hook must allow an Agent Manager to delete another
+		The on_trash hook must allow an Agent Manager to delete another
 		agent's entry via direct delete (REST bypass path — P1 fix #1).
+		Note: Frappe calls on_trash (not before_delete) from frappe.delete_doc().
 		"""
 		result = add_entry(ticket=self.ticket_name, duration_minutes=10, billable=0)
 		entry_name = result["name"]
@@ -434,11 +472,11 @@ class TestHDTimeEntry(FrappeTestCase):
 
 		self._ensure_agent_manager_user()
 		frappe.set_user("agent.mgr.tt@test.com")
-		# before_delete() must NOT raise PermissionError for Agent Manager
+		# on_trash() must NOT raise PermissionError for Agent Manager
 		try:
-			entry_doc.before_delete()
+			entry_doc.on_trash()
 		except frappe.PermissionError:
-			self.fail("Agent Manager should be allowed to delete any entry via before_delete()")
+			self.fail("Agent Manager should be allowed to delete any entry via on_trash()")
 		frappe.set_user("Administrator")
 
 	# --- P2-3: API-layer MAX_DURATION_MINUTES enforcement for stop_timer ---

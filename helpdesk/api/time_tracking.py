@@ -10,6 +10,7 @@ from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
 	PRIVILEGED_ROLES,
+	_check_delete_permission,
 )
 
 # Tolerance added to elapsed-time cross-check to absorb clock skew / rounding (minutes).
@@ -205,24 +206,24 @@ def delete_entry(name: str) -> dict:
 
 	Returns: { "success": True }
 	"""
-	# Pre-gate: only agents OR privileged-role users (HD Admin, System Manager) may delete.
-	# is_agent() covers: Administrator, Agent, Agent Manager.
-	# PRIVILEGED_ROLES covers: HD Admin, Agent Manager, System Manager.
-	# Agent Manager is in both, but HD Admin / System Manager only appear in PRIVILEGED_ROLES
-	# and would be blocked by a bare is_agent() check — hence the dual condition.
+	# Pre-gate: only agents OR privileged-role users may delete.
+	# is_agent() covers: Administrator, HD Admin, Agent Manager, Agent.
 	user_roles = set(frappe.get_roles(frappe.session.user))
 	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
 	if not is_agent() and not is_privileged:
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
-	# frappe.get_doc() is called only to verify the entry exists before deletion.
-	# Ownership enforcement happens in HDTimeEntry.on_trash(), which Frappe calls
-	# automatically from frappe.delete_doc() — no explicit duplicate check needed here.
-	frappe.get_doc("HD Time Entry", name)
+	# Fetch the entry to verify existence and enforce ownership.
+	entry = frappe.get_doc("HD Time Entry", name)
 
-	# ignore_permissions=True is required because regular Agent role does not hold a
+	# Ownership check: agents may only delete their own entries; privileged roles may
+	# delete any entry. Must be called explicitly here because ignore_permissions=True
+	# on frappe.delete_doc() bypasses the Frappe permission layer entirely, and the
+	# on_trash() hook alone is not sufficient to block unauthorized deletion in all paths.
+	_check_delete_permission(entry, frappe.session.user)
+
+	# ignore_permissions=True is required because the regular Agent role does not hold a
 	# Frappe-level delete grant on this DocType (only PRIVILEGED_ROLES do).
-	# HDTimeEntry.on_trash() enforces ownership for all callers.
 	frappe.delete_doc("HD Time Entry", name, ignore_permissions=True)
 	return {"success": True}
 

@@ -1,6 +1,6 @@
-# Story: QA: Fix: HD Admin phantom permission — broken test, missing DocType grant, is_agent 
+# Story: QA: Fix: HD Admin phantom permission — broken test, missing DocType grant, is_agent
 
-Status: in-progress
+Status: done
 Task ID: mn3cd0zw1qvwu0
 Task Number: #109
 Workflow: adversarial-review
@@ -42,19 +42,19 @@ curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type
 
 ## Acceptance Criteria
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Tasks / Subtasks
 
-- [ ] Login to the app (see docs/testing-info.md for credentials)
-- [ ] Navigate to the relevant pages
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
+- [x] Login to the app (see docs/testing-info.md for credentials)
+- [x] Navigate to the relevant pages
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors
 
 ## Dev Notes
 
@@ -72,12 +72,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Adversarial review completed with 12 findings: 1 P0, 3 P1, 4 P2, 4 P3
+- P0 #1: delete_entry() ownership check removed — any agent can delete any agent's entries (test fails)
+- P1 #2: is_agent() calls is_admin() without forwarding user parameter
+- P1 #3: Story falsely claims all 38 tests pass (1 failure confirmed)
+- P1 #4: Exception handler narrowed from Exception to ValidationError/LinkValidationError — database errors crash cron
+- Fix task #113 created for P0/P1 findings
+- Full report at docs/qa-report-task-105.md
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Created `docs/qa-report-task-105.md` — structured adversarial QA report with 12 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-105.md` (created)

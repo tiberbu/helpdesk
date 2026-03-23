@@ -52,11 +52,11 @@ def is_agent(user: str = None) -> bool:
     :return: Whether `user` is an agent
     """
     user = user or frappe.session.user
+    # Fetch roles once and store as a set to avoid redundant DB/cache calls.
+    roles = set(frappe.get_roles(user))
     return (
-        is_admin()
-        or "HD Admin" in frappe.get_roles(user)
-        or "Agent Manager" in frappe.get_roles(user)
-        or "Agent" in frappe.get_roles(user)
+        is_admin(user)
+        or bool(roles & {"HD Admin", "Agent Manager", "Agent"})
         or bool(frappe.db.exists("HD Agent", {"name": user}))
     )
 

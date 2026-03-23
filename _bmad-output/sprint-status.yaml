@@ -308,4 +308,10 @@ development_status:
 
   110-fix-p1-p2-findings-from-adversarial-review-task-108-missing-: in-progress  # [quick-dev] Fix: P1/P2 findings from adversarial review task-108 — missi
 
-  111-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
+  111-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: review  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
+
+  112-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
+
+  113-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-forwar: review  # [quick-dev] Fix: P0 delete_entry ownership bypass + P1 is_agent user-for
+
+  114-fix-before-delete-on-trash-test-mismatch-p0-missing-system-m: in-progress  # [quick-dev] Fix: before_delete→on_trash test mismatch (P0) + missing Sys
