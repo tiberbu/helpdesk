@@ -294,7 +294,7 @@ development_status:
 
   103-qa-fix-p1-findings-from-adversarial-review-task-92-none-stat: ready-for-dev  # [adversarial-review] QA: Fix: P1 findings from adversarial review task-92 — None 
 
-  104-fix-delete-entry-regression-p0-cint-silent-conversion-p1-fro: in-progress  # [quick-dev] Fix: delete_entry regression (P0) + cint silent conversion (
+  104-fix-delete-entry-regression-p0-cint-silent-conversion-p1-fro: review  # [quick-dev] Fix: delete_entry regression (P0) + cint silent conversion (
 
   105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: review  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
 
@@ -302,4 +302,10 @@ development_status:
 
   107-qa-fix-p1-time-tracking-issues-from-adversarial-review-story: review  # [adversarial-review] QA: Fix: P1 time tracking issues from adversarial review (St
 
-  108-qa-fix-hd-admin-phantom-permission-broken-test-missing-docty: ready-for-dev  # [adversarial-review] QA: Fix HD Admin phantom permission — broken test, missing D
+  108-qa-fix-hd-admin-phantom-permission-broken-test-missing-docty: review  # [adversarial-review] QA: Fix HD Admin phantom permission — broken test, missing D
+
+  109-qa-fix-hd-admin-phantom-permission-broken-test-missing-docty: review  # [adversarial-review] QA: Fix: HD Admin phantom permission — broken test, missing 
+
+  110-fix-p1-p2-findings-from-adversarial-review-task-108-missing-: in-progress  # [quick-dev] Fix: P1/P2 findings from adversarial review task-108 — missi
+
+  111-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: ready-for-dev  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi

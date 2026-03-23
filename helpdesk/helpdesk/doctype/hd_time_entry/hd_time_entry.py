@@ -52,10 +52,13 @@ class HDTimeEntry(Document):
 				frappe.ValidationError,
 			)
 
-	def before_delete(self):
+	def on_trash(self):
 		"""
-		Enforce ownership on direct REST DELETE calls
+		Enforce ownership on all delete paths including direct REST DELETE
 		(e.g. DELETE /api/resource/HD Time Entry/{name}).
+
+		Frappe calls on_trash (not before_delete) from frappe.delete_doc() /
+		doc.delete(), so this is the correct hook to intercept all deletion paths.
 
 		Delegates to the shared _check_delete_permission helper (Issue #9) so the
 		logic is defined in exactly one place and cannot drift.

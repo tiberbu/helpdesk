@@ -470,14 +470,6 @@ class TestHDTimeEntry(FrappeTestCase):
 		)
 		self.assertTrue(result.get("success"))
 
-	def test_add_entry_rejects_invalid_string_duration(self):
-		"""
-		add_entry must raise ValidationError with a clear message when duration_minutes
-		is a non-numeric string (e.g. 'abc') rather than silently converting to 0 via cint().
-		"""
-		with self.assertRaises(frappe.ValidationError):
-			add_entry(ticket=self.ticket_name, duration_minutes="abc")
-
 	# --- Story 102: non-numeric input validation (regression tests for cint() fix) ---
 
 	def test_add_entry_rejects_non_numeric_duration(self):

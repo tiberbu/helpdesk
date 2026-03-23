@@ -10,7 +10,6 @@ from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
 	PRIVILEGED_ROLES,
-	_check_delete_permission,
 )
 
 # Tolerance added to elapsed-time cross-check to absorb clock skew / rounding (minutes).
@@ -216,13 +215,14 @@ def delete_entry(name: str) -> dict:
 	if not is_agent() and not is_privileged:
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
-	entry = frappe.get_doc("HD Time Entry", name)
+	# frappe.get_doc() is called only to verify the entry exists before deletion.
+	# Ownership enforcement happens in HDTimeEntry.on_trash(), which Frappe calls
+	# automatically from frappe.delete_doc() — no explicit duplicate check needed here.
+	frappe.get_doc("HD Time Entry", name)
 
-	# Ownership check is delegated to the before_delete hook in HDTimeEntry
-	# (_check_delete_permission), which runs for all delete paths including direct
-	# REST DELETE.  Calling it again here would be a redundant double check.
-	# ignore_permissions=True is still required because regular Agent role does not
-	# hold a Frappe-level delete grant on this DocType (only PRIVILEGED_ROLES do).
+	# ignore_permissions=True is required because regular Agent role does not hold a
+	# Frappe-level delete grant on this DocType (only PRIVILEGED_ROLES do).
+	# HDTimeEntry.on_trash() enforces ownership for all callers.
 	frappe.delete_doc("HD Time Entry", name, ignore_permissions=True)
 	return {"success": True}
 

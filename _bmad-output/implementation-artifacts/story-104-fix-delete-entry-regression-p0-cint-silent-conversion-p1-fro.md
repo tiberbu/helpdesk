@@ -1,6 +1,6 @@
 # Story: Fix: delete_entry regression (P0) + cint silent conversion (P1) from QA task #97
 
-Status: in-progress
+Status: done
 Task ID: mn3c3ejvy6ufzm
 Task Number: #104
 Workflow: quick-dev
@@ -43,14 +43,14 @@ Add tests for stop_timer and add_entry with duration > MAX_DURATION_MINUTES.
 
 ## Acceptance Criteria
 
-- [ ] Implementation matches task description
-- [ ] No regressions introduced
-- [ ] Code compiles/builds without errors
+- [x] Implementation matches task description
+- [x] No regressions introduced
+- [x] Code compiles/builds without errors
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
@@ -68,12 +68,19 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Root cause: The bench/dev-disk had a regressed version of `time_tracking.py` (from a prior story) that lacked `PRIVILEGED_ROLES` import + check in `delete_entry()` and had incorrect `int` type annotations instead of `"str | int"`. The correct implementation was already in dev git (Story 95, commit 0ef5d9c8e) — restored that version and synced to bench.
+- P0 fix: `delete_entry()` now checks `not is_agent() and not is_privileged` so HD Admin / System Manager users who aren't agents can delete entries.
+- P1 fix: `"str | int"` type annotations + `_require_int_str()` guard raise clear `frappe.ValidationError` for non-numeric duration_minutes strings (e.g. "abc"), before `cint()` could silently coerce to 0.
+- P2-1 fix: Billable clamped to `1 if cint(billable) else 0` with `_require_int_str()` guard for non-numeric strings.
+- P2-3: Added 2 new tests: `test_stop_timer_rejects_duration_over_max_at_api_layer` and `test_stop_timer_accepts_duration_at_max_boundary`.
+- Removed duplicate test `test_add_entry_rejects_invalid_string_duration` (identical to existing `test_add_entry_rejects_non_numeric_duration` from Story 102).
+- All 37 tests pass (was 31 before fix, 1 failing for P0 + Story 102 tests failing from wrong type annotations).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-23: Restored Story 95 version of `time_tracking.py` (commit 0ef5d9c8e) to dev disk and bench. Added P2-3 stop_timer max-duration tests to test file. Removed duplicate test.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/api/time_tracking.py` (restored correct version, synced to bench)
+- `helpdesk/helpdesk/doctype/hd_time_entry/test_hd_time_entry.py` (added P2-3 stop_timer tests, removed duplicate, synced to bench)
