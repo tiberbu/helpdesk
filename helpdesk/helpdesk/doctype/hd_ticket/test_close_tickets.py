@@ -497,3 +497,50 @@ class TestCloseTicketsAfterNDays(IntegrationTestCase):
             call_kwargs.args[0] if call_kwargs.args else ""
         )
         self.assertIn(ticket_a_name, title_arg)
+
+    # ------------------------------------------------------------------
+    # (h) frappe.log_error() fallback — Python logger used when DB unreachable
+    # ------------------------------------------------------------------
+
+    def test_log_error_failure_falls_back_to_python_logger(self):
+        """When frappe.log_error() itself raises (e.g. DB unreachable), the CM
+        must fall back to frappe.logger().error() so the failure is at least
+        recorded in the application log.
+
+        Covers F-05: the fallback path inside _autoclose_savepoint had zero
+        test coverage before this test.
+        """
+        _configure_auto_close(days=1)
+
+        ticket = self._track_ticket(make_ticket(subject="log_error fallback ticket"))
+        _make_old_communication(ticket.name, days_old=5)
+        ticket.reload()
+        ticket.status = _AUTO_CLOSE_STATUS
+        ticket.save(ignore_permissions=True)
+        _age_all_communications(ticket.name, days_old=5)
+
+        _real_get_doc = frappe.get_doc
+
+        def _raise_operational(*args, **kwargs):
+            doctype = args[0] if args else kwargs.get("doctype", "")
+            if doctype == "HD Ticket":
+                raise frappe.db.OperationalError("Simulated DB error")
+            return _real_get_doc(*args, **kwargs)
+
+        mock_logger = mock.MagicMock()
+
+        with (
+            mock.patch("frappe.get_doc", side_effect=_raise_operational),
+            mock.patch(
+                "frappe.log_error", side_effect=Exception("log_error DB write failed")
+            ),
+            mock.patch("frappe.logger", return_value=mock_logger),
+        ):
+            # Must not raise — the fallback to frappe.logger().error() keeps
+            # the cron batch alive even when frappe.log_error() itself fails.
+            close_tickets_after_n_days()
+
+        # The fallback path must have called frappe.logger().error() exactly once.
+        mock_logger.error.assert_called_once()
+        error_msg = mock_logger.error.call_args[0][0]
+        self.assertIn(str(ticket.name), error_msg)

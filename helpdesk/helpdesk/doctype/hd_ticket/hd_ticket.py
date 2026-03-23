@@ -1536,17 +1536,34 @@ def _autoclose_savepoint(ticket):
         # F-01: defensive rollback — connection may be dead after the exception.
         try:
             frappe.db.rollback(save_point=_sp)
+        except Exception as _rb_exc:  # noqa: BLE001
+            # F-03: log rollback failures so they are not silently swallowed.
+            try:
+                frappe.logger().warning(
+                    f"Auto-close: savepoint rollback failed for ticket {ticket}: {_rb_exc}"
+                )
+            except Exception:  # noqa: BLE001
+                pass  # last resort — nothing more we can do
+        # F-02: guard the warning call itself — if the connection is dead the
+        # logger call could also fail; swallow so the cron batch continues.
+        try:
+            frappe.logger().warning(
+                f"Auto-close skipped ticket {ticket} (validation): {exc}"
+            )
         except Exception:  # noqa: BLE001
-            pass  # best-effort; connection may be broken
-        frappe.logger().warning(
-            f"Auto-close skipped ticket {ticket} (validation): {exc}"
-        )
+            pass  # best-effort; logger may fail if connection is dead
     except Exception:  # noqa: BLE001
         # F-01: defensive rollback — if this IS a connection failure, swallow it.
         try:
             frappe.db.rollback(save_point=_sp)
-        except Exception:  # noqa: BLE001
-            pass  # best-effort; connection may be broken
+        except Exception as _rb_exc:  # noqa: BLE001
+            # F-03: log rollback failures so they are not silently swallowed.
+            try:
+                frappe.logger().warning(
+                    f"Auto-close: savepoint rollback failed for ticket {ticket}: {_rb_exc}"
+                )
+            except Exception:  # noqa: BLE001
+                pass  # last resort — nothing more we can do
         # F-02: capture traceback now but defer frappe.log_error() until the
         # block below (outside the savepoint scope) so the Error Log document
         # is committed by the caller's frappe.db.commit(), not rolled back.
@@ -1563,7 +1580,7 @@ def _autoclose_savepoint(ticket):
             frappe.log_error(title=_pending_log[0], message=_pending_log[1])
         except Exception:  # noqa: BLE001
             # Last-resort fallback when DB is unreachable — at least emit to log.
-            frappe.logger().error(_pending_log[0] + "\n" + _pending_log[1])
+            frappe.logger().error(_pending_log[0] + "\n" + str(_pending_log[1] or ""))
 
 
 def close_tickets_after_n_days():
@@ -1608,4 +1625,14 @@ def close_tickets_after_n_days():
             # validate_checklist_before_resolution() guard entirely.  Auto-close
             # must respect the same validation rules as a manual close.
             doc.save(ignore_permissions=True)
-        frappe.db.commit()  # nosemgrep — persist close or error log
+        try:
+            frappe.db.commit()  # nosemgrep — persist close or error log
+        except Exception:  # noqa: BLE001
+            # F-01: guard the commit itself — a dead connection between CM exit
+            # and commit must not kill the entire cron batch.
+            try:
+                frappe.logger().error(
+                    f"Auto-close: frappe.db.commit() failed for ticket {ticket}"
+                )
+            except Exception:  # noqa: BLE001
+                pass  # last resort — nothing more we can do

@@ -60,14 +60,14 @@ sonnet
 
 - P1 (deadlock): Replaced destructive `frappe.db.delete("HD Ticket")` in setUp/tearDown with per-record tracking via `self._created_tickets` list. tearDown now deletes only test-created tickets + commits explicitly (MEMORY.md pattern). This prevents lock contention between tests when `close_tickets_after_n_days()` commits mid-test.
 - P2 (exception): Replaced `except Exception as exc` + isinstance check with `except frappe.ValidationError` (covers DoesNotExistError and LinkValidationError as subclasses). Updated logging to use `frappe.log_error()` for all validation failures (consistent with test expectations).
-- P2 (savepoint CM): Replaced manual `frappe.db.savepoint()` / `frappe.db.release_savepoint()` / `frappe.db.rollback()` with `frappe.database.database.savepoint` context manager (`db_savepoint`). Traceback is captured before re-raising so it can be logged after the CM rolls back the iteration.
+- P2 (savepoint CM): Introduced named-savepoint isolation per ticket (manual `frappe.db.savepoint()` / `frappe.db.release_savepoint()` / `frappe.db.rollback()`). NOTE: the `frappe.database.database.savepoint` (db_savepoint) CM mentioned in earlier drafts was never used in production code — a subsequent task (task-198) replaced the inline loop body with a dedicated `_autoclose_savepoint()` contextmanager using these same manual primitives. Story-165 change log entry claiming `db_savepoint` was used was incorrect.
 - P2 (DoesNotExistError test): Added `test_stale_ticket_does_not_exist_is_skipped` using a selective `mock.patch("frappe.get_doc")` that raises only for `"HD Ticket"` doctypes, allowing `frappe.log_error`'s internal `get_doc("Error Log", ...)` to proceed normally.
 - All 5 tests pass: `Ran 5 tests in 1.674s OK`
 
 ### Change Log
 
-- 2026-03-23: Added `from frappe.database.database import savepoint as db_savepoint` import to hd_ticket.py
-- 2026-03-23: Replaced manual savepoint/release/rollback loop with `db_savepoint` CM + `except frappe.ValidationError` in `close_tickets_after_n_days()`
+- 2026-03-23: Added `except frappe.ValidationError` to `close_tickets_after_n_days()` replacing `except Exception as exc` + isinstance check
+- NOTE (corrected by story-207): the `from frappe.database.database import savepoint as db_savepoint` import and `db_savepoint` CM were never committed to the repo; story-198 ultimately used manual savepoint primitives inside the `_autoclose_savepoint()` contextmanager
 - 2026-03-23: Rewrote test_close_tickets.py setUp/tearDown for per-record cleanup; added `_track_ticket()` helper; updated all test methods; added `test_stale_ticket_does_not_exist_is_skipped`
 - 2026-03-23: Synced both files to /home/ubuntu/frappe-bench/apps/helpdesk/
 
