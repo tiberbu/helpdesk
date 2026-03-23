@@ -917,6 +917,36 @@ class TestHDTimeEntry(FrappeTestCase):
 				duration_minutes="nan",
 			)
 
+	# --- P2-3: Python float NaN/Inf bypass guard (not string — previously silently coerced) ---
+
+	def test_require_int_str_rejects_float_nan_python_float(self):
+		"""
+		float('nan') as a Python float must raise ValidationError.
+
+		Previously _require_int_str only guarded string inputs (isinstance(value, str)),
+		so float('nan') passed through silently and cint(float('nan')) returned 0,
+		corrupting the duration with no error (P2-2 bug).
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes=float("nan"))
+
+	def test_require_int_str_rejects_float_inf_python_float(self):
+		"""
+		float('inf') as a Python float must raise ValidationError.
+
+		Same bypass as float('nan'): isinstance(float('inf'), str) is False,
+		so the string branch never fires, and cint(float('inf')) returns 0.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes=float("inf"))
+
+	def test_require_int_str_rejects_float_negative_inf_python_float(self):
+		"""
+		float('-inf') as a Python float must raise ValidationError.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes=float("-inf"))
+
 	# --- P2: Scientific notation string behavior (documented, not rejected) ---
 
 	def test_require_int_str_documents_scientific_notation_accepted(self):

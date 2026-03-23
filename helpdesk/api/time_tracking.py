@@ -1,11 +1,13 @@
 # Copyright (c) 2026, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+import math
+
 import frappe
 from frappe import _
 from frappe.utils import now_datetime, get_datetime, cint
 
-from helpdesk.utils import is_admin, is_agent
+from helpdesk.utils import is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
@@ -18,19 +20,30 @@ _DURATION_ELAPSED_TOLERANCE_MINUTES = 5
 
 
 def _require_int_str(value, param_name: str) -> None:
-	"""Raise ValidationError if *value* is a non-numeric string.
+	"""Raise ValidationError if *value* is a non-numeric string or a float NaN/Inf.
 
 	cint() silently coerces non-numeric strings to 0, which hides bad input.
-	This guard must be called BEFORE cint() wherever user-controlled strings
+	cint(float('nan')) also silently returns 0, so we must guard that case too.
+	This guard must be called BEFORE cint() wherever user-controlled values
 	are accepted.
 
-	Behavior matches cint():
+	Behavior:
 	- Integer strings ("3", " 5 ") are accepted.
 	- Float strings ("3.5", "1.0") are accepted — cint("3.5") == 3 (truncates).
 	- Non-numeric strings ("abc", "") raise ValidationError.
-	- Non-string values (int, float, bool, None) are passed through unchanged;
+	- Python float NaN / Inf values raise ValidationError (P2-2 fix: these are
+	  not strings so the string branch never fires, but cint(float('nan')) == 0
+	  would silently corrupt the value).
+	- Other non-string values (int, bool, None) are passed through unchanged;
 	  cint() already handles those types correctly.
 	"""
+	# Guard: Python float NaN/Inf are not strings so isinstance(value, str) is False.
+	# cint(float('nan')) silently returns 0, hiding bad input. Reject explicitly.
+	if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+		frappe.throw(
+			_("{0} must be a valid integer").format(param_name),
+			frappe.ValidationError,
+		)
 	if isinstance(value, str):
 		try:
 			# Use int(float(...)) to match cint() behavior:
@@ -225,20 +238,12 @@ def delete_entry(name: str) -> dict:
 	Returns: { "success": True }
 	"""
 	# Pre-gate: only agents OR privileged-role users may delete.
-	# Fetch roles once and derive both the agent-role check and the privileged-role check
-	# from that single set to avoid calling frappe.get_roles() twice.
-	# _any_allowed_roles is the union of:
-	#   - agent roles covered by is_agent(): "HD Admin", "Agent Manager", "Agent"
-	#   - PRIVILEGED_ROLES: "HD Admin", "Agent Manager", "System Manager"
-	# Combined: "Agent", "HD Admin", "Agent Manager", "System Manager"
-	user = frappe.session.user
-	user_roles = set(frappe.get_roles(user))
-	_any_allowed_roles = {"Agent"} | PRIVILEGED_ROLES
-	if not (
-		is_admin(user)
-		or bool(user_roles & _any_allowed_roles)
-		or frappe.db.exists("HD Agent", {"name": user})
-	):
+	# is_agent() covers: Administrator, HD Admin, Agent Manager, Agent (by role),
+	# and any user with an HD Agent record.
+	# is_privileged adds System Manager — in PRIVILEGED_ROLES but not in is_agent().
+	user_roles = set(frappe.get_roles(frappe.session.user))
+	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
+	if not is_agent() and not is_privileged:
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 
 	# Fetch the entry to verify existence and enforce ownership.
