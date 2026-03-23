@@ -288,6 +288,14 @@ development_status:
 
   100-qa-fix-p1s-from-adversarial-review-task-90-dedup-delete-entr: review  # [adversarial-review] QA: Fix: P1s from adversarial review task-90 — dedup delete_
 
-  101-qa-fix-p1s-from-adversarial-review-task-90-dedup-delete-entr: ready-for-dev  # [adversarial-review] QA: Fix: P1s from adversarial review task-90 — dedup delete_
+  101-qa-fix-p1s-from-adversarial-review-task-90-dedup-delete-entr: review  # [adversarial-review] QA: Fix: P1s from adversarial review task-90 — dedup delete_
 
-  102-fix-p1-time-tracking-issues-from-adversarial-review-story-95: in-progress  # [quick-dev] Fix: P1 time tracking issues from adversarial review (Story 
+  102-fix-p1-time-tracking-issues-from-adversarial-review-story-95: review  # [quick-dev] Fix: P1 time tracking issues from adversarial review (Story 
+
+  103-qa-fix-p1-findings-from-adversarial-review-task-92-none-stat: ready-for-dev  # [adversarial-review] QA: Fix: P1 findings from adversarial review task-92 — None 
+
+  104-fix-delete-entry-regression-p0-cint-silent-conversion-p1-fro: in-progress  # [quick-dev] Fix: delete_entry regression (P0) + cint silent conversion (
+
+  105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: in-progress  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
+
+  106-fix-p1s-from-adversarial-review-task-101-bench-time-tracking: in-progress  # [quick-dev] Fix: P1s from adversarial review task-101 — bench time_track

@@ -1,8 +1,11 @@
 # Copyright (c) 2026, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+import datetime
+
 import frappe
 from frappe.tests.utils import FrappeTestCase
+from frappe.utils import now_datetime
 from helpdesk.api.time_tracking import add_entry, stop_timer, get_summary, delete_entry, start_timer
 from helpdesk.test_utils import create_agent, make_ticket
 
@@ -53,7 +56,8 @@ class TestHDTimeEntry(FrappeTestCase):
 	# --- stop_timer tests ---
 
 	def test_stop_timer_creates_entry_with_started_at(self):
-		started_at = "2026-03-23 10:00:00"
+		# Use a safely past date to avoid time-of-day fragility after duration cross-check
+		started_at = "2026-01-01 10:00:00"
 		result = stop_timer(
 			ticket=self.ticket_name,
 			started_at=started_at,
@@ -211,7 +215,7 @@ class TestHDTimeEntry(FrappeTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			stop_timer(
 				ticket=self.ticket_name,
-				started_at="2026-03-23 10:00:00",
+				started_at="2026-01-01 10:00:00",
 				duration_minutes=10,
 				description=long_description,
 			)
@@ -231,7 +235,7 @@ class TestHDTimeEntry(FrappeTestCase):
 		boundary_description = "b" * 500
 		result = stop_timer(
 			ticket=self.ticket_name,
-			started_at="2026-03-23 10:00:00",
+			started_at="2026-01-01 10:00:00",
 			duration_minutes=5,
 			description=boundary_description,
 		)
@@ -254,8 +258,8 @@ class TestHDTimeEntry(FrappeTestCase):
 		stop_timer must not crash when started_at includes UTC offset (tz-aware datetime).
 		Previously raised TypeError: can't compare offset-naive and offset-aware datetimes.
 		"""
-		# ISO 8601 with UTC offset — get_datetime() returns tz-aware for this format
-		tz_aware_started_at = "2026-03-23T10:00:00+00:00"
+		# Use a safely past date to avoid duration cross-check fragility
+		tz_aware_started_at = "2026-01-01T10:00:00+00:00"
 		result = stop_timer(
 			ticket=self.ticket_name,
 			started_at=tz_aware_started_at,
@@ -382,7 +386,7 @@ class TestHDTimeEntry(FrappeTestCase):
 		with self.assertRaises(frappe.PermissionError):
 			stop_timer(
 				ticket=self.ticket_name,
-				started_at="2026-03-23 10:00:00",
+				started_at="2026-01-01 10:00:00",
 				duration_minutes=10,
 			)
 		frappe.set_user("agent.tt@test.com")
@@ -436,3 +440,80 @@ class TestHDTimeEntry(FrappeTestCase):
 		except frappe.PermissionError:
 			self.fail("Agent Manager should be allowed to delete any entry via before_delete()")
 		frappe.set_user("Administrator")
+
+	# --- P2-3: API-layer MAX_DURATION_MINUTES enforcement for stop_timer ---
+
+	def test_stop_timer_rejects_duration_over_max_at_api_layer(self):
+		"""
+		stop_timer must reject duration_minutes > MAX_DURATION_MINUTES (1440) at the API
+		layer, before the document is constructed.
+		"""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import MAX_DURATION_MINUTES
+
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2020-01-01 00:00:00",
+				duration_minutes=MAX_DURATION_MINUTES + 1,
+			)
+
+	def test_stop_timer_accepts_duration_at_max_boundary(self):
+		"""
+		stop_timer must accept duration_minutes == MAX_DURATION_MINUTES (1440).
+		"""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import MAX_DURATION_MINUTES
+
+		result = stop_timer(
+			ticket=self.ticket_name,
+			started_at="2020-01-01 00:00:00",
+			duration_minutes=MAX_DURATION_MINUTES,
+		)
+		self.assertTrue(result.get("success"))
+
+	def test_add_entry_rejects_invalid_string_duration(self):
+		"""
+		add_entry must raise ValidationError with a clear message when duration_minutes
+		is a non-numeric string (e.g. 'abc') rather than silently converting to 0 via cint().
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="abc")
+
+	# --- Story 102: non-numeric input validation (regression tests for cint() fix) ---
+
+	def test_add_entry_rejects_non_numeric_duration(self):
+		"""
+		add_entry must raise ValidationError when duration_minutes is a non-numeric
+		string — cint('abc') silently returns 0, which would be a confusing error.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			add_entry(ticket=self.ticket_name, duration_minutes="abc")
+
+	def test_stop_timer_rejects_non_numeric_billable(self):
+		"""
+		stop_timer must raise ValidationError when billable is a non-numeric string
+		— cint('xyz') silently returns 0, coercing invalid input to non-billable.
+		"""
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at="2026-01-01 10:00:00",
+				duration_minutes=10,
+				billable="xyz",
+			)
+
+	def test_stop_timer_rejects_duration_exceeding_elapsed_time(self):
+		"""
+		stop_timer must raise ValidationError when duration_minutes exceeds the
+		actual elapsed time since started_at (billing fraud prevention).
+		Timer started ~2 minutes ago; claiming MAX_DURATION_MINUTES (1440 min) must fail.
+		"""
+		from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import MAX_DURATION_MINUTES
+
+		# started_at = 2 minutes ago; timer cannot have run for 1440 minutes
+		started_at = str(now_datetime() - datetime.timedelta(minutes=2))
+		with self.assertRaises(frappe.ValidationError):
+			stop_timer(
+				ticket=self.ticket_name,
+				started_at=started_at,
+				duration_minutes=MAX_DURATION_MINUTES,
+			)

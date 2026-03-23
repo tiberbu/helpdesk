@@ -9,8 +9,29 @@ from helpdesk.utils import is_agent
 from helpdesk.helpdesk.doctype.hd_time_entry.hd_time_entry import (
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DURATION_MINUTES,
+	PRIVILEGED_ROLES,
 	_check_delete_permission,
 )
+
+# Tolerance added to elapsed-time cross-check to absorb clock skew / rounding (minutes).
+_DURATION_ELAPSED_TOLERANCE_MINUTES = 5
+
+
+def _require_int_str(value, param_name: str) -> None:
+	"""Raise ValidationError if *value* is a non-numeric string.
+
+	cint() silently coerces non-numeric strings to 0, which hides bad input.
+	This guard must be called BEFORE cint() wherever user-controlled strings
+	are accepted.
+	"""
+	if isinstance(value, str):
+		try:
+			int(value.strip())
+		except ValueError:
+			frappe.throw(
+				_("{0} must be a valid integer").format(param_name),
+				frappe.ValidationError,
+			)
 
 
 @frappe.whitelist()
@@ -32,9 +53,9 @@ def start_timer(ticket: str) -> dict:
 def stop_timer(
 	ticket: str,
 	started_at: str,
-	duration_minutes: int,
+	duration_minutes: "str | int",
 	description: str = "",
-	billable: int = 0,
+	billable: "str | int" = 0,
 ) -> dict:
 	"""
 	Create an HD Time Entry from a stopped timer session.
@@ -72,6 +93,8 @@ def stop_timer(
 	if started_at_naive > now_datetime():
 		frappe.throw(_("started_at cannot be in the future."), frappe.ValidationError)
 
+	# Validate duration_minutes: must be a real integer string (cint() coerces "abc"→0)
+	_require_int_str(duration_minutes, "duration_minutes")
 	duration_minutes = cint(duration_minutes)
 	if duration_minutes < 1:
 		frappe.throw(_("Duration must be at least 1 minute."), frappe.ValidationError)
@@ -81,13 +104,30 @@ def stop_timer(
 			frappe.ValidationError,
 		)
 
+	# Cross-validate: claimed duration must not exceed actual elapsed time + tolerance.
+	# This prevents billing fraud where an agent claims 24 h but the timer ran 5 min.
+	elapsed_minutes = (now_datetime() - started_at_naive).total_seconds() / 60
+	if duration_minutes > elapsed_minutes + _DURATION_ELAPSED_TOLERANCE_MINUTES:
+		frappe.throw(
+			_(
+				"Duration ({0} min) exceeds elapsed time since start ({1} min). "
+				"Please verify your entry."
+			).format(duration_minutes, int(elapsed_minutes)),
+			frappe.ValidationError,
+		)
+
+	# Validate billable: must be a numeric string before cint() silently coerces "xyz"→0
+	_require_int_str(billable, "billable")
+	# Clamp billable to 0/1 — cint() can produce values >1 for a Check field.
+	billable_int = 1 if cint(billable) else 0
+
 	entry = frappe.get_doc(
 		{
 			"doctype": "HD Time Entry",
 			"ticket": ticket,
 			"agent": frappe.session.user,
 			"duration_minutes": duration_minutes,
-			"billable": cint(billable),
+			"billable": billable_int,
 			"description": description or "",
 			"timestamp": now_datetime(),
 			# Store as naive datetime string — MariaDB DATETIME col rejects tz-offset format
@@ -102,9 +142,9 @@ def stop_timer(
 @frappe.whitelist()
 def add_entry(
 	ticket: str,
-	duration_minutes: int,
+	duration_minutes: "str | int",
 	description: str = "",
-	billable: int = 0,
+	billable: "str | int" = 0,
 ) -> dict:
 	"""
 	Create an HD Time Entry via manual entry form.
@@ -124,6 +164,8 @@ def add_entry(
 			frappe.ValidationError,
 		)
 
+	# Validate duration_minutes: must be a real integer string (cint() coerces "abc"→0)
+	_require_int_str(duration_minutes, "duration_minutes")
 	duration_minutes = cint(duration_minutes)
 	if duration_minutes < 1:
 		frappe.throw(_("Duration must be at least 1 minute."), frappe.ValidationError)
@@ -133,13 +175,18 @@ def add_entry(
 			frappe.ValidationError,
 		)
 
+	# Validate billable: must be a numeric string before cint() silently coerces "xyz"→0
+	_require_int_str(billable, "billable")
+	# Clamp billable to 0/1 — cint() can produce values >1 for a Check field.
+	billable_int = 1 if cint(billable) else 0
+
 	entry = frappe.get_doc(
 		{
 			"doctype": "HD Time Entry",
 			"ticket": ticket,
 			"agent": frappe.session.user,
 			"duration_minutes": duration_minutes,
-			"billable": cint(billable),
+			"billable": billable_int,
 			"description": description or "",
 			"timestamp": now_datetime(),
 		}
@@ -159,13 +206,17 @@ def delete_entry(name: str) -> dict:
 
 	Returns: { "success": True }
 	"""
-	entry = frappe.get_doc("HD Time Entry", name)
-
-	# Pre-gate: only agents may delete time entries.
-	# Ownership and privileged-role checks are delegated entirely to
-	# _check_delete_permission (single source of truth — no duplication).
-	if not is_agent():
+	# Pre-gate: only agents OR privileged-role users (HD Admin, System Manager) may delete.
+	# is_agent() covers: Administrator, Agent, Agent Manager.
+	# PRIVILEGED_ROLES covers: HD Admin, Agent Manager, System Manager.
+	# Agent Manager is in both, but HD Admin / System Manager only appear in PRIVILEGED_ROLES
+	# and would be blocked by a bare is_agent() check — hence the dual condition.
+	user_roles = set(frappe.get_roles(frappe.session.user))
+	is_privileged = bool(user_roles & PRIVILEGED_ROLES)
+	if not is_agent() and not is_privileged:
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+	entry = frappe.get_doc("HD Time Entry", name)
 
 	_check_delete_permission(entry, frappe.session.user)
 
