@@ -246,10 +246,12 @@ development_status:
 
   78-qa-fix-p1-findings-from-qa-task-69-status-category-none-regr: review  # [adversarial-review] QA: Fix: P1 findings from QA task-69 — status_category None 
 
-  79-fix-p1s-from-adversarial-review-task-77-tz-conversion-maxlen: in-progress  # [quick-dev] Fix: P1s from adversarial review task-77 — tz conversion, ma
+  79-fix-p1s-from-adversarial-review-task-77-tz-conversion-maxlen: review  # [quick-dev] Fix: P1s from adversarial review task-77 — tz conversion, ma
 
   80-fix-time-tracking-qa-p1-p2-findings-bench-sync-tz-aware-cras: in-progress  # [quick-dev] Fix: Time Tracking QA P1/P2 findings (bench sync, tz-aware c
 
   81-fix-p1-findings-from-qa-task-78-regression-test-gaps-migrati: review  # [quick-dev] Fix: P1 findings from QA task-78 — regression test gaps, mig
 
   82-fix-qa-p1-findings-from-task-76-agent-manager-perm-is-agent-: in-progress  # [quick-dev] Fix: QA P1 findings from task #76 — Agent Manager perm, is_a
+
+  83-qa-fix-p1-findings-from-qa-task-78-regression-test-gaps-migr: ready-for-dev  # [adversarial-review] QA: Fix: P1 findings from QA task-78 — regression test gaps,

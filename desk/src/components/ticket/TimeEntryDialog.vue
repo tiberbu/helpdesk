@@ -115,11 +115,7 @@ const stopTimerResource = createResource({
     emit("saved");
   },
   onError(error: Error) {
-    toast({
-      title: __("Error"),
-      text: error.message || __("Failed to save timer entry. Please try again."),
-      type: "error",
-    });
+    toast.error(error.message || __("Failed to save timer entry. Please try again."));
   },
 });
 
@@ -129,11 +125,7 @@ const addEntryResource = createResource({
     emit("saved");
   },
   onError(error: Error) {
-    toast({
-      title: __("Error"),
-      text: error.message || __("Failed to add time entry. Please try again."),
-      type: "error",
-    });
+    toast.error(error.message || __("Failed to add time entry. Please try again."));
   },
 });
 
