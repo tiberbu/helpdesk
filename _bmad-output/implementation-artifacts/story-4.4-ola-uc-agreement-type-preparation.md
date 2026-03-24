@@ -1,6 +1,6 @@
 # Story 4.4: OLA/UC Agreement Type Preparation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
