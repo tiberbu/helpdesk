@@ -1,9 +1,13 @@
 # Copyright (c) 2021, Frappe Technologies and Contributors
 # See license.txt
 
+from unittest.mock import patch
+
 import frappe
 from frappe.tests.utils import FrappeTestCase
+from frappe.utils import add_days, today
 
+from helpdesk.api.kb_review import get_articles_due_for_review, mark_article_reviewed
 from helpdesk.api.knowledge_base import (
     approve_article,
     archive_article,
@@ -14,6 +18,7 @@ from helpdesk.api.knowledge_base import (
     request_changes,
     submit_for_review,
 )
+from helpdesk.helpdesk.doctype.hd_article.review_reminder import send_review_reminders
 from helpdesk.test_utils import create_agent
 
 
@@ -282,3 +287,256 @@ class TestHDArticleReviewWorkflow(FrappeTestCase):
         frappe.set_user(_CUSTOMER_EMAIL)
         with self.assertRaises(frappe.PermissionError):
             get_agent_articles()
+
+
+# ---------------------------------------------------------------------------
+# Story 5.3: Review Dates and Expiry Reminders
+# ---------------------------------------------------------------------------
+
+class TestHDArticleReviewDates(FrappeTestCase):
+    """Unit tests for review_date auto-set, reminder job, and KB review API (AC #1-#11)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        frappe.set_user("Administrator")
+        create_agent(_AGENT_EMAIL)
+
+        # Reviewer (System Manager) — may already exist from previous test class
+        if not frappe.db.exists("User", _REVIEWER_EMAIL):
+            frappe.get_doc(
+                {
+                    "doctype": "User",
+                    "email": _REVIEWER_EMAIL,
+                    "first_name": "KB",
+                    "last_name": "Reviewer",
+                    "send_welcome_email": 0,
+                }
+            ).insert(ignore_permissions=True)
+        reviewer = frappe.get_doc("User", _REVIEWER_EMAIL)
+        if "System Manager" not in frappe.get_roles(_REVIEWER_EMAIL):
+            reviewer.add_roles("System Manager")
+
+        cls.category = _make_category("KB Review Test Category")
+        frappe.db.commit()  # nosemgrep
+
+    @classmethod
+    def tearDownClass(cls):
+        frappe.set_user("Administrator")
+        frappe.db.delete("HD Article", {"category": cls.category.name})
+        if frappe.db.exists("HD Article Category", cls.category.name):
+            frappe.db.delete("HD Article Category", {"name": cls.category.name})
+        frappe.db.commit()  # nosemgrep
+        super().tearDownClass()
+
+    def setUp(self):
+        super().setUp()
+        frappe.flags.mute_emails = True
+        frappe.set_user("Administrator")
+        self.article = _make_article(self.category.name, title="Review Date Test Article")
+
+    def tearDown(self):
+        frappe.set_user("Administrator")
+        frappe.flags.mute_emails = False
+        frappe.db.delete("HD Article", {"name": self.article.name})
+        frappe.db.commit()  # nosemgrep
+        # Restore default review period
+        frappe.db.set_single_value("HD Settings", "kb_review_period_days", 90)
+        super().tearDown()
+
+    # ------------------------------------------------------------------
+    # AC #2: Approve sets review_date to today + kb_review_period_days
+    # ------------------------------------------------------------------
+    def test_publish_sets_review_date_to_default_period(self):
+        """Approving an In Review article sets review_date = today + 90."""
+        frappe.db.set_value("HD Article", self.article.name, "status", "In Review")
+        frappe.set_user(_REVIEWER_EMAIL)
+        approve_article(self.article.name)
+        self.article.reload()
+        expected = add_days(today(), 90)
+        self.assertEqual(str(self.article.review_date), str(expected))
+
+    # ------------------------------------------------------------------
+    # AC #3: Custom review period in HD Settings is respected
+    # ------------------------------------------------------------------
+    def test_publish_uses_custom_review_period(self):
+        """When kb_review_period_days=60, publish sets review_date = today + 60."""
+        frappe.db.set_single_value("HD Settings", "kb_review_period_days", 60)
+        frappe.db.set_value("HD Article", self.article.name, "status", "In Review")
+        frappe.set_user(_REVIEWER_EMAIL)
+        approve_article(self.article.name)
+        self.article.reload()
+        expected = add_days(today(), 60)
+        self.assertEqual(str(self.article.review_date), str(expected))
+
+    # ------------------------------------------------------------------
+    # AC #4 / #6: send_review_reminders emails overdue authors
+    # ------------------------------------------------------------------
+    def test_send_review_reminders_emails_overdue_authors(self):
+        """Overdue Published article author receives reminder; last_reminder_sent set."""
+        yesterday = add_days(today(), -1)
+        frappe.db.set_value(
+            "HD Article",
+            self.article.name,
+            {
+                "status": "Published",
+                "review_date": yesterday,
+                "author": _AGENT_EMAIL,
+                "last_reminder_sent": None,
+            },
+        )
+        with patch("frappe.sendmail") as mock_sendmail:
+            send_review_reminders()
+        mock_sendmail.assert_called_once()
+        call_kwargs = mock_sendmail.call_args
+        recipients = call_kwargs[1].get("recipients") or call_kwargs[0][0]
+        author_email = frappe.db.get_value("User", _AGENT_EMAIL, "email") or _AGENT_EMAIL
+        self.assertIn(author_email, recipients)
+        # last_reminder_sent must be stamped
+        sent = frappe.db.get_value("HD Article", self.article.name, "last_reminder_sent")
+        self.assertEqual(str(sent), str(today()))
+
+    # ------------------------------------------------------------------
+    # AC #6: No duplicate emails if last_reminder_sent == today
+    # ------------------------------------------------------------------
+    def test_send_review_reminders_skips_if_sent_today(self):
+        """If last_reminder_sent == today, no email is sent again."""
+        yesterday = add_days(today(), -1)
+        frappe.db.set_value(
+            "HD Article",
+            self.article.name,
+            {
+                "status": "Published",
+                "review_date": yesterday,
+                "author": _AGENT_EMAIL,
+                "last_reminder_sent": today(),
+            },
+        )
+        with patch("frappe.sendmail") as mock_sendmail:
+            send_review_reminders()
+        mock_sendmail.assert_not_called()
+
+    # ------------------------------------------------------------------
+    # AC #4 (e): Non-Published articles are skipped by the reminder job
+    # ------------------------------------------------------------------
+    def test_send_review_reminders_skips_non_published(self):
+        """Draft and Archived articles with overdue review_date are not emailed."""
+        yesterday = add_days(today(), -1)
+        # Use a separate article to avoid status conflicts with self.article
+        draft_art = _make_article(
+            self.category.name, title="Draft Overdue Article", status="Draft"
+        )
+        frappe.db.set_value(
+            "HD Article",
+            draft_art.name,
+            {
+                "review_date": yesterday,
+                "author": _AGENT_EMAIL,
+                "last_reminder_sent": None,
+            },
+        )
+        try:
+            with patch("frappe.sendmail") as mock_sendmail:
+                send_review_reminders()
+            # No call for non-Published articles
+            mock_sendmail.assert_not_called()
+        finally:
+            frappe.set_user("Administrator")
+            frappe.db.delete("HD Article", {"name": draft_art.name})
+            frappe.db.commit()  # nosemgrep
+
+    # ------------------------------------------------------------------
+    # AC #8: mark_article_reviewed resets review_date, sets reviewed_by
+    # ------------------------------------------------------------------
+    def test_mark_article_reviewed_resets_review_date(self):
+        """mark_article_reviewed updates review_date, reviewed_by, clears last_reminder_sent."""
+        yesterday = add_days(today(), -1)
+        frappe.db.set_value(
+            "HD Article",
+            self.article.name,
+            {
+                "status": "Published",
+                "review_date": yesterday,
+                "last_reminder_sent": yesterday,
+            },
+        )
+        frappe.set_user(_AGENT_EMAIL)
+        result = mark_article_reviewed(self.article.name)
+        expected_date = add_days(today(), 90)
+        self.assertEqual(str(result["review_date"]), str(expected_date))
+        self.assertEqual(result["reviewed_by"], _AGENT_EMAIL)
+        last_sent = frappe.db.get_value(
+            "HD Article", self.article.name, "last_reminder_sent"
+        )
+        self.assertIsNone(last_sent)
+
+    # ------------------------------------------------------------------
+    # AC #9 (g): get_articles_due_for_review returns correct articles
+    # ------------------------------------------------------------------
+    def test_get_articles_due_for_review_returns_correct_articles(self):
+        """Only Published articles with review_date <= today+7 are returned."""
+        overdue_art = _make_article(
+            self.category.name, title="Overdue Published", status="Published"
+        )
+        upcoming_art = _make_article(
+            self.category.name, title="Upcoming Published", status="Published"
+        )
+        far_future_art = _make_article(
+            self.category.name, title="Far Future Published", status="Published"
+        )
+        draft_art = _make_article(
+            self.category.name, title="Draft Overdue", status="Draft"
+        )
+
+        frappe.db.set_value(
+            "HD Article", overdue_art.name, "review_date", add_days(today(), -1)
+        )
+        frappe.db.set_value(
+            "HD Article", upcoming_art.name, "review_date", add_days(today(), 5)
+        )
+        frappe.db.set_value(
+            "HD Article", far_future_art.name, "review_date", add_days(today(), 10)
+        )
+        frappe.db.set_value(
+            "HD Article", draft_art.name, "review_date", add_days(today(), -1)
+        )
+
+        try:
+            frappe.set_user(_AGENT_EMAIL)
+            data = get_articles_due_for_review()
+            overdue_names = [a["name"] for a in data["overdue"]]
+            upcoming_names = [a["name"] for a in data["upcoming"]]
+
+            self.assertIn(overdue_art.name, overdue_names)
+            self.assertIn(upcoming_art.name, upcoming_names)
+            self.assertNotIn(far_future_art.name, overdue_names + upcoming_names)
+            self.assertNotIn(draft_art.name, overdue_names + upcoming_names)
+        finally:
+            frappe.set_user("Administrator")
+            for name in [
+                overdue_art.name,
+                upcoming_art.name,
+                far_future_art.name,
+                draft_art.name,
+            ]:
+                frappe.db.delete("HD Article", {"name": name})
+            frappe.db.commit()  # nosemgrep
+
+    # ------------------------------------------------------------------
+    # AC #9 security: non-agents cannot call get_articles_due_for_review
+    # ------------------------------------------------------------------
+    def test_get_articles_due_for_review_requires_agent(self):
+        """Customers cannot call the review widget API."""
+        if not frappe.db.exists("User", _CUSTOMER_EMAIL):
+            frappe.get_doc(
+                {
+                    "doctype": "User",
+                    "email": _CUSTOMER_EMAIL,
+                    "first_name": "KB",
+                    "last_name": "Customer",
+                    "send_welcome_email": 0,
+                }
+            ).insert(ignore_permissions=True)
+        frappe.set_user(_CUSTOMER_EMAIL)
+        with self.assertRaises(frappe.PermissionError):
+            get_articles_due_for_review()

@@ -123,6 +123,10 @@
             <component :is="getChartType(chart)" />
           </div>
         </div>
+        <!-- KB Review Widget -->
+        <div class="mt-4">
+          <ArticlesDueForReview />
+        </div>
       </div>
       <!-- Loading State -->
       <div
@@ -137,6 +141,7 @@
 
 <script setup lang="ts">
 import { Link } from "@/components";
+import ArticlesDueForReview from "@/components/knowledge-base/ArticlesDueForReview.vue";
 import { useAuthStore } from "@/stores/auth";
 import {
   AxisChart,

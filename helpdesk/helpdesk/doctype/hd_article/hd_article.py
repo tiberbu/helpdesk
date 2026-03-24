@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, get_url, now_datetime
+from frappe.utils import add_days, cint, get_url, now_datetime, today
 
 from helpdesk.utils import capture_event
 
@@ -123,6 +123,7 @@ class HDArticle(Document):
             self._notify_reviewers_for_review()
         elif action == _ACTION_APPROVE:
             self._notify_author_approved()
+            self._set_review_date()
         elif action == _ACTION_REQUEST_CHANGES:
             self._notify_author_changes_requested()
         elif action == _ACTION_REJECT:
@@ -131,6 +132,20 @@ class HDArticle(Document):
     def _get_article_url(self) -> str:
         """Return agent workspace URL for this article."""
         return get_url(f"/helpdesk/kb/articles/{self.name}")
+
+    def _set_review_date(self):
+        """Set review_date to today + kb_review_period_days days (AC #2, Story 5.3).
+
+        on_workflow_action is called after the document is already saved, so we must
+        persist the value directly to the DB rather than just setting self.review_date.
+        """
+        settings = frappe.get_single("HD Settings")
+        period = settings.get_kb_review_period_days()
+        new_review_date = add_days(today(), period)
+        frappe.db.set_value(
+            "HD Article", self.name, "review_date", new_review_date, update_modified=False
+        )
+        self.review_date = new_review_date  # keep in-memory in sync
 
     def _notify_reviewers_for_review(self):
         """Send email to all configured KB reviewers when article is submitted for review."""

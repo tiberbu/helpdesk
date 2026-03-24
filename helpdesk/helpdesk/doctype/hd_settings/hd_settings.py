@@ -168,6 +168,10 @@ class HDSettings(Document):
                 continue
             validate_template(getattr(self, content_field_name))
 
+    def get_kb_review_period_days(self) -> int:
+        """Return the configured review period in days (default 90)."""
+        return int(self.kb_review_period_days or 90)
+
     def get_kb_reviewer_emails(self) -> list[str]:
         """Return list of reviewer email addresses configured in HD Settings.
 

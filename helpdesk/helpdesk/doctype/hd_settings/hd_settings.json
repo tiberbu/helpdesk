@@ -42,6 +42,7 @@
   "knowledge_base_section",
   "prefer_knowledge_base",
   "kb_reviewers",
+  "kb_review_period_days",
   "ticket_tab",
   "ticket_type_section",
   "default_ticket_type",
@@ -389,6 +390,13 @@
    "fieldtype": "Table",
    "label": "Article Reviewers",
    "options": "HD KB Reviewer"
+  },
+  {
+   "default": "90",
+   "description": "Number of days after publication before an article is due for review. Minimum: 1. Default: 90.",
+   "fieldname": "kb_review_period_days",
+   "fieldtype": "Int",
+   "label": "Article Review Period (Days)"
   },
   {
    "fieldname": "priority_section",

@@ -17,7 +17,11 @@
   "content_section",
   "content",
   "reviewer_comment_section",
-  "reviewer_comment"
+  "reviewer_comment",
+  "review_information_section",
+  "review_date",
+  "reviewed_by",
+  "last_reminder_sent"
  ],
  "fields": [
   {
@@ -73,7 +77,8 @@
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Draft\nIn Review\nPublished\nArchived"
+   "options": "Draft\nIn Review\nPublished\nArchived",
+   "search_index": 1
   },
   {
    "depends_on": "eval:doc.reviewer_comment",
@@ -100,6 +105,34 @@
    "fieldtype": "Int",
    "label": "Views",
    "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "review_information_section",
+   "fieldtype": "Section Break",
+   "label": "Review Information"
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Date",
+   "label": "Review Date",
+   "no_copy": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "no_copy": 1,
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_reminder_sent",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Last Reminder Sent",
+   "no_copy": 1
   }
  ],
  "links": [],

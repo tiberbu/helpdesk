@@ -64,3 +64,6 @@ helpdesk.patches.v1_phase1.add_sla_agreement_type
 
 helpdesk.patches.v1_phase1.add_in_review_status_to_hd_article
 helpdesk.patches.v1_phase1.add_kb_settings_to_hd_settings
+
+helpdesk.patches.v1_phase1.add_review_date_fields_to_hd_article
+helpdesk.patches.v1_phase1.add_kb_review_settings_to_hd_settings
