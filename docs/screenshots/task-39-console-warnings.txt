@@ -1,0 +1,166 @@
+Total messages: 58 (Errors: 47, Warnings: 10)
+Returning 57 messages for level "warning"
+
+[WARNING] [Vue warn]: onMounted is called when there is no active component instance to be associated with. Lifecycle injection APIs can only be used during execution of setup(). If you are using async setup(), make sure to register lifecycle hooks before the first await statement. @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: onUnmounted is called when there is no active component instance to be associated with. Lifecycle injection APIs can only be used during execution of setup(). If you are using async setup(), make sure to register lifecycle hooks before the first await statement. @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd1qxbwh:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd1r289c:0
+[WARNING] Manifest: property 'scope' ignored. Start url should be within scope of scope URL. @ http://help.frappe.local/assets/helpdesk/desk/manifest.webmanifest:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd1rol86:0
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "modelValue". Expected Boolean, got Undefined  
+  at <Dialog modelValue=undefined onUpdate:modelValue=fn options= {size: xl, position: top} > 
+  at <CP> 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "label". Expected String with value "20", got Number with value 20. 
+  at <Button ref_for=true label=20 value=20  ... > 
+  at <RadioGroupOption as="div" key=20 disabled=undefined  ... > 
+  at <RadioGroup modelValue=20 onUpdate:modelValue=fn > 
+  at <TabButtons modelValue=20 onUpdate:modelValue=fn buttons= [Object, Object, Object] > 
+  at <ListFooter options= {rowCount: 20, totalCount: 25} pageLengthCount=20 onLoadMore=fn  ... > 
+  at <ListViewBuilder ref_key="listViewRef" ref=Ref< Proxy(Object) > options= {doctype: HD Ticket, columnConfig: Object, isCustomerPortal: false, selectable: true, showSelectBanner: true}  ... > 
+  at <Tickets class="flex flex-1 flex-col overflow-auto" onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView class="flex flex-1 flex-col overflow-auto" > 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "label". Expected String with value "50", got Number with value 50. 
+  at <Button ref_for=true label=50 value=50  ... > 
+  at <RadioGroupOption as="div" key=50 disabled=undefined  ... > 
+  at <RadioGroup modelValue=20 onUpdate:modelValue=fn > 
+  at <TabButtons modelValue=20 onUpdate:modelValue=fn buttons= [Object, Object, Object] > 
+  at <ListFooter options= {rowCount: 20, totalCount: 25} pageLengthCount=20 onLoadMore=fn  ... > 
+  at <ListViewBuilder ref_key="listViewRef" ref=Ref< Proxy(Object) > options= {doctype: HD Ticket, columnConfig: Object, isCustomerPortal: false, selectable: true, showSelectBanner: true}  ... > 
+  at <Tickets class="flex flex-1 flex-col overflow-auto" onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView class="flex flex-1 flex-col overflow-auto" > 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "label". Expected String with value "100", got Number with value 100. 
+  at <Button ref_for=true label=100 value=100  ... > 
+  at <RadioGroupOption as="div" key=100 disabled=undefined  ... > 
+  at <RadioGroup modelValue=20 onUpdate:modelValue=fn > 
+  at <TabButtons modelValue=20 onUpdate:modelValue=fn buttons= [Object, Object, Object] > 
+  at <ListFooter options= {rowCount: 20, totalCount: 25} pageLengthCount=20 onLoadMore=fn  ... > 
+  at <ListViewBuilder ref_key="listViewRef" ref=Ref< Proxy(Object) > options= {doctype: HD Ticket, columnConfig: Object, isCustomerPortal: false, selectable: true, showSelectBanner: true}  ... > 
+  at <Tickets class="flex flex-1 flex-col overflow-auto" onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView class="flex flex-1 flex-col overflow-auto" > 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "label". Expected String with value "20", got Number with value 20. 
+  at <Button ref_for=true label=20 value=20  ... > 
+  at <RadioGroupOption as="div" key=20 disabled=undefined  ... > 
+  at <RadioGroup modelValue=20 onUpdate:modelValue=fn > 
+  at <TabButtons modelValue=20 onUpdate:modelValue=fn buttons= [Object, Object, Object] > 
+  at <ListFooter options= {rowCount: 20, totalCount: 25} pageLengthCount=20 onLoadMore=fn  ... > 
+  at <ListViewBuilder ref_key="listViewRef" ref=Ref< Proxy(Object) > options= {doctype: HD Ticket, columnConfig: Object, isCustomerPortal: false, selectable: true, showSelectBanner: true}  ... > 
+  at <Tickets class="flex flex-1 flex-col overflow-auto" onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView class="flex flex-1 flex-col overflow-auto" > 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "label". Expected String with value "50", got Number with value 50. 
+  at <Button ref_for=true label=50 value=50  ... > 
+  at <RadioGroupOption as="div" key=50 disabled=undefined  ... > 
+  at <RadioGroup modelValue=20 onUpdate:modelValue=fn > 
+  at <TabButtons modelValue=20 onUpdate:modelValue=fn buttons= [Object, Object, Object] > 
+  at <ListFooter options= {rowCount: 20, totalCount: 25} pageLengthCount=20 onLoadMore=fn  ... > 
+  at <ListViewBuilder ref_key="listViewRef" ref=Ref< Proxy(Object) > options= {doctype: HD Ticket, columnConfig: Object, isCustomerPortal: false, selectable: true, showSelectBanner: true}  ... > 
+  at <Tickets class="flex flex-1 flex-col overflow-auto" onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView class="flex flex-1 flex-col overflow-auto" > 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[WARNING] [Vue warn]: Invalid prop: type check failed for prop "label". Expected String with value "100", got Number with value 100. 
+  at <Button ref_for=true label=100 value=100  ... > 
+  at <RadioGroupOption as="div" key=100 disabled=undefined  ... > 
+  at <RadioGroup modelValue=20 onUpdate:modelValue=fn > 
+  at <TabButtons modelValue=20 onUpdate:modelValue=fn buttons= [Object, Object, Object] > 
+  at <ListFooter options= {rowCount: 20, totalCount: 25} pageLengthCount=20 onLoadMore=fn  ... > 
+  at <ListViewBuilder ref_key="listViewRef" ref=Ref< Proxy(Object) > options= {doctype: HD Ticket, columnConfig: Object, isCustomerPortal: false, selectable: true, showSelectBanner: true}  ... > 
+  at <Tickets class="flex flex-1 flex-col overflow-auto" onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView class="flex flex-1 flex-col overflow-auto" > 
+  at <DesktopLayout class="isolate" > 
+  at <AsyncComponentWrapper class="isolate" > 
+  at <AgentRoot> 
+  at <AsyncComponentWrapper> 
+  at <ToastProvider swipe-direction="down" > 
+  at <ToastProvider> 
+  at <FrappeUIProvider> 
+  at <App> @ http://help.frappe.local/assets/helpdesk/desk/assets/index-3d346e45.js:14
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd27x7q4:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd2akobz:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd2d9on5:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd3v45ex:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd40ifff:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd43j52s:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd7f2zw2:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd7q225u:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cd7vg6kg:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdba0kjv:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdbl0wfq:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdbqev2n:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdf4y48c:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdffz4kh:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdflctjo:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdjaxqh4:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdn5wr5p:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdr0t59g:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cduvsxxc:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cdyqqrgh:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=ce2loxk8:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=ce6gmyey:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=ceably9l:0
+[ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ https://help.frappe.local/socket.io/?EIO=4&transport=polling&t=cee6jbp2:0
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
+Internal error opening backing store for indexedDB.open.
