@@ -1,6 +1,12 @@
 // Copyright (c) 2018, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
+function toggle_agreement_type_fields(frm) {
+  const agreement_type = frm.doc.agreement_type;
+  frm.toggle_display("internal_team", agreement_type === "OLA");
+  frm.toggle_display("vendor", agreement_type === "UC");
+}
+
 frappe.ui.form.on("HD Service Level Agreement", {
   setup: function (frm) {
     if (cint(frm.doc.apply_sla_for_resolution) === 1) {
@@ -22,6 +28,11 @@ frappe.ui.form.on("HD Service Level Agreement", {
   refresh: function (frm) {
     frm.trigger("fetch_status_fields");
     frm.trigger("toggle_resolution_fields");
+    toggle_agreement_type_fields(frm);
+  },
+
+  agreement_type: function (frm) {
+    toggle_agreement_type_fields(frm);
   },
 
   document_type: function (frm) {

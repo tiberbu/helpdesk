@@ -20,6 +20,9 @@
   "start_date",
   "column_break_7",
   "end_date",
+  "agreement_type",
+  "internal_team",
+  "vendor",
   "response_and_resolution_time_section",
   "apply_sla_for_resolution",
   "priorities",
@@ -73,6 +76,26 @@
    "fieldname": "end_date",
    "fieldtype": "Date",
    "label": "End Date"
+  },
+  {
+   "default": "SLA",
+   "fieldname": "agreement_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Agreement Type",
+   "options": "SLA\nOLA\nUC"
+  },
+  {
+   "fieldname": "internal_team",
+   "fieldtype": "Link",
+   "label": "Internal Team",
+   "options": "HD Team"
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Data",
+   "label": "Vendor"
   },
   {
    "fieldname": "response_and_resolution_time_section",
@@ -193,7 +216,7 @@
   }
  ],
  "links": [],
- "modified": "2026-02-02 11:54:59.519053",
+ "modified": "2026-03-24 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Service Level Agreement",
