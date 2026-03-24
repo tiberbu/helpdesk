@@ -39,7 +39,7 @@
         class="flex items-center justify-between bg-blue-50 px-4 py-2 text-sm"
       >
         <span class="text-blue-700">
-          {{ __("{0} versions selected", [selectedVersions.length]) }}
+          {{ __("{0} versions selected", selectedVersions.length) }}
         </span>
         <Button
           :label="__('Compare')"
@@ -168,12 +168,7 @@
       <div class="flex items-center justify-between border-b px-6 py-3 bg-gray-50">
         <h2 class="text-sm font-semibold text-gray-800">
           {{
-            __("Compare v{0} ({1}) vs v{2} ({3})", [
-              diffVersions[0].version_number,
-              formatTs(diffVersions[0].timestamp),
-              diffVersions[1].version_number,
-              formatTs(diffVersions[1].timestamp),
-            ])
+            __("Compare v{0} ({1}) vs v{2} ({3})", diffVersions[0].version_number, formatTs(diffVersions[0].timestamp), diffVersions[1].version_number, formatTs(diffVersions[1].timestamp))
           }}
         </h2>
         <button
@@ -332,7 +327,7 @@ function confirmRevert() {
     title: __("Revert Article?"),
     message: __(
       "This will restore the article content from version #{0} ({1}) and create a new version record. The article status will not change.",
-      [v.version_number, formatTs(v.timestamp)]
+      v.version_number, formatTs(v.timestamp)
     ),
     actions: [
       {
@@ -347,7 +342,7 @@ function confirmRevert() {
             {
               onSuccess: () => {
                 toast.success(
-                  __("Article reverted to version #{0}", [v.version_number])
+                  __("Article reverted to version #{0}", v.version_number)
                 );
                 previewVersion.value = null;
                 versions.reload();

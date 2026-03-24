@@ -1,17 +1,17 @@
-# Story: QA: Story 5.2: Article Versioning
+# Story: QA: Story 3.8: Multi-Brand Configuration
 
-Status: done
-Task ID: mn3wygdh2nq2pf
-Task Number: #243
+Status: in-progress
+Task ID: mn4fgu22ykdijg
+Task Number: #292
 Workflow: playwright-qa
 Model: opus
-Created: 2026-03-24T01:05:58.779Z
+Created: 2026-03-24T09:44:19.331Z
 
 ## Description
 
 ## QA Report Task — DO NOT MODIFY CODE
 
-**Review task #43: Story 5.2: Article Versioning**
+**Review task #37: Story 3.8: Multi-Brand Configuration**
 **QA Depth: 1/1** (max depth reached = no further QA cycles)
 
 ### MANDATORY: Use Playwright MCP for ALL browser testing
@@ -27,17 +27,17 @@ You have access to Playwright MCP tools. You MUST use them. The tools are prefix
 
 **If you skip Playwright testing, the task will be considered FAILED.**
 
-Start by navigating to the app: `mcp__playwright__browser_navigate` with url `http://localhost:8069`
+Start by navigating to the app: `mcp__playwright__browser_navigate` with url `http://help.frappe.local`
 Then login with credentials from docs/testing-info.md (or use: Administrator / admin)
 
 ### What to verify
-Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-43-story-5-2-article-versioning.md`
+Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-37-story-3-8-multi-brand-configuration.md`
 
 ### Files changed
 (check git diff for changes)
 
 ### Test steps
-1. Use `mcp__playwright__browser_navigate` to go to http://localhost:8069
+1. Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
 2. Login using Playwright tools (navigate to login, type credentials, click login)
 3. Navigate to the relevant pages for this feature
 4. Test each acceptance criterion using Playwright interactions
@@ -48,7 +48,7 @@ Read the story file for acceptance criteria: `_bmad-output/implementation-artifa
 5. Verify no console errors
 
 ### Deliverable
-Produce `docs/qa-report-task-43.md` with:
+Produce `docs/qa-report-task-37.md` with:
 - Each AC: PASS/FAIL with evidence
 - Screenshots referenced (use task-prefixed naming)
 - Console errors captured
@@ -70,13 +70,13 @@ Create the fix task using:
 curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type: application/json" -d @- <<'TASK_JSON'
 {
   "title": "Fix: [story title] — [1-line summary of all issues]",
-  "description": "## Fix Task (from QA report docs/qa-report-task-43.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
+  "description": "## Fix Task (from QA report docs/qa-report-task-37.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
   "workdir": "/home/ubuntu/bmad-project/helpdesk",
   "status": "bmad_workflow",
   "notes": "[bmad-workflow:quick-dev]",
   "model": "sonnet",
   "max_turns": 60,
-  "chain_id": "epic-5-knowledge-base"
+  "chain_id": "epic-3-omnichannel"
 }
 TASK_JSON
 ```
@@ -85,7 +85,7 @@ TASK_JSON
 
 ## Acceptance Criteria
 
-- [ ] Use `mcp__playwright__browser_navigate` to go to http://localhost:8069
+- [ ] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
 - [ ] Login using Playwright tools (navigate to login, type credentials, click login)
 - [ ] Navigate to the relevant pages for this feature
 - [ ] Test each acceptance criterion using Playwright interactions
@@ -104,7 +104,7 @@ TASK_JSON
 
 ## Tasks / Subtasks
 
-- [ ] Use `mcp__playwright__browser_navigate` to go to http://localhost:8069
+- [ ] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
 - [ ] Login using Playwright tools (navigate to login, type credentials, click login)
 - [ ] Navigate to the relevant pages for this feature
 - [ ] Test each acceptance criterion using Playwright interactions
@@ -127,7 +127,7 @@ TASK_JSON
 
 ### References
 
-- Task source: Claude Code Studio task #243
+- Task source: Claude Code Studio task #292
 
 ## Dev Agent Record
 
@@ -137,30 +137,12 @@ opus
 
 ### Completion Notes List
 
-- QA completed via Playwright MCP browser testing + API testing (bench Python) + unit tests
-- P0 bug (missing content field) was already fixed prior to browser testing session
-- **P1 bug found:** Broken `__()` string interpolation in ArticleVersionHistory.vue — diff header and revert dialog show garbled text with unresolved `{1}`, `{2}`, `{3}` placeholders
-- Fix task #291 created for the P1 interpolation issue (4 locations in ArticleVersionHistory.vue)
-- All 7 unit tests pass; all 4 ACs functionally working
-- Browser-verified: Version History button, drawer with version list, preview panel with content, side-by-side diff view, revert confirmation and success toast
-- No feature-specific console errors
+_(Updated by agent on completion)_
 
 ### Change Log
 
-- 2026-03-24: Created QA report at `docs/qa-report-task-43.md`
-- 2026-03-24: Created fix task #244 for P0 missing content field bug (already fixed)
-- 2026-03-24: Updated QA report with Playwright browser test results
-- 2026-03-24: Created fix task #291 for P1 broken __() interpolation bug
+_(Updated by agent during implementation)_
 
 ### File List
 
-**Created:**
-- `docs/qa-report-task-43.md`
-
-**Screenshots:**
-- `task-43-article-page-with-version-history-btn.png`
-- `task-43-version-history-drawer.png`
-- `task-43-version-preview-panel.png`
-- `task-43-diff-view-broken-header.png`
-- `task-43-revert-dialog-broken-interpolation.png`
-- `task-43-revert-success-toast.png`
+_(Updated by agent — list all files created or modified)_
