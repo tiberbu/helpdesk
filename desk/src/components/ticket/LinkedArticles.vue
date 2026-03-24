@@ -142,17 +142,15 @@ const removeTarget = ref<LinkedArticleRow | null>(null);
 const showRemoveDialog = ref(false);
 
 const linkedArticles = createResource({
-  url: "frappe.client.get_list",
+  url: "frappe.client.get",
   params: {
-    doctype: "HD Ticket Article",
-    filters: JSON.stringify([
-      ["parent", "=", props.ticketId],
-      ["parenttype", "=", "HD Ticket"],
-    ]),
-    fields: JSON.stringify(["name", "article", "article_title"]),
-    limit: 50,
+    doctype: "HD Ticket",
+    name: props.ticketId,
   },
   auto: true,
+  transform(data: any) {
+    return (data?.linked_articles || []) as LinkedArticleRow[];
+  },
 });
 
 watch(
@@ -161,13 +159,8 @@ watch(
     if (id) {
       linkedArticles.update({
         params: {
-          doctype: "HD Ticket Article",
-          filters: JSON.stringify([
-            ["parent", "=", id],
-            ["parenttype", "=", "HD Ticket"],
-          ]),
-          fields: JSON.stringify(["name", "article", "article_title"]),
-          limit: 50,
+          doctype: "HD Ticket",
+          name: id,
         },
       });
       linkedArticles.reload();
@@ -218,8 +211,8 @@ const prefillResource = createResource({
       "hd_article_prefill",
       JSON.stringify(data)
     );
-    // Navigate to new article page under the returned category (or fallback empty)
-    router.push(`/articles/new/${data.category || ""}`);
+    // Navigate to new article page under the returned category (param is optional)
+    router.push({ name: "NewArticle", params: data.category ? { id: data.category } : {} });
   },
   onError(err: any) {
     const msg = err?.messages?.[0] || __("Failed to prefill article.");

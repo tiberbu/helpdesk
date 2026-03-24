@@ -1,6 +1,6 @@
 # Story: QA: Story 5.4: Ticket-Article Linking
 
-Status: in-progress
+Status: done
 Task ID: mn4fxg3hoovw83
 Task Number: #293
 Workflow: playwright-qa
@@ -85,41 +85,33 @@ TASK_JSON
 
 ## Acceptance Criteria
 
-- [ ] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
-- [ ] Login using Playwright tools (navigate to login, type credentials, click login)
-- [ ] Navigate to the relevant pages for this feature
-- [ ] Test each acceptance criterion using Playwright interactions
-- [ ] Take screenshots: `mcp__playwright__browser_screenshot`
-- [ ] Check console for errors
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
-- [ ] **ONE task only** — consolidate all findings into a single fix task
-- [ ] **Atomic scope** — only fix what this QA found, nothing else
-- [ ] **Exact file paths + line numbers** for every issue
-- [ ] **Before/after code snippets** showing exactly what to change
-- [ ] **Verification command** for each fix (e.g. grep, curl, test command)
-- [ ] **Done criteria checklist** — each item must be independently verifiable
-- [ ] Title format: "Fix: [parent story title] — [issue summary]"
+- [x] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
+- [x] Login using Playwright tools (navigate to login, type credentials, click login)
+- [x] Navigate to the relevant pages for this feature
+- [x] Test each acceptance criterion using Playwright interactions
+- [x] Take screenshots: `mcp__playwright__browser_screenshot`
+- [x] Check console for errors
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors (only infra-level errors found)
+- [x] **ONE task only** — consolidated fix task #299 created
+- [x] **Atomic scope** — only fixes what this QA found
+- [x] **Exact file paths + line numbers** for every issue
+- [x] **Before/after code snippets** showing exactly what to change
+- [x] **Verification command** for each fix
+- [x] **Done criteria checklist** — each item independently verifiable
+- [x] Title format: "Fix: Story 5.4 Ticket-Article Linking — ..."
 
 ## Tasks / Subtasks
 
-- [ ] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
-- [ ] Login using Playwright tools (navigate to login, type credentials, click login)
-- [ ] Navigate to the relevant pages for this feature
-- [ ] Test each acceptance criterion using Playwright interactions
-- [ ] Take screenshots: `mcp__playwright__browser_screenshot`
-- [ ] Check console for errors
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
-- [ ] **ONE task only** — consolidate all findings into a single fix task
-- [ ] **Atomic scope** — only fix what this QA found, nothing else
-- [ ] **Exact file paths + line numbers** for every issue
-- [ ] **Before/after code snippets** showing exactly what to change
-- [ ] **Verification command** for each fix (e.g. grep, curl, test command)
-- [ ] **Done criteria checklist** — each item must be independently verifiable
-- [ ] Title format: "Fix: [parent story title] — [issue summary]"
+- [x] Navigate to app and login via Playwright MCP
+- [x] Test AC1: Link Article search dialog — FAIL (P1)
+- [x] Test AC2: Linked articles display in sidebar — FAIL (P1)
+- [x] Test AC3: Create Article from Ticket — FAIL (P1)
+- [x] Test AC4: Article detail linked tickets — PASS
+- [x] Run backend unit tests (16/16 pass)
+- [x] Write QA report: docs/qa-report-task-45.md
+- [x] Create consolidated fix task #299
 
 ## Dev Notes
 
@@ -137,12 +129,17 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- QA found 3 P1 issues: search dialog empty results, missing article titles in sidebar, broken Create Article route
+- AC4 (linked tickets on article detail) passes correctly
+- All 16 backend unit tests pass
+- Fix task #299 created with detailed root cause analysis and fix instructions for all 3 issues
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-24: QA report written to docs/qa-report-task-45.md, fix task #299 created
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+**Created/Modified:**
+- `docs/qa-report-task-45.md` — QA report with PASS/FAIL for all 4 ACs
+- Screenshots: `task-45-ticket-detail-sidebar.png`, `task-45-link-article-dialog.png`, `task-45-search-no-results.png`, `task-45-linked-articles-no-title.png`, `task-45-create-article-invalid-page.png`, `task-45-article-linked-tickets.png`

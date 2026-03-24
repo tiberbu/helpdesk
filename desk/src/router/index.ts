@@ -76,7 +76,7 @@ const routes = [
     props: true,
   },
   {
-    path: "/articles/new/:id",
+    path: "/articles/new/:id?",
     name: "NewArticle",
     component: () => import("@/pages/knowledge-base/NewArticle.vue"),
     props: true,

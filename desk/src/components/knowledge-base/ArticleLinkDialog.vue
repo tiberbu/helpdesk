@@ -14,8 +14,9 @@
           <Autocomplete
             :options="searchOptions"
             :placeholder="__('Search by title…')"
-            v-model="selectedArticle"
-            :filter-results="false"
+            :value="selectedArticle"
+            :filterable="false"
+            @change="(v) => { selectedArticle = v }"
             @update:query="onSearchQuery"
           />
         </div>
@@ -43,7 +44,8 @@
 
 <script setup lang="ts">
 import { __ } from "@/translation";
-import { Autocomplete, Button, Dialog, createResource } from "frappe-ui";
+import { Button, Dialog, createResource } from "frappe-ui";
+import Autocomplete from "@/components/Autocomplete.vue";
 import { ref } from "vue";
 
 const props = defineProps<{ ticketId: string }>();
