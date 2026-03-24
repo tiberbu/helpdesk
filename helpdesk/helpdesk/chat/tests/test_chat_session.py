@@ -163,11 +163,13 @@ class TestSendMessage(FrappeTestCase):
 
     def setUp(self):
         frappe.set_user("Administrator")
+        _enable_chat()
         self._sessions = []
         self._tickets = []
 
     def tearDown(self):
         frappe.set_user("Administrator")
+        _disable_chat()
         for s in self._sessions:
             _cleanup_session(s)
         for t in self._tickets:
@@ -185,7 +187,13 @@ class TestSendMessage(FrappeTestCase):
         session_id, token = self._create_session_and_token()
         from helpdesk.api.chat import send_message
 
-        result = send_message(session_id=session_id, content="Hello!", token=token)
+        # Send as Guest (non-agent) to exercise the customer code path with JWT validation
+        frappe.set_user("Guest")
+        try:
+            result = send_message(session_id=session_id, content="Hello!", token=token)
+        finally:
+            frappe.set_user("Administrator")
+
         self.assertIn("message_id", result)
         self.assertIn("sent_at", result)
 
@@ -244,8 +252,13 @@ class TestSendMessage(FrappeTestCase):
         session_id, _token = self._create_session_and_token(email="badtoken@example.com")
         from helpdesk.api.chat import send_message
 
-        with self.assertRaises(Exception):
-            send_message(session_id=session_id, content="Hello", token="invalid-token")
+        # Must run as a non-agent (Guest) so JWT validation is triggered
+        frappe.set_user("Guest")
+        try:
+            with self.assertRaises(Exception):
+                send_message(session_id=session_id, content="Hello", token="invalid-token")
+        finally:
+            frappe.set_user("Administrator")
 
     def test_send_message_to_ended_session_raises(self):
         session_id, token = self._create_session_and_token(email="ended@example.com")
@@ -451,10 +464,12 @@ class TestEndSession(FrappeTestCase):
 
     def setUp(self):
         frappe.set_user("Administrator")
+        _enable_chat()
         self._sessions = []
 
     def tearDown(self):
         frappe.set_user("Administrator")
+        _disable_chat()
         for s in self._sessions:
             _cleanup_session(s)
         frappe.db.commit()  # nosemgrep
@@ -497,10 +512,12 @@ class TestGetSessions(FrappeTestCase):
 
     def setUp(self):
         frappe.set_user("Administrator")
+        _enable_chat()
         self._sessions = []
 
     def tearDown(self):
         frappe.set_user("Administrator")
+        _disable_chat()
         for s in self._sessions:
             _cleanup_session(s)
         frappe.db.commit()  # nosemgrep
