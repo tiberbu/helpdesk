@@ -79,7 +79,7 @@ def submit_rating(token: str, rating: str) -> None:
 	_render_thankyou_page(token=token, rating=rating_int)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True, xss_safe=True)
 def submit_comment(token: str, comment: str) -> dict:
 	"""Save optional free-text comment on an already-rated CSAT response.
 
