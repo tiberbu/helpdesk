@@ -358,3 +358,188 @@ def _require_reviewer_role():
     user_roles = set(frappe.get_roles(frappe.session.user))
     if not user_roles & {"System Manager", "HD Admin"}:
         frappe.throw(_("Only reviewers (HD Admin or System Manager) can perform this action."), frappe.PermissionError)
+
+
+# ---------------------------------------------------------------------------
+# Story 5.4: Ticket-Article Linking
+# ---------------------------------------------------------------------------
+
+@frappe.whitelist()
+def search_articles(query: str = "") -> list:
+    """Search published KB articles by title for the link dialog.
+
+    Only Published articles are returned (agents cannot link Draft/In Review
+    articles — keeps the KB consistent with portal visibility).
+    """
+    filters = {"status": "Published"}
+    if query:
+        filters["title"] = ["like", f"%{query}%"]
+
+    articles = frappe.get_all(
+        "HD Article",
+        filters=filters,
+        fields=["name", "title", "category"],
+        order_by="title asc",
+        limit=20,
+    )
+
+    for art in articles:
+        if art.get("category"):
+            art["category_name"] = (
+                frappe.db.get_value("HD Article Category", art["category"], "category_name")
+                or art["category"]
+            )
+        else:
+            art["category_name"] = ""
+
+    return articles
+
+
+@frappe.whitelist()
+def link_article_to_ticket(ticket: str, article: str) -> dict:
+    """Link a published article to a ticket.
+
+    Creates an HD Ticket Article child row on the HD Ticket.
+    Raises ValidationError if the article is already linked.
+    Requires write permission on HD Ticket (agent-only, AC #9).
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    article_doc = frappe.get_doc("HD Article", article)
+
+    # Duplicate prevention (AC #4)
+    existing = frappe.db.exists(
+        "HD Ticket Article",
+        {
+            "parent": ticket,
+            "parentfield": "linked_articles",
+            "parenttype": "HD Ticket",
+            "article": article,
+        },
+    )
+    if existing:
+        frappe.throw(
+            _("Article '{0}' is already linked to this ticket.").format(article_doc.title),
+            frappe.ValidationError,
+        )
+
+    ticket_doc = frappe.get_doc("HD Ticket", ticket)
+    ticket_doc.append(
+        "linked_articles",
+        {
+            "article": article,
+            "article_title": article_doc.title,
+        },
+    )
+    ticket_doc.save(ignore_permissions=True)
+
+    return {"article": article, "article_title": article_doc.title}
+
+
+@frappe.whitelist()
+def remove_article_link(ticket: str, article: str) -> None:
+    """Remove an article link from a ticket.
+
+    Deletes the matching HD Ticket Article child row.
+    Requires write permission on HD Ticket (AC #9, #10).
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    ticket_doc = frappe.get_doc("HD Ticket", ticket)
+    rows_to_keep = [row for row in ticket_doc.linked_articles if row.article != article]
+
+    if len(rows_to_keep) == len(ticket_doc.linked_articles):
+        frappe.throw(_("Article link not found on this ticket."), frappe.ValidationError)
+
+    ticket_doc.linked_articles = rows_to_keep
+    ticket_doc.save(ignore_permissions=True)
+
+
+@frappe.whitelist()
+def get_linked_tickets(article: str) -> dict:
+    """Return tickets that have linked this article.
+
+    Returns count of all linked tickets plus the 10 most recent rows,
+    enriched with ticket subject and status (AC #8).
+    """
+    count = frappe.db.count(
+        "HD Ticket Article",
+        filters={"article": article, "parenttype": "HD Ticket"},
+    )
+
+    rows = frappe.db.get_all(
+        "HD Ticket Article",
+        filters={"article": article, "parenttype": "HD Ticket"},
+        fields=["parent as ticket_name", "linked_on"],
+        order_by="linked_on desc",
+        limit=10,
+    )
+
+    tickets = []
+    for row in rows:
+        ticket_name = row["ticket_name"]
+        subject, status = frappe.db.get_value(
+            "HD Ticket", ticket_name, ["subject", "status"]
+        ) or ("", "")
+        tickets.append(
+            {
+                "name": ticket_name,
+                "subject": subject,
+                "status": status,
+                "linked_on": row["linked_on"],
+            }
+        )
+
+    return {"count": count, "tickets": tickets}
+
+
+@frappe.whitelist()
+def prefill_article_from_ticket(ticket: str) -> dict:
+    """Return pre-fill data for creating a new article from a ticket.
+
+    Fetches the ticket subject, category, and last agent reply content.
+    Does NOT include internal notes (communication_type=Communication only).
+    Requires write permission on HD Ticket (agent-only).
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    ticket_doc = frappe.get_doc("HD Ticket", ticket)
+
+    # Fetch last outgoing agent communication (not internal notes)
+    last_replies = frappe.db.get_all(
+        "Communication",
+        filters={
+            "reference_doctype": "HD Ticket",
+            "reference_name": ticket,
+            "sent_or_received": "Sent",
+            "communication_type": "Communication",
+        },
+        fields=["content"],
+        order_by="creation desc",
+        limit=1,
+    )
+
+    last_reply_content = last_replies[0]["content"] if last_replies else ""
+
+    if last_reply_content:
+        content = (
+            f"<h2>{_('Problem')}</h2>"
+            f"<p>{frappe.utils.escape_html(ticket_doc.subject)}</p>"
+            f"<h2>{_('Resolution')}</h2>"
+            f"{last_reply_content}"
+        )
+    else:
+        content = (
+            f"<h2>{_('Problem')}</h2>"
+            f"<p>{frappe.utils.escape_html(ticket_doc.subject)}</p>"
+        )
+
+    return {
+        "title": ticket_doc.subject,
+        "content": content,
+        "category": ticket_doc.category or "",
+        "source_ticket": ticket,
+    }

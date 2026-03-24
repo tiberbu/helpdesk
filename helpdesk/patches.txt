@@ -67,3 +67,5 @@ helpdesk.patches.v1_phase1.add_kb_settings_to_hd_settings
 
 helpdesk.patches.v1_phase1.add_review_date_fields_to_hd_article
 helpdesk.patches.v1_phase1.add_kb_review_settings_to_hd_settings
+
+helpdesk.patches.v1_phase1.add_linked_articles_to_hd_ticket

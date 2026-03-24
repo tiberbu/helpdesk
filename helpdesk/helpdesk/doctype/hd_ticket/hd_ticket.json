@@ -82,7 +82,9 @@
   "root_cause_summary",
   "corrective_actions",
   "prevention_measures",
-  "ticket_checklist"
+  "ticket_checklist",
+  "kb_section",
+  "linked_articles"
  ],
  "fields": [
   {
@@ -583,6 +585,18 @@
    "label": "Checklist",
    "options": "HD Ticket Checklist Item",
    "hidden": 0
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "kb_section",
+   "fieldtype": "Section Break",
+   "label": "Knowledge Base"
+  },
+  {
+   "fieldname": "linked_articles",
+   "fieldtype": "Table",
+   "label": "Linked Articles",
+   "options": "HD Ticket Article"
   }
  ],
  "grid_page_length": 50,

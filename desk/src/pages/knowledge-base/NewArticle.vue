@@ -74,11 +74,12 @@ import {
   Breadcrumbs,
   TextEditor,
   TextEditorFixedMenu,
+  createResource,
   toast,
   usePageMeta,
 } from "frappe-ui";
 import { useOnboarding } from "frappe-ui/frappe";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { __ } from "@/translation";
 
 import { LayoutHeader, UserAvatar } from "@/components";
@@ -101,6 +102,29 @@ const { isManager } = useAuthStore();
 const title = ref("");
 const content = ref("");
 
+// Pre-fill from ticket (source_ticket stored in sessionStorage by LinkedArticles.vue)
+let sourceTicket = "";
+
+onMounted(() => {
+  const raw = sessionStorage.getItem("hd_article_prefill");
+  if (raw) {
+    try {
+      const prefill = JSON.parse(raw);
+      if (prefill.title) title.value = prefill.title;
+      if (prefill.content) content.value = prefill.content;
+      if (prefill.category) categoryId.value = prefill.category;
+      if (prefill.source_ticket) sourceTicket = prefill.source_ticket;
+    } catch (_) {
+      // ignore malformed data
+    }
+    sessionStorage.removeItem("hd_article_prefill");
+  }
+});
+
+const autoLinkResource = createResource({
+  url: "helpdesk.api.knowledge_base.link_article_to_ticket",
+});
+
 const props = defineProps({
   id: {
     type: String,
@@ -121,6 +145,11 @@ function handleCreateArticle() {
           updateOnboardingStep("first_article");
         }
         resetState();
+        // Auto-link to source ticket if this article was created from a ticket
+        if (sourceTicket) {
+          autoLinkResource.submit({ ticket: sourceTicket, article: article.name });
+          sourceTicket = "";
+        }
         router.push({
           name: "Article",
           params: {

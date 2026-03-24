@@ -69,6 +69,12 @@
       </div>
     </div>
 
+    <!-- Linked Articles panel -->
+    <LinkedArticles
+      v-if="ticket?.doc?.name"
+      :ticket-id="String(ticket.doc.name)"
+    />
+
     <!-- Related Tickets panel -->
     <RelatedTickets
       v-if="ticket?.doc?.name"
@@ -115,6 +121,7 @@ import { useTicketStatusStore } from "@/stores/ticketStatus";
 import { useAuthStore } from "@/stores/auth";
 import TicketField from "../TicketField.vue";
 import PostIncidentReview from "../ticket/PostIncidentReview.vue";
+import LinkedArticles from "../ticket/LinkedArticles.vue";
 import RelatedTickets from "../ticket/RelatedTickets.vue";
 import TicketChecklist from "../ticket/TicketChecklist.vue";
 import TimeTracker from "../ticket/TimeTracker.vue";

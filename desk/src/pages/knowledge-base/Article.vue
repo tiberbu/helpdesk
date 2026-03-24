@@ -165,6 +165,12 @@
           <Button :label="__('Submit')" variant="solid" @click="handleRequestChanges()" />
         </div>
       </div>
+      <!-- Linked Tickets section (agents only) -->
+      <LinkedTickets
+        v-if="!isCustomerPortal && article.data?.name"
+        :article-id="article.data.name"
+        class="px-4"
+      />
       <div class="p-4" v-if="isCustomerPortal">
         <ArticleFeedback :feedback="feedback" :article-id="articleId" />
       </div>
@@ -185,6 +191,7 @@ import DiscardButton from "@/components/DiscardButton.vue";
 import LayoutHeader from "@/components/LayoutHeader.vue";
 import ArticleFeedback from "@/components/knowledge-base/ArticleFeedback.vue";
 import ArticleVersionHistory from "@/components/knowledge-base/ArticleVersionHistory.vue";
+import LinkedTickets from "@/components/knowledge-base/LinkedTickets.vue";
 import MoveToCategoryModal from "@/components/knowledge-base/MoveToCategoryModal.vue";
 import { dayjs } from "@/dayjs";
 import { useAuthStore } from "@/stores/auth";
