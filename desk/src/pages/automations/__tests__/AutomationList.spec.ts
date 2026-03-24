@@ -13,13 +13,25 @@ vi.mock("frappe-ui", () => ({
     props: ["variant", "size", "label", "loading", "title"],
     emits: ["click"],
   },
+  Dialog: {
+    template: "<div v-if='modelValue'><slot name='body-content' /></div>",
+    props: ["modelValue", "options"],
+    emits: ["update:modelValue"],
+  },
   LoadingIndicator: { template: "<div class='loading' />" },
   createListResource: vi.fn(() => ({
     data: mockRules,
     loading: false,
     reload: vi.fn(),
   })),
+  createResource: vi.fn(() => ({
+    data: null,
+    loading: false,
+    fetch: vi.fn(),
+    reload: vi.fn(),
+  })),
   call: vi.fn().mockResolvedValue({}),
+  toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() },
   usePageMeta: vi.fn(),
 }));
 

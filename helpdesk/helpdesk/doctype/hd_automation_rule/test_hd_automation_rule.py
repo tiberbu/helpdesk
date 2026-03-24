@@ -97,6 +97,36 @@ class TestHDAutomationRule(FrappeTestCase):
         rule = self._new_rule(conditions="[]")
         self.assertEqual(rule.conditions, "[]")
 
+    def test_three_level_nested_conditions_are_valid(self):
+        """3-level deep nesting must be accepted (regression guard for recursive validator)."""
+        conditions = json.dumps(
+            [
+                {
+                    "logic": "OR",
+                    "conditions": [
+                        {
+                            "logic": "AND",
+                            "conditions": [
+                                {"field": "priority", "operator": "equals", "value": "Urgent"}
+                            ],
+                        }
+                    ],
+                }
+            ]
+        )
+        rule = self._new_rule(conditions=conditions)
+        self.assertIsNotNone(rule.name)
+
+    def test_excessive_nesting_depth_raises(self):
+        """Nesting beyond MAX_CONDITION_DEPTH must raise ValidationError."""
+        # Build a chain of 7 nested groups — well above the limit of 5
+        innermost = [{"field": "priority", "operator": "equals", "value": "Low"}]
+        group = innermost
+        for _ in range(7):
+            group = [{"logic": "AND", "conditions": group}]
+        with self.assertRaises(frappe.ValidationError):
+            self._new_rule(conditions=json.dumps(group))
+
     # ------------------------------------------------------------------ #
     # Validation: actions JSON                                              #
     # ------------------------------------------------------------------ #

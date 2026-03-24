@@ -29,6 +29,9 @@ class HDAutomationRule(Document):
 				frappe.PermissionError,
 			)
 
+	# Maximum nesting depth for condition groups
+	_MAX_CONDITION_DEPTH = 5
+
 	def _validate_conditions(self):
 		"""Ensure conditions field is a valid JSON array."""
 		if not self.conditions:
@@ -47,6 +50,17 @@ class HDAutomationRule(Document):
 				_("Conditions must be a JSON array, not an object."),
 				frappe.ValidationError,
 			)
+		self._validate_condition_list(data, depth=0)
+
+	def _validate_condition_list(self, data, depth=0):
+		"""Recursively validate a condition list, supporting arbitrarily nested groups."""
+		if depth > self._MAX_CONDITION_DEPTH:
+			frappe.throw(
+				_("Conditions are nested too deeply (maximum depth is {0}).").format(
+					self._MAX_CONDITION_DEPTH
+				),
+				frappe.ValidationError,
+			)
 		for i, cond in enumerate(data):
 			if not isinstance(cond, dict):
 				frappe.throw(
@@ -61,17 +75,7 @@ class HDAutomationRule(Document):
 						_("Condition #{0} nested 'conditions' must be a list.").format(i + 1),
 						frappe.ValidationError,
 					)
-				for j, sub in enumerate(nested):
-					if not isinstance(sub, dict):
-						frappe.throw(
-							_("Condition #{0} sub-condition #{1} must be a JSON object.").format(i + 1, j + 1),
-							frappe.ValidationError,
-						)
-					if "field" not in sub or "operator" not in sub:
-						frappe.throw(
-							_("Condition #{0} sub-condition #{1} must have 'field' and 'operator' keys.").format(i + 1, j + 1),
-							frappe.ValidationError,
-						)
+				self._validate_condition_list(nested, depth=depth + 1)
 			elif "field" not in cond or "operator" not in cond:
 				frappe.throw(
 					_("Condition #{0} must have 'field' and 'operator' keys.").format(i + 1),

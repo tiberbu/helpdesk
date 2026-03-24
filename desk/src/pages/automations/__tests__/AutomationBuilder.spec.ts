@@ -21,6 +21,7 @@ vi.mock("frappe-ui", () => ({
   },
   LoadingIndicator: { template: "<div class='loading' />" },
   call: vi.fn(),
+  toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() },
   usePageMeta: vi.fn(),
 }));
 
@@ -61,10 +62,11 @@ vi.mock("@/components/automation/RuleActionList.vue", () => ({
 
 // Import AFTER mocks are established
 import AutomationBuilder from "../AutomationBuilder.vue";
-import { call } from "frappe-ui";
+import { call, toast } from "frappe-ui";
 import { useRoute, useRouter } from "vue-router";
 
 const mockCall = call as ReturnType<typeof vi.fn>;
+const mockToast = toast as { success: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
 const mockUseRoute = useRoute as ReturnType<typeof vi.fn>;
 const mockUseRouter = useRouter as ReturnType<typeof vi.fn>;
 
@@ -98,13 +100,13 @@ describe("AutomationBuilder — new rule", () => {
     expect(wrapper.text()).toContain("Save");
   });
 
-  it("alerts validation when saving without rule name", async () => {
-    const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+  it("shows toast warning when saving without rule name", async () => {
+    mockToast.warning.mockReset();
     const wrapper = mount(AutomationBuilder, { props: { id: "new" } });
     const saveBtn = wrapper.findAll("button").find((b) => b.text().includes("Save"));
     await saveBtn?.trigger("click");
-    expect(alertSpy).toHaveBeenCalledWith("Rule name is required.");
-    alertSpy.mockRestore();
+    await wrapper.vm.$nextTick();
+    expect(mockToast.warning).toHaveBeenCalledWith("Rule name is required.");
   });
 
   it("calls frappe.client.insert when saving a valid new rule", async () => {
