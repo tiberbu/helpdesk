@@ -215,70 +215,39 @@ function handle_response_by_field(row: any, item: string) {
 function handle_resolution_by_field(row: any, item: string) {
   const status = getStatus(row.status) || {};
   if (status.category === "Paused") {
-    return h(Badge, {
-      label: __("Paused"),
-      theme: "blue",
-      variant: "outline",
-    });
+    return hBadge(__("Paused"), "blue");
   } else if (row.resolution_date && dayjs(row.resolution_date).isBefore(item)) {
-    return h(Badge, {
-      label: __("Fulfilled"),
-      theme: "green",
-      variant: "outline",
-    });
+    return hBadge(__("Fulfilled"), "green");
   } else if (dayjs(row.resolution_date).isAfter(item)) {
-    return h(Badge, {
-      label: __("Failed"),
-      theme: "red",
-      variant: "outline",
-    });
+    return hBadge(__("Failed"), "red");
   } else {
     // Color-code badge based on minutes remaining (UX-DR-06):
     //   red    : breached or < 15 min remaining
     //   orange : 15–30 min remaining
-    //   yellow : > 30 min remaining (approaching)
-    //   no badge (plain text) : more than 30 min remaining
+    //   yellow : 30–60 min remaining (approaching)
+    //   no badge (plain text) : more than 60 min remaining
     const minutesLeft = dayjs(item).diff(dayjs(), "minute");
     if (minutesLeft < 0) {
       // Already breached — should be caught by agreement_status but show red
-      return h(Badge, {
-        label: __("Breached"),
-        theme: "red",
-        variant: "outline",
-      });
+      return hBadge(__("Breached"), "red");
     } else if (minutesLeft < 15) {
       return h(
         Tooltip,
         { text: dayjs(item).long() },
-        () =>
-          h(Badge, {
-            label: dayjs.tz(item).fromNow(),
-            theme: "red",
-            variant: "outline",
-          })
+        () => hBadge(dayjs.tz(item).fromNow(), "red")
       );
     } else if (minutesLeft < 30) {
       return h(
         Tooltip,
         { text: dayjs(item).long() },
-        () =>
-          h(Badge, {
-            label: dayjs.tz(item).fromNow(),
-            theme: "orange",
-            variant: "outline",
-          })
+        () => hBadge(dayjs.tz(item).fromNow(), "orange")
       );
     } else if (minutesLeft <= 60) {
       // Within the 30–60 min window: yellow caution
       return h(
         Tooltip,
         { text: dayjs(item).long() },
-        () =>
-          h(Badge, {
-            label: dayjs.tz(item).fromNow(),
-            theme: "yellow",
-            variant: "outline",
-          })
+        () => hBadge(dayjs.tz(item).fromNow(), "yellow")
       );
     } else {
       return h(

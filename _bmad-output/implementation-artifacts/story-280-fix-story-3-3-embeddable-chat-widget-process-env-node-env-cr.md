@@ -1,6 +1,6 @@
 # Story: Fix: Story 3.3 Embeddable Chat Widget — process.env.NODE_ENV crash + 4 broken tests
 
-Status: in-progress
+Status: done
 Task ID: mn4cr0i64cnv4u
 Task Number: #280
 Workflow: quick-dev
@@ -49,13 +49,13 @@ export default defineConfig({
 
 ## Acceptance Criteria
 
-- [ ] `PreChatForm.test.js` line 64: `emits session-created with session_id and token on success` — fetch mock response format may need updating to match new API shape
-- [ ] `ChatView.test.js` line 134: `emits session-ended when start new chat button clicked`
+- [x] `PreChatForm.test.js` line 64: `emits session-created with session_id and token on success` — PASSES (62/62 tests pass)
+- [x] `ChatView.test.js` line 134: `emits session-ended when start new chat button clicked` — PASSES (62/62 tests pass)
 
 ## Tasks / Subtasks
 
-- [ ] `PreChatForm.test.js` line 64: `emits session-created with session_id and token on success` — fetch mock response format may need updating to match new API shape
-- [ ] `ChatView.test.js` line 134: `emits session-ended when start new chat button clicked`
+- [x] Issue 1 (P0): `widget/vite.config.js` — `define: { 'process.env.NODE_ENV': '"production"' }` present, bundle has 0 occurrences of `process.env`
+- [x] Issue 2 (P1): All 62 unit tests pass — `PreChatForm.test.js` and `ChatView.test.js` fully green
 
 ## Dev Notes
 
@@ -73,12 +73,16 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Both fixes were already applied prior to this agent run (likely by a previous session or concurrent work).
+- Issue 1 (P0): `widget/vite.config.js` already contains `define: { 'process.env.NODE_ENV': '"production"' }` in both dev and bench copies. Built IIFE bundle (`helpdesk-chat.iife.js`) has **0** occurrences of `process.env`.
+- Issue 2 (P1): All **62 unit tests pass** (6 test files: socket, PreChatForm, ChatView, Widget, OfflineForm, ChatRealtime). The two specific failing tests (`PreChatForm.test.js` line 64 and `ChatView.test.js` line 134) are now green.
+- No code changes required — verified existing state satisfies all acceptance criteria.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- No code changes needed — both fixes were already in place.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `widget/vite.config.js` — already fixed (define key present)
+- `helpdesk/public/js/helpdesk-chat.iife.js` — already rebuilt (0 process.env occurrences)

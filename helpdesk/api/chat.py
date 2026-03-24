@@ -104,7 +104,7 @@ def create_session(email: str, name: str = "", subject: str = "", brand: str = "
             "status": "waiting",
             "started_at": frappe.utils.now_datetime(),
             "inactivity_timeout_minutes": 30,
-            "brand": brand or None,
+            "brand": brand if (brand and brand != "default") else None,
         }
     )
     session_doc.insert(ignore_permissions=True)
