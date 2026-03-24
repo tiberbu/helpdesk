@@ -76,7 +76,7 @@ function restoreSession() {
 async function checkAvailability() {
   try {
     const url = `${props.siteUrl}/api/method/helpdesk.api.chat.get_availability?brand=${encodeURIComponent(props.brand)}`
-    const res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } })
+    const res = await fetch(url, { method: 'GET', credentials: 'omit', headers: { Accept: 'application/json' } })
     if (res.ok) {
       const data = await res.json()
       // Frappe wraps responses in { message: ... }

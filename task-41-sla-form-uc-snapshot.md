@@ -1,0 +1,495 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]: Helpdesk
+        - generic [ref=e11]: Helpdesk
+      - button [ref=e12]:
+        - img [ref=e13]
+    - generic [ref=e15]:
+      - generic "Search" [ref=e16]:
+        - generic [ref=e18] [cursor=pointer]:
+          - img [ref=e20]
+          - generic [ref=e21]: Search
+          - generic [ref=e22]: Ctrl+K
+      - generic "Notification" [ref=e23]:
+        - generic [ref=e25] [cursor=pointer]:
+          - img [ref=e27]
+          - generic [ref=e28]: Notification
+    - generic "Home" [ref=e31]:
+      - link "Home" [ref=e33] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e35]
+        - generic [ref=e36]: Home
+    - generic [ref=e37]:
+      - paragraph [ref=e38]:
+        - generic [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - generic [ref=e41]: Getting Started
+      - generic [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e44]: Collapse
+      - button "User Menu" [ref=e46] [cursor=pointer]:
+        - generic "Administrator" [ref=e48]:
+          - generic "Administrator" [ref=e49]: A
+        - generic [ref=e50]:
+          - generic [ref=e51]: Administrator
+          - generic [ref=e52]: admin@example.com
+  - generic [ref=e53]:
+    - banner
+    - generic [ref=e55]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - button [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+          - generic [ref=e63]:
+            - list [ref=e64]:
+              - text: / /
+              - listitem [ref=e65]:
+                - link "/ Default":
+                  - /url: /desk/hd-service-level-agreement/Default
+            - generic [ref=e685]: Not Saved
+        - generic [ref=e70]:
+          - button "Menu" [ref=e72] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Save" [ref=e76] [cursor=pointer]:
+            - generic [ref=e686]: Save
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e87]:
+            - generic [ref=e94]:
+              - generic [ref=e95]: HD Ticket
+              - generic [ref=e96]:
+                - generic [ref=e97]: HD Ticket 26
+                - button [ref=e98] [cursor=pointer]:
+                  - img [ref=e99]
+            - generic [ref=e102]:
+              - generic [ref=e104]:
+                - generic [ref=e105]:
+                  - generic [ref=e106]:
+                    - generic [ref=e108]: Default Priority
+                    - link "Medium" [ref=e111] [cursor=pointer]:
+                      - /url: /desk/hd-ticket-priority/Medium
+                  - generic: default_priority
+                - text: "*"
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - generic [ref=e115]:
+                    - generic [ref=e117]: Description
+                    - textbox [ref=e120]
+                  - generic: description
+                - generic [ref=e121]:
+                  - generic [ref=e122]:
+                    - generic [ref=e123]:
+                      - checkbox "Enabled" [checked] [ref=e125]
+                      - generic [ref=e126]: Enabled
+                    - paragraph
+                  - generic: enabled
+            - generic [ref=e127]:
+              - generic [ref=e128]: Assignment Conditions
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]:
+                    - checkbox "Default SLA" [checked] [ref=e136]
+                    - generic [ref=e137]: Default SLA
+                  - paragraph
+                - generic: default_sla
+            - generic [ref=e139]:
+              - generic [ref=e140]: Valid From
+              - generic [ref=e141]:
+                - generic [ref=e144]:
+                  - generic [ref=e145]:
+                    - generic [ref=e147]: Start Date
+                    - textbox [ref=e150]
+                  - generic: start_date
+                - generic [ref=e152]:
+                  - generic [ref=e153]:
+                    - generic [ref=e154]:
+                      - generic [ref=e156]: End Date
+                      - textbox [ref=e159]
+                    - generic: end_date
+                  - generic [ref=e160]:
+                    - generic [ref=e161]:
+                      - generic [ref=e163]: Agreement Type
+                      - generic [ref=e165]:
+                        - combobox [ref=e166]:
+                          - option "SLA"
+                          - option "OLA"
+                          - option "UC" [selected]
+                        - generic:
+                          - img
+                    - generic: agreement_type
+                  - generic [ref=e687]:
+                    - generic [ref=e688]:
+                      - generic [ref=e690]: Vendor
+                      - textbox [ref=e693]
+                    - generic: vendor
+            - generic [ref=e167]:
+              - generic [ref=e168]: Response and Resolution
+              - generic [ref=e171]:
+                - generic [ref=e172]:
+                  - generic [ref=e173]:
+                    - generic [ref=e174]:
+                      - checkbox "Apply SLA for Resolution Time" [checked] [ref=e176]
+                      - generic [ref=e177]: Apply SLA for Resolution Time
+                    - paragraph
+                  - generic: apply_sla_for_resolution
+                - generic [ref=e178]:
+                  - generic: priorities
+                  - generic [ref=e179]:
+                    - generic [ref=e180]: Priorities
+                    - generic [ref=e182]:
+                      - generic [ref=e665]:
+                        - checkbox [ref=e667]
+                        - generic [ref=e669]: No.
+                        - generic "Default Priority" [ref=e670]:
+                          - generic [ref=e671]: Default Priority
+                        - generic "Priority" [ref=e672]:
+                          - generic [ref=e673]: Priority *
+                        - generic "First Response Time" [ref=e674]:
+                          - generic [ref=e675]: First Response Time *
+                        - generic "Resolution Time" [ref=e676]:
+                          - generic [ref=e677]: Resolution Time *
+                        - img [ref=e680] [cursor=pointer]
+                      - generic [ref=e202]:
+                        - generic [ref=e204] [cursor=pointer]:
+                          - checkbox [ref=e206]
+                          - generic [ref=e208]: "1"
+                          - generic [ref=e210]:
+                            - checkbox [disabled]
+                          - link "Low" [ref=e681]:
+                            - /url: /desk/hd-ticket-priority/Low
+                          - generic [ref=e215]: 24h
+                          - generic [ref=e217]: 72h
+                          - img [ref=e221]
+                        - generic [ref=e223] [cursor=pointer]:
+                          - checkbox [ref=e225]
+                          - generic [ref=e227]: "2"
+                          - generic [ref=e229]:
+                            - checkbox [disabled]
+                          - link "Medium" [ref=e682]:
+                            - /url: /desk/hd-ticket-priority/Medium
+                          - generic [ref=e234]: 8h
+                          - generic [ref=e236]: 24h
+                          - img [ref=e240]
+                        - generic [ref=e242] [cursor=pointer]:
+                          - checkbox [ref=e244]
+                          - generic [ref=e246]: "3"
+                          - generic [ref=e248]:
+                            - checkbox [disabled]
+                          - link "High" [ref=e683]:
+                            - /url: /desk/hd-ticket-priority/High
+                          - generic [ref=e253]: 1h
+                          - generic [ref=e255]: 4h
+                          - img [ref=e259]
+                        - generic [ref=e261] [cursor=pointer]:
+                          - checkbox [ref=e263]
+                          - generic [ref=e265]: "4"
+                          - generic [ref=e267]:
+                            - checkbox [disabled]
+                          - link "Urgent" [ref=e684]:
+                            - /url: /desk/hd-ticket-priority/Urgent
+                          - generic [ref=e272]: 30m
+                          - generic [ref=e274]: 2h
+                          - img [ref=e278]
+                    - generic [ref=e280]:
+                      - generic [ref=e281]:
+                        - button "Add row" [ref=e282] [cursor=pointer]
+                        - button "Add multiple" [ref=e283] [cursor=pointer]
+                      - button "Upload" [ref=e285] [cursor=pointer]
+            - generic [ref=e286]:
+              - generic [ref=e287]: Status Details
+              - generic [ref=e288]:
+                - generic [ref=e291]:
+                  - generic [ref=e292]:
+                    - generic [ref=e294]: Default Ticket Status
+                    - generic [ref=e295]:
+                      - generic [ref=e298]:
+                        - combobox [ref=e299]
+                        - status [ref=e300]: Begin typing for results.
+                      - generic [ref=e301]: Status of the ticket, when it is created in the system with this SLA. If not selected, the value will be taken from HD Settings DocType
+                  - generic: default_ticket_status
+                - generic [ref=e304]:
+                  - generic [ref=e305]:
+                    - generic [ref=e307]: Ticket Reopen status
+                    - generic [ref=e308]:
+                      - generic [ref=e311]:
+                        - combobox [ref=e312]
+                        - status [ref=e313]: Begin typing for results.
+                      - generic [ref=e314]: Status of the ticket, when a customer replies on the ticket with this SLA. If not selected, the value will be takes from HD Settings DocType.
+                  - generic: ticket_reopen_status
+            - generic [ref=e315]:
+              - generic [ref=e316]: Working Hours
+              - generic [ref=e317]:
+                - generic [ref=e320]:
+                  - generic [ref=e321]:
+                    - generic [ref=e323]: Timezone
+                    - generic [ref=e324]:
+                      - generic [ref=e325]:
+                        - combobox [ref=e326]:
+                          - option "UTC" [selected]
+                          - option "US/Eastern"
+                          - option "US/Central"
+                          - option "US/Mountain"
+                          - option "US/Pacific"
+                          - option "Europe/London"
+                          - option "Europe/Paris"
+                          - option "Europe/Berlin"
+                          - option "Asia/Kolkata"
+                          - option "Asia/Tokyo"
+                          - option "Asia/Singapore"
+                          - option "Asia/Dubai"
+                          - option "Australia/Sydney"
+                          - option "Australia/Melbourne"
+                          - option "America/Sao_Paulo"
+                          - option "America/Mexico_City"
+                          - option "Africa/Nairobi"
+                          - option "Africa/Lagos"
+                        - generic:
+                          - img
+                      - generic [ref=e327]: Timezone for business hours calculation. Working hours and holidays are interpreted in this timezone.
+                  - generic: timezone
+                - generic [ref=e329]:
+                  - generic [ref=e330]:
+                    - generic [ref=e331]:
+                      - generic [ref=e333]: Holiday List *
+                      - generic [ref=e337]:
+                        - combobox [ref=e338]: Default
+                        - status [ref=e339]: Begin typing for results.
+                    - generic: holiday_list
+                  - generic [ref=e340]:
+                    - generic: support_and_resolution
+                    - generic [ref=e341]:
+                      - generic [ref=e342]: Working Hours
+                      - generic [ref=e344]:
+                        - generic [ref=e347]:
+                          - checkbox [ref=e349]
+                          - generic "Workday" [ref=e350]:
+                            - generic [ref=e351]: Workday *
+                          - generic "Start Time" [ref=e352]:
+                            - generic [ref=e353]: Start Time *
+                          - generic "End Time" [ref=e354]:
+                            - generic [ref=e355]: End Time *
+                          - img [ref=e358] [cursor=pointer]
+                        - generic [ref=e360]:
+                          - generic [ref=e362] [cursor=pointer]:
+                            - checkbox [ref=e364]
+                            - generic [ref=e366]: Monday
+                            - generic [ref=e368]: 10:00:00
+                            - generic [ref=e370]: 18:00:00
+                            - img [ref=e374]
+                          - generic [ref=e376] [cursor=pointer]:
+                            - checkbox [ref=e378]
+                            - generic [ref=e380]: Tuesday
+                            - generic [ref=e382]: 10:00:00
+                            - generic [ref=e384]: 18:00:00
+                            - img [ref=e388]
+                          - generic [ref=e390] [cursor=pointer]:
+                            - checkbox [ref=e392]
+                            - generic [ref=e394]: Wednesday
+                            - generic [ref=e396]: 10:00:00
+                            - generic [ref=e398]: 18:00:00
+                            - img [ref=e402]
+                          - generic [ref=e404] [cursor=pointer]:
+                            - checkbox [ref=e406]
+                            - generic [ref=e408]: Thursday
+                            - generic [ref=e410]: 10:00:00
+                            - generic [ref=e412]: 18:00:00
+                            - img [ref=e416]
+                          - generic [ref=e418] [cursor=pointer]:
+                            - checkbox [ref=e420]
+                            - generic [ref=e422]: Friday
+                            - generic [ref=e424]: 10:00:00
+                            - generic [ref=e426]: 18:00:00
+                            - img [ref=e430]
+                      - generic [ref=e432]:
+                        - generic [ref=e433]:
+                          - button "Add row" [ref=e434] [cursor=pointer]
+                          - button "Add multiple" [ref=e435] [cursor=pointer]
+                        - button "Upload" [ref=e437] [cursor=pointer]
+          - generic [ref=e439]:
+            - generic [ref=e440]:
+              - generic [ref=e442]:
+                - generic [ref=e444]: Comments
+                - generic [ref=e445]:
+                  - generic "Administrator" [ref=e446]:
+                    - generic "Administrator" [ref=e447]: A
+                  - generic [ref=e448]:
+                    - generic: comment
+                    - generic [ref=e449]:
+                      - generic [ref=e450]:
+                        - text: Type a reply / comment
+                        - paragraph [ref=e451]
+                      - text: ×
+              - generic [ref=e452]:
+                - generic [ref=e453]:
+                  - heading "Activity" [level=4] [ref=e454]
+                  - button "New Email" [ref=e458] [cursor=pointer]:
+                    - img [ref=e459]
+                    - text: New Email
+                - generic [ref=e463]:
+                  - text: Add to this activity by mailing to
+                  - generic [ref=e464]: test_comm+HD+Service+Level+Agreement=Default@example.com
+                - generic [ref=e465]:
+                  - generic [ref=e468]:
+                    - text: You created this
+                    - generic [ref=e469]:
+                      - text: ·
+                      - generic "24-03-2026 12:33:30"
+                  - generic [ref=e472]:
+                    - text: You last edited this
+                    - generic [ref=e473]:
+                      - text: ·
+                      - generic "24-03-2026 12:33:30"
+            - button [ref=e474] [cursor=pointer]:
+              - img [ref=e475]
+        - generic [ref=e478]:
+          - generic [ref=e480]:
+            - generic [ref=e483]: Default
+            - generic [ref=e484]:
+              - button [ref=e486] [cursor=pointer]:
+                - img [ref=e487]
+              - generic [ref=e488]:
+                - img [ref=e489] [cursor=pointer]
+                - generic [ref=e491]: "0"
+          - generic [ref=e494]:
+            - generic [ref=e495]:
+              - img [ref=e496]
+              - generic [ref=e497]: Assign
+            - button [ref=e498] [cursor=pointer]:
+              - img [ref=e499]
+          - generic [ref=e503]:
+            - generic [ref=e505] [cursor=pointer]:
+              - img [ref=e506]
+              - text: Attachments
+            - button [ref=e507] [cursor=pointer]:
+              - img [ref=e508]
+          - generic [ref=e512]:
+            - generic [ref=e513]:
+              - img [ref=e514]
+              - generic [ref=e515]: Tags
+            - button [ref=e516] [cursor=pointer]:
+              - img [ref=e517]
+          - generic [ref=e521]:
+            - generic [ref=e522]:
+              - img [ref=e523]
+              - generic [ref=e524]: Share
+            - button [ref=e525] [cursor=pointer]:
+              - img [ref=e526]
+          - list [ref=e529]:
+            - listitem [ref=e530]:
+              - text: Last Edited by You
+              - generic "24-03-2026 12:33:30"
+            - listitem [ref=e531]:
+              - text: Created By You
+              - generic "24-03-2026 12:33:30"
+            - listitem
+    - contentinfo
+  - generic:
+    - generic [ref=e534]:
+      - navigation [ref=e536]:
+        - img [ref=e538] [cursor=pointer]
+        - generic [ref=e540] [cursor=pointer]:
+          - text: March,
+          - generic [ref=e541]: "2026"
+        - img [ref=e543] [cursor=pointer]
+      - generic [ref=e546]:
+        - generic [ref=e547]:
+          - generic [ref=e548]: Su
+          - generic [ref=e549]: Mo
+          - generic [ref=e550]: Tu
+          - generic [ref=e551]: We
+          - generic [ref=e552]: Th
+          - generic [ref=e553]: Fr
+          - generic [ref=e554]: Sa
+        - generic [ref=e555]:
+          - generic [ref=e556] [cursor=pointer]: "1"
+          - generic [ref=e557] [cursor=pointer]: "2"
+          - generic [ref=e558] [cursor=pointer]: "3"
+          - generic [ref=e559] [cursor=pointer]: "4"
+          - generic [ref=e560] [cursor=pointer]: "5"
+          - generic [ref=e561] [cursor=pointer]: "6"
+          - generic [ref=e562] [cursor=pointer]: "7"
+          - generic [ref=e563] [cursor=pointer]: "8"
+          - generic [ref=e564] [cursor=pointer]: "9"
+          - generic [ref=e565] [cursor=pointer]: "10"
+          - generic [ref=e566] [cursor=pointer]: "11"
+          - generic [ref=e567] [cursor=pointer]: "12"
+          - generic [ref=e568] [cursor=pointer]: "13"
+          - generic [ref=e569] [cursor=pointer]: "14"
+          - generic [ref=e570] [cursor=pointer]: "15"
+          - generic [ref=e571] [cursor=pointer]: "16"
+          - generic [ref=e572] [cursor=pointer]: "17"
+          - generic [ref=e573] [cursor=pointer]: "18"
+          - generic [ref=e574] [cursor=pointer]: "19"
+          - generic [ref=e575] [cursor=pointer]: "20"
+          - generic [ref=e576] [cursor=pointer]: "21"
+          - generic [ref=e577] [cursor=pointer]: "22"
+          - generic [ref=e578] [cursor=pointer]: "23"
+          - generic [ref=e579] [cursor=pointer]: "24"
+          - generic [ref=e580] [cursor=pointer]: "25"
+          - generic [ref=e581] [cursor=pointer]: "26"
+          - generic [ref=e582] [cursor=pointer]: "27"
+          - generic [ref=e583] [cursor=pointer]: "28"
+          - generic [ref=e584] [cursor=pointer]: "29"
+          - generic [ref=e585] [cursor=pointer]: "30"
+          - generic [ref=e586] [cursor=pointer]: "31"
+          - generic [ref=e587] [cursor=pointer]: "1"
+          - generic [ref=e588] [cursor=pointer]: "2"
+          - generic [ref=e589] [cursor=pointer]: "3"
+          - generic [ref=e590] [cursor=pointer]: "4"
+      - generic [ref=e592] [cursor=pointer]: Today
+    - generic [ref=e593]:
+      - navigation [ref=e595]:
+        - img [ref=e597] [cursor=pointer]
+        - generic [ref=e599] [cursor=pointer]:
+          - text: March,
+          - generic [ref=e600]: "2026"
+        - img [ref=e602] [cursor=pointer]
+      - generic [ref=e605]:
+        - generic [ref=e606]:
+          - generic [ref=e607]: Su
+          - generic [ref=e608]: Mo
+          - generic [ref=e609]: Tu
+          - generic [ref=e610]: We
+          - generic [ref=e611]: Th
+          - generic [ref=e612]: Fr
+          - generic [ref=e613]: Sa
+        - generic [ref=e614]:
+          - generic [ref=e615] [cursor=pointer]: "1"
+          - generic [ref=e616] [cursor=pointer]: "2"
+          - generic [ref=e617] [cursor=pointer]: "3"
+          - generic [ref=e618] [cursor=pointer]: "4"
+          - generic [ref=e619] [cursor=pointer]: "5"
+          - generic [ref=e620] [cursor=pointer]: "6"
+          - generic [ref=e621] [cursor=pointer]: "7"
+          - generic [ref=e622] [cursor=pointer]: "8"
+          - generic [ref=e623] [cursor=pointer]: "9"
+          - generic [ref=e624] [cursor=pointer]: "10"
+          - generic [ref=e625] [cursor=pointer]: "11"
+          - generic [ref=e626] [cursor=pointer]: "12"
+          - generic [ref=e627] [cursor=pointer]: "13"
+          - generic [ref=e628] [cursor=pointer]: "14"
+          - generic [ref=e629] [cursor=pointer]: "15"
+          - generic [ref=e630] [cursor=pointer]: "16"
+          - generic [ref=e631] [cursor=pointer]: "17"
+          - generic [ref=e632] [cursor=pointer]: "18"
+          - generic [ref=e633] [cursor=pointer]: "19"
+          - generic [ref=e634] [cursor=pointer]: "20"
+          - generic [ref=e635] [cursor=pointer]: "21"
+          - generic [ref=e636] [cursor=pointer]: "22"
+          - generic [ref=e637] [cursor=pointer]: "23"
+          - generic [ref=e638] [cursor=pointer]: "24"
+          - generic [ref=e639] [cursor=pointer]: "25"
+          - generic [ref=e640] [cursor=pointer]: "26"
+          - generic [ref=e641] [cursor=pointer]: "27"
+          - generic [ref=e642] [cursor=pointer]: "28"
+          - generic [ref=e643] [cursor=pointer]: "29"
+          - generic [ref=e644] [cursor=pointer]: "30"
+          - generic [ref=e645] [cursor=pointer]: "31"
+          - generic [ref=e646] [cursor=pointer]: "1"
+          - generic [ref=e647] [cursor=pointer]: "2"
+          - generic [ref=e648] [cursor=pointer]: "3"
+          - generic [ref=e649] [cursor=pointer]: "4"
+      - generic [ref=e651] [cursor=pointer]: Today

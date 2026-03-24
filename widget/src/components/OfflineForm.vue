@@ -50,6 +50,7 @@ async function handleSubmit() {
     const url = `${props.siteUrl}/api/method/helpdesk.api.chat.create_offline_ticket`
     const res = await fetch(url, {
       method: 'POST',
+      credentials: 'omit',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
         name: name.value.trim(),

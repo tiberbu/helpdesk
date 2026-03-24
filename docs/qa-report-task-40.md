@@ -1,10 +1,9 @@
 # QA Report: Story 4.3 — SLA Compliance Dashboard
 
-**Task:** #40 (QA task #239)
+**Task:** #40
 **Date:** 2026-03-24
 **Tester:** Claude QA Agent (Opus 4.6)
-**Method:** API testing via curl, code review, backend test execution
-**Note:** Playwright MCP tools were unavailable in this environment; testing performed via API calls and code review.
+**Method:** Playwright MCP browser testing + API curl testing + backend test execution
 
 ---
 
@@ -13,75 +12,84 @@
 ### AC1: Dashboard at /helpdesk/dashboard/sla shows overall compliance % (response and resolution)
 **PASS**
 
-**Evidence:**
-- Route registered at `desk/src/router/index.ts:115-118` with `meta: { auth: true, agent: true }`
-- Page returns HTTP 200: `curl -s -b cookies 'http://helpdesk.localhost:8004/helpdesk/dashboard/sla' → 200`
-- `get_compliance_overview` API returns correct structure:
+**Evidence (Playwright browser testing):**
+- Navigated to `http://help.frappe.local/helpdesk/dashboard/sla` — page loads with title "SLA Compliance"
+- Two KPI cards rendered:
+  - "Response SLA Compliance" — 0% (0/29 tickets) with progress bar
+  - "Resolution SLA Compliance" — 0% (0/29 tickets) with progress bar
+- Refresh button present in header
+- Screenshot: `task-40-sla-dashboard-full.png`
+
+**Evidence (API):**
+- `get_compliance_overview` returns correct structure:
   ```json
-  {
-    "response_compliance_pct": 11.1,
-    "response_met": 8,
-    "response_total": 72,
-    "resolution_compliance_pct": 9.7,
-    "resolution_met": 7,
-    "resolution_total": 72
-  }
+  {"response_compliance_pct": 0.0, "response_met": 0, "response_total": 29,
+   "resolution_compliance_pct": 0.0, "resolution_met": 0, "resolution_total": 29}
   ```
-- Frontend (`SLADashboard.vue`) renders two KPI cards with progress bars, color-coded by threshold (green >=90%, yellow >=70%, red <70%)
 
 ### AC2: Drill-down by team, agent, priority, category with filters (date range)
 **PASS**
 
-**Evidence:**
-- `get_compliance_by_dimension` tested with all 4 valid dimensions:
-  - `dimension=team` → returns rows grouped by `agent_group` (e.g. "Unassigned": 71 tickets, "Escalation": 1 ticket)
-  - `dimension=agent` → Python-level grouping for JSON `_assign` field, returns "Unassigned": 72 tickets
-  - `dimension=priority` → returns Medium (43), High (15), Low (14)
-  - `dimension=category` → returns "Unassigned": 72 tickets
-- Invalid dimension returns `ValidationError`: "dimension must be one of: team, agent, priority, category"
-- Date range and filter params tested: `{"date_from":"2026-03-01","date_to":"2026-03-24","priority":"High"}` → filtered to 15 tickets
-- Frontend (`SLADrillDownTable.vue`) has tabbed UI for Team/Agent/Priority/Category with color-coded compliance %
+**Evidence (Playwright browser testing):**
+- **Date range filter:** Dropdown tested — shows Last 7/30/60/90 days + Custom Range. Selecting "Last 7 days" refreshes all dashboard data.
+- **Dimension tabs in "Compliance by Dimension" section:**
+  - **Team tab:** Table shows "Unassigned" (29 tickets, 0% resp, 0% resol, 1 breach)
+  - **Agent tab:** Shows "Unassigned" (28 tickets) and "Administrator" (1 ticket) with separate rows
+  - **Priority tab:** Shows Medium (20), Low (6), High (2), Urgent (1) with breach counts
+  - **Category tab:** Shows "Unassigned" (29 tickets)
+- Table columns: dimension name, Tickets, Resp %, Resol %, Breaches, Avg Resp (min)
+- Filter dropdowns (Team, Priority, Category) present in toolbar
+
+**Evidence (API):**
+- `get_compliance_by_dimension` tested with all 4 dimensions via curl — all return correct data
 
 ### AC3: Trend line chart with daily/weekly/monthly toggle and comparison to prior period
 **PASS**
 
-**Evidence:**
-- `get_compliance_trend` API tested with all 3 granularities:
-  - `daily` → `period_label: "2026-03-24"` format
-  - `weekly` → `period_label: "202613"` (YEARWEEK) format
-  - `monthly` → `period_label: "2026-03"` format
-- All return `{"current": [...], "prior": [...]}` structure with prior period comparison
-- Invalid granularity → `ValidationError`
-- Frontend (`SLATrendChart.vue`) uses ECharts line chart with D/W/M toggle buttons, 4 series (current+prior for both resolution and response), dashed lines for prior period
+**Evidence (Playwright browser testing):**
+- "Compliance Trend" section with D/W/M toggle buttons — all 3 tested via click:
+  - **Daily (D):** X-axis shows "2026-03-24", button shows active state
+  - **Weekly (W):** X-axis shows ISO week "202613", button shows active state
+  - **Monthly (M):** X-axis shows "2026-03", button shows active state
+- Legend displays 4 series: Resolution (current), Response (current), Resolution (prior), Response (prior)
+- Y-axis: 0% to 100% scale
+- ECharts line chart renders correctly for all 3 granularities
+
+**Evidence (API):**
+- `get_compliance_trend` returns `{"current": [...], "prior": [...]}` structure for all granularities
 
 ### AC4: Breach analysis: top reasons by category and time-of-day
 **PASS**
 
-**Evidence:**
-- `get_breach_analysis` API returns:
-  ```json
-  {
-    "by_category": [],
-    "by_hour": [{"hour": 0, "breach_count": 0}, ..., {"hour": 23, "breach_count": 0}]
-  }
-  ```
-- All 24 hours included (0-23) even when no breaches exist
-- `by_category` returns top 10 by breach count, sorted descending
-- Frontend: `SLABreachByCategory.vue` (horizontal bar chart) and `SLABreachByHour.vue` (vertical bar chart with color-coded intensity)
+**Evidence (Playwright browser testing):**
+- **"Top Breach Categories":** Horizontal bar chart rendered via ECharts showing "Uncategorized" with value "1"
+- **"Breaches by Hour of Day":** Bar chart with X-axis labels 0h, 2h, 4h... 22h (24-hour coverage)
+- Both charts visible in the bottom section of the dashboard
+
+**Evidence (API):**
+- `get_breach_analysis` returns `by_category` (top 10) and `by_hour` (all 24 hours 0-23)
 
 ### AC5: SLA compliance widget available for agent home page
 **PASS**
 
-**Evidence:**
-- `SLAComplianceWidget.vue` registered in `ChartItem.vue:3` (`v-if="item.chart == 'sla_compliance'"`)
-- Widget added to `Home.vue` dashboard add menu with label "SLA Compliance" and chart ID `sla_compliance`
-- Widget shows response/resolution % with progress bars, sparkline trend bars for last 7 days, and "View details" link to `/dashboard/sla`
+**Evidence (Playwright browser testing):**
+- On `/helpdesk/home`, clicked "New" button in header toolbar
+- Dropdown menu shows `menuitem "SLA Compliance"` — confirming widget is available for addition
+- Widget is user-addable (not shown by default — appropriate design choice)
+
+**Evidence (Code):**
+- `SLAComplianceWidget.vue` registered in `ChartItem.vue` (`v-if="item.chart == 'sla_compliance'"`)
+- Widget shows response/resolution % with sparkline trend bars and "View details" link to `/dashboard/sla`
 
 ---
 
 ## Backend Tests
 
 **28/28 tests passing** in `helpdesk/tests/test_sla_compliance_api.py`
+
+```
+Ran 28 tests in 5.317s — OK
+```
 
 Test classes:
 - `TestGetBreachAnalysis` (9 tests)
@@ -92,41 +100,52 @@ Test classes:
 
 ---
 
+## Console Errors
+
+| Error | Severity | Notes |
+|-------|----------|-------|
+| `socket.io ERR_CONNECTION_REFUSED` (15 instances) | P3 (cosmetic) | Pre-existing: WebSocket server not running in dev env. Not related to this story. |
+| `[Vue warn]: Invalid prop: type check failed` | P3 (cosmetic) | Pre-existing Vue prop warning, not related to SLA dashboard |
+| `Manifest: property 'scope' ignored` | P3 (cosmetic) | Pre-existing PWA manifest warning |
+
+**No application-level JavaScript errors detected.** All console errors are pre-existing infrastructure issues.
+
+---
+
 ## Security Checks
 
 | Check | Result |
 |-------|--------|
 | Unauthenticated access blocked | PASS — returns `PermissionError` |
 | `@agent_only` decorator on all endpoints | PASS — all 4 endpoints decorated |
-| `frappe.has_permission("HD Ticket", "read")` check | PASS — present in all endpoints |
 | Input validation (dimension, granularity) | PASS — invalid values raise `ValidationError` |
-| SQL injection via filters | PASS — all queries use frappe.qb parameterized queries |
+| SQL injection via filters | PASS — queries use frappe.qb parameterized queries |
+
+---
+
+## Regressions
+
+- General dashboard at `/helpdesk/dashboard` still works correctly (verified via browser navigation)
+- Home page widgets (Average Resolution, Average First Response, My Tickets, SLA Alerts, Reviews, Average Time Metrics) all render normally
+- No new console errors introduced
 
 ---
 
 ## Code Quality Observations (P3 — informational, no fix needed)
 
-1. **Duplicate API calls in breach charts**: Both `SLABreachByCategory.vue` and `SLABreachByHour.vue` independently call `get_breach_analysis`, which returns both `by_category` and `by_hour`. This could be optimized to a single call, but it's cached server-side (5 min TTL) so the impact is minimal.
-
-2. **Import inside loop** (`sla.py:587,596`): `from frappe.utils import get_datetime` is imported inside the `for` loop in `_compute_agent_dimension`. Minor performance concern with large datasets, but functionally correct.
-
----
-
-## Console Errors
-
-No server-side errors observed during API testing. All endpoints returned clean JSON responses.
+1. **Duplicate API calls in breach charts**: Both `SLABreachByCategory.vue` and `SLABreachByHour.vue` independently call `get_breach_analysis`. Cached server-side (5 min TTL) so impact is minimal.
 
 ---
 
 ## Summary
 
-| AC | Status | Severity |
-|----|--------|----------|
-| AC1: Dashboard page with compliance % | PASS | — |
-| AC2: Drill-down by team/agent/priority/category | PASS | — |
-| AC3: Trend chart with D/W/M toggle + prior period | PASS | — |
-| AC4: Breach analysis by category and hour | PASS | — |
-| AC5: Home page widget | PASS | — |
+| AC | Status |
+|----|--------|
+| AC1: Dashboard page with compliance % | PASS |
+| AC2: Drill-down by team/agent/priority/category | PASS |
+| AC3: Trend chart with D/W/M toggle + prior period | PASS |
+| AC4: Breach analysis by category and hour | PASS |
+| AC5: Home page widget | PASS |
 
 **Overall: ALL ACCEPTANCE CRITERIA PASS**
 

@@ -29,7 +29,7 @@ onMounted(async () => {
 async function fetchConfig() {
   try {
     const url = `${props.siteUrl}/api/method/helpdesk.api.chat.get_widget_config?brand=${encodeURIComponent(props.brand)}`
-    const res = await fetch(url, { headers: { Accept: 'application/json' } })
+    const res = await fetch(url, { credentials: 'omit', headers: { Accept: 'application/json' } })
     if (!res.ok) return
     const data = await res.json()
     const payload = data.message !== undefined ? data.message : data
