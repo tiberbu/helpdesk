@@ -76,9 +76,11 @@ class SafetyGuard:
             rule_name: HD Automation Rule document name.
         """
         try:
-            current = frappe.db.get_value("HD Automation Rule", rule_name, "failure_count") or 0
-            if int(current) != 0:
-                frappe.db.set_value("HD Automation Rule", rule_name, "failure_count", 0)
+            frappe.db.sql(
+                "UPDATE `tabHD Automation Rule` SET failure_count = 0"
+                " WHERE name = %s AND failure_count != 0",
+                (rule_name,),
+            )
         except Exception:
             # Non-critical; swallow errors from counter reset
             pass
@@ -93,9 +95,14 @@ class SafetyGuard:
             rule_name: HD Automation Rule document name.
         """
         try:
-            current = frappe.db.get_value("HD Automation Rule", rule_name, "failure_count") or 0
-            new_count = int(current) + 1
-            frappe.db.set_value("HD Automation Rule", rule_name, "failure_count", new_count)
+            frappe.db.sql(
+                "UPDATE `tabHD Automation Rule` SET failure_count = failure_count + 1"
+                " WHERE name = %s",
+                (rule_name,),
+            )
+            new_count = int(
+                frappe.db.get_value("HD Automation Rule", rule_name, "failure_count") or 0
+            )
 
             if new_count >= MAX_CONSECUTIVE_FAILURES:
                 frappe.db.set_value("HD Automation Rule", rule_name, "enabled", 0)
