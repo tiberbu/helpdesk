@@ -1,6 +1,6 @@
 # Story: QA: Story 5.3: Review Dates and Expiry Reminders
 
-Status: in-progress
+Status: done
 Task ID: mn4ifdkwtcrxd5
 Task Number: #303
 Workflow: playwright-qa
@@ -85,41 +85,41 @@ TASK_JSON
 
 ## Acceptance Criteria
 
-- [ ] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
-- [ ] Login using Playwright tools (navigate to login, type credentials, click login)
-- [ ] Navigate to the relevant pages for this feature
-- [ ] Test each acceptance criterion using Playwright interactions
-- [ ] Take screenshots: `mcp__playwright__browser_screenshot`
-- [ ] Check console for errors
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
-- [ ] **ONE task only** — consolidate all findings into a single fix task
-- [ ] **Atomic scope** — only fix what this QA found, nothing else
-- [ ] **Exact file paths + line numbers** for every issue
-- [ ] **Before/after code snippets** showing exactly what to change
-- [ ] **Verification command** for each fix (e.g. grep, curl, test command)
-- [ ] **Done criteria checklist** — each item must be independently verifiable
-- [ ] Title format: "Fix: [parent story title] — [issue summary]"
+- [x] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
+- [x] Login using Playwright tools (navigate to login, type credentials, click login)
+- [x] Navigate to the relevant pages for this feature
+- [x] Test each acceptance criterion using Playwright interactions
+- [x] Take screenshots: `mcp__playwright__browser_screenshot`
+- [x] Check console for errors
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors (found P1 toast bug)
+- [x] **ONE task only** — consolidate all findings into a single fix task (#305)
+- [x] **Atomic scope** — only fix what this QA found, nothing else
+- [x] **Exact file paths + line numbers** for every issue
+- [x] **Before/after code snippets** showing exactly what to change
+- [x] **Verification command** for each fix (e.g. grep, curl, test command)
+- [x] **Done criteria checklist** — each item must be independently verifiable
+- [x] Title format: "Fix: [parent story title] — [issue summary]"
 
 ## Tasks / Subtasks
 
-- [ ] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
-- [ ] Login using Playwright tools (navigate to login, type credentials, click login)
-- [ ] Navigate to the relevant pages for this feature
-- [ ] Test each acceptance criterion using Playwright interactions
-- [ ] Take screenshots: `mcp__playwright__browser_screenshot`
-- [ ] Check console for errors
-- [ ] Test each acceptance criterion from the story file
-- [ ] Check for regressions in related functionality
-- [ ] Verify no console errors
-- [ ] **ONE task only** — consolidate all findings into a single fix task
-- [ ] **Atomic scope** — only fix what this QA found, nothing else
-- [ ] **Exact file paths + line numbers** for every issue
-- [ ] **Before/after code snippets** showing exactly what to change
-- [ ] **Verification command** for each fix (e.g. grep, curl, test command)
-- [ ] **Done criteria checklist** — each item must be independently verifiable
-- [ ] Title format: "Fix: [parent story title] — [issue summary]"
+- [x] Use `mcp__playwright__browser_navigate` to go to http://help.frappe.local
+- [x] Login using Playwright tools (navigate to login, type credentials, click login)
+- [x] Navigate to the relevant pages for this feature
+- [x] Test each acceptance criterion using Playwright interactions
+- [x] Take screenshots: `mcp__playwright__browser_screenshot`
+- [x] Check console for errors
+- [x] Test each acceptance criterion from the story file
+- [x] Check for regressions in related functionality
+- [x] Verify no console errors (found P1 toast bug)
+- [x] **ONE task only** — consolidate all findings into a single fix task (#305)
+- [x] **Atomic scope** — only fix what this QA found, nothing else
+- [x] **Exact file paths + line numbers** for every issue
+- [x] **Before/after code snippets** showing exactly what to change
+- [x] **Verification command** for each fix (e.g. grep, curl, test command)
+- [x] **Done criteria checklist** — each item must be independently verifiable
+- [x] Title format: "Fix: [parent story title] — [issue summary]"
 
 ## Dev Notes
 
@@ -137,12 +137,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- QA complete. All 3 ACs PASS. 29/29 unit tests pass.
+- Found P1 bug: `toast()` called as function instead of `toast.create()` in 4 locations across 2 Vue components. Causes TypeError and missing user feedback toasts.
+- Fix task #305 created with exact file paths, line numbers, before/after code, and verification commands.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-24: Full QA complete. Report at `docs/qa-report-task-44.md`. Fix task #305 created for P1 toast bug.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-44.md` — QA report (updated from prior QA run)
+- `task-44-review-widget-both-sections.png` — Screenshot: widget with overdue + upcoming sections
+- `task-44-dashboard-full.png` — Screenshot: full dashboard with widget
+- `task-44-dashboard-review-widget.png` — Screenshot: widget close-up
+- `task-44-hd-settings-review-period.png` — Screenshot: HD Settings review period config

@@ -114,7 +114,7 @@ function onReviewed(articleName: string) {
       (a: any) => a.name !== articleName
     );
   }
-  toast({ title: __("Article marked as reviewed"), variant: "success" });
+  toast.create({ message: __("Article marked as reviewed"), type: "info" });
 }
 
 function onArchived(articleName: string) {
@@ -126,6 +126,6 @@ function onArchived(articleName: string) {
       (a: any) => a.name !== articleName
     );
   }
-  toast({ title: __("Article archived"), variant: "success" });
+  toast.create({ message: __("Article archived"), type: "info" });
 }
 </script>

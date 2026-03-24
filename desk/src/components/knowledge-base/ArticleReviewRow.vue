@@ -101,7 +101,7 @@ const markReviewedApi = createResource({
   },
   onError: (err: any) => {
     markingReviewed.value = false;
-    toast({ title: __("Failed to mark reviewed"), variant: "error" });
+    toast.create({ message: __("Failed to mark reviewed"), type: "error" });
   },
 });
 
@@ -113,7 +113,7 @@ const archiveApi = createResource({
   },
   onError: (err: any) => {
     archiving.value = false;
-    toast({ title: __("Failed to archive article"), variant: "error" });
+    toast.create({ message: __("Failed to archive article"), type: "error" });
   },
 });
 
