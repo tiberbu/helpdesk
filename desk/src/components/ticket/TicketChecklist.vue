@@ -66,7 +66,7 @@
             v-if="item.is_completed && item.completed_by"
             class="mt-0.5 text-xs text-ink-gray-4"
           >
-            {{ item.completed_by }}
+            {{ item.completed_by }}<template v-if="item.completed_at"> &middot; {{ item.completed_at }}</template>
           </p>
         </div>
       </li>

@@ -48,6 +48,16 @@
 
         <!-- Assignee component -->
         <AssignTo />
+
+        <!-- Category / Sub-category -->
+        <TicketCategorySelect
+          class="mb-3"
+          :ticket-id="ticket?.doc?.name"
+          :category="ticket?.doc?.category || ''"
+          :sub-category="ticket?.doc?.sub_category || ''"
+          @update:category="(val) => handleFieldUpdate('category', val)"
+          @update:sub-category="(val) => handleFieldUpdate('sub_category', val)"
+        />
       </div>
     </div>
 
@@ -119,6 +129,7 @@ import { storeToRefs } from "pinia";
 import { __ } from "@/translation";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
 import { useAuthStore } from "@/stores/auth";
+import TicketCategorySelect from "../ticket/TicketCategorySelect.vue";
 import TicketField from "../TicketField.vue";
 import PostIncidentReview from "../ticket/PostIncidentReview.vue";
 import LinkedArticles from "../ticket/LinkedArticles.vue";

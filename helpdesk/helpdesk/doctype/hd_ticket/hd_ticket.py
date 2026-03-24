@@ -104,8 +104,17 @@ class HDTicket(Document):
         Checks both "Resolved" and "Closed" status categories so that tickets
         cannot be closed (manually or via auto-close scheduler) with incomplete
         mandatory checklist items.
+
+        Only fires on status transitions (not general saves of already-resolved
+        tickets) to allow actions like re-applying an incident model without
+        blocking the save with newly-added incomplete items.
         """
         if self.status_category not in ("Resolved", "Closed"):
+            return
+
+        # Only enforce on status transitions, not on saves where status is
+        # already resolved/closed (e.g. re-applying an incident model)
+        if not self.has_value_changed("status"):
             return
 
         checklist = self.get("ticket_checklist", [])

@@ -422,6 +422,74 @@ class TestMentionNotificationsInInternalNotes(FrappeTestCase):
             frappe.delete_doc("HD Notification", n.name, force=True)
 
     # ------------------------------------------------------------------ #
+    # Non-internal comments must NOT trigger mention notifications        #
+    # ------------------------------------------------------------------ #
+
+    def test_mention_in_non_internal_comment_does_not_notify(self):
+        """
+        Story 1.5 AC #9: @mentions in public (non-internal) comments must NOT
+        create mention notifications. Only internal notes (is_internal=1) should.
+        """
+        frappe.set_user(self.author_email)
+        content = MENTION_CONTENT(self.mentioned_email, "Target Agent")
+
+        comment = frappe.get_doc({
+            "doctype": "HD Ticket Comment",
+            "reference_ticket": self.ticket.name,
+            "content": content,
+            "commented_by": self.author_email,
+            "owner": self.author_email,
+            "is_internal": 0,
+        }).insert(ignore_permissions=True)
+
+        notifications = frappe.get_all(
+            "HD Notification",
+            filters={
+                "reference_comment": comment.name,
+                "notification_type": "Mention",
+                "user_to": self.mentioned_email,
+            },
+        )
+        self.assertEqual(
+            len(notifications), 0,
+            "Mention notifications must NOT fire for non-internal (public) comments",
+        )
+
+    def test_editing_non_internal_comment_does_not_notify(self):
+        """
+        Editing a non-internal comment to add an @mention must NOT create
+        a notification (is_internal guard applies to on_update too).
+        """
+        frappe.set_user(self.author_email)
+        initial_content = "<p>No mentions here.</p>"
+
+        comment = frappe.get_doc({
+            "doctype": "HD Ticket Comment",
+            "reference_ticket": self.ticket.name,
+            "content": initial_content,
+            "commented_by": self.author_email,
+            "owner": self.author_email,
+            "is_internal": 0,
+        }).insert(ignore_permissions=True)
+
+        # Edit to add a mention
+        comment.content = MENTION_CONTENT(self.mentioned_email, "Target Agent")
+        comment.save(ignore_permissions=True)
+
+        notifications = frappe.get_all(
+            "HD Notification",
+            filters={
+                "reference_comment": comment.name,
+                "notification_type": "Mention",
+                "user_to": self.mentioned_email,
+            },
+        )
+        self.assertEqual(
+            len(notifications), 0,
+            "Editing a non-internal comment must NOT trigger mention notifications",
+        )
+
+    # ------------------------------------------------------------------ #
     # HDNotification.format_message and get_url                           #
     # ------------------------------------------------------------------ #
 

@@ -15,7 +15,7 @@ class HDTicketComment(HasMentions, Document):
     mentions_field = "content"
 
     def on_update(self):
-        if self.has_value_changed("content"):
+        if self.is_internal and self.has_value_changed("content"):
             original_content = (
                 self.get_doc_before_save().content
                 if self.get_doc_before_save()
@@ -35,7 +35,8 @@ class HDTicketComment(HasMentions, Document):
             data=data,
         )
         capture_event(telemetry_event)
-        self.notify_mentions()
+        if self.is_internal:
+            self.notify_mentions()
 
     def after_delete(self):
         event = "helpdesk:ticket-comment"

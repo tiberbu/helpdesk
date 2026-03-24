@@ -27,9 +27,6 @@ def apply_incident_model(ticket: str, model: str) -> dict:
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
 
-	if not frappe.db.get_single_value("HD Settings", "itil_mode_enabled"):
-		frappe.throw(_("Incident Models require ITIL mode to be enabled"), frappe.ValidationError)
-
 	ticket_doc = frappe.get_doc("HD Ticket", ticket)
 	model_doc = frappe.get_doc("HD Incident Model", model)
 
@@ -92,9 +89,6 @@ def complete_checklist_item(ticket: str, checklist_item_name: str) -> dict:
 	if not is_agent():
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	frappe.has_permission("HD Ticket", "write", doc=ticket, throw=True)
-
-	if not frappe.db.get_single_value("HD Settings", "itil_mode_enabled"):
-		frappe.throw(_("Incident Models require ITIL mode to be enabled"), frappe.ValidationError)
 
 	ticket_doc = frappe.get_doc("HD Ticket", ticket)
 	checklist_row = None

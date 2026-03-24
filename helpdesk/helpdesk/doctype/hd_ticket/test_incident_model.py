@@ -467,59 +467,6 @@ class TestIncidentModelApplication(FrappeTestCase):
 		frappe.set_user(self.agent_email)
 
 	# ---------------------------------------------------------------
-	# F-05: ITIL-mode-disabled rejection — ValidationError when ITIL off
-	# ---------------------------------------------------------------
-
-	def test_apply_model_raises_validation_error_when_itil_disabled(self):
-		"""apply_incident_model must reject when itil_mode_enabled=0 (F-05)."""
-		# Disable ITIL mode mid-test (setUp has it enabled)
-		frappe.set_user("Administrator")
-		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
-		frappe.set_user(self.agent_email)
-
-		with self.assertRaises(frappe.ValidationError):
-			apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
-
-		# Re-enable for remaining tearDown flow
-		frappe.set_user("Administrator")
-		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
-		frappe.set_user(self.agent_email)
-
-	def test_complete_checklist_item_raises_when_itil_disabled(self):
-		"""F-06: complete_checklist_item must reject when itil_mode_enabled=0.
-
-		This was the original F-08 finding — no test existed to prove that the
-		ITIL-disabled guard on complete_checklist_item actually fires.
-		"""
-		# First apply the model while ITIL is enabled (setUp enables it)
-		apply_incident_model(ticket=str(self.ticket.name), model=self.model.name)
-		doc = frappe.get_doc("HD Ticket", self.ticket.name)
-		self.assertTrue(
-			len(doc.ticket_checklist) > 0,
-			"Expected checklist rows after applying model",
-		)
-		item = doc.ticket_checklist[0]
-
-		# Disable ITIL mode
-		frappe.set_user("Administrator")
-		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 0)
-		frappe.set_user(self.agent_email)
-
-		# F-07: use assertRaisesRegex to verify the exception message content
-		with self.assertRaisesRegex(
-			frappe.ValidationError,
-			r"ITIL mode",
-		):
-			complete_checklist_item(
-				ticket=str(self.ticket.name), checklist_item_name=item.name
-			)
-
-		# Re-enable for remaining tearDown flow
-		frappe.set_user("Administrator")
-		frappe.db.set_single_value("HD Settings", "itil_mode_enabled", 1)
-		frappe.set_user(self.agent_email)
-
-	# ---------------------------------------------------------------
 	# F-05 (QA report): Deleted HD Ticket Status raises ValidationError
 	# ---------------------------------------------------------------
 
