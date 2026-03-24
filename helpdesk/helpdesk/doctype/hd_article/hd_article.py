@@ -239,6 +239,12 @@ class HDArticle(Document):
                 "width": "10rem",
             },
             {
+                "label": "Visibility",
+                "type": "Check",
+                "key": "internal_only",
+                "width": "8rem",
+            },
+            {
                 "label": "Author",
                 "type": "Link",
                 "key": "author",

@@ -1,0 +1,243 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "Helpdesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: Helpdesk
+          - generic [ref=e11]: Administrator
+        - img [ref=e13]
+      - generic [ref=e15] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e20]:
+          - text: Search
+          - generic [ref=e21]:
+            - img [ref=e22]
+            - generic [ref=e24]: K
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e32]: Dashboard
+      - generic [ref=e34] [cursor=pointer]:
+        - img [ref=e36]
+        - generic [ref=e39]: Notifications
+      - generic [ref=e40]:
+        - navigation [ref=e44]:
+          - generic [ref=e45] [cursor=pointer]:
+            - img [ref=e47]
+            - generic [ref=e50]: Home
+          - generic [ref=e51] [cursor=pointer]:
+            - img [ref=e53]
+            - generic [ref=e55]: Tickets
+          - generic [ref=e56] [cursor=pointer]:
+            - img [ref=e58]
+            - generic [ref=e60]: Knowledge Base
+          - generic [ref=e61] [cursor=pointer]:
+            - img [ref=e63]
+            - generic [ref=e65]: Customers
+          - generic [ref=e66] [cursor=pointer]:
+            - img [ref=e68]
+            - generic [ref=e72]: Contacts
+          - generic [ref=e73] [cursor=pointer]:
+            - img [ref=e75]
+            - generic [ref=e77]: Live Chat
+          - generic [ref=e78] [cursor=pointer]:
+            - img [ref=e80]
+            - generic [ref=e82]: Major Incidents
+          - generic [ref=e83] [cursor=pointer]:
+            - img [ref=e85]
+            - generic [ref=e87]: Automations
+        - generic [ref=e89]:
+          - generic [ref=e90] [cursor=pointer]:
+            - img [ref=e91]
+            - generic [ref=e93]: Public Views
+          - navigation [ref=e95]:
+            - generic [ref=e96] [cursor=pointer]:
+              - generic [ref=e98]: ⭐
+              - generic [ref=e99]: My Feedback
+            - generic [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]: 📋
+              - generic [ref=e103]: Pending Tickets
+            - generic [ref=e104] [cursor=pointer]:
+              - generic [ref=e106]: 🆕
+              - generic [ref=e107]: Recently Assigned Tickets
+            - generic [ref=e108] [cursor=pointer]:
+              - generic [ref=e110]: ⏳
+              - generic [ref=e111]: SLA Due
+      - generic [ref=e112]:
+        - generic [ref=e113] [cursor=pointer]:
+          - img [ref=e115]
+          - generic [ref=e117]: Help
+        - generic [ref=e118] [cursor=pointer]:
+          - img [ref=e120]
+          - generic [ref=e122]: Collapse
+      - generic [ref=e125]:
+        - button [ref=e126] [cursor=pointer]:
+          - img [ref=e128]
+        - button [ref=e133] [cursor=pointer]:
+          - img [ref=e135]
+    - generic [ref=e139]:
+      - generic [ref=e141]:
+        - banner [ref=e142]:
+          - generic [ref=e146]:
+            - link "Tickets" [ref=e147] [cursor=pointer]:
+              - /url: /helpdesk/tickets
+              - generic [ref=e148]: Tickets
+            - generic [ref=e149]: /
+            - 'button "QA Test: SLA Business Hours Verification" [ref=e150] [cursor=pointer]':
+              - generic [ref=e151]: "QA Test: SLA Business Hours Verification"
+          - generic [ref=e153]:
+            - generic [ref=e154]:
+              - button [disabled] [ref=e155]:
+                - img [ref=e156]
+              - button [ref=e158] [cursor=pointer]:
+                - img [ref=e159]
+            - button "Open" [ref=e161] [cursor=pointer]:
+              - img [ref=e162]
+              - generic [ref=e164]: Open
+            - button [ref=e165] [cursor=pointer]:
+              - img [ref=e166]
+        - generic [ref=e170]:
+          - generic [ref=e171]:
+            - paragraph [ref=e172]: "#204"
+            - generic [ref=e173]:
+              - generic [ref=e174]: via
+              - img [ref=e175]
+              - generic [ref=e178]: Email
+          - generic [ref=e180]:
+            - generic [ref=e181]: First Response
+            - generic [ref=e182]: Due in 1d 2h
+          - generic [ref=e184]:
+            - generic [ref=e185]: Resolution
+            - generic [ref=e186]: Due in 3d 2h
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - generic [ref=e190]:
+            - tablist [ref=e191]:
+              - tab "Activity" [selected] [ref=e194] [cursor=pointer]:
+                - img [ref=e195]
+                - text: Activity
+              - tab "Emails" [ref=e197] [cursor=pointer]:
+                - img [ref=e198]
+                - text: Emails
+              - tab "Comments" [ref=e201] [cursor=pointer]:
+                - img [ref=e202]
+                - text: Comments
+              - tab "Internal Notes" [ref=e204] [cursor=pointer]:
+                - img [ref=e205]
+                - text: Internal Notes
+            - tabpanel "Activity" [ref=e209]:
+              - generic [ref=e210]:
+                - generic [ref=e211]: Activity
+                - button "New" [ref=e212] [cursor=pointer]:
+                  - img [ref=e213]
+                  - generic [ref=e214]: New
+                  - img [ref=e215]
+              - generic [ref=e220]:
+                - generic [ref=e224]: a
+                - generic [ref=e226] [cursor=pointer]:
+                  - generic [ref=e227]:
+                    - generic [ref=e228]:
+                      - generic [ref=e229]: admin@example.com
+                      - generic [ref=e230]: <admin@example.com>
+                    - generic [ref=e231]:
+                      - paragraph [ref=e232]: 3 minutes ago
+                      - button [ref=e233]:
+                        - img [ref=e235]
+                      - button [ref=e237]:
+                        - img [ref=e239]
+                  - iframe [ref=e242]:
+                    - generic [ref=f1e2]: Testing SLA business hours calculation
+            - tabpanel "Emails"
+            - tabpanel "Comments"
+            - tabpanel "Internal Notes"
+          - generic [ref=e243]:
+            - generic [ref=e245]:
+              - button "Reply" [ref=e246] [cursor=pointer]:
+                - img [ref=e247]
+                - generic [ref=e250]: Reply
+              - button "Comment" [ref=e251] [cursor=pointer]:
+                - img [ref=e252]
+                - generic [ref=e254]: Comment
+            - text: Hi John, we are looking into this issue.
+        - generic [ref=e255]:
+          - radiogroup [ref=e256]:
+            - radio "Details" [checked] [ref=e257]:
+              - button "Details" [ref=e258] [cursor=pointer]:
+                - generic [ref=e260]: Details
+            - radio "Contact" [ref=e261]:
+              - button "Contact" [ref=e262] [cursor=pointer]:
+                - generic [ref=e264]: Contact
+          - generic [ref=e266]:
+            - generic [ref=e267]:
+              - generic [ref=e268]:
+                - generic [ref=e270]: A
+                - generic [ref=e271]:
+                  - generic [ref=e272]:
+                    - paragraph [ref=e273]: Administrator
+                    - img [ref=e274] [cursor=pointer]
+                  - button [ref=e277] [cursor=pointer]:
+                    - img [ref=e278]
+              - generic [ref=e281]:
+                - generic [ref=e282]:
+                  - generic [ref=e283]:
+                    - generic [ref=e284]: Ticket Type
+                    - button "Unspecified" [ref=e287] [cursor=pointer]:
+                      - generic [ref=e289]: Unspecified
+                      - img [ref=e290]
+                  - generic [ref=e292]:
+                    - generic [ref=e293]: Priority
+                    - button "Medium" [ref=e296] [cursor=pointer]:
+                      - generic [ref=e298]: Medium
+                      - img [ref=e299]
+                - generic [ref=e302]:
+                  - generic [ref=e303]: Customer
+                  - button "Enter Customer" [ref=e306] [cursor=pointer]:
+                    - generic [ref=e308]: Enter Customer
+                    - img [ref=e309]
+                - generic [ref=e312]:
+                  - generic [ref=e313]: Team
+                  - button "Enter Team" [ref=e316] [cursor=pointer]:
+                    - generic [ref=e318]: Enter Team
+                    - img [ref=e319]
+                - generic [ref=e322]:
+                  - generic [ref=e323]: Assignee
+                  - button "No assignees" [ref=e324] [cursor=pointer]:
+                    - paragraph [ref=e326]: No assignees
+                    - img [ref=e327]
+                - generic [ref=e330]:
+                  - generic [ref=e331]: Category
+                  - combobox "Customise options" [ref=e333] [cursor=pointer]:
+                    - generic: Select Category
+                    - img [ref=e334]
+            - generic [ref=e337]:
+              - generic [ref=e338]:
+                - generic [ref=e339]: Linked Articles
+                - generic [ref=e340]:
+                  - button "Create Article" [ref=e341] [cursor=pointer]:
+                    - img [ref=e342]
+                    - generic [ref=e345]: Create Article
+                  - button "Link" [ref=e346] [cursor=pointer]:
+                    - img [ref=e347]
+                    - generic [ref=e348]: Link
+              - generic [ref=e349]: No linked articles
+            - generic [ref=e350]:
+              - generic [ref=e351]:
+                - generic [ref=e352]: Related Tickets
+                - button "Link" [ref=e353] [cursor=pointer]:
+                  - img [ref=e354]
+                  - generic [ref=e355]: Link
+              - generic [ref=e356]: No related tickets
+            - generic [ref=e357]:
+              - generic [ref=e358]:
+                - heading "Time Tracking" [level=3] [ref=e359]
+                - button "Add Entry" [ref=e360] [cursor=pointer]:
+                  - img [ref=e361]
+                  - generic [ref=e362]: Add Entry
+              - button "Start Timer" [ref=e363] [cursor=pointer]:
+                - img [ref=e364]
+                - generic [ref=e367]: Start Timer
+              - generic [ref=e368]:
+                - img [ref=e369]
+                - paragraph [ref=e372]: No time logged yet
+  - region "Notifications (F8)":
+    - list
