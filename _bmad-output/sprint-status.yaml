@@ -142,10 +142,10 @@ development_status:
   8-ux-design-spec-helpdesk-agent-customer-portals: done  # [ux-design] UX Design Spec — Helpdesk Agent & Customer Portals
   7-prd-frappe-helpdesk-phase-1-requirements: done  # [planning] PRD — Frappe Helpdesk Phase 1 Requirements
   12-prd-frappe-helpdesk-phase-1-requirements: done  # [planning] PRD — Frappe Helpdesk Phase 1 Requirements
-  13-ux-design-spec-helpdesk-agent-customer-portals: review  # [ux-design] UX Design Spec — Helpdesk Agent & Customer Portals
-  14-architecture-frappe-helpdesk-phase-1-technical-design: review  # [solutioning] Architecture — Frappe Helpdesk Phase 1 Technical Design
-  15-epics-stories-frappe-helpdesk-phase-1-breakdown: review  # [solutioning] Epics & Stories — Frappe Helpdesk Phase 1 Breakdown
-  16-sprint-planning-generate-sprint-status-yaml-create-story-tas: review  # [sprint-planning] Sprint Planning — Generate sprint-status.yaml & Create Story
+  13-ux-design-spec-helpdesk-agent-customer-portals: done  # [ux-design] UX Design Spec — Helpdesk Agent & Customer Portals
+  14-architecture-frappe-helpdesk-phase-1-technical-design: done  # [solutioning] Architecture — Frappe Helpdesk Phase 1 Technical Design
+  15-epics-stories-frappe-helpdesk-phase-1-breakdown: done  # [solutioning] Epics & Stories — Frappe Helpdesk Phase 1 Breakdown
+  16-sprint-planning-generate-sprint-status-yaml-create-story-tas: done  # [sprint-planning] Sprint Planning — Generate sprint-status.yaml & Create Story
   1-frappe-helpdesk-comprehensive-codebase-feature-audit: done  # [research] Frappe Helpdesk — Comprehensive Codebase & Feature Audit
   2-competitive-analysis-world-class-support-tools-research: done  # [research] Competitive Analysis — World-Class Support Tools Research
   3-itil-compliance-research-making-helpdesk-itil-compliant: done  # [research] ITIL Compliance Research — Making Helpdesk ITIL-Compliant
@@ -180,18 +180,18 @@ development_status:
   37-story-3-8-multi-brand-configuration: review  # [dev-story] Story 3.8: Multi-Brand Configuration
   38-story-4-1-business-hours-sla-calculation-engine: review  # [create-story] Story 4.1: Business Hours SLA Calculation Engine
   39-story-4-2-proactive-sla-breach-alerts: review  # [create-story] Story 4.2: Proactive SLA Breach Alerts
-  40-story-4-3-sla-compliance-dashboard: review  # [create-story] Story 4.3: SLA Compliance Dashboard
+  40-story-4-3-sla-compliance-dashboard: review  # [dev-story] Story 4.3: SLA Compliance Dashboard
   41-story-4-4-ola-uc-agreement-type-preparation: review  # [create-story] Story 4.4: OLA/UC Agreement Type Preparation
 
   # New tasks (added by Claude Studio)
-  42-story-5-1-article-review-workflow: review  # [create-story] Story 5.1: Article Review Workflow
-  43-story-5-2-article-versioning: review  # [create-story] Story 5.2: Article Versioning
-  44-story-5-3-review-dates-and-expiry-reminders: review  # [create-story] Story 5.3: Review Dates and Expiry Reminders
-  45-story-5-4-ticket-article-linking: review  # [create-story] Story 5.4: Ticket-Article Linking
-  46-story-5-5-internal-only-articles: review  # [create-story] Story 5.5: Internal-Only Articles
-  47-story-6-1-custom-report-builder: review  # [create-story] Story 6.1: Custom Report Builder
-  48-story-6-2-report-scheduling-and-export: review  # [create-story] Story 6.2: Report Scheduling and Export
-  49-story-6-3-csat-analytics-dashboard: review  # [create-story] Story 6.3: CSAT Analytics Dashboard
+  42-story-5-1-article-review-workflow: review  # [dev-story] Story 5.1: Article Review Workflow
+  43-story-5-2-article-versioning: review  # [dev-story] Story 5.2: Article Versioning
+  44-story-5-3-review-dates-and-expiry-reminders: ready-for-dev  # [create-story] Story 5.3: Review Dates and Expiry Reminders
+  45-story-5-4-ticket-article-linking: ready-for-dev  # [create-story] Story 5.4: Ticket-Article Linking
+  46-story-5-5-internal-only-articles: ready-for-dev  # [create-story] Story 5.5: Internal-Only Articles
+  47-story-6-1-custom-report-builder: done  # [create-story] Story 6.1: Custom Report Builder
+  48-story-6-2-report-scheduling-and-export: done  # [create-story] Story 6.2: Report Scheduling and Export
+  49-story-6-3-csat-analytics-dashboard: done  # [create-story] Story 6.3: CSAT Analytics Dashboard
   50-story-6-4-mttr-and-incident-reporting: review  # [create-story] Story 6.4: MTTR and Incident Reporting
   51-story-6-5-time-tracking-reports: review  # [create-story] Story 6.5: Time Tracking Reports
 
@@ -569,3 +569,17 @@ development_status:
   234-qa-story-3-6-chat-to-ticket-transcript-and-follow-up: review  # [playwright-qa] QA: Story 3.6: Chat-to-Ticket Transcript and Follow-up
 
   235-qa-story-3-7-csat-survey-infrastructure-and-delivery: review  # [playwright-qa] QA: Story 3.7: CSAT Survey Infrastructure and Delivery
+
+  236-qa-story-3-8-multi-brand-configuration: review  # [playwright-qa] QA: Story 3.8: Multi-Brand Configuration
+
+  237-qa-story-4-1-business-hours-sla-calculation-engine: review  # [playwright-qa] QA: Story 4.1: Business Hours SLA Calculation Engine
+
+  238-qa-story-4-2-proactive-sla-breach-alerts: review  # [playwright-qa] QA: Story 4.2: Proactive SLA Breach Alerts
+
+  239-qa-story-4-3-sla-compliance-dashboard: review  # [playwright-qa] QA: Story 4.3: SLA Compliance Dashboard
+
+  240-qa-story-4-4-ola-uc-agreement-type-preparation: review  # [playwright-qa] QA: Story 4.4: OLA/UC Agreement Type Preparation
+
+  241-qa-story-5-1-article-review-workflow: review  # [playwright-qa] QA: Story 5.1: Article Review Workflow
+
+  242-fix-story-5-1-article-review-workflow-email-notification-cra: review  # [quick-dev] Fix: Story 5.1 Article Review Workflow — Email notification 

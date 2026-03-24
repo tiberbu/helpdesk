@@ -7,6 +7,14 @@
         </div>
       </template>
       <template #right-header v-if="!isCustomerPortal">
+        <!-- Version History button -->
+        <Button
+          v-if="!editable && !isCustomerPortal"
+          :label="__('Version History')"
+          iconLeft="history"
+          @click="showVersionHistory = !showVersionHistory"
+          class="mr-1"
+        />
         <!-- Workflow action buttons (non-edit mode) -->
         <div class="flex gap-2" v-if="!editable">
           <!-- Draft: agent can submit for review -->
@@ -162,6 +170,13 @@
       </div>
     </div>
     <MoveToCategoryModal v-model="moveToModal" @move="handleMoveToCategory" />
+    <!-- Version History Drawer -->
+    <ArticleVersionHistory
+      v-if="showVersionHistory && article.data?.name"
+      :article-name="article.data.name"
+      @close="showVersionHistory = false"
+      @reverted="article.reload()"
+    />
   </div>
 </template>
 
@@ -169,6 +184,7 @@
 import DiscardButton from "@/components/DiscardButton.vue";
 import LayoutHeader from "@/components/LayoutHeader.vue";
 import ArticleFeedback from "@/components/knowledge-base/ArticleFeedback.vue";
+import ArticleVersionHistory from "@/components/knowledge-base/ArticleVersionHistory.vue";
 import MoveToCategoryModal from "@/components/knowledge-base/MoveToCategoryModal.vue";
 import { dayjs } from "@/dayjs";
 import { useAuthStore } from "@/stores/auth";
@@ -286,6 +302,7 @@ const isDirty = ref(false);
 const moveToModal = ref(false);
 const requestChangesVisible = ref(false);
 const requestChangesComment = ref("");
+const showVersionHistory = ref(false);
 
 const workflowSubmitForReview = createResource({
   url: "helpdesk.api.knowledge_base.submit_for_review",

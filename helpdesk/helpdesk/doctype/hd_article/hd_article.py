@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, get_url
+from frappe.utils import cint, get_url, now_datetime
 
 from helpdesk.utils import capture_event
 
@@ -53,6 +53,49 @@ class HDArticle(Document):
                     {"category": self.category, "status": "Published"},
                 )
             )
+
+    def on_update(self):
+        """Create a version snapshot when content, title, or category changes."""
+        if self.flags.get("skip_version_creation"):
+            return
+
+        before = self.get_doc_before_save()
+        if before is None:
+            # First-ever save — always create version
+            self._create_version()
+            return
+
+        if (
+            self.content != before.get("content")
+            or self.title != before.get("title")
+            or self.category != before.get("category")
+        ):
+            self._create_version()
+
+    def _create_version(self):
+        """Insert an HD Article Version record capturing the current state."""
+        from helpdesk.helpdesk.doctype.hd_article_version.hd_article_version import (
+            HDArticleVersion,
+        )
+
+        change_summary = self.flags.get("revert_change_summary") or ""
+        if not change_summary:
+            ts = now_datetime().strftime("%Y-%m-%d %H:%M")
+            change_summary = _("Updated by {0} on {1}").format(
+                frappe.session.user, ts
+            )
+
+        version_number = HDArticleVersion.get_next_version_number(self.name)
+
+        version_doc = frappe.new_doc("HD Article Version")
+        version_doc.article = self.name
+        version_doc.version_number = version_number
+        version_doc.content = self.content or ""
+        version_doc.title = self.title or ""
+        version_doc.author = frappe.session.user
+        version_doc.timestamp = now_datetime()
+        version_doc.change_summary = change_summary
+        version_doc.insert(ignore_permissions=True)
 
     def after_insert(self):
         count = frappe.db.count("HD Article")

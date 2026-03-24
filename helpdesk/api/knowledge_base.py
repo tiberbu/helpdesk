@@ -200,7 +200,10 @@ def approve_article(article: str) -> dict:
 
     doc.status = "Published"
     doc.save(ignore_permissions=True)
-    doc.on_workflow_action(_APPROVE)
+    try:
+        doc.on_workflow_action(_APPROVE)
+    except Exception:
+        frappe.log_error(title="Article workflow notification failed")
     return {"status": doc.status}
 
 
@@ -223,7 +226,10 @@ def request_changes(article: str, comment: str) -> dict:
     doc.status = "Draft"
     doc.reviewer_comment = comment.strip()
     doc.save(ignore_permissions=True)
-    doc.on_workflow_action(_REQUEST_CHANGES)
+    try:
+        doc.on_workflow_action(_REQUEST_CHANGES)
+    except Exception:
+        frappe.log_error(title="Article workflow notification failed")
     return {"status": doc.status}
 
 
@@ -242,7 +248,10 @@ def reject_article(article: str) -> dict:
 
     doc.status = "Archived"
     doc.save(ignore_permissions=True)
-    doc.on_workflow_action(_REJECT)
+    try:
+        doc.on_workflow_action(_REJECT)
+    except Exception:
+        frappe.log_error(title="Article workflow notification failed")
     return {"status": doc.status}
 
 
@@ -261,7 +270,10 @@ def archive_article(article: str) -> dict:
 
     doc.status = "Archived"
     doc.save(ignore_permissions=True)
-    doc.on_workflow_action(_ARCHIVE)
+    try:
+        doc.on_workflow_action(_ARCHIVE)
+    except Exception:
+        frappe.log_error(title="Article workflow notification failed")
     return {"status": doc.status}
 
 
@@ -285,6 +297,60 @@ def get_agent_articles(category: str = None) -> list[dict]:
         order_by="modified desc",
     )
     return articles
+
+
+@frappe.whitelist()
+def get_article_versions(article: str) -> list[dict]:
+    """Return all version records for an article, ordered newest-first.
+
+    Restricted to agents only (AC #10).
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    versions = frappe.get_all(
+        "HD Article Version",
+        filters={"article": article},
+        fields=["name", "version_number", "title", "author", "timestamp", "change_summary"],
+        order_by="version_number desc",
+    )
+
+    for v in versions:
+        v["author_full_name"] = (
+            frappe.db.get_value("User", v["author"], "full_name") or v["author"]
+        )
+
+    return versions
+
+
+@frappe.whitelist()
+def revert_article_to_version(article: str, version_name: str) -> dict:
+    """Restore article content from a previous version and create a new version record.
+
+    Restricted to agents only (AC #10). Preserves workflow state (AC #7).
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    version_doc = frappe.get_doc("HD Article Version", version_name)
+
+    if version_doc.article != article:
+        frappe.throw(_("Version does not belong to this article"), frappe.ValidationError)
+
+    doc = frappe.get_doc("HD Article", article)
+    doc.content = version_doc.content
+    doc.title = version_doc.title
+    doc.flags.revert_change_summary = _(
+        "Reverted to version #{0} by {1}"
+    ).format(version_doc.version_number, frappe.session.user)
+    doc.save(ignore_permissions=True)
+
+    from helpdesk.helpdesk.doctype.hd_article_version.hd_article_version import (
+        HDArticleVersion,
+    )
+    new_version_number = HDArticleVersion.get_next_version_number(article) - 1
+
+    return {"success": True, "new_version_number": new_version_number}
 
 
 def _require_reviewer_role():
