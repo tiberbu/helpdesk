@@ -33,6 +33,16 @@ def _cleanup_session(session_id):
     frappe.delete_doc("HD Chat Session", session_id, ignore_permissions=True)
 
 
+def _enable_chat():
+    """Enable the chat feature flag in HD Settings for the duration of a test."""
+    frappe.db.set_single_value("HD Settings", "chat_enabled", 1)
+
+
+def _disable_chat():
+    """Disable the chat feature flag in HD Settings after a test."""
+    frappe.db.set_single_value("HD Settings", "chat_enabled", 0)
+
+
 def _make_session(email="test@example.com", status="waiting", timeout=30, started_offset_minutes=0):
     """Insert a real HD Chat Session into the DB."""
     session_id = frappe.generate_hash(length=20)
