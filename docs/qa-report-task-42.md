@@ -6,131 +6,146 @@
 
 ## Test Environment
 
-- Site: helpdesk.localhost:8004
-- User: Administrator (password: admin)
-- Unit tests: 21/21 passing
-- Playwright MCP: Not available in environment; API-based and code review testing used
+- Site: help.frappe.local (port 80, nginx)
+- User: Administrator
+- Unit tests: 29/29 passing
+- Playwright MCP: Used for all browser testing
 
 ## Acceptance Criteria Results
 
-### AC1: Article lifecycle: Draft > In Review > Published > Archived via Frappe Workflow
+### AC1: Article lifecycle: Draft > In Review > Published > Archived
 **Result: PASS**
 
-Tested full lifecycle via API:
-- `submit_for_review`: Draft -> In Review (returns `{"status": "In Review"}`)
-- `approve_article`: In Review -> Published (DB confirmed status=Published)
-- `archive_article`: Published -> Archived (returns `{"status": "Archived"}`)
-- `request_changes`: In Review -> Draft with comment (DB confirmed status=Draft, reviewer_comment set)
+Full lifecycle verified via Playwright browser testing:
+1. **Draft -> In Review**: Clicked "Submit for Review" button. Toast: "Article submitted for review". Buttons changed to Approve/Request Changes/Reject.
+2. **In Review -> Draft (Request Changes)**: Clicked "Request Changes", typed reviewer comment, clicked "Submit". Toast: "Changes requested". Article returned to Draft with amber "Reviewer Feedback" box displayed.
+3. **Draft -> In Review (re-submit)**: Clicked "Submit for Review" again. Reviewer comment cleared. Buttons reverted to Approve/Request Changes/Reject.
+4. **In Review -> Published (Approve)**: Clicked "Approve". Toast: "Article approved and published". Button changed to "Archive".
+5. **Published -> Archived (Archive)**: Clicked "Archive", confirmed in dialog. Toast: "Article archived". No workflow buttons remain.
+6. **In Review -> Archived (Reject)**: Reset to In Review, clicked "Reject", confirmed in dialog. Toast: "Article rejected". No workflow buttons remain.
 
-Status field has all four options: `Draft\nIn Review\nPublished\nArchived`
-
-21 unit tests pass covering all transitions and edge cases.
+Screenshots: `task-42-article-in-review-buttons.png`, `task-42-article-published-archive-btn.png`
 
 ### AC2: Submit for Review moves Draft to In Review, configured reviewers receive email notification
-**Result: PASS (with caveat — see P1 below)**
+**Result: PASS**
 
-- `submit_for_review` API correctly transitions Draft -> In Review
-- `reviewer_comment` is cleared on re-submit
-- Email notification code exists in `_notify_reviewers_for_review()` and correctly reads from `HD Settings.kb_reviewers`
-- When no reviewers configured, notification is skipped gracefully (no crash)
-- `HD KB Reviewer` child DocType created with `user` Link field to User
+- "Submit for Review" button visible on Draft articles, transitions to In Review
+- `reviewer_comment` is cleared on re-submit (verified: amber box disappears)
+- Email notification code in `_notify_reviewers_for_review()` reads from `HD Settings.kb_reviewers`
+- When no reviewers configured, notification is skipped gracefully
+- `HD KB Reviewer` child DocType exists with `user` Link field
+- Email uses `delayed=True` for background sending (no crash if email server unavailable)
+- API wraps `on_workflow_action` in try/except for resilience
 
 ### AC3: Reviewer can Approve (Published), Request Changes (Draft with comments), Reject (Archived)
-**Result: PARTIAL PASS — P1 issue with email notifications crashing API responses**
+**Result: PASS**
 
-- **Approve**: State correctly changes to Published. API returns HTTP 500 due to email crash, but DB state is committed.
-- **Request Changes**: State correctly changes to Draft. `reviewer_comment` is set. API returns HTTP 500 due to email crash, but DB state is committed.
-- **Reject**: State correctly changes to Archived. API returns HTTP 500 due to email crash, but DB state is committed.
-- Permission checks work: `_require_reviewer_role()` enforces HD Admin or System Manager role.
-- Validation works: empty comment rejected, wrong-state transitions rejected.
-- Frontend correctly shows reviewer feedback box (amber) for Draft articles with `reviewer_comment`.
+All three actions tested via Playwright browser:
+- **Approve**: Green "Approve" button. Shows toast "Article approved and published". No errors.
+- **Request Changes**: Shows inline form with "Reviewer Comment" textarea. After submit, article returns to Draft with amber "Reviewer Feedback" box showing the comment. Toast: "Changes requested".
+- **Reject**: Red "Reject" button. Shows confirmation dialog "Are you sure you want to reject and archive this article?". After confirm, toast: "Article rejected".
+
+Permission enforcement verified via unit tests (`test_approve_requires_reviewer_role`, `test_request_changes_requires_reviewer_role`, `test_reject_requires_reviewer_role`).
+Validation verified: empty comment rejected (`test_request_changes_requires_non_empty_comment`), wrong-state transitions rejected.
+
+Screenshots: `task-42-request-changes-form.png`, `task-42-draft-with-reviewer-feedback.png`
 
 ### AC4: Only Published articles appear in customer portal and public KB
 **Result: PASS**
 
-- `get_category_articles()` filters by `status: "Published"` — verified returns 1 article when Published, 0 when Archived or In Review
-- `get_categories()` counts only Published articles
-- `get_article()` denies non-agent access to non-Published articles (unit test: `test_get_article_denies_non_agent_access_to_in_review`)
-- `get_article()` allows agent access to In Review (unit test: `test_get_article_allows_agent_access_to_in_review`)
+- `get_category_articles()` returns 1 article when Published, 0 when Archived or In Review
+- `get_categories()` returns 1 category when Published, 0 when no published articles
+- `get_article()` denies non-agent access to non-Published articles (unit test passes)
+- `internal_only` filter also applied to portal queries
 
 ### AC5: In Review articles visible to agents for internal reference
 **Result: PASS**
 
-- `get_agent_articles()` returns all non-Archived articles including In Review
-- Verified via API: agent sees `[{"name": "o7cqrsuh30", "title": "Introduction", "status": "In Review"}]`
-- Permission check: requires `is_agent()` (unit test: `test_get_agent_articles_requires_agent`)
-- Excludes Archived (unit test: `test_get_agent_articles_excludes_archived`)
+- `get_agent_articles()` returns non-Archived articles including In Review
+- KB agent list view shows "In Review" articles with yellow badge (verified in browser)
+- Permission check: requires `is_agent()` (unit test passes)
+- Excludes Archived (unit test passes)
 
-## Frontend Review
+## Frontend Verification (Playwright Browser Testing)
 
-- **Article.vue**: Workflow-aware buttons: "Submit for Review" (Draft), "Approve/Request Changes/Reject" (In Review, admin only), "Archive" (Published, admin only). All have `onError` handlers for toast messages.
-- **KnowledgeBaseAgent.vue**: `statusMap` includes all four statuses with color-coded badges (green=Published, orange=Draft, yellow=In Review, gray=Archived).
-- **Reviewer feedback**: Amber feedback box shown when `reviewer_comment` is present on Draft articles.
-- **Request Changes dialog**: Inline textarea form with submit/cancel buttons.
-- **Reject/Archive**: Confirmation dialog before action.
+### KB List View — Status Badges
+All four status badges verified in browser with color-coded display:
+- **Draft**: Orange text badge — Screenshot: `task-42-kb-list-draft-badge.png`
+- **In Review**: Yellow text badge — Screenshot: `task-42-kb-list-in-review-badge.png`
+- **Published**: Green text badge — Screenshot: `task-42-kb-list-published-badge.png`
+- **Archived**: (gray, not shown in list as archived articles lose category)
 
-## Issues Found
+### Article Detail View — Workflow Buttons
+- **Draft state**: "Submit for Review" button in header
+- **In Review state**: "Approve" (green), "Request Changes", "Reject" (red) buttons
+- **Published state**: "Archive" button
+- **Archived state**: No workflow buttons (only "Version History")
 
-### P1: Email notification crashes API response for Approve, Request Changes, Reject, and Archive
+### Reviewer Feedback Display
+- Amber box with "Reviewer Feedback" heading and comment text shown on Draft articles with reviewer_comment
+- Box disappears on re-submit (comment cleared)
 
-**Severity: P1 (High)** — API returns HTTP 500 to frontend even though the DB state change succeeded.
+### Confirmation Dialogs
+- **Archive**: "Archive Article" dialog with "Are you sure you want to archive this article?"
+- **Reject**: "Reject Article" dialog with "Are you sure you want to reject and archive this article?"
 
-**Root Cause:** The notification methods (`_notify_author_approved`, `_notify_author_changes_requested`, `_notify_author_rejected`) call `frappe.sendmail(delayed=False)` which raises `frappe.exceptions.ValidationError: Invalid Outgoing Mail Server or Port: [Errno 111] Connection refused` when no outgoing email account is configured.
+## Console Errors
 
-The API pattern is:
-```python
-doc.save(ignore_permissions=True)  # <-- commits to DB
-doc.on_workflow_action(ACTION)     # <-- sends email, crashes here
-return {"status": doc.status}      # <-- never reached
-```
-
-**Impact:** The frontend `onError` handler shows an error toast even though the action succeeded. User must refresh to see the correct state. This will confuse users.
-
-**Files affected:**
-- `helpdesk/api/knowledge_base.py` — lines 203, 226, 245, 264 (all `on_workflow_action` calls)
-- `helpdesk/helpdesk/doctype/hd_article/hd_article.py` — lines 150, 169, 205 (`frappe.sendmail(delayed=False)`)
-
-**Fix options:**
-1. Wrap `on_workflow_action` calls in try/except at the API level
-2. Change `delayed=False` to `delayed=True` in all notification helpers (preferred — queues email for background sending)
+All errors are infrastructure-related, **no helpdesk-specific errors**:
+- `socket.io ERR_CONNECTION_REFUSED` — socketio service not running (expected in test env)
+- `Internal error opening backing store for indexedDB.open` — headless Chrome limitation
+- Vue warnings about invalid props (pre-existing, not related to this feature)
 
 ## Unit Test Results
 
 ```
-Ran 21 tests in 1.051s — OK
+Ran 29 tests in 1.198s — OK
 
-All tests passing:
-- test_new_article_defaults_to_draft
-- test_submit_for_review_transitions_to_in_review
-- test_submit_for_review_requires_draft_status
-- test_submit_for_review_requires_agent
-- test_submit_for_review_clears_reviewer_comment
-- test_approve_transitions_to_published
-- test_approve_requires_in_review_status
-- test_approve_requires_reviewer_role
-- test_request_changes_transitions_to_draft_with_comment
-- test_request_changes_requires_non_empty_comment
-- test_request_changes_requires_reviewer_role
-- test_reject_transitions_to_archived
-- test_reject_requires_reviewer_role
-- test_archive_transitions_to_archived
-- test_archive_requires_published_status
-- test_get_agent_articles_includes_in_review
-- test_get_agent_articles_excludes_archived
-- test_get_agent_articles_requires_agent
-- test_get_article_allows_agent_access_to_in_review
-- test_get_article_denies_non_agent_access_to_in_review
-- test_get_category_articles_returns_only_published
+TestHDArticleReviewReminder (8 tests):
+  test_send_review_reminders_sends_email_for_overdue
+  test_send_review_reminders_skips_non_published
+  ... (all pass)
+
+TestHDArticleReviewWorkflow (21 tests):
+  test_new_article_defaults_to_draft
+  test_submit_for_review_transitions_to_in_review
+  test_submit_for_review_requires_draft_status
+  test_submit_for_review_requires_agent
+  test_submit_for_review_clears_reviewer_comment
+  test_approve_transitions_to_published
+  test_approve_requires_in_review_status
+  test_approve_requires_reviewer_role
+  test_request_changes_transitions_to_draft_with_comment
+  test_request_changes_requires_non_empty_comment
+  test_request_changes_requires_reviewer_role
+  test_reject_transitions_to_archived
+  test_reject_requires_reviewer_role
+  test_archive_transitions_to_archived
+  test_archive_requires_published_status
+  test_get_agent_articles_includes_in_review
+  test_get_agent_articles_excludes_archived
+  test_get_agent_articles_requires_agent
+  test_get_article_allows_agent_access_to_in_review
+  test_get_article_denies_non_agent_access_to_in_review
+  test_get_category_articles_returns_only_published
 ```
+
+## Issues Found
+
+**No P0 or P1 issues found.**
+
+The previously reported P1 email notification crash has been fixed:
+- `frappe.sendmail` now uses `delayed=True` (background queuing)
+- API endpoints wrap `on_workflow_action` in try/except with `frappe.log_error`
 
 ## Summary
 
 | AC | Result | Notes |
 |----|--------|-------|
-| AC1: Lifecycle states | PASS | All transitions work, 21 unit tests pass |
-| AC2: Submit for Review | PASS | Correct transition, notification code present |
-| AC3: Approve/Changes/Reject | PARTIAL PASS (P1) | State changes work; email crashes API response |
+| AC1: Lifecycle states | PASS | All transitions verified in browser, 29 unit tests pass |
+| AC2: Submit for Review | PASS | Correct transition, email notification resilient |
+| AC3: Approve/Changes/Reject | PASS | All actions tested in browser with correct toasts |
 | AC4: Portal visibility | PASS | Only Published shown to non-agents |
-| AC5: Agent In Review visibility | PASS | get_agent_articles includes In Review |
+| AC5: Agent In Review visibility | PASS | KB list shows In Review articles with yellow badge |
 
-**Overall: PARTIAL PASS — 1 P1 issue found requiring fix**
+**Overall: PASS — All acceptance criteria met. No P0/P1 issues.**
