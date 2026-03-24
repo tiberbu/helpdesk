@@ -166,7 +166,7 @@ class HDArticle(Document):
             recipients=reviewer_emails,
             subject=subject,
             message=message,
-            delayed=False,
+            delayed=True,
         )
 
     def _notify_author_approved(self):
@@ -185,7 +185,7 @@ class HDArticle(Document):
             recipients=[author_email],
             subject=subject,
             message=message,
-            delayed=False,
+            delayed=True,
         )
 
     def _notify_author_changes_requested(self):
@@ -206,7 +206,7 @@ class HDArticle(Document):
             recipients=[author_email],
             subject=subject,
             message=message,
-            delayed=False,
+            delayed=True,
         )
 
     def _notify_author_rejected(self):
@@ -223,7 +223,7 @@ class HDArticle(Document):
             recipients=[author_email],
             subject=subject,
             message=message,
-            delayed=False,
+            delayed=True,
         )
 
     @staticmethod
