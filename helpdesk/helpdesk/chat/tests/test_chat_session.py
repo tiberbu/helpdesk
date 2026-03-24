@@ -114,10 +114,12 @@ class TestCreateSession(FrappeTestCase):
 
     def setUp(self):
         frappe.set_user("Administrator")
+        _enable_chat()
         self._sessions = []
 
     def tearDown(self):
         frappe.set_user("Administrator")
+        _disable_chat()
         for s in self._sessions:
             _cleanup_session(s)
         frappe.db.commit()  # nosemgrep
