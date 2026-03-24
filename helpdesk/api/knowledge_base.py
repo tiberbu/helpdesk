@@ -52,8 +52,6 @@ def get_article(name: str):
         "internal_only": article.get("internal_only", 0),
     }
 
-    return article
-
 
 @frappe.whitelist()
 def delete_articles(articles: list[str]):

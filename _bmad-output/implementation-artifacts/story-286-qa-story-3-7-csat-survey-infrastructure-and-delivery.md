@@ -1,17 +1,17 @@
-# Story: QA: Story 5.1: Article Review Workflow
+# Story: QA: Story 3.7: CSAT Survey Infrastructure and Delivery
 
-Status: done
-Task ID: mn4ej0n521s492
-Task Number: #284
+Status: in-progress
+Task ID: mn4eu3t2p8dfsu
+Task Number: #286
 Workflow: playwright-qa
 Model: opus
-Created: 2026-03-24T09:18:19.282Z
+Created: 2026-03-24T09:31:49.313Z
 
 ## Description
 
 ## QA Report Task — DO NOT MODIFY CODE
 
-**Review task #42: Story 5.1: Article Review Workflow**
+**Review task #36: Story 3.7: CSAT Survey Infrastructure and Delivery**
 **QA Depth: 1/1** (max depth reached = no further QA cycles)
 
 ### MANDATORY: Use Playwright MCP for ALL browser testing
@@ -31,7 +31,7 @@ Start by navigating to the app: `mcp__playwright__browser_navigate` with url `ht
 Then login with credentials from docs/testing-info.md (or use: Administrator / admin)
 
 ### What to verify
-Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-42-story-5-1-article-review-workflow.md`
+Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-36-story-3-7-csat-survey-infrastructure-and-delivery.md`
 
 ### Files changed
 (check git diff for changes)
@@ -48,7 +48,7 @@ Read the story file for acceptance criteria: `_bmad-output/implementation-artifa
 5. Verify no console errors
 
 ### Deliverable
-Produce `docs/qa-report-task-42.md` with:
+Produce `docs/qa-report-task-36.md` with:
 - Each AC: PASS/FAIL with evidence
 - Screenshots referenced (use task-prefixed naming)
 - Console errors captured
@@ -70,13 +70,13 @@ Create the fix task using:
 curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type: application/json" -d @- <<'TASK_JSON'
 {
   "title": "Fix: [story title] — [1-line summary of all issues]",
-  "description": "## Fix Task (from QA report docs/qa-report-task-42.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
+  "description": "## Fix Task (from QA report docs/qa-report-task-36.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
   "workdir": "/home/ubuntu/bmad-project/helpdesk",
   "status": "bmad_workflow",
   "notes": "[bmad-workflow:quick-dev]",
   "model": "sonnet",
   "max_turns": 60,
-  "chain_id": "epic-5-knowledge-base"
+  "chain_id": "epic-3-omnichannel"
 }
 TASK_JSON
 ```
@@ -127,7 +127,7 @@ TASK_JSON
 
 ### References
 
-- Task source: Claude Code Studio task #284
+- Task source: Claude Code Studio task #286
 
 ## Dev Agent Record
 
@@ -137,33 +137,7 @@ opus
 
 ### Completion Notes List
 
-**Completed:** 2026-03-24T09:30:24.983Z
-
-ctions
-5. Take screenshots
-6. Check console for errors
-7. Test each AC from the story file
-8. Check for regressions
-9. Verify no console errors
-10. Produce `docs/qa-report-task-42.md` with AC results, screenshots, console errors, severity ratings
-11. Create ONE consolidated fix task for P0/P1 failures
-
-### Step 2 — Proof of Completion```
-VERIFICATION:
-✅ [Req 1 - Playwright navigate]: Navigated to http://help.frappe.local, then /helpdesk/kb
-✅ [Req 2 - Login]: Logged in as Administrator (auto-authenticated via Frappe desktop)
-✅ [Req 3 - Navigate to feature pages]: KB list (/helpdesk/kb) and article detail pages tested
-✅ [Req 4 - Test each AC via Playwright]: All 5 ACs tested with browser clicks, form fills, screenshots
-✅ [Req 5 - Screenshots]: 19 task-42-*.png screenshots taken
-✅ [Req 6 - Console errors]: Checked via mcp__playwright__browser_console_messages — only socket.io/indexedDB infra errors, no feature errors
-✅ [Req 7 - All ACs from story]: AC1-AC5 all PASS
-✅ [Req 8 - Regressions]: No regressions found; 29 unit tests pass
-✅ [Req 9 - No feature console errors]: Confirmed
-✅ [Req 10 - QA report]: docs/qa-report-task-42.md written with all ACs, screenshots, console errors, severity ratings
-✅ [Req 11 - Fix task]: ONE fix task created (#287) for P1 archive-wipes-category bug
-🌐 [Browser tests]: Draft→In Review→Published→Archived lifecycle fully tested via Playwright with screenshots at each state
-FINAL: ✅ All requirements verified. 1 P1 issue found → fix task #287 created.
-```
+_(Updated by agent on completion)_
 
 ### Change Log
 

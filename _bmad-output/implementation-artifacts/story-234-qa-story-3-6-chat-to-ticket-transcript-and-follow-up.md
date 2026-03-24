@@ -121,14 +121,15 @@ opus
 ### Completion Notes List
 
 - QA completed: All 3 acceptance criteria PASS. 20/20 Story 3.6 tests pass. 294/296 full regression (2 pre-existing failures from Story 3.5).
-- One P2 issue found: Frontend source badge not synced to bench copy (visual only, no fix task per rules).
-- Playwright MCP tools were not available in this environment; testing done via unit tests, bench console, and curl API.
+- Playwright MCP browser testing confirmed: "Chat" badge visible on ticket #190 sidebar, ticket status "Open", no Story 3.6-related console errors.
+- Frontend source badge verified working in live browser (was previously flagged P2 but confirmed deployed and rendering correctly).
 
 ### Change Log
 
 | Date | Change |
 |------|--------|
 | 2026-03-23 | Created QA report: docs/qa-report-task-35.md |
+| 2026-03-24 | Updated QA report with Playwright browser test results — Chat badge confirmed visible |
 
 ### File List
 

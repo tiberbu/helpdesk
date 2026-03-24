@@ -40,9 +40,6 @@ class HDArticle(Document):
         elif self.status == "Draft" and self.published_on:
             self.published_on = None
 
-        if self.status == "Archived" and self.category != None:
-            self.category = None
-
         # index is only set if its not set already, this allows defining index
         # at the time of creation itself if not set the index is set to the
         # last index + 1, i.e. the hd_article is added at the end
