@@ -41,6 +41,7 @@
   "base_support_rotation",
   "knowledge_base_section",
   "prefer_knowledge_base",
+  "kb_reviewers",
   "ticket_tab",
   "ticket_type_section",
   "default_ticket_type",
@@ -381,6 +382,13 @@
    "fieldname": "prefer_knowledge_base",
    "fieldtype": "Check",
    "label": "Prefer knowledge base"
+  },
+  {
+   "description": "Users who receive email notifications when an article is submitted for review.",
+   "fieldname": "kb_reviewers",
+   "fieldtype": "Table",
+   "label": "Article Reviewers",
+   "options": "HD KB Reviewer"
   },
   {
    "fieldname": "priority_section",

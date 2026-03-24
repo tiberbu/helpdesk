@@ -6,6 +6,13 @@ from frappe.utils import get_user_info_for_avatar
 
 from helpdesk.utils import is_agent
 
+# Allowed workflow transitions callable from the Vue frontend
+_SUBMIT_FOR_REVIEW = "Submit for Review"
+_APPROVE = "Approve"
+_REQUEST_CHANGES = "Request Changes"
+_REJECT = "Reject"
+_ARCHIVE = "Archive"
+
 
 @frappe.whitelist(allow_guest=True)
 def get_article(name: str):
@@ -38,6 +45,7 @@ def get_article(name: str):
         ),
         "category_id": article.category,
         "feedback": int(feedback),
+        "reviewer_comment": article.reviewer_comment,
     }
 
     return article
@@ -151,3 +159,136 @@ def increment_views(article: str):
     views = frappe.db.get_value("HD Article", article, "views") or 0
     views += 1
     frappe.db.set_value("HD Article", article, "views", views, update_modified=False)
+
+
+@frappe.whitelist()
+def submit_for_review(article: str) -> dict:
+    """Transition article from Draft to In Review. Callable by agents/authors.
+
+    Sends email notification to all configured KB reviewers.
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    doc = frappe.get_doc("HD Article", article)
+    if doc.status != "Draft":
+        frappe.throw(
+            _("Only Draft articles can be submitted for review. Current status: {0}").format(
+                doc.status
+            )
+        )
+
+    doc.status = "In Review"
+    doc.reviewer_comment = None
+    doc.save(ignore_permissions=True)
+    doc.on_workflow_action(_SUBMIT_FOR_REVIEW)
+    return {"status": doc.status}
+
+
+@frappe.whitelist()
+def approve_article(article: str) -> dict:
+    """Transition article from In Review to Published. Restricted to HD Admin/System Manager."""
+    _require_reviewer_role()
+
+    doc = frappe.get_doc("HD Article", article)
+    if doc.status != "In Review":
+        frappe.throw(
+            _("Only In Review articles can be approved. Current status: {0}").format(
+                doc.status
+            )
+        )
+
+    doc.status = "Published"
+    doc.save(ignore_permissions=True)
+    doc.on_workflow_action(_APPROVE)
+    return {"status": doc.status}
+
+
+@frappe.whitelist()
+def request_changes(article: str, comment: str) -> dict:
+    """Transition article from In Review back to Draft with a reviewer comment."""
+    _require_reviewer_role()
+
+    if not comment or not comment.strip():
+        frappe.throw(_("A reviewer comment is required when requesting changes."))
+
+    doc = frappe.get_doc("HD Article", article)
+    if doc.status != "In Review":
+        frappe.throw(
+            _("Only In Review articles can have changes requested. Current status: {0}").format(
+                doc.status
+            )
+        )
+
+    doc.status = "Draft"
+    doc.reviewer_comment = comment.strip()
+    doc.save(ignore_permissions=True)
+    doc.on_workflow_action(_REQUEST_CHANGES)
+    return {"status": doc.status}
+
+
+@frappe.whitelist()
+def reject_article(article: str) -> dict:
+    """Transition article from In Review to Archived (rejected)."""
+    _require_reviewer_role()
+
+    doc = frappe.get_doc("HD Article", article)
+    if doc.status != "In Review":
+        frappe.throw(
+            _("Only In Review articles can be rejected. Current status: {0}").format(
+                doc.status
+            )
+        )
+
+    doc.status = "Archived"
+    doc.save(ignore_permissions=True)
+    doc.on_workflow_action(_REJECT)
+    return {"status": doc.status}
+
+
+@frappe.whitelist()
+def archive_article(article: str) -> dict:
+    """Transition article from Published to Archived."""
+    _require_reviewer_role()
+
+    doc = frappe.get_doc("HD Article", article)
+    if doc.status != "Published":
+        frappe.throw(
+            _("Only Published articles can be archived. Current status: {0}").format(
+                doc.status
+            )
+        )
+
+    doc.status = "Archived"
+    doc.save(ignore_permissions=True)
+    doc.on_workflow_action(_ARCHIVE)
+    return {"status": doc.status}
+
+
+@frappe.whitelist()
+def get_agent_articles(category: str = None) -> list[dict]:
+    """Return all non-archived articles visible to agents (includes In Review).
+
+    AC #8: In Review articles are visible to agents for internal reference.
+    """
+    if not is_agent():
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    filters = {"status": ["!=", "Archived"]}
+    if category:
+        filters["category"] = category
+
+    articles = frappe.get_all(
+        "HD Article",
+        filters=filters,
+        fields=["name", "title", "status", "author", "modified", "category"],
+        order_by="modified desc",
+    )
+    return articles
+
+
+def _require_reviewer_role():
+    """Ensure the calling user has System Manager or HD Admin role."""
+    user_roles = set(frappe.get_roles(frappe.session.user))
+    if not user_roles & {"System Manager", "HD Admin"}:
+        frappe.throw(_("Only reviewers (HD Admin or System Manager) can perform this action."), frappe.PermissionError)

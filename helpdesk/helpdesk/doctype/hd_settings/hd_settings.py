@@ -168,6 +168,18 @@ class HDSettings(Document):
                 continue
             validate_template(getattr(self, content_field_name))
 
+    def get_kb_reviewer_emails(self) -> list[str]:
+        """Return list of reviewer email addresses configured in HD Settings.
+
+        Called by HDArticle notification helpers when an article is submitted for review.
+        """
+        emails = []
+        for row in self.get("kb_reviewers") or []:
+            if row.user:
+                email = frappe.db.get_value("User", row.user, "email") or row.user
+                emails.append(email)
+        return emails
+
     @property
     def hd_search(self):
         from helpdesk.api.article import search

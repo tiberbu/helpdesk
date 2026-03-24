@@ -1,0 +1,79 @@
+[
+ {
+  "doctype": "Workflow",
+  "name": "HD Article Review Workflow",
+  "workflow_name": "HD Article Review Workflow",
+  "document_type": "HD Article",
+  "workflow_state_field": "status",
+  "is_active": 0,
+  "send_email_alert": 0,
+  "states": [
+   {
+    "doctype": "Workflow Document State",
+    "state": "Draft",
+    "doc_status": "0",
+    "allow_edit": "Agent"
+   },
+   {
+    "doctype": "Workflow Document State",
+    "state": "In Review",
+    "doc_status": "0",
+    "allow_edit": "HD Admin"
+   },
+   {
+    "doctype": "Workflow Document State",
+    "state": "Published",
+    "doc_status": "0",
+    "allow_edit": "HD Admin"
+   },
+   {
+    "doctype": "Workflow Document State",
+    "state": "Archived",
+    "doc_status": "0",
+    "allow_edit": "HD Admin"
+   }
+  ],
+  "transitions": [
+   {
+    "doctype": "Workflow Transition",
+    "state": "Draft",
+    "action": "Submit for Review",
+    "next_state": "In Review",
+    "allowed": "Agent",
+    "allow_self_approval": 1
+   },
+   {
+    "doctype": "Workflow Transition",
+    "state": "In Review",
+    "action": "Approve",
+    "next_state": "Published",
+    "allowed": "System Manager",
+    "allow_self_approval": 1
+   },
+   {
+    "doctype": "Workflow Transition",
+    "state": "In Review",
+    "action": "Request Changes",
+    "next_state": "Draft",
+    "allowed": "System Manager",
+    "allow_self_approval": 1
+   },
+   {
+    "doctype": "Workflow Transition",
+    "state": "In Review",
+    "action": "Reject",
+    "next_state": "Archived",
+    "allowed": "System Manager",
+    "allow_self_approval": 1
+   },
+   {
+    "doctype": "Workflow Transition",
+    "state": "Published",
+    "action": "Archive",
+    "next_state": "Archived",
+    "allowed": "System Manager",
+    "allow_self_approval": 1
+   }
+  ]
+ }
+]

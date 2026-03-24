@@ -57,6 +57,7 @@ scheduler_events = {
     "daily": [
         "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days",
         "helpdesk.helpdesk.doctype.hd_automation_log.cleanup.purge_old_logs",
+        "helpdesk.helpdesk.doctype.hd_article.review_reminder.send_review_reminders",
     ],
 }
 
@@ -134,4 +135,5 @@ auth_hooks = ["helpdesk.auth.authenticate"]
 # --------
 fixtures = [
     {"dt": "HD Incident Model"},
+    {"dt": "Workflow", "filters": [["document_type", "=", "HD Article"]]},
 ]

@@ -15,7 +15,9 @@
   "author",
   "title_slug",
   "content_section",
-  "content"
+  "content",
+  "reviewer_comment_section",
+  "reviewer_comment"
  ],
  "fields": [
   {
@@ -71,7 +73,20 @@
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Published\nDraft\nArchived"
+   "options": "Draft\nIn Review\nPublished\nArchived"
+  },
+  {
+   "depends_on": "eval:doc.reviewer_comment",
+   "fieldname": "reviewer_comment_section",
+   "fieldtype": "Section Break",
+   "label": "Reviewer Feedback"
+  },
+  {
+   "description": "Comment from reviewer when requesting changes.",
+   "fieldname": "reviewer_comment",
+   "fieldtype": "Text",
+   "label": "Reviewer Comment",
+   "read_only": 1
   },
   {
    "fieldname": "title_slug",

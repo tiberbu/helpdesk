@@ -4,9 +4,16 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint
+from frappe.utils import cint, get_url
 
 from helpdesk.utils import capture_event
+
+# Workflow action name constants
+_ACTION_SUBMIT_FOR_REVIEW = "Submit for Review"
+_ACTION_APPROVE = "Approve"
+_ACTION_REQUEST_CHANGES = "Request Changes"
+_ACTION_REJECT = "Reject"
+_ACTION_ARCHIVE = "Archive"
 
 
 class HDArticle(Document):
@@ -63,6 +70,103 @@ class HDArticle(Document):
         category_articles = frappe.db.count("HD Article", {"category": category})
         if category_articles == 1:
             frappe.throw(_("Category must have atleast one article"))
+
+    def on_workflow_action(self, action: str):
+        """Called by Frappe workflow engine after a workflow transition.
+
+        Routes to the appropriate notification helper based on the action name.
+        """
+        if action == _ACTION_SUBMIT_FOR_REVIEW:
+            self._notify_reviewers_for_review()
+        elif action == _ACTION_APPROVE:
+            self._notify_author_approved()
+        elif action == _ACTION_REQUEST_CHANGES:
+            self._notify_author_changes_requested()
+        elif action == _ACTION_REJECT:
+            self._notify_author_rejected()
+
+    def _get_article_url(self) -> str:
+        """Return agent workspace URL for this article."""
+        return get_url(f"/helpdesk/kb/articles/{self.name}")
+
+    def _notify_reviewers_for_review(self):
+        """Send email to all configured KB reviewers when article is submitted for review."""
+        settings = frappe.get_single("HD Settings")
+        reviewer_emails = settings.get_kb_reviewer_emails()
+        if not reviewer_emails:
+            return
+
+        author_name = frappe.db.get_value("User", self.author, "full_name") or self.author
+        article_url = self._get_article_url()
+        subject = _("Article submitted for review: {0}").format(self.title)
+        message = _(
+            "The article <b>{0}</b> has been submitted for review by {1}.<br><br>"
+            '<a href="{2}">Review Article</a>'
+        ).format(self.title, author_name, article_url)
+
+        frappe.sendmail(
+            recipients=reviewer_emails,
+            subject=subject,
+            message=message,
+            delayed=False,
+        )
+
+    def _notify_author_approved(self):
+        """Send email to article author when article is approved (Published)."""
+        if not self.author:
+            return
+        author_email = frappe.db.get_value("User", self.author, "email") or self.author
+        article_url = self._get_article_url()
+        subject = _("Your article '{0}' has been published").format(self.title)
+        message = _(
+            "Your article <b>{0}</b> has been reviewed and published.<br><br>"
+            '<a href="{1}">View Article</a>'
+        ).format(self.title, article_url)
+
+        frappe.sendmail(
+            recipients=[author_email],
+            subject=subject,
+            message=message,
+            delayed=False,
+        )
+
+    def _notify_author_changes_requested(self):
+        """Send email to article author when changes are requested."""
+        if not self.author:
+            return
+        author_email = frappe.db.get_value("User", self.author, "email") or self.author
+        article_url = self._get_article_url()
+        comment = self.reviewer_comment or ""
+        subject = _("Changes requested for '{0}'").format(self.title)
+        message = _(
+            "Changes have been requested for your article <b>{0}</b>.<br><br>"
+            "{1}<br><br>"
+            '<a href="{2}">View Article</a>'
+        ).format(self.title, comment, article_url)
+
+        frappe.sendmail(
+            recipients=[author_email],
+            subject=subject,
+            message=message,
+            delayed=False,
+        )
+
+    def _notify_author_rejected(self):
+        """Send email to article author when article is rejected (Archived)."""
+        if not self.author:
+            return
+        author_email = frappe.db.get_value("User", self.author, "email") or self.author
+        subject = _("Your article '{0}' has been archived (rejected)").format(self.title)
+        message = _(
+            "Your article <b>{0}</b> has been reviewed and rejected (archived)."
+        ).format(self.title)
+
+        frappe.sendmail(
+            recipients=[author_email],
+            subject=subject,
+            message=message,
+            delayed=False,
+        )
 
     @staticmethod
     def default_list_data():

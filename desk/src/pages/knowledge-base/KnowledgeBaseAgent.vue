@@ -419,6 +419,10 @@ const statusMap = {
     label: __("Draft"),
     theme: "orange",
   },
+  "In Review": {
+    label: __("In Review"),
+    theme: "yellow",
+  },
   Archived: {
     label: __("Archived"),
     theme: "gray",

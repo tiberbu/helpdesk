@@ -7,14 +7,42 @@
         </div>
       </template>
       <template #right-header v-if="!isCustomerPortal">
-        <!-- Default Buttons -->
+        <!-- Workflow action buttons (non-edit mode) -->
         <div class="flex gap-2" v-if="!editable">
+          <!-- Draft: agent can submit for review -->
           <Button
-            :label="
-              article.data?.status === 'Draft' ? __('Publish') : __('Unpublish')
-            "
-            :iconLeft="article.data?.status !== 'Published' && 'globe'"
-            @click="toggleStatus()"
+            v-if="article.data?.status === 'Draft'"
+            :label="__('Submit for Review')"
+            iconLeft="send"
+            @click="handleSubmitForReview()"
+          />
+          <!-- In Review: reviewer can approve, request changes, or reject -->
+          <template v-if="article.data?.status === 'In Review' && isAdmin">
+            <Button
+              :label="__('Approve')"
+              iconLeft="check"
+              variant="solid"
+              theme="green"
+              @click="handleApprove()"
+            />
+            <Button
+              :label="__('Request Changes')"
+              iconLeft="edit"
+              @click="requestChangesVisible = true"
+            />
+            <Button
+              :label="__('Reject')"
+              iconLeft="x"
+              theme="red"
+              @click="handleReject()"
+            />
+          </template>
+          <!-- Published: reviewer can archive -->
+          <Button
+            v-if="article.data?.status === 'Published' && isAdmin"
+            :label="__('Archive')"
+            iconLeft="archive"
+            @click="handleArchive()"
           />
         </div>
       </template>
@@ -104,6 +132,31 @@
           </template>
         </TextEditor>
       </div>
+      <!-- Reviewer comment (shown in Draft status when feedback was left) -->
+      <div
+        v-if="article.data?.reviewer_comment && article.data?.status === 'Draft'"
+        class="mx-4 mb-2 p-3 rounded-lg border border-amber-300 bg-amber-50 text-sm text-amber-800"
+      >
+        <div class="font-medium mb-1">{{ __("Reviewer Feedback") }}</div>
+        <div class="whitespace-pre-line">{{ article.data.reviewer_comment }}</div>
+      </div>
+      <!-- Request Changes inline form -->
+      <div
+        v-if="requestChangesVisible"
+        class="mx-4 mb-2 p-3 rounded-lg border border-gray-200 flex flex-col gap-2"
+      >
+        <div class="text-sm font-medium text-gray-700">{{ __("Reviewer Comment") }}</div>
+        <textarea
+          v-model="requestChangesComment"
+          class="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+          rows="3"
+          :placeholder="__('Describe the changes needed...')"
+        />
+        <div class="flex gap-2 justify-end">
+          <Button :label="__('Cancel')" @click="requestChangesVisible = false; requestChangesComment = ''" />
+          <Button :label="__('Submit')" variant="solid" @click="handleRequestChanges()" />
+        </div>
+      </div>
       <div class="p-4" v-if="isCustomerPortal">
         <ArticleFeedback :feedback="feedback" :article-id="articleId" />
       </div>
@@ -139,7 +192,6 @@ import {
   Breadcrumbs,
   Button,
   createResource,
-  debounce,
   Dropdown,
   TextEditor,
   TextEditorFixedMenu,
@@ -163,6 +215,7 @@ const { $dialog } = globalStore();
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const { isAdmin } = authStore;
 
 const editorRef = ref(null);
 const editable = ref(route.query.isEdit ?? false);
@@ -228,25 +281,135 @@ function incrementArticleViews(articleId: string) {
   );
 }
 
-const toggleStatus = debounce(() => {
-  const status = article.data?.status === "Published" ? "Draft" : "Published";
-  updateArticle.submit(
-    {
-      doctype: "HD Article",
-      name: article.data.name,
-      fieldname: "status",
-      value: status,
-    },
-    {
-      onSuccess: () => {
-        article.reload();
-      },
-    }
-  );
-}, 300);
 const isDirty = ref(false);
 
 const moveToModal = ref(false);
+const requestChangesVisible = ref(false);
+const requestChangesComment = ref("");
+
+const workflowSubmitForReview = createResource({
+  url: "helpdesk.api.knowledge_base.submit_for_review",
+});
+const workflowApprove = createResource({
+  url: "helpdesk.api.knowledge_base.approve_article",
+});
+const workflowRequestChanges = createResource({
+  url: "helpdesk.api.knowledge_base.request_changes",
+});
+const workflowReject = createResource({
+  url: "helpdesk.api.knowledge_base.reject_article",
+});
+const workflowArchive = createResource({
+  url: "helpdesk.api.knowledge_base.archive_article",
+});
+
+function handleSubmitForReview() {
+  workflowSubmitForReview.submit(
+    { article: article.data.name },
+    {
+      onSuccess: () => {
+        toast.success(__("Article submitted for review"));
+        article.reload();
+      },
+      onError: (err: Error) => {
+        toast.error(err?.messages?.[0] || err.message);
+      },
+    }
+  );
+}
+
+function handleApprove() {
+  workflowApprove.submit(
+    { article: article.data.name },
+    {
+      onSuccess: () => {
+        toast.success(__("Article approved and published"));
+        article.reload();
+      },
+      onError: (err: Error) => {
+        toast.error(err?.messages?.[0] || err.message);
+      },
+    }
+  );
+}
+
+function handleRequestChanges() {
+  if (!requestChangesComment.value.trim()) {
+    toast.error(__("Please provide a reviewer comment."));
+    return;
+  }
+  workflowRequestChanges.submit(
+    { article: article.data.name, comment: requestChangesComment.value },
+    {
+      onSuccess: () => {
+        toast.success(__("Changes requested"));
+        requestChangesVisible.value = false;
+        requestChangesComment.value = "";
+        article.reload();
+      },
+      onError: (err: Error) => {
+        toast.error(err?.messages?.[0] || err.message);
+      },
+    }
+  );
+}
+
+function handleReject() {
+  $dialog({
+    title: __("Reject Article"),
+    message: __("Are you sure you want to reject and archive this article?"),
+    actions: [
+      {
+        label: __("Confirm"),
+        variant: "solid",
+        theme: "red",
+        onClick({ close }) {
+          workflowReject.submit(
+            { article: article.data.name },
+            {
+              onSuccess: () => {
+                toast.success(__("Article rejected"));
+                article.reload();
+              },
+              onError: (err: Error) => {
+                toast.error(err?.messages?.[0] || err.message);
+              },
+            }
+          );
+          close();
+        },
+      },
+    ],
+  });
+}
+
+function handleArchive() {
+  $dialog({
+    title: __("Archive Article"),
+    message: __("Are you sure you want to archive this article?"),
+    actions: [
+      {
+        label: __("Confirm"),
+        variant: "solid",
+        onClick({ close }) {
+          workflowArchive.submit(
+            { article: article.data.name },
+            {
+              onSuccess: () => {
+                toast.success(__("Article archived"));
+                article.reload();
+              },
+              onError: (err: Error) => {
+                toast.error(err?.messages?.[0] || err.message);
+              },
+            }
+          );
+          close();
+        },
+      },
+    ],
+  });
+}
 
 function handleMoveToCategory(category: string) {
   moveToCategory.submit(
