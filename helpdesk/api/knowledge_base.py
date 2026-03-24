@@ -311,7 +311,7 @@ def get_article_versions(article: str) -> list[dict]:
     versions = frappe.get_all(
         "HD Article Version",
         filters={"article": article},
-        fields=["name", "version_number", "title", "author", "timestamp", "change_summary"],
+        fields=["name", "version_number", "title", "author", "timestamp", "change_summary", "content"],
         order_by="version_number desc",
     )
 
