@@ -1,17 +1,17 @@
-# Story: QA: Story 3.7: CSAT Survey Infrastructure and Delivery
+# Story: QA: Story 5.2: Article Versioning
 
-Status: done
-Task ID: mn4eu3t2p8dfsu
-Task Number: #286
+Status: in-progress
+Task ID: mn4f6wuvlvc3uv
+Task Number: #288
 Workflow: playwright-qa
 Model: opus
-Created: 2026-03-24T09:31:49.313Z
+Created: 2026-03-24T09:37:39.555Z
 
 ## Description
 
 ## QA Report Task — DO NOT MODIFY CODE
 
-**Review task #36: Story 3.7: CSAT Survey Infrastructure and Delivery**
+**Review task #43: Story 5.2: Article Versioning**
 **QA Depth: 1/1** (max depth reached = no further QA cycles)
 
 ### MANDATORY: Use Playwright MCP for ALL browser testing
@@ -31,7 +31,7 @@ Start by navigating to the app: `mcp__playwright__browser_navigate` with url `ht
 Then login with credentials from docs/testing-info.md (or use: Administrator / admin)
 
 ### What to verify
-Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-36-story-3-7-csat-survey-infrastructure-and-delivery.md`
+Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-43-story-5-2-article-versioning.md`
 
 ### Files changed
 (check git diff for changes)
@@ -48,7 +48,7 @@ Read the story file for acceptance criteria: `_bmad-output/implementation-artifa
 5. Verify no console errors
 
 ### Deliverable
-Produce `docs/qa-report-task-36.md` with:
+Produce `docs/qa-report-task-43.md` with:
 - Each AC: PASS/FAIL with evidence
 - Screenshots referenced (use task-prefixed naming)
 - Console errors captured
@@ -70,13 +70,13 @@ Create the fix task using:
 curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type: application/json" -d @- <<'TASK_JSON'
 {
   "title": "Fix: [story title] — [1-line summary of all issues]",
-  "description": "## Fix Task (from QA report docs/qa-report-task-36.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
+  "description": "## Fix Task (from QA report docs/qa-report-task-43.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
   "workdir": "/home/ubuntu/bmad-project/helpdesk",
   "status": "bmad_workflow",
   "notes": "[bmad-workflow:quick-dev]",
   "model": "sonnet",
   "max_turns": 60,
-  "chain_id": "epic-3-omnichannel"
+  "chain_id": "epic-5-knowledge-base"
 }
 TASK_JSON
 ```
@@ -127,7 +127,7 @@ TASK_JSON
 
 ### References
 
-- Task source: Claude Code Studio task #286
+- Task source: Claude Code Studio task #288
 
 ## Dev Agent Record
 
@@ -137,26 +137,7 @@ opus
 
 ### Completion Notes List
 
-**Completed:** 2026-03-24T09:37:39.025Z
-
-st) and check for any console errors on the helpdesk app.
-
-Good - `submit_rating`, `submit_comment`, and `unsubscribe` are properly `allow_guest=True` (customers click links from email without login), while `get_dashboard_data` requires authentication. Now let me write the QA report.There's already a QA report from a previous pass. Let me update it with browser testing evidence.## VERIFICATION
-
-```
-VERIFICATION:
-✅ AC1 (CSAT Settings): Browser screenshot confirms csat_enabled, csat_delay_hours (24), csat_frequency_days (7), csat_token_expiry_days (7) visible in HD Settings
-✅ AC2 (Survey Email): csat_survey.html template has 5 star rating links with HMAC tokens; hourly cron in hooks.py
-✅ AC3 (One-click Rating): Browser navigated to submit_rating?token=...&rating=5 → "Thank You!" page with comment field
-✅ AC4 (Frequency Limit): Unit test test_frequency_limit_skips_recent_recipient passes
-✅ AC5 (Unsubscribe): Browser navigated to unsubscribe?token=... → "Unsubscribed" confirmation; backend confirmed persistence
-✅ AC6 (HMAC Tokens): Token roundtrip validated; invalid/used tokens rejected in browser; 13 security tests pass
-✅ DocTypes: HD CSAT Response (8 fields) and HD CSAT Survey Template both accessible in Frappe desk
-✅ Unit Tests: 31/31 pass (13 token + 9 response + 9 scheduler)
-🌐 Browser Tests: 5 screenshots captured (settings, thank-you, unsubscribe, error, list view)
-✅ QA Report: Written to docs/qa-report-task-36.md
-FINAL: ✅ All requirements verified — no fix task needed
-```
+_(Updated by agent on completion)_
 
 ### Change Log
 

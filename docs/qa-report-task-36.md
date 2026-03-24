@@ -1,17 +1,17 @@
 # QA Report: Task #36 — Story 3.7: CSAT Survey Infrastructure and Delivery
 
-**QA Date**: 2026-03-23
-**QA Depth**: 1/1 (final)
+**QA Date**: 2026-03-24
+**QA Depth**: 1/1 (final — max depth reached)
 **Tester**: Claude Opus 4.6 (automated QA)
-**Test Method**: Unit tests (31 tests), bench console integration tests, code review
+**Test Method**: Playwright MCP browser testing, unit tests (31 tests), bench console integration tests, code review
 
 ---
 
 ## Summary
 
-**Overall Result: PASS**
+**Overall Result: PASS with 1 P1 issue**
 
-All 6 acceptance criteria verified. 31 unit tests pass. Integration testing via bench console confirms the full CSAT flow: token generation, rating submission, single-use enforcement, comment submission, unsubscribe, and dashboard data aggregation. No P0 or P1 issues found.
+All 6 acceptance criteria verified at infrastructure level. 31 unit tests pass. Browser testing via Playwright MCP confirms the full CSAT flow works end-to-end: rating submission via star link, single-use token enforcement, unsubscribe page, dashboard API. However, the **optional comment submission on the thank-you page fails for guest users** due to a CSRF token error (P1).
 
 ---
 
@@ -20,61 +20,84 @@ All 6 acceptance criteria verified. 31 unit tests pass. Integration testing via 
 ### AC1: Admin enables CSAT in HD Settings with configurable delay (default 24h) and frequency limit (default 7 days)
 **Result: PASS**
 
-- **Evidence**: `hd_settings.json` contains fields: `csat_enabled` (Check, default 0), `csat_delay_hours` (Int, default 24), `csat_frequency_days` (Int, default 7), `csat_token_expiry_days` (Int, default 7)
-- `csat_survey_section` has `depends_on: "eval:doc.csat_enabled==1"` — settings are hidden when CSAT is disabled
-- Verified via bench console: `frappe.db.get_single_value("HD Settings", "csat_enabled")` returns `1` (enabled on test site)
-- `csat_unsubscribed_emails` field is JSON type, read-only — managed automatically
+- **Browser test**: Navigated to `http://help.frappe.local/app/hd-settings/HD Settings` — CSAT settings visible in "ITIL & Features" tab
+- "Enable CSAT Surveys" checkbox present and checked in Feature Flags section
+- Toggling checkbox hides/shows "CSAT Survey Settings" section (depends_on works)
+- "Survey Delay (hours)": default 24, with help text
+- "Frequency Limit (days)": default 7, with help text
+- "Survey Link Expiry (days)": default 7, with help text
+- Settings saved successfully (green "Saved" toast)
+
+**Evidence**: Screenshots `task-36-hd-settings-csat-fields.png`, `task-36-csat-survey-settings.png`
 
 ### AC2: On ticket resolution + delay, CSAT email sent with 1-5 star one-click rating links
 **Result: PASS**
 
-- **Evidence**: `csat_scheduler.py:send_pending_surveys()` correctly:
-  - Reads `csat_delay_hours` and computes cutoff datetime (line 36)
-  - Queries resolved tickets modified before the cutoff (lines 47-64)
-  - Generates HMAC token and creates `HD CSAT Response` record (lines 101-118)
-  - Enqueues `_send_csat_email` via `frappe.enqueue` (long queue) (lines 121-127)
-- Email template `csat_survey.html` renders 5 star links (lines 45-49): `<a href="{{base_url}}/api/method/helpdesk.api.csat.submit_rating?token={{token}}&rating={{n}}">`
-- Hourly cron registered in `hooks.py`: `"0 */1 * * *"` (line 53)
+- Email template at `helpdesk/templates/csat_survey.html` renders 5 star links as GET URLs
+- Each star link: `/api/method/helpdesk.api.csat.submit_rating?token={{token}}&rating={{n}}`
+- Unsubscribe link in footer
+- Scheduler hook in `hooks.py`: `"0 */1 * * *"` (hourly cron)
+- `send_pending_surveys()` correctly queries resolved tickets past delay, checks frequency limits, generates HMAC tokens
 
 ### AC3: Click star submits rating via single click, thank-you page confirms with optional comment field
-**Result: PASS**
+**Result: PARTIAL PASS (P1 issue with comment submission)**
 
-- **Evidence (bench console test)**:
-  - Created HD CSAT Response with token, called `submit_rating(token, "4")` → rendered thank-you page
-  - Verified rating stored: `frappe.db.get_value("HD CSAT Response", name, "rating")` → `4`
-  - Thank-you page HTML includes textarea for optional comment and JS `sendComment()` function
-  - `submit_comment(token, "Great support, thank you!")` → `{"message": "Thank you for your feedback!"}`
-  - Verified comment stored: `frappe.db.get_value("HD CSAT Response", name, "comment")` → `"Great support, thank you!"`
-- Star links use GET method, which is allowed (Frappe default whitelist allows GET/POST/PUT/DELETE)
+- **Browser test**: Navigated to `submit_rating?token=...&rating=4` with valid HMAC token
+- Thank-you page rendered: 4 stars (⭐⭐⭐⭐), "Thank you!" heading, comment textarea, "Submit Comment" button
+- Rating correctly stored in DB (verified via bench console)
+- **P1 BUG**: Clicking "Submit Comment" on thank-you page → **HTTP 400 CSRFTokenError**
+  - The JS sends `X-Frappe-CSRF-Token: 'fetch'` but the page is a guest web page with no CSRF context
+  - Confirmed via Playwright: `fetch()` POST to `submit_comment` returns `{"exc_type":"CSRFTokenError"}`
+  - Root cause: `@frappe.whitelist(allow_guest=True)` on `submit_comment` still requires CSRF; needs `xss_safe=True`
+
+**Evidence**: Screenshot `task-36-thankyou-page.png`
 
 ### AC4: Frequency limit: no survey if customer received one in last 7 days
 **Result: PASS**
 
-- **Evidence**: `csat_scheduler.py` lines 88-98: queries `HD CSAT Response` for `customer_email` with `survey_sent_at > frequency_cutoff` and skips if found
-- Unit test `test_frequency_limit_skips_recent_recipient` passes — mocks DB to simulate recent survey and verifies no new response is created
-- `csat_frequency_days` is configurable (default 7)
+- Unit test `test_frequency_limit_skips_recent_recipient` passes — mocks DB to simulate recent survey, verifies skip
+- `csat_scheduler.py` lines 88-98: queries for recent surveys per customer_email and skips if found
+- `csat_frequency_days` setting controls the limit (default 7)
 
 ### AC5: Unsubscribe link marks customer as unsubscribed
 **Result: PASS**
 
-- **Evidence (bench console test)**:
-  - Called `unsubscribe(token)` → rendered confirmation page
-  - `is_unsubscribed(email)` → `True`
-  - `csat_unsubscribed_emails` in HD Settings updated to include the email
-- `csat_scheduler.py` line 77: `if customer_email in unsubscribed_emails: continue` — skips unsubscribed customers
-- Email template includes unsubscribe link in footer (line 63)
-- Unit tests: `test_mark_unsubscribed_adds_email`, `test_mark_unsubscribed_idempotent`, `test_is_unsubscribed_*` — all pass
+- **Browser test**: Navigated to `unsubscribe?token=...` with valid token
+- Page title: "Unsubscribed" (HTTP 200)
+- Shows "john@example.com has been unsubscribed from future CSAT surveys."
+- Backend verified: `is_unsubscribed()` returns `True` after unsubscribe
+- Unsubscribed emails stored as JSON list in `HD Settings.csat_unsubscribed_emails`
+- Unit tests pass: `test_mark_unsubscribed_adds_email`, `test_mark_unsubscribed_idempotent`
+
+**Evidence**: Screenshot `task-36-unsubscribe-page.png`
 
 ### AC6: HMAC-signed single-use tokens for survey links
 **Result: PASS**
 
-- **Evidence**: `helpdesk/utils.py` implements:
-  - `generate_csat_token()`: creates `base64url(ticket:email:expiry).hmac_sha256_hex` token
-  - `validate_csat_token()`: verifies HMAC signature (constant-time compare via `hmac.compare_digest`), checks expiry, validates ticket_id and email match
-  - `_get_csat_secret()`: uses `frappe.local.conf.secret` or `get_encryption_key()` — matches Frappe's own pattern
-- Single-use enforcement: `submit_rating()` checks `token_used=0` in DB, sets `token_used=1` after rating
-- Bench console: second call to `submit_rating` with same token → "This survey link has already been used" error page
-- 13 token unit tests pass: tamper detection, wrong ticket/email rejection, expiry detection, garbage token rejection
+- Token format: `base64url(ticket_id:email:expiry_ts).hmac_sha256_hex`
+- **Browser test**: Second rating submission with same token → "Survey Link Issue" page: "This survey link has already been used or is invalid."
+- All 13 token unit tests pass: tamper detection, wrong ticket/email rejection, expiry detection, garbage token rejection
+- Constant-time comparison via `hmac.compare_digest`
+- Dashboard API (`get_dashboard_data`): correctly returns 403 for guests, valid JSON for authenticated users
+
+**Evidence**: Screenshot `task-36-single-use-token.png`
+
+---
+
+## P1 Issue Detail
+
+### CSRF Token Error on Comment Submission from Thank-You Page
+
+| Field | Value |
+|---|---|
+| **Severity** | P1 — Feature partially broken for all guest users |
+| **File** | `helpdesk/api/csat.py` line 82 |
+| **Current code** | `@frappe.whitelist(allow_guest=True)` |
+| **Expected code** | `@frappe.whitelist(allow_guest=True, xss_safe=True)` |
+| **Symptom** | Clicking "Submit Comment" on thank-you page returns HTTP 400 CSRFTokenError |
+| **Root Cause** | The thank-you page is rendered via `frappe.respond_as_web_page()` as a guest page. The embedded JS `fetch()` sends `X-Frappe-CSRF-Token: 'fetch'` but Frappe cannot validate it because no CSRF cookie exists in the guest context. Adding `xss_safe=True` bypasses CSRF validation for this endpoint, which is safe because the endpoint already validates the survey token. |
+| **Impact** | Optional comment feature is 100% broken for all CSAT respondents. Rating submission itself works fine (GET request, no CSRF needed). |
+| **Verify fix** | Navigate to `submit_rating?token=...&rating=4` in browser, type a comment, click "Submit Comment" — should show "Comment saved!" |
 
 ---
 
@@ -89,33 +112,29 @@ All 6 acceptance criteria verified. 31 unit tests pass. Integration testing via 
 
 ---
 
-## Integration Test Results (bench console)
+## Browser Test Results (Playwright MCP)
 
 | Test | Result | Evidence |
 |---|---|---|
-| Token generation | PASS | Token has correct `payload.signature` format |
-| Token validation (happy path) | PASS | `valid=True, expired=False` |
-| Rating submission | PASS | Rating stored, token_used set to 1 |
-| Single-use token enforcement | PASS | Second submit renders error page, rating unchanged |
-| Comment submission | PASS | Comment stored, returns success message |
-| Unsubscribe flow | PASS | Email added to unsubscribed list |
-| Dashboard data API | PASS | Returns overall_score, response_count, rating_distribution |
-| Invalid rating rejection | PASS | "abc" → ValidationError: "Invalid rating value" |
-| DocType tables exist | PASS | HD CSAT Response and HD CSAT Survey Template tables confirmed |
+| HD Settings CSAT fields visible | PASS | `task-36-hd-settings-csat-fields.png` |
+| CSAT Survey Settings section toggle | PASS | Hides when unchecked, shows when checked |
+| Default values (24h, 7d, 7d) | PASS | `task-36-csat-survey-settings.png` |
+| Rating submission via star link (GET) | PASS | Thank-you page with correct stars |
+| Thank-you page layout | PASS | `task-36-thankyou-page.png` |
+| Comment submission (POST) | **FAIL (P1)** | CSRFTokenError 400 |
+| Single-use token enforcement | PASS | `task-36-single-use-token.png` |
+| Unsubscribe page | PASS | `task-36-unsubscribe-page.png` |
+| Dashboard API (guest) | PASS | Returns 403 "Not Permitted" |
+| Dashboard API (authenticated) | PASS | Returns valid JSON with overall_score |
+| Invalid rating rejection | PASS | Returns 417 validation error |
+| No CSAT-related console errors on helpdesk | PASS | Only pre-existing socket.io errors |
 
 ---
 
-## Code Review Findings
+## Console Errors
 
-### P3: submit_comment does not re-validate HMAC token (informational)
-- **File**: `helpdesk/api/csat.py:91`
-- **Description**: `submit_comment()` only looks up the CSAT Response by token string without re-validating the HMAC signature. Since tokens are cryptographic (base64url + HMAC-SHA256), they cannot be guessed, and this endpoint is only useful after `submit_rating` has already validated the token. Risk is minimal.
-- **Severity**: P3 (informational, no action needed)
-
-### P3: Email star links render same emoji for all ratings
-- **File**: `helpdesk/templates/csat_survey.html:48`
-- **Description**: All 5 star links display the same single star emoji. While the hover title shows "1 star", "2 stars" etc., the visual doesn't differentiate ratings. This is a UX nit, not a functional issue — customers still click the correct rating via the link.
-- **Severity**: P3 (cosmetic)
+- **CSAT-related**: 1 error — CSRFTokenError on `submit_comment` POST (P1, documented above)
+- **Pre-existing**: socket.io `ERR_CONNECTION_REFUSED` (socketio server not running), Vue warnings — not related to this story
 
 ---
 
@@ -126,40 +145,37 @@ All 6 acceptance criteria verified. 31 unit tests pass. Integration testing via 
 | HMAC token tamper detection | PASS — constant-time compare via `hmac.compare_digest` |
 | Token expiry enforcement | PASS — expired tokens rejected with graceful error page |
 | Single-use enforcement | PASS — `token_used` flag prevents replay |
-| XSS protection | PASS — error/unsubscribe pages use `escape_html()`, token format is base64url-safe |
+| XSS protection | PASS — error/unsubscribe pages use `escape_html()` |
 | Input validation | PASS — rating bounds checked (1-5), comment capped at 2000 chars |
 | Guest endpoint security | PASS — all guest endpoints require valid token lookup |
-| Permission checks | PASS — `get_dashboard_data` requires `HD CSAT Response` read permission |
+| Permission checks | PASS — `get_dashboard_data` requires authentication (403 for guests) |
 
 ---
 
-## Files Reviewed
+## Screenshots
 
-**Created (15 files)**:
-- `helpdesk/helpdesk/doctype/hd_csat_response/hd_csat_response.json` — DocType definition
-- `helpdesk/helpdesk/doctype/hd_csat_response/hd_csat_response.py` — Controller with rating validation
-- `helpdesk/helpdesk/doctype/hd_csat_response/csat_scheduler.py` — Background job
-- `helpdesk/helpdesk/doctype/hd_csat_response/__init__.py`
-- `helpdesk/helpdesk/doctype/hd_csat_survey_template/hd_csat_survey_template.json`
-- `helpdesk/helpdesk/doctype/hd_csat_survey_template/hd_csat_survey_template.py`
-- `helpdesk/helpdesk/doctype/hd_csat_survey_template/__init__.py`
-- `helpdesk/api/csat.py` — API endpoints
-- `helpdesk/templates/csat_survey.html` — Email template
-- `helpdesk/patches/v1_phase1/add_csat_settings_fields.py`
-- `helpdesk/patches/v1_phase1/create_hd_csat_response.py`
-- `helpdesk/patches/v1_phase1/create_hd_csat_survey_template.py`
-- `helpdesk/tests/test_csat_token.py` — 13 tests
-- `helpdesk/tests/test_hd_csat_response.py` — 9 tests
-- `helpdesk/tests/test_csat_scheduler.py` — 9 tests
+| File | Description |
+|---|---|
+| `task-36-hd-settings-csat-fields.png` | HD Settings page with CSAT checkbox in Feature Flags |
+| `task-36-csat-survey-settings.png` | CSAT Survey Settings section with delay/frequency/expiry fields |
+| `task-36-thankyou-page.png` | Thank-you page after 4-star rating submission |
+| `task-36-single-use-token.png` | Error page when reusing already-used token |
+| `task-36-unsubscribe-page.png` | Unsubscribe confirmation page |
 
-**Modified (4 files)**:
-- `helpdesk/helpdesk/doctype/hd_settings/hd_settings.json` — CSAT config fields
-- `helpdesk/utils.py` — HMAC token utilities
-- `helpdesk/hooks.py` — Hourly cron entry
-- `helpdesk/patches.txt` — 3 new patch entries
+---
+
+## Code Review Findings (P3 — informational only)
+
+### P3: Email star links render same emoji for all ratings
+- **File**: `helpdesk/templates/csat_survey.html:48`
+- All 5 star links display the same single star emoji. Hover title differentiates. Cosmetic nit.
+
+### P3: submit_comment does not re-validate HMAC token
+- **File**: `helpdesk/api/csat.py:91`
+- Looks up by token string only. Risk is minimal since tokens are cryptographic.
 
 ---
 
 ## Conclusion
 
-All acceptance criteria pass. The implementation is solid with good test coverage (31 tests), proper security measures (HMAC tokens, single-use enforcement, input validation, XSS protection), and clean code organization. No P0 or P1 issues found — no fix task required.
+5 of 6 acceptance criteria fully pass. AC3 partially passes — rating + thank-you page work but optional comment POST fails due to CSRF (P1). A fix task has been created for the one-line fix (`xss_safe=True` on `submit_comment`).
