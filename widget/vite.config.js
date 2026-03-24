@@ -2,8 +2,11 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
+  define: command === 'build' ? {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  } : {},
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
@@ -34,4 +37,4 @@ export default defineConfig({
     globals: true,
     setupFiles: ['src/__tests__/setup.js'],
   },
-})
+}))
