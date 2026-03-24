@@ -74,7 +74,7 @@ import { useTicketStatusStore } from "@/stores/ticketStatus";
 import { __ } from "@/translation";
 import { View } from "@/types";
 import { getIcon, isCustomerPortal } from "@/utils";
-import { Badge, FeatherIcon, toast, Tooltip, usePageMeta } from "frappe-ui";
+import { FeatherIcon, toast, Tooltip, usePageMeta } from "frappe-ui";
 import { computed, h, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -146,11 +146,7 @@ const options = {
     },
     agreement_status: {
       custom: ({ item }) => {
-        return h(Badge, {
-          label: item,
-          theme: slaStatusColorMap[item],
-          variant: "outline",
-        });
+        return hBadge(item, slaStatusColorMap[item]);
       },
     },
     response_by: {
@@ -177,26 +173,34 @@ const options = {
   hideColumnSetting: false,
 };
 
+// Badge class helpers — ListViewBuilder cannot render component VNodes (h(Badge,...));
+// it only works with plain HTML elements. Replicate Badge's outline styling directly.
+const _badgeBase =
+  "inline-flex select-none items-center gap-1 rounded-full whitespace-nowrap h-5 text-xs px-1.5";
+const _badgeOutlineTheme: Record<string, string> = {
+  red: "text-ink-red-4 bg-transparent border border-outline-red-2",
+  orange: "text-ink-amber-3 bg-transparent border border-outline-amber-2",
+  green: "text-ink-green-3 bg-transparent border border-outline-green-2",
+  blue: "text-ink-blue-2 bg-transparent border border-outline-blue-1",
+  yellow: "text-ink-yellow-3 bg-transparent border border-outline-yellow-2",
+};
+
+function hBadge(label: string, theme: string) {
+  return h(
+    "span",
+    { class: `${_badgeBase} ${_badgeOutlineTheme[theme] || ""}` },
+    label
+  );
+}
+
 function handle_response_by_field(row: any, item: string) {
   if (!row.first_responded_on && dayjs(item).isBefore(new Date())) {
-    return h(Badge, {
-      label: __("Failed"),
-      theme: "red",
-      variant: "outline",
-    });
+    return hBadge(__("Failed"), "red");
   }
   if (row.first_responded_on && dayjs(row.first_responded_on).isBefore(item)) {
-    return h(Badge, {
-      label: __("Fulfilled"),
-      theme: "green",
-      variant: "outline",
-    });
+    return hBadge(__("Fulfilled"), "green");
   } else if (dayjs(row.first_responded_on).isAfter(item)) {
-    return h(Badge, {
-      label: __("Failed"),
-      theme: "red",
-      variant: "outline",
-    });
+    return hBadge(__("Failed"), "red");
   } else {
     return h(
       Tooltip,
