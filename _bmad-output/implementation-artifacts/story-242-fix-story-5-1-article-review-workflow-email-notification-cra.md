@@ -72,14 +72,17 @@ sonnet
 
 ### Completion Notes List
 
-- Wrapped `doc.on_workflow_action(...)` in try/except for all 4 reviewer endpoints: `approve_article`, `request_changes`, `reject_article`, `archive_article`.
-- Email/notification errors are now caught, logged via `frappe.log_error`, and the API returns the successful status change instead of HTTP 500.
-- Both dev and bench copies updated; gunicorn reloaded.
+- Wrapped `doc.on_workflow_action(...)` in try/except for all 4 reviewer endpoints: `approve_article`, `request_changes`, `reject_article`, `archive_article` (knowledge_base.py).
+- Root cause investigation revealed: `frappe.sendmail(delayed=False)` queues emails in `after_commit` hooks. The SMTP failure fires AFTER `on_workflow_action` returns, so the try/except in knowledge_base.py alone was insufficient.
+- Real fix: changed `delayed=False` → `delayed=True` in all 4 `frappe.sendmail()` calls in `hd_article.py`. Emails are now sent by the background worker (async), fully decoupling email delivery from the HTTP request lifecycle.
+- Verified: all 4 endpoints return HTTP 200 with correct status even when no SMTP server is configured.
 
 ### Change Log
 
-- 2026-03-24: Applied try/except around `on_workflow_action()` calls in `helpdesk/api/knowledge_base.py` for all 4 affected endpoints.
+- 2026-03-24: Applied try/except around `on_workflow_action()` calls in `knowledge_base.py` for all 4 affected endpoints.
+- 2026-03-24: Changed `delayed=False` → `delayed=True` in all 4 `frappe.sendmail()` calls in `hd_article.py` to decouple email from request lifecycle.
 
 ### File List
 
 - `helpdesk/api/knowledge_base.py` (modified — both dev and bench copies)
+- `helpdesk/helpdesk/doctype/hd_article/hd_article.py` (modified — both dev and bench copies)

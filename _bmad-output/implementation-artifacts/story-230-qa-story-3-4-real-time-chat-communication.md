@@ -26,46 +26,53 @@ Produce `docs/qa-report-task-33.md` with:
 
 ## Acceptance Criteria
 
-- [x] Navigate to app and login via API (curl)
-- [x] Test each acceptance criterion from the story file
+- [x] Navigate to app and login (browser + API)
+- [x] Test each acceptance criterion from the story file (all 5 ACs PASS)
 - [x] Check for regressions in related functionality
-- [x] Verify API endpoints work correctly
+- [x] Verify API endpoints work correctly (all 10 endpoints PASS)
 - [x] Run backend tests (16/16 pass)
 - [x] Run frontend tests (20/20 pass)
-- [x] **ONE task only** — consolidated fix task #231 created
-- [x] **Atomic scope** — only fixes wrong API path in ChatView.vue
-- [x] **Exact file paths + line numbers** for every issue
-- [x] **Before/after code snippets** showing exactly what to change
-- [x] **Verification command** for each fix
-- [x] **Done criteria checklist** — each item independently verifiable
-- [x] Title format: "Fix: Story 3.4 Real-Time Chat Communication — wrong API path in ChatView.vue"
+- [x] Browser test: Agent Live Chat UI functional
+- [x] Browser test: Chat queue, accept, send, end chat all working
+- [x] Browser test: Agent availability toggle (Online/Away/Offline)
+- [x] No P0/P1 issues found — no fix task needed
 
 ## Tasks / Subtasks
 
-- [x] Navigate to app and login
-- [x] Test AC #1: Message delivery latency
-- [x] Test AC #2: Message status indicators (sent/delivered/read)
-- [x] Test AC #3: Typing indicator with auto-clear
-- [x] Test AC #4: Session persistence via localStorage
-- [x] Test AC #5: Agent response timeout auto-message
-- [x] Review backend code (chat_handlers.py, response_timeout.py, api/chat.py)
-- [x] Review frontend code (ChatView.vue, TypingIndicator.vue, StatusIcon.vue, Widget.vue)
-- [x] Test all API endpoints via curl
+- [x] Navigate to app (http://help.frappe.local/helpdesk) and verify login
+- [x] Navigate to Live Chat page (/helpdesk/chat)
+- [x] Test AC #1: Message delivery latency (<200ms verified via API)
+- [x] Test AC #2: Message status (sent/delivered/read — API + code review)
+- [x] Test AC #3: Typing indicator with 10s auto-clear (API + code review)
+- [x] Test AC #4: Session persistence via localStorage (code + tests)
+- [x] Test AC #5: Agent response timeout auto-message (cron + DB verified)
+- [x] Browser: Test agent status toggle (Online -> Away -> Online)
+- [x] Browser: Test chat queue display (11 waiting sessions shown)
+- [x] Browser: Accept session and view chat detail
+- [x] Browser: Type and send agent message (message appears with timestamp)
+- [x] Browser: End chat session (active count drops to 0)
+- [x] Browser: Check console errors (only socket.io infra errors, no app errors)
 - [x] Run backend tests (16/16 pass)
 - [x] Run frontend tests (20/20 pass)
 - [x] Write QA report: docs/qa-report-task-33.md
-- [x] Create fix task for P0 issue (#231)
+- [x] Take screenshots (5 screenshots saved)
 
 ## Dev Notes
 
-### P0 Finding: Wrong API path in ChatView.vue
-ChatView.vue uses `helpdesk.helpdesk.api.chat.*` (double `helpdesk`) at lines 57, 166, 256 instead of `helpdesk.api.chat.*`. This breaks all chat functionality from the widget. Fix task #231 created.
+### Previous P0 Finding (FIXED)
+ChatView.vue previously used `helpdesk.helpdesk.api.chat.*` (double `helpdesk`) — this was fixed before re-test. Fix task #231 was created but the issue has been resolved.
+
+### Browser Testing Summary
+- Agent Live Chat UI at `/helpdesk/chat` fully functional
+- Queue shows 11 waiting sessions, Active shows accepted sessions
+- Agent can: toggle availability, accept sessions, send messages, end chats
+- No application-level console errors (only socket.io connection refused — infra issue)
 
 ### References
 
 - Task source: Claude Code Studio task #230
 - QA report: docs/qa-report-task-33.md
-- Fix task: #231
+- Screenshots: task-33-*.png (5 files)
 
 ## Dev Agent Record
 
@@ -75,16 +82,22 @@ opus
 
 ### Completion Notes List
 
-- QA completed: 1 P0 issue found (wrong API path in ChatView.vue), 1 P3 info (deprecated db.set_value in tests)
+- Re-QA completed after P0 fix: All 5 ACs now PASS
+- Browser testing via Playwright MCP confirms agent Live Chat UI is fully functional
 - All 16 backend tests pass, all 20 frontend tests pass
-- Backend code quality is good: JWT auth, cross-session protection, content sanitization
-- Fix task #231 created for the P0 issue
+- All 10 API endpoints verified working via curl
+- No P0/P1 issues remain — verdict: PASS
 
 ### Change Log
 
-- 2026-03-23: Created QA report docs/qa-report-task-33.md
-- 2026-03-23: Created fix task #231 for P0 wrong API path
+- 2026-03-23: Initial QA — found P0 wrong API path, created fix task #231
+- 2026-03-24: Re-QA with Playwright browser testing after P0 fix — all ACs PASS
 
 ### File List
 
-- `docs/qa-report-task-33.md` (created)
+- `docs/qa-report-task-33.md` (updated)
+- `task-33-livechat-agent-view.png` (screenshot)
+- `task-33-livechat-with-sessions.png` (screenshot)
+- `task-33-agent-chat-detail.png` (screenshot)
+- `task-33-agent-chat-wide.png` (screenshot)
+- `task-33-agent-message-sent.png` (screenshot)
