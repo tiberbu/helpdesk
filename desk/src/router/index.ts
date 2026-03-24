@@ -112,6 +112,12 @@ const routes = [
     component: () => import("@/pages/dashboard/Dashboard.vue"),
   },
   {
+    path: "/dashboard/sla",
+    name: "SLADashboard",
+    component: () => import("@/pages/dashboard/SLADashboard.vue"),
+    meta: { auth: true, agent: true },
+  },
+  {
     path: "/major-incidents",
     name: "MajorIncidents",
     component: () =>

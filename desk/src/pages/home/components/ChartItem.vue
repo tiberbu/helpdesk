@@ -1,5 +1,6 @@
 <template>
   <div class="h-full w-full rounded border border-outline-gray-1">
+    <SLAComplianceWidget v-if="item.chart == 'sla_compliance'" />
     <AgentTicketsCard v-if="item.chart == 'agent_tickets'" :data="item.data" />
     <AvgTimeCard
       v-if="item.chart == 'avg_first_response_time'"
@@ -34,6 +35,7 @@ import AgentTicketsCard from "./AgentTicketsCard.vue";
 import AvgTimeMetrics from "./AvgTimeMetrics.vue";
 import RecentFeedback from "./RecentFeedback.vue";
 import PendingTickets from "./PendingTickets.vue";
+import SLAComplianceWidget from "./SLAComplianceWidget.vue";
 import { __ } from "@/translation";
 
 interface Item {

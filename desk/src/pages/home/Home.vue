@@ -361,6 +361,18 @@ const chartsDropdown = computed(() => {
           maxH: 32,
         }),
     },
+    {
+      label: __("SLA Compliance"),
+      chart: "sla_compliance",
+      onClick: () =>
+        addChart("sla_compliance", {
+          w: 17,
+          h: 14,
+          minW: 15,
+          minH: 12,
+          maxH: 20,
+        }),
+    },
   ].filter((chart) => {
     return !layout.value.some((item) => item.chart === chart.chart);
   });
