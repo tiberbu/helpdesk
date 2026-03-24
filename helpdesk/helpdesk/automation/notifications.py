@@ -69,6 +69,63 @@ def notify_agent_sla_warning(
         )
 
 
+def notify_manager_sla_warning(
+    ticket_name: str,
+    team_name: str,
+    threshold_minutes: int,
+    minutes_remaining: float,
+    resolution_by,
+):
+    """Deliver an in-app SLA warning notification to the team's SLA manager.
+
+    Only fires when the team has an ``sla_manager`` configured.  Called by
+    ``sla_monitor._fire_warning()`` when the threshold matches the manager
+    notification threshold (default: 15 minutes).
+
+    Args:
+        ticket_name:       HD Ticket document name.
+        team_name:         HD Team name (``agent_group`` field on ticket).
+        threshold_minutes: The warning threshold that triggered this call.
+        minutes_remaining: Actual minutes left before breach.
+        resolution_by:     SLA deadline datetime object.
+    """
+    if not team_name:
+        return
+
+    try:
+        manager_agent = frappe.db.get_value("HD Team", team_name, "sla_manager")
+        if not manager_agent:
+            return  # Team has no SLA manager configured
+
+        # HD Agent's user field holds the email
+        manager_email = frappe.db.get_value("HD Agent", manager_agent, "user")
+        if not manager_email or "@" not in str(manager_email):
+            return
+
+        subject = frappe.db.get_value("HD Ticket", ticket_name, "subject") or ticket_name
+
+        payload = {
+            "ticket": ticket_name,
+            "subject": subject,
+            "threshold_minutes": threshold_minutes,
+            "minutes_remaining": round(minutes_remaining, 1),
+            "sla_deadline": str(resolution_by),
+            "is_manager_notification": True,
+        }
+
+        frappe.publish_realtime(
+            event="sla_warning",
+            message=payload,
+            user=manager_email,
+        )
+
+    except Exception:
+        frappe.log_error(
+            title=f"SLA Manager Notification: failed for ticket {ticket_name}",
+            message=frappe.get_traceback(),
+        )
+
+
 # ------------------------------------------------------------------ #
 # Helpers                                                               #
 # ------------------------------------------------------------------ #

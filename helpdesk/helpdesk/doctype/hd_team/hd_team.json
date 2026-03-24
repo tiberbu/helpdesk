@@ -11,7 +11,9 @@
   "assignment_rule",
   "users",
   "column_break_feto",
-  "ignore_restrictions"
+  "ignore_restrictions",
+  "sla_section",
+  "sla_manager"
  ],
  "fields": [
   {
@@ -44,11 +46,23 @@
    "fieldname": "column_break_feto",
    "fieldtype": "Column Break",
    "label": "Settings"
+  },
+  {
+   "fieldname": "sla_section",
+   "fieldtype": "Section Break",
+   "label": "SLA Notifications"
+  },
+  {
+   "description": "Agent who receives in-app notification when a team ticket is 15 minutes from SLA breach",
+   "fieldname": "sla_manager",
+   "fieldtype": "Link",
+   "label": "SLA Notification Manager",
+   "options": "HD Agent"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-02 17:28:31.798544",
+ "modified": "2026-03-23 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Team",

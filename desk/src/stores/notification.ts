@@ -85,12 +85,30 @@ export const useNotificationStore = defineStore("notification", () => {
       threshold_minutes: number;
       minutes_remaining: number;
       sla_deadline: string;
+      is_manager_notification?: boolean;
     }) => {
       if (isCustomerPortal.value) return;
       const minsLeft = Math.round(data.minutes_remaining);
+      const prefix = data.is_manager_notification ? "SLA Alert (Manager)" : "SLA Warning";
       toast.create({
-        message: `SLA Warning: Ticket #${data.ticket} — ${minsLeft} min until breach`,
+        message: `${prefix}: Ticket #${data.ticket} — ${minsLeft} min until breach`,
       });
+      resource.reload();
+    }
+  );
+
+  // SLA breached notifications: ticket has exceeded its resolution deadline.
+  $socket.on(
+    "sla_breached",
+    (data: {
+      ticket: string;
+      subject: string;
+    }) => {
+      if (isCustomerPortal.value) return;
+      toast.create({
+        message: `SLA Breached: Ticket #${data.ticket} has exceeded its SLA`,
+      });
+      resource.reload();
     }
   );
 

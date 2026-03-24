@@ -22,6 +22,7 @@
   "automation_enabled",
   "log_retention_days",
   "sla_warning_thresholds",
+  "sla_manager_notification_threshold",
   "itil_matrix_section",
   "priority_matrix",
   "category_required_on_resolution",
@@ -208,6 +209,13 @@
    "fieldname": "sla_warning_thresholds",
    "fieldtype": "JSON",
    "label": "SLA Warning Thresholds (minutes before breach)"
+  },
+  {
+   "default": "15",
+   "description": "Minutes before SLA breach at which team managers receive an in-app notification. Must match one of the values in SLA Warning Thresholds. Default: 15",
+   "fieldname": "sla_manager_notification_threshold",
+   "fieldtype": "Int",
+   "label": "Manager Notification Threshold (minutes)"
   },
   {
    "depends_on": "eval:doc.itil_mode_enabled==1",

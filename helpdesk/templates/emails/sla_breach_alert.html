@@ -1,0 +1,36 @@
+<div>
+  <p>Hello,</p>
+  <p>
+    The SLA for ticket <strong>#{{ ticket_name }}</strong> has been
+    <strong style="color: #dc2626;">breached</strong>.
+  </p>
+  <table style="border-collapse: collapse; margin: 12px 0;">
+    <tr>
+      <td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Subject:</td>
+      <td style="padding: 4px 0;">{{ ticket_subject }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Priority:</td>
+      <td style="padding: 4px 0;">{{ ticket_priority }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Customer:</td>
+      <td style="padding: 4px 0;">{{ customer }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 4px 12px 4px 0; font-weight: bold; white-space: nowrap;">Breach Time:</td>
+      <td style="padding: 4px 0; color: #dc2626;">{{ breach_time }}</td>
+    </tr>
+  </table>
+  <br />
+  <p>
+    <a
+      href="{{ ticket_url }}"
+      style="display: inline-block; background-color: #dc2626; color: #ffffff; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;"
+    >
+      Open Ticket
+    </a>
+  </p>
+  <br />
+  <p>Regards,<br />Support System</p>
+</div>
