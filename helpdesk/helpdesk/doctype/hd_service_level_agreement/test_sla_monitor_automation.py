@@ -329,6 +329,64 @@ class TestSLAMonitorAutomation(FrappeTestCase):
             "After clear_warning_dedup, threshold must fire again",
         )
 
+    def test_resolution_by_change_on_save_clears_dedup_allows_refiring(self):
+        """When resolution_by changes via doc.save(), on_update clears dedup so warnings re-fire.
+
+        Integration test covering the production code path:
+            doc.save() -> HDTicket.on_update() -> has_value_changed("resolution_by")
+            -> clear_warning_dedup() -> warning fires again.
+        """
+        from unittest.mock import patch
+
+        suffix = frappe.generate_hash(length=6)
+        self._rule(
+            rule_name=f"sla-resby-reset-{suffix}",
+            trigger_type="sla_warning",
+            conditions=[],
+            actions=[{"type": "set_priority", "value": "Urgent"}],
+            priority_order=1,
+        )
+        ticket = self._ticket_near_breach(minutes_to_breach=10.0)
+        initial_resolution_by = now_datetime() + timedelta(minutes=10)
+
+        # Step 1: Fire warning — sets dedup key, action executes
+        _fire_warning(str(ticket.name), "", 15, 10.0, initial_resolution_by)
+        self.assertEqual(
+            frappe.db.get_value("HD Ticket", ticket.name, "priority"),
+            "Urgent",
+            "Pre-condition: warning must fire on first call",
+        )
+
+        # Step 2: Reset priority; confirm dedup blocks second fire
+        frappe.db.set_value("HD Ticket", ticket.name, "priority", "Low")
+        self._guard.reset_loop_counter(str(ticket.name))
+        _fire_warning(str(ticket.name), "", 15, 10.0, initial_resolution_by)
+        self.assertEqual(
+            frappe.db.get_value("HD Ticket", ticket.name, "priority"),
+            "Low",
+            "Dedup must block second fire before resolution_by changes",
+        )
+
+        # Step 3: Change resolution_by by saving the ticket doc.
+        # Patch apply_sla to prevent the SLA calculation from overwriting
+        # the new resolution_by value we want to test with.
+        new_resolution_by = add_to_date(now_datetime(), minutes=20)
+        doc = frappe.get_doc("HD Ticket", ticket.name)
+        doc.resolution_by = new_resolution_by
+        from helpdesk.helpdesk.doctype.hd_ticket.hd_ticket import HDTicket
+        with patch.object(HDTicket, "apply_sla", lambda self: None):
+            doc.save(ignore_permissions=True)
+
+        # Step 4: Confirm warning fires again (dedup was cleared by on_update)
+        frappe.db.set_value("HD Ticket", ticket.name, "priority", "Low")
+        self._guard.reset_loop_counter(str(ticket.name))
+        _fire_warning(str(ticket.name), "", 15, 10.0, new_resolution_by)
+        self.assertEqual(
+            frappe.db.get_value("HD Ticket", ticket.name, "priority"),
+            "Urgent",
+            "After resolution_by changes on save, dedup must be cleared and warning must re-fire",
+        )
+
     # ------------------------------------------------------------------ #
     # AC#9 — automation_enabled=0 suppresses rule evaluation               #
     # ------------------------------------------------------------------ #

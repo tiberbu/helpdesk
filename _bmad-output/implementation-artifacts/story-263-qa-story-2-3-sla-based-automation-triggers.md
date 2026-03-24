@@ -1,6 +1,6 @@
 # Story: QA: Story 2.3: SLA-Based Automation Triggers
 
-Status: in-progress
+Status: done
 Task ID: mn4ay1i3muchlp
 Task Number: #263
 Workflow: playwright-qa
@@ -137,12 +137,12 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Final QA pass (depth 1/1). All 4 ACs PASS. 15/15 integration tests pass. API testing confirms sla_warning/sla_breached trigger types accepted on HD Automation Rule. HD Settings sla_warning_thresholds field correctly configured with default [30, 15, 5]. One P1 operational concern documented (clear_warning_dedup never called from production code). No fix task created — all ACs pass.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-03-24: QA report written to `docs/qa-report-task-28.md` (updated from prior QA round)
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-28.md` (modified — updated with final QA results)

@@ -323,6 +323,20 @@ class HDTicket(Document):
                             continue
                         self.notify_agent(agent.name, "Reaction")
 
+        # SLA reset: when resolution_by changes (SLA recalculated, ticket reopened,
+        # SLA policy changed), clear dedup keys so warnings fire again for the new cycle.
+        if not self.is_new() and self.has_value_changed("resolution_by"):
+            try:
+                from helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor import (
+                    clear_warning_dedup,
+                )
+                clear_warning_dedup(str(self.name))
+            except Exception:
+                frappe.log_error(
+                    title=f"SLA Monitor: clear_warning_dedup failed for {self.name}",
+                    message=frappe.get_traceback(),
+                )
+
         self.remove_assignment_if_not_in_team()
         self.publish_update()
         self.capture_update_telemetry_events()
