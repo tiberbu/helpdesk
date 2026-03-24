@@ -321,8 +321,17 @@ async function loadRule() {
       try { rawConditions = JSON.parse(rawConditions) } catch { rawConditions = [] }
     }
     if (Array.isArray(rawConditions)) {
-      conditionsState.value = { logic: "AND", conditions: rawConditions }
+      // Handle nested group format: [{"logic":"OR","conditions":[...]}]
+      if (rawConditions.length === 1 && rawConditions[0].logic && Array.isArray(rawConditions[0].conditions)) {
+        conditionsState.value = {
+          logic: rawConditions[0].logic,
+          conditions: rawConditions[0].conditions,
+        }
+      } else {
+        conditionsState.value = { logic: "AND", conditions: rawConditions }
+      }
     } else if (rawConditions && typeof rawConditions === "object") {
+      // Legacy dict wrapper format
       conditionsState.value = {
         logic: rawConditions.logic || "AND",
         conditions: rawConditions.conditions || [],
@@ -364,7 +373,11 @@ async function saveRule() {
       trigger_type: formState.value.trigger_type,
       priority_order: Number(formState.value.priority_order) || 10,
       enabled: formState.value.enabled ? 1 : 0,
-      conditions: JSON.stringify({ logic: conditionsState.value.logic || "AND", conditions: conditionsState.value.conditions || [] }),
+      conditions: JSON.stringify(
+        conditionsState.value.logic === "OR" && conditionsState.value.conditions?.length
+          ? [{ logic: "OR", conditions: conditionsState.value.conditions }]
+          : conditionsState.value.conditions || []
+      ),
       actions: JSON.stringify(actionsState.value),
     }
 

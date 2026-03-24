@@ -237,3 +237,70 @@ class TestConditionEvaluator(FrappeTestCase):
                 doc, [{"field": "priority", "operator": "regex_match", "value": "Ur.*"}]
             )
         )
+
+    # ------------------------------------------------------------------ #
+    # New UI dict format: {"logic": "...", "conditions": [...]}           #
+    # ------------------------------------------------------------------ #
+
+    def test_dict_format_or_no_match(self):
+        """Dict format with OR logic: no conditions match → False."""
+        import json
+
+        doc = _doc(priority="High")
+        conditions_json = json.dumps({
+            "logic": "OR",
+            "conditions": [
+                {"field": "priority", "operator": "equals", "value": "Low"},
+            ],
+        })
+        self.assertFalse(self.ev.evaluate(doc, conditions_json))
+
+    def test_dict_format_or_match(self):
+        """Dict format with OR logic: one condition matches → True."""
+        import json
+
+        doc = _doc(priority="High")
+        conditions_json = json.dumps({
+            "logic": "OR",
+            "conditions": [
+                {"field": "priority", "operator": "equals", "value": "Low"},
+                {"field": "priority", "operator": "equals", "value": "High"},
+            ],
+        })
+        self.assertTrue(self.ev.evaluate(doc, conditions_json))
+
+    def test_dict_format_and_all_match(self):
+        """Dict format with AND logic: all conditions match → True."""
+        import json
+
+        doc = _doc(priority="High", status="Open")
+        conditions_json = json.dumps({
+            "logic": "AND",
+            "conditions": [
+                {"field": "priority", "operator": "equals", "value": "High"},
+                {"field": "status", "operator": "equals", "value": "Open"},
+            ],
+        })
+        self.assertTrue(self.ev.evaluate(doc, conditions_json))
+
+    def test_dict_format_and_one_fails(self):
+        """Dict format with AND logic: one condition fails → False."""
+        import json
+
+        doc = _doc(priority="High", status="Closed")
+        conditions_json = json.dumps({
+            "logic": "AND",
+            "conditions": [
+                {"field": "priority", "operator": "equals", "value": "High"},
+                {"field": "status", "operator": "equals", "value": "Open"},
+            ],
+        })
+        self.assertFalse(self.ev.evaluate(doc, conditions_json))
+
+    def test_dict_format_empty_conditions(self):
+        """Dict format with empty conditions list → always True."""
+        import json
+
+        doc = _doc(priority="High")
+        conditions_json = json.dumps({"logic": "AND", "conditions": []})
+        self.assertTrue(self.ev.evaluate(doc, conditions_json))

@@ -146,7 +146,11 @@ const emit = defineEmits<{
 const logicOperator = ref<string>(props.modelValue?.logic || "AND")
 const conditions = ref<Condition[]>(props.modelValue?.conditions || [])
 
+// Guard flag prevents the two-way watcher loop: local→emit→prop→local→...
+let _syncingFromProp = false
+
 watch([logicOperator, conditions], () => {
+  if (_syncingFromProp) return
   emit("update:modelValue", {
     logic: logicOperator.value,
     conditions: conditions.value,
@@ -155,8 +159,10 @@ watch([logicOperator, conditions], () => {
 
 watch(() => props.modelValue, (val) => {
   if (val) {
+    _syncingFromProp = true
     logicOperator.value = val.logic || "AND"
     conditions.value = val.conditions || []
+    _syncingFromProp = false
   }
 }, { deep: true })
 

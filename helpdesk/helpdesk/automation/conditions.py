@@ -69,6 +69,11 @@ class ConditionEvaluator:
         else:
             conditions = conditions_raw
 
+        # Unwrap the new UI format: {"logic": "OR", "conditions": [...]}
+        if isinstance(conditions, dict):
+            logic = conditions.get("logic", logic).upper()
+            conditions = conditions.get("conditions", [])
+
         if not conditions:
             # Empty conditions → always match (unconditional rule)
             return True

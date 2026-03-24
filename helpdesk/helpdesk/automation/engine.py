@@ -215,6 +215,7 @@ def _dry_run_rule(ticket, rule: dict) -> dict:
 
     # --- Conditions ---
     conditions_raw = rule.get("conditions") or "[]"
+    dry_run_logic = "AND"
     if isinstance(conditions_raw, str):
         try:
             conditions_list = json.loads(conditions_raw)
@@ -222,6 +223,11 @@ def _dry_run_rule(ticket, rule: dict) -> dict:
             conditions_list = []
     else:
         conditions_list = conditions_raw or []
+
+    # Unwrap the new UI format: {"logic": "OR", "conditions": [...]}
+    if isinstance(conditions_list, dict):
+        dry_run_logic = conditions_list.get("logic", "AND").upper()
+        conditions_list = conditions_list.get("conditions", [])
 
     # Evaluate each condition individually for detailed output
     conditions_detail = []

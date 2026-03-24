@@ -162,12 +162,18 @@ const emit = defineEmits<{
 
 const actions = ref<Action[]>(props.modelValue || [])
 
+// Guard flag prevents the two-way watcher loop: local→emit→prop→local→...
+let _syncingFromProp = false
+
 watch(actions, (val) => {
+  if (_syncingFromProp) return
   emit("update:modelValue", val)
 }, { deep: true })
 
 watch(() => props.modelValue, (val) => {
+  _syncingFromProp = true
   actions.value = val || []
+  _syncingFromProp = false
 }, { deep: true })
 
 const actionTypeOptions = computed(() => [

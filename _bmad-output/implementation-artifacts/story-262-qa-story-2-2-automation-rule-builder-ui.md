@@ -1,6 +1,6 @@
 # Story: QA: Story 2.2: Automation Rule Builder UI
 
-Status: in-progress
+Status: done
 Task ID: mn4avk76jykip4
 Task Number: #262
 Workflow: playwright-qa
@@ -137,12 +137,20 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+**Completed:** 2026-03-24
+
+QA found 1 P0 + 1 P1 issue. Created consolidated fix task #265.
+
+**P0:** Frontend saves conditions as `{"logic":"AND","conditions":[...]}` (dict wrapper) but backend validation requires JSON array. Saving rules with conditions always fails with ValidationError.
+
+**P1:** "New Rule" button visible to non-admin users on list page.
+
+AC-1 (triggers), AC-3 (actions), AC-4 (dry-run) all PASS. 44/44 component tests pass. All API endpoints functional.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- Created `docs/qa-report-task-27.md` — full QA report with P0/P1 findings
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-27.md` (modified — replaced round 1 report with round 2 findings)

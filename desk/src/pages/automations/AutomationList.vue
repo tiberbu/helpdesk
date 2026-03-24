@@ -13,6 +13,7 @@
         />
       </div>
       <Button
+        v-if="authStore.isAdmin"
         variant="solid"
         :label="__('New Rule')"
         @click="router.push({ name: 'AutomationBuilder', params: { id: 'new' } })"

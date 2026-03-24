@@ -86,22 +86,23 @@ opus
 
 ### Completion Notes List
 
-**Completed:** 2026-03-23
+**Completed:** 2026-03-24 (Round 2)
 
-Adversarial QA review of Story 2.2: Automation Rule Builder UI completed. Found 14 issues total:
-- **4 P1 issues** (AND/OR logic discarded on save, no save feedback, alert/confirm usage, missing admin guard on builder page)
-- **5 P2 issues** (no pagination, no unsaved changes guard, no ITIL gating, fragile set_value API call, no accessibility attributes)
-- **5 P3 issues** (positional icon mapping, hardcoded options, missing ITIL fields, no error handling on list, free-text ticket input)
+Adversarial QA review of Story 2.2 (post-fix round 2). Found 14 issues total:
+- **1 P0**: Frontend/backend conditions format mismatch — `ConditionEvaluator.evaluate()` cannot parse the new `{"logic":"OR","conditions":[...]}` format saved by the UI. Iterates dict keys instead of condition objects, silently bypassing ALL conditions. Every rule fires unconditionally.
+- **3 P1**: New Rule button visible to non-admins, dry-run broken by same format mismatch, bidirectional deep watchers create potential infinite update loop.
+- **6 P2**: No pagination, no unsaved changes guard, no ITIL gating, fragile set_value API, no accessibility, no error handling on list actions.
+- **4 P3**: Positional icon mapping, hardcoded options, missing ITIL fields, free-text ticket input.
 
-Created ONE consolidated fix task (#219) for P1 issues. P2/P3 issues documented in report only.
+Created ONE consolidated fix task (#264) for P0 + P1 issues.
 
 QA report: `docs/qa-report-task-27.md`
 
 ### Change Log
 
-- Created `docs/qa-report-task-27.md` — full QA report with 14 findings
-- Created fix task #219 for 4 P1 issues
+- Updated `docs/qa-report-task-27.md` — full QA report with 14 findings (round 2, post-fix retest)
+- Created fix task #264 for P0 + P1 issues (conditions format mismatch + UI fixes)
 
 ### File List
 
-- `docs/qa-report-task-27.md` (created)
+- `docs/qa-report-task-27.md` (created/updated)
