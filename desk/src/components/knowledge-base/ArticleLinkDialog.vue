@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { __ } from "@/translation";
 import { Autocomplete, Button, Dialog, createResource } from "frappe-ui";
 import { ref } from "vue";
 
@@ -57,12 +58,16 @@ let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
 const searchResource = createResource({
   url: "helpdesk.api.knowledge_base.search_articles",
-  onSuccess(data: { name: string; title: string; category_name: string }[]) {
-    searchOptions.value = data.map((a) => ({
-      value: a.name,
-      label: a.title,
-      description: a.category_name || "",
-    }));
+  onSuccess(data: { name: string; title: string; category_name: string; internal_only: number }[]) {
+    searchOptions.value = data.map((a) => {
+      const parts = [a.category_name || ""];
+      if (a.internal_only) parts.push(__("Internal"));
+      return {
+        value: a.name,
+        label: a.title,
+        description: parts.filter(Boolean).join(" · "),
+      };
+    });
   },
 });
 

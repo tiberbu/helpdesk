@@ -21,6 +21,9 @@ def get_article(name: str):
     if not is_agent() and article["status"] != "Published":
         frappe.throw(_("Access denied"), frappe.PermissionError)
 
+    if not is_agent() and article.get("internal_only"):
+        frappe.throw(_("Access denied"), frappe.PermissionError)
+
     author = get_user_info_for_avatar(article["author"])
     feedback = (
         frappe.db.get_value(
@@ -46,6 +49,7 @@ def get_article(name: str):
         "category_id": article.category,
         "feedback": int(feedback),
         "reviewer_comment": article.reviewer_comment,
+        "internal_only": article.get("internal_only", 0),
     }
 
     return article
@@ -96,7 +100,7 @@ def get_categories():
     )
     for c in categories:
         c["article_count"] = frappe.db.count(
-            "HD Article", filters={"category": c.name, "status": "Published"}
+            "HD Article", filters={"category": c.name, "status": "Published", "internal_only": 0}
         )
 
     categories.sort(key=lambda c: c["article_count"], reverse=True)
@@ -108,7 +112,7 @@ def get_categories():
 def get_category_articles(category: str):
     articles = frappe.get_all(
         "HD Article",
-        filters={"category": category, "status": "Published"},
+        filters={"category": category, "status": "Published", "internal_only": 0},
         fields=["name", "title", "published_on", "modified", "author", "content"],
     )
     for article in articles:
@@ -293,7 +297,7 @@ def get_agent_articles(category: str = None) -> list[dict]:
     articles = frappe.get_all(
         "HD Article",
         filters=filters,
-        fields=["name", "title", "status", "author", "modified", "category"],
+        fields=["name", "title", "status", "author", "modified", "category", "internal_only"],
         order_by="modified desc",
     )
     return articles
@@ -378,7 +382,7 @@ def search_articles(query: str = "") -> list:
     articles = frappe.get_all(
         "HD Article",
         filters=filters,
-        fields=["name", "title", "category"],
+        fields=["name", "title", "category", "internal_only"],
         order_by="title asc",
         limit=20,
     )

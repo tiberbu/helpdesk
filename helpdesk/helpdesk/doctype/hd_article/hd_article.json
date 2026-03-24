@@ -8,6 +8,7 @@
  "field_order": [
   "title",
   "status",
+  "internal_only",
   "published_on",
   "views",
   "column_break_7",
@@ -79,6 +80,13 @@
    "label": "Status",
    "options": "Draft\nIn Review\nPublished\nArchived",
    "search_index": 1
+  },
+  {
+   "default": "0",
+   "description": "When checked, this article is hidden from the customer portal and public knowledge base.",
+   "fieldname": "internal_only",
+   "fieldtype": "Check",
+   "label": "Internal Only"
   },
   {
    "depends_on": "eval:doc.reviewer_comment",

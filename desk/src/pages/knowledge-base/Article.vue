@@ -107,6 +107,14 @@
               <Button :label="__('Save')" @click="handleSave" variant="solid" />
             </div>
           </div>
+          <!-- Internal badge (agents only) -->
+          <div
+            v-if="!isCustomerPortal && article.data?.internal_only"
+            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 w-fit"
+          >
+            <IconLock class="h-3 w-3" />
+            {{ __("Internal") }}
+          </div>
           <!-- Title -->
           <textarea
             ref="titleRef"
@@ -224,6 +232,7 @@ import {
 import { computed, h, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import IconDot from "~icons/lucide/dot";
+import IconLock from "~icons/lucide/lock";
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import { __ } from "@/translation";
 const props = defineProps({

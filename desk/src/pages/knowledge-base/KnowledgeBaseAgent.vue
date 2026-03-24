@@ -68,6 +68,7 @@ import {
 import { computed, h, onMounted, reactive, ref } from "vue";
 import { __ } from "@/translation";
 import { useRouter } from "vue-router";
+import LucideLock from "~icons/lucide/lock";
 import LucideMerge from "~icons/lucide/merge";
 
 const router = useRouter();
@@ -396,6 +397,23 @@ const options = computed(() => {
           return h(Badge, {
             ...statusMap[item],
           });
+        },
+      },
+      internal_only: {
+        label: __("Visibility"),
+        custom: ({ item }) => {
+          if (!item) return null;
+          return h(
+            "span",
+            {
+              class:
+                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700",
+            },
+            [
+              h(LucideLock, { class: "h-3 w-3" }),
+              __("Internal"),
+            ]
+          );
         },
       },
     },

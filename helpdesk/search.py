@@ -377,6 +377,8 @@ def search(
                 r = []
             groups.setdefault("Tickets", []).append(r)
         if doctype == "HD Article":
+            if not is_agent() and frappe.db.get_value("HD Article", name, "internal_only"):
+                continue
             groups.setdefault("Articles", []).append(r)
 
     out = []
