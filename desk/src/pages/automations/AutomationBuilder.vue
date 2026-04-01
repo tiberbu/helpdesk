@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full overflow-hidden">
+  <div class="flex flex-col min-h-0 h-full max-h-[calc(100vh-3rem)] overflow-hidden">
     <!-- Header / breadcrumb -->
     <div class="flex items-center justify-between px-6 py-3 border-b border-outline-gray-2 shrink-0">
       <div class="flex items-center gap-2 text-sm">
