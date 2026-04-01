@@ -25,6 +25,7 @@
     <RecentFeedback v-if="item.chart == 'recent_feedback'" :data="item.data" />
     <AvgTimeMetrics v-if="item.chart == 'avg_time_metrics'" :data="item.data" />
     <PendingTickets v-if="item.chart == 'pending_tickets'" :data="item.data" />
+    <CountyDashboard v-if="item.chart == 'county_dashboard'" />
   </div>
 </template>
 
@@ -36,6 +37,7 @@ import AvgTimeMetrics from "./AvgTimeMetrics.vue";
 import RecentFeedback from "./RecentFeedback.vue";
 import PendingTickets from "./PendingTickets.vue";
 import SLAComplianceWidget from "./SLAComplianceWidget.vue";
+import CountyDashboard from "./CountyDashboard.vue";
 import { __ } from "@/translation";
 
 interface Item {

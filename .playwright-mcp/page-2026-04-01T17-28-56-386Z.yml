@@ -1,0 +1,252 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Automations
+        - generic [ref=e88]:
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e90]
+            - generic [ref=e92]: Public Views
+          - navigation [ref=e94]:
+            - generic [ref=e95] [cursor=pointer]:
+              - generic [ref=e97]: ⭐
+              - generic [ref=e98]: My Feedback
+            - generic [ref=e99] [cursor=pointer]:
+              - generic [ref=e101]: 📋
+              - generic [ref=e102]: Pending Tickets
+            - generic [ref=e103] [cursor=pointer]:
+              - generic [ref=e105]: 🆕
+              - generic [ref=e106]: Recently Assigned Tickets
+            - generic [ref=e107] [cursor=pointer]:
+              - generic [ref=e109]: ⏳
+              - generic [ref=e110]: SLA Due
+      - generic [ref=e111]:
+        - generic [ref=e112] [cursor=pointer]:
+          - img [ref=e114]
+          - generic [ref=e116]: Help
+        - generic [ref=e117] [cursor=pointer]:
+          - img [ref=e119]
+          - generic [ref=e121]: Collapse
+      - generic [ref=e124]:
+        - button [ref=e125] [cursor=pointer]:
+          - img [ref=e127]
+        - button [ref=e132] [cursor=pointer]:
+          - img [ref=e134]
+    - generic [ref=e138]:
+      - banner [ref=e141]:
+        - generic [ref=e143]: Home
+        - generic [ref=e145]:
+          - button "Refresh" [ref=e146] [cursor=pointer]:
+            - img [ref=e147]
+            - generic [ref=e151]: Refresh
+          - button "Edit" [ref=e152] [cursor=pointer]:
+            - img [ref=e153]
+            - generic [ref=e156]: Edit
+          - button "New" [ref=e157] [cursor=pointer]:
+            - img [ref=e158]
+            - generic [ref=e159]: New
+      - generic [ref=e163]:
+        - generic [ref=e164]: Hey, Administrator
+        - generic [ref=e166]:
+          - generic [ref=e172]:
+            - generic [ref=e173]: Average Resolution
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - generic [ref=e176]: 0m
+                - generic [ref=e177]:
+                  - generic [ref=e178]:
+                    - img [ref=e179]
+                    - generic [ref=e182]: 0%
+                  - generic [ref=e183] [cursor=pointer]:
+                    - text: vs last month
+                    - img [ref=e184]
+              - img [ref=e189]
+          - generic [ref=e196]:
+            - generic [ref=e197]: Average First Response
+            - generic [ref=e198]:
+              - generic [ref=e199]:
+                - generic [ref=e200]: 0m
+                - generic [ref=e201]:
+                  - generic [ref=e202]:
+                    - img [ref=e203]
+                    - generic [ref=e206]: 0%
+                  - generic [ref=e207] [cursor=pointer]:
+                    - text: vs last month
+                    - img [ref=e208]
+              - img [ref=e213]
+          - generic [ref=e220]:
+            - generic [ref=e221]: My Tickets
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - generic [ref=e224]: "0"
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - img [ref=e227]
+                    - generic [ref=e230]: 0%
+                  - generic [ref=e231] [cursor=pointer]:
+                    - text: vs last month
+                    - img [ref=e232]
+              - img [ref=e237]
+          - generic [ref=e243]:
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - text: SLA Alerts
+                - img [ref=e246]
+              - radiogroup [ref=e249]:
+                - radio "SLA Alerts" [checked] [ref=e250]:
+                  - button "SLA Alerts" [ref=e251] [cursor=pointer]:
+                    - generic [ref=e253]: SLA Alerts
+                - radio "Pending" [ref=e254]:
+                  - button "Pending" [ref=e255] [cursor=pointer]:
+                    - generic [ref=e257]: Pending
+                - radio "Recent" [ref=e258]:
+                  - button "Recent" [ref=e259] [cursor=pointer]:
+                    - generic [ref=e261]: Recent
+            - table [ref=e263]:
+              - rowgroup [ref=e264]:
+                - row [ref=e265]:
+                  - cell [ref=e266]
+                  - cell [ref=e268]
+                  - cell [ref=e270]
+                  - cell [ref=e272]
+                  - cell [ref=e273]
+                  - cell [ref=e275]
+                - row [ref=e277]:
+                  - cell [ref=e278]
+                  - cell [ref=e280]
+                  - cell [ref=e282]
+                  - cell [ref=e284]
+                  - cell [ref=e285]
+                  - cell [ref=e287]
+                - row [ref=e289]:
+                  - cell [ref=e290]
+                  - cell [ref=e292]
+                  - cell [ref=e294]
+                  - cell [ref=e296]
+                  - cell [ref=e297]
+                  - cell [ref=e299]
+                - row [ref=e301]:
+                  - cell [ref=e302]
+                  - cell [ref=e304]
+                  - cell [ref=e306]
+                  - cell [ref=e308]
+                  - cell [ref=e309]
+                  - cell [ref=e311]
+                - row [ref=e313]:
+                  - cell [ref=e314]
+                  - cell [ref=e316]
+                  - cell [ref=e318]
+                  - cell [ref=e320]
+                  - cell [ref=e321]
+                  - cell [ref=e323]
+                - row [ref=e325]:
+                  - cell [ref=e326]
+                  - cell [ref=e328]
+                  - cell [ref=e330]
+                  - cell [ref=e332]
+                  - cell [ref=e333]
+                  - cell [ref=e335]
+                - row [ref=e337]:
+                  - cell [ref=e338]
+                  - cell [ref=e340]
+                  - cell [ref=e342]
+                  - cell [ref=e344]
+                  - cell [ref=e345]
+                  - cell [ref=e347]
+                - row [ref=e349]:
+                  - cell [ref=e350]
+                  - cell [ref=e352]
+                  - cell [ref=e354]
+                  - cell [ref=e356]
+                  - cell [ref=e357]
+                  - cell [ref=e359]
+                - generic:
+                  - generic:
+                    - generic: All SLAs on track
+                    - generic: Great! All your tickets are within SLA
+          - generic [ref=e367]:
+            - generic [ref=e368]:
+              - generic [ref=e370]: Reviews
+              - generic [ref=e372]:
+                - generic [ref=e373]:
+                  - img [ref=e374]
+                  - generic [ref=e376]: "0"
+                - generic [ref=e377] [cursor=pointer]:
+                  - text: 0 reviews
+                  - img [ref=e378]
+              - img [ref=e384]:
+                - generic [ref=e386]:
+                  - generic [ref=e387]: "1"
+                  - generic [ref=e388]: "2"
+                  - generic [ref=e389]: "3"
+                  - generic [ref=e390]: "4"
+                  - generic [ref=e391]: "5"
+            - generic [ref=e398]:
+              - generic [ref=e399]:
+                - button "All Time" [ref=e400] [cursor=pointer]:
+                  - generic [ref=e401]: All Time
+                  - img [ref=e402]
+                - button "Positive first" [ref=e404] [cursor=pointer]:
+                  - generic [ref=e405]: Positive first
+                  - img [ref=e406]
+              - generic [ref=e409]:
+                - generic [ref=e410]: No feedback
+                - generic [ref=e411]: You haven't received any feedback yet
+          - generic [ref=e416]:
+            - generic [ref=e417]:
+              - generic [ref=e418]: Average Time Metrics
+              - radiogroup [ref=e419]:
+                - radio "3M" [ref=e420]:
+                  - button "3M" [ref=e421] [cursor=pointer]:
+                    - generic [ref=e423]: 3M
+                - radio "6M" [checked] [ref=e424]:
+                  - button "6M" [ref=e425] [cursor=pointer]:
+                    - generic [ref=e427]: 6M
+                - radio "1Y" [ref=e428]:
+                  - button "1Y" [ref=e429] [cursor=pointer]:
+                    - generic [ref=e431]: 1Y
+            - generic [ref=e433]:
+              - generic [ref=e434]: No average metrics
+              - generic [ref=e435]: Average response and resolution metrics not yet generated
+  - region "Notifications (F8)":
+    - list

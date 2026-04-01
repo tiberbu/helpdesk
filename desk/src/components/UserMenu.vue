@@ -7,8 +7,8 @@
           !sidebarStore.isExpanded
             ? 'w-auto px-0'
             : open
-            ? 'w-full px-2 bg-surface-white shadow-sm'
-            : 'w-full px-2 hover:bg-surface-gray-3'
+            ? 'w-full px-2 bg-[#2D3239]'
+            : 'w-full px-2 hover:bg-[#2D3239]'
         "
       >
         <BrandLogo />
@@ -21,11 +21,11 @@
           "
         >
           <div
-            class="text-base font-medium leading-none text-gray-900 truncate"
+            class="text-base font-semibold leading-none text-white truncate"
           >
             {{ config.brandName || "ServiceDesk" }}
           </div>
-          <div class="mt-1 text-sm leading-none text-gray-700">
+          <div class="mt-1 text-sm leading-none text-[#9CA3AF]">
             {{ authStore.userName }}
           </div>
         </div>
@@ -39,7 +39,7 @@
         >
           <FeatherIcon
             name="chevron-down"
-            class="h-4 w-4 text-gray-600"
+            class="h-4 w-4 text-[#9CA3AF]"
             aria-hidden="true"
           />
         </div>

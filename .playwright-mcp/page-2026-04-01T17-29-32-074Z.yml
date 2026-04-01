@@ -1,0 +1,559 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Automations
+        - generic [ref=e127]:
+          - generic [ref=e128] [cursor=pointer]:
+            - img [ref=e129]
+            - generic [ref=e131]: Public Views
+          - navigation [ref=e133]:
+            - generic [ref=e134] [cursor=pointer]:
+              - generic [ref=e136]: ⭐
+              - generic [ref=e137]: My Feedback
+            - generic [ref=e138] [cursor=pointer]:
+              - generic [ref=e140]: 📋
+              - generic [ref=e141]: Pending Tickets
+            - generic [ref=e142] [cursor=pointer]:
+              - generic [ref=e144]: 🆕
+              - generic [ref=e145]: Recently Assigned Tickets
+            - generic [ref=e146] [cursor=pointer]:
+              - generic [ref=e148]: ⏳
+              - generic [ref=e149]: SLA Due
+      - generic [ref=e88]:
+        - generic [ref=e89] [cursor=pointer]:
+          - img [ref=e91]
+          - generic [ref=e93]: Help
+        - generic [ref=e94] [cursor=pointer]:
+          - img [ref=e96]
+          - generic [ref=e98]: Collapse
+    - generic [ref=e99]:
+      - banner [ref=e102]:
+        - generic [ref=e104]:
+          - link "Tickets" [ref=e105] [cursor=pointer]:
+            - /url: /helpdesk/tickets
+          - generic [ref=e106]: /
+          - button "List" [ref=e107] [cursor=pointer]:
+            - img [ref=e108]
+            - generic [ref=e109]: List
+            - img [ref=e110]
+        - link "Create" [ref=e113] [cursor=pointer]:
+          - /url: /helpdesk/tickets/new
+          - button "Create" [ref=e114]:
+            - img [ref=e115]
+            - generic [ref=e116]: Create
+      - generic [ref=e117]:
+        - generic [ref=e150]:
+          - generic [ref=e152]:
+            - textbox "ID" [ref=e155]
+            - textbox "Subject" [ref=e158]
+            - button "Brand" [ref=e163] [cursor=pointer]:
+              - generic [ref=e165]: Brand
+              - img [ref=e166]
+            - button "Customer" [ref=e172] [cursor=pointer]:
+              - generic [ref=e174]: Customer
+              - img [ref=e175]
+            - combobox "Customise options" [ref=e179] [cursor=pointer]:
+              - generic: Source
+              - img [ref=e180]
+            - button "Support Level" [ref=e186] [cursor=pointer]:
+              - generic [ref=e188]: Support Level
+              - img [ref=e189]
+            - textbox "County" [ref=e193]
+          - generic [ref=e194]:
+            - button "Refresh" [ref=e195] [cursor=pointer]:
+              - img [ref=e196]
+            - generic [ref=e200]:
+              - button "Filter 1" [ref=e201] [cursor=pointer]:
+                - img [ref=e202]
+                - generic [ref=e203]: Filter
+                - generic [ref=e204]: "1"
+              - button [ref=e206] [cursor=pointer]:
+                - img [ref=e207]
+            - generic [ref=e212]:
+              - button [ref=e213] [cursor=pointer]:
+                - img [ref=e215]
+              - button "Last Modified" [ref=e219] [cursor=pointer]:
+                - generic [ref=e220]: Last Modified
+                - img [ref=e221]
+            - button "Columns" [ref=e225] [cursor=pointer]:
+              - img [ref=e226]
+              - generic [ref=e228]: Columns
+        - generic [ref=e230]:
+          - generic [ref=e231]:
+            - checkbox [ref=e233] [cursor=pointer]
+            - generic [ref=e236]: ID
+            - generic [ref=e239]: Subject
+            - generic [ref=e242]: Status
+            - generic [ref=e245]: First response
+            - generic [ref=e248]: Resolution
+            - generic [ref=e251]: Assigned To
+            - generic [ref=e254]: Customer
+            - generic [ref=e257]: Priority
+            - generic [ref=e260]: Type
+            - generic [ref=e263]: Team
+            - generic [ref=e266]: Contact
+            - generic [ref=e269]: Rating
+            - generic [ref=e272]: Created
+          - generic [ref=e273]:
+            - link [ref=e274] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12838
+              - generic [ref=e276]:
+                - checkbox [ref=e279]
+                - generic [ref=e282]: "12838"
+                - generic [ref=e285]: Chat session af4dd5e208ee04d02539
+                - generic [ref=e288]:
+                  - img [ref=e289]
+                  - generic [ref=e291]: Open
+                - generic [ref=e294]: Failed
+                - generic [ref=e297]: Breached
+                - generic [ref=e300]: Medium
+                - generic [ref=e303]: Unspecified
+                - generic [ref=e306]:
+                  - img [ref=e307]
+                  - img [ref=e309]
+                  - img [ref=e311]
+                  - img [ref=e313]
+                  - img [ref=e315]
+                - generic [ref=e319]: 1 w
+            - link [ref=e321] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12837
+              - generic [ref=e323]:
+                - checkbox [ref=e326]
+                - generic [ref=e329]: "12837"
+                - generic [ref=e332]: Chat session 01d3e83508ebad4e
+                - generic [ref=e335]:
+                  - img [ref=e336]
+                  - generic [ref=e338]: Open
+                - generic [ref=e341]: Failed
+                - generic [ref=e344]: Breached
+                - generic [ref=e347]: Medium
+                - generic [ref=e350]: Unspecified
+                - generic [ref=e353]:
+                  - img [ref=e354]
+                  - img [ref=e356]
+                  - img [ref=e358]
+                  - img [ref=e360]
+                  - img [ref=e362]
+                - generic [ref=e366]: 1 w
+            - link [ref=e368] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12836
+              - generic [ref=e370]:
+                - checkbox [ref=e373]
+                - generic [ref=e376]: "12836"
+                - generic [ref=e379]: Chat session 1c8e22ef25aa494c
+                - generic [ref=e382]:
+                  - img [ref=e383]
+                  - generic [ref=e385]: Open
+                - generic [ref=e388]: Failed
+                - generic [ref=e391]: Breached
+                - generic [ref=e394]: Medium
+                - generic [ref=e397]: Unspecified
+                - generic [ref=e400]:
+                  - img [ref=e401]
+                  - img [ref=e403]
+                  - img [ref=e405]
+                  - img [ref=e407]
+                  - img [ref=e409]
+                - generic [ref=e413]: 1 w
+            - link [ref=e415] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12826
+              - generic [ref=e417]:
+                - checkbox [ref=e420]
+                - generic [ref=e423]: "12826"
+                - generic [ref=e426]: Chat session 7e2f83ced41cb00e
+                - generic [ref=e429]:
+                  - img [ref=e430]
+                  - generic [ref=e432]: Open
+                - generic [ref=e435]: Failed
+                - generic [ref=e438]: Breached
+                - generic [ref=e441]: Medium
+                - generic [ref=e444]: Unspecified
+                - generic [ref=e447]:
+                  - img [ref=e448]
+                  - img [ref=e450]
+                  - img [ref=e452]
+                  - img [ref=e454]
+                  - img [ref=e456]
+                - generic [ref=e460]: 1 w
+            - link [ref=e462] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12825
+              - generic [ref=e464]:
+                - checkbox [ref=e467]
+                - generic [ref=e470]: "12825"
+                - generic [ref=e473]: Chat session 80b7a6de968ea7e8
+                - generic [ref=e476]:
+                  - img [ref=e477]
+                  - generic [ref=e479]: Open
+                - generic [ref=e482]: Failed
+                - generic [ref=e485]: Breached
+                - generic [ref=e488]: Medium
+                - generic [ref=e491]: Unspecified
+                - generic [ref=e494]:
+                  - img [ref=e495]
+                  - img [ref=e497]
+                  - img [ref=e499]
+                  - img [ref=e501]
+                  - img [ref=e503]
+                - generic [ref=e507]: 1 w
+            - link [ref=e509] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12824
+              - generic [ref=e511]:
+                - checkbox [ref=e514]
+                - generic [ref=e517]: "12824"
+                - generic [ref=e520]: Chat session 16d58af60139c727
+                - generic [ref=e523]:
+                  - img [ref=e524]
+                  - generic [ref=e526]: Open
+                - generic [ref=e529]: Failed
+                - generic [ref=e532]: Breached
+                - generic [ref=e535]: Medium
+                - generic [ref=e538]: Unspecified
+                - generic [ref=e541]:
+                  - img [ref=e542]
+                  - img [ref=e544]
+                  - img [ref=e546]
+                  - img [ref=e548]
+                  - img [ref=e550]
+                - generic [ref=e554]: 1 w
+            - link [ref=e556] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12823
+              - generic [ref=e558]:
+                - checkbox [ref=e561]
+                - generic [ref=e564]: "12823"
+                - generic [ref=e567]: Chat session 664a41e3ac261fdb
+                - generic [ref=e570]:
+                  - img [ref=e571]
+                  - generic [ref=e573]: Open
+                - generic [ref=e576]: Failed
+                - generic [ref=e579]: Breached
+                - generic [ref=e582]: Medium
+                - generic [ref=e585]: Unspecified
+                - generic [ref=e588]:
+                  - img [ref=e589]
+                  - img [ref=e591]
+                  - img [ref=e593]
+                  - img [ref=e595]
+                  - img [ref=e597]
+                - generic [ref=e601]: 1 w
+            - link [ref=e603] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12723
+              - generic [ref=e605]:
+                - checkbox [ref=e608]
+                - generic [ref=e611]: "12723"
+                - generic [ref=e614]: Chat session c4a5b71660dab0639ddf
+                - generic [ref=e617]:
+                  - img [ref=e618]
+                  - generic [ref=e620]: Open
+                - generic [ref=e623]: Failed
+                - generic [ref=e626]: Breached
+                - generic [ref=e629]: Medium
+                - generic [ref=e632]: Unspecified
+                - generic [ref=e635]:
+                  - img [ref=e636]
+                  - img [ref=e638]
+                  - img [ref=e640]
+                  - img [ref=e642]
+                  - img [ref=e644]
+                - generic [ref=e648]: 1 w
+            - link [ref=e650] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12722
+              - generic [ref=e652]:
+                - checkbox [ref=e655]
+                - generic [ref=e658]: "12722"
+                - generic [ref=e661]: Chat session c98e0765cb213eeefaa3
+                - generic [ref=e664]:
+                  - img [ref=e665]
+                  - generic [ref=e667]: Open
+                - generic [ref=e670]: Failed
+                - generic [ref=e673]: Breached
+                - generic [ref=e676]: Medium
+                - generic [ref=e679]: Unspecified
+                - generic [ref=e682]:
+                  - img [ref=e683]
+                  - img [ref=e685]
+                  - img [ref=e687]
+                  - img [ref=e689]
+                  - img [ref=e691]
+                - generic [ref=e695]: 1 w
+            - link [ref=e697] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12719
+              - generic [ref=e699]:
+                - checkbox [ref=e702]
+                - generic [ref=e705]: "12719"
+                - generic [ref=e708]: Chat session a6afe1da5f7390d00561
+                - generic [ref=e711]:
+                  - img [ref=e712]
+                  - generic [ref=e714]: Open
+                - generic [ref=e717]: Failed
+                - generic [ref=e720]: Breached
+                - generic [ref=e723]: Medium
+                - generic [ref=e726]: Unspecified
+                - generic [ref=e729]:
+                  - img [ref=e730]
+                  - img [ref=e732]
+                  - img [ref=e734]
+                  - img [ref=e736]
+                  - img [ref=e738]
+                - generic [ref=e742]: 1 w
+            - link [ref=e744] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12718
+              - generic [ref=e746]:
+                - checkbox [ref=e749]
+                - generic [ref=e752]: "12718"
+                - generic [ref=e755]: Chat session 4fd4fe77be52f68cecda
+                - generic [ref=e758]:
+                  - img [ref=e759]
+                  - generic [ref=e761]: Open
+                - generic [ref=e764]: Failed
+                - generic [ref=e767]: Breached
+                - generic [ref=e770]: Medium
+                - generic [ref=e773]: Unspecified
+                - generic [ref=e776]:
+                  - img [ref=e777]
+                  - img [ref=e779]
+                  - img [ref=e781]
+                  - img [ref=e783]
+                  - img [ref=e785]
+                - generic [ref=e789]: 1 w
+            - link [ref=e791] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12717
+              - generic [ref=e793]:
+                - checkbox [ref=e796]
+                - generic [ref=e799]: "12717"
+                - generic [ref=e802]: Chat session 00681e5c212bd3071e5f
+                - generic [ref=e805]:
+                  - img [ref=e806]
+                  - generic [ref=e808]: Open
+                - generic [ref=e811]: Failed
+                - generic [ref=e814]: Breached
+                - generic [ref=e817]: Medium
+                - generic [ref=e820]: Unspecified
+                - generic [ref=e823]:
+                  - img [ref=e824]
+                  - img [ref=e826]
+                  - img [ref=e828]
+                  - img [ref=e830]
+                  - img [ref=e832]
+                - generic [ref=e836]: 1 w
+            - link [ref=e838] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12714
+              - generic [ref=e840]:
+                - checkbox [ref=e843]
+                - generic [ref=e846]: "12714"
+                - generic [ref=e849]: Chat session 4b0bbb1963501efd
+                - generic [ref=e852]:
+                  - img [ref=e853]
+                  - generic [ref=e855]: Open
+                - generic [ref=e858]: Failed
+                - generic [ref=e861]: Breached
+                - generic [ref=e864]: Medium
+                - generic [ref=e867]: Unspecified
+                - generic [ref=e870]:
+                  - img [ref=e871]
+                  - img [ref=e873]
+                  - img [ref=e875]
+                  - img [ref=e877]
+                  - img [ref=e879]
+                - generic [ref=e883]: 1 w
+            - link [ref=e885] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12713
+              - generic [ref=e887]:
+                - checkbox [ref=e890]
+                - generic [ref=e893]: "12713"
+                - generic [ref=e896]: Chat session d1377e65e8f70b83
+                - generic [ref=e899]:
+                  - img [ref=e900]
+                  - generic [ref=e902]: Open
+                - generic [ref=e905]: Failed
+                - generic [ref=e908]: Breached
+                - generic [ref=e911]: Medium
+                - generic [ref=e914]: Unspecified
+                - generic [ref=e917]:
+                  - img [ref=e918]
+                  - img [ref=e920]
+                  - img [ref=e922]
+                  - img [ref=e924]
+                  - img [ref=e926]
+                - generic [ref=e930]: 1 w
+            - link [ref=e932] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12712
+              - generic [ref=e934]:
+                - checkbox [ref=e937]
+                - generic [ref=e940]: "12712"
+                - generic [ref=e943]: PriorityOrder Test Ticket
+                - generic [ref=e946]:
+                  - img [ref=e947]
+                  - generic [ref=e949]: Open
+                - generic [ref=e952]: Failed
+                - generic [ref=e955]: Breached
+                - generic [ref=e958]: Low
+                - generic [ref=e961]: Unspecified
+                - generic [ref=e964]:
+                  - img [ref=e965]
+                  - img [ref=e967]
+                  - img [ref=e969]
+                  - img [ref=e971]
+                  - img [ref=e973]
+                - generic [ref=e977]: 1 w
+            - link [ref=e979] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12710
+              - generic [ref=e981]:
+                - checkbox [ref=e984]
+                - generic [ref=e987]: "12710"
+                - generic [ref=e990]: Engine Test — Matching Rule
+                - generic [ref=e993]:
+                  - img [ref=e994]
+                  - generic [ref=e996]: Open
+                - generic [ref=e999]: Failed
+                - generic [ref=e1002]: Breached
+                - generic [ref=e1005]: High
+                - generic [ref=e1008]: Unspecified
+                - generic [ref=e1011]:
+                  - img [ref=e1012]
+                  - img [ref=e1014]
+                  - img [ref=e1016]
+                  - img [ref=e1018]
+                  - img [ref=e1020]
+                - generic [ref=e1024]: 1 w
+            - link [ref=e1026] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12709
+              - generic [ref=e1028]:
+                - checkbox [ref=e1031]
+                - generic [ref=e1034]: "12709"
+                - generic [ref=e1037]: Loop Detection Test 9a7b66
+                - generic [ref=e1040]:
+                  - img [ref=e1041]
+                  - generic [ref=e1043]: Open
+                - generic [ref=e1046]: Failed
+                - generic [ref=e1049]: Breached
+                - generic [ref=e1052]: Low
+                - generic [ref=e1055]: Unspecified
+                - generic [ref=e1058]:
+                  - img [ref=e1059]
+                  - img [ref=e1061]
+                  - img [ref=e1063]
+                  - img [ref=e1065]
+                  - img [ref=e1067]
+                - generic [ref=e1071]: 1 w
+            - link [ref=e1073] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12706
+              - generic [ref=e1075]:
+                - checkbox [ref=e1078]
+                - generic [ref=e1081]: "12706"
+                - generic [ref=e1084]: SLA Test Ticket b754ea
+                - generic [ref=e1087]:
+                  - img [ref=e1088]
+                  - generic [ref=e1090]: Open
+                - generic [ref=e1093]: Failed
+                - generic [ref=e1096]: Breached
+                - generic [ref=e1099]: Low
+                - generic [ref=e1102]: Unspecified
+                - generic [ref=e1105]:
+                  - img [ref=e1106]
+                  - img [ref=e1108]
+                  - img [ref=e1110]
+                  - img [ref=e1112]
+                  - img [ref=e1114]
+                - generic [ref=e1118]: 1 w
+            - link [ref=e1120] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12705
+              - generic [ref=e1122]:
+                - checkbox [ref=e1125]
+                - generic [ref=e1128]: "12705"
+                - generic [ref=e1131]: SLA Test Ticket 919092
+                - generic [ref=e1134]:
+                  - img [ref=e1135]
+                  - generic [ref=e1137]: Open
+                - generic [ref=e1140]: Failed
+                - generic [ref=e1143]: Breached
+                - generic [ref=e1146]: Urgent
+                - generic [ref=e1149]: Unspecified
+                - generic [ref=e1152]:
+                  - img [ref=e1153]
+                  - img [ref=e1155]
+                  - img [ref=e1157]
+                  - img [ref=e1159]
+                  - img [ref=e1161]
+                - generic [ref=e1165]: 1 w
+            - link [ref=e1167] [cursor=pointer]:
+              - /url: /helpdesk/tickets/12704
+              - generic [ref=e1169]:
+                - checkbox [ref=e1172]
+                - generic [ref=e1175]: "12704"
+                - generic [ref=e1178]: SLA Test Ticket 04a92f
+                - generic [ref=e1181]:
+                  - img [ref=e1182]
+                  - generic [ref=e1184]: Open
+                - generic [ref=e1187]: Failed
+                - generic [ref=e1190]: Breached
+                - generic [ref=e1193]: Urgent
+                - generic [ref=e1196]: Unspecified
+                - generic [ref=e1199]: Escalation
+                - generic [ref=e1202]:
+                  - img [ref=e1203]
+                  - img [ref=e1205]
+                  - img [ref=e1207]
+                  - img [ref=e1209]
+                  - img [ref=e1211]
+                - generic [ref=e1215]: 1 w
+        - generic [ref=e1217]:
+          - radiogroup [ref=e1218]:
+            - radio "20" [checked] [ref=e1219]:
+              - button "20" [ref=e1220] [cursor=pointer]:
+                - generic [ref=e1222]: "20"
+            - radio "50" [ref=e1223]:
+              - button "50" [ref=e1224] [cursor=pointer]:
+                - generic [ref=e1226]: "50"
+            - radio "100" [ref=e1227]:
+              - button "100" [ref=e1228] [cursor=pointer]:
+                - generic [ref=e1230]: "100"
+          - generic [ref=e1231]:
+            - button "Load More" [ref=e1232] [cursor=pointer]:
+              - generic [ref=e1233]: Load More
+            - generic [ref=e1235]:
+              - generic [ref=e1236]: "20"
+              - generic [ref=e1237]: of
+              - generic [ref=e1238]: "245"
+  - region "Notifications (F8)":
+    - list

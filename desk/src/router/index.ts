@@ -118,6 +118,12 @@ const routes = [
     meta: { auth: true, agent: true },
   },
   {
+    path: "/dashboard/county",
+    name: "CountyDashboard",
+    component: () => import("@/pages/dashboard/CountyDashboardPage.vue"),
+    meta: { auth: true, agent: true },
+  },
+  {
     path: "/major-incidents",
     name: "MajorIncidents",
     component: () =>

@@ -1,0 +1,335 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - link "/ HD Team" [ref=e68] [cursor=pointer]:
+                - /url: /desk/hd-team
+        - generic [ref=e72]:
+          - button [ref=e74] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Menu" [ref=e77] [cursor=pointer]:
+            - img [ref=e80]
+          - button "Add HD Team" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+            - generic [ref=e84]: Add HD Team
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - generic [ref=e93]:
+            - textbox "ID" [ref=e94]
+            - generic: name
+          - generic [ref=e95]:
+            - generic [ref=e97]:
+              - button "Filters 1" [ref=e98] [cursor=pointer]:
+                - img [ref=e100]
+                - generic [ref=e101]:
+                  - text: Filters
+                  - generic [ref=e102]: "1"
+              - button "Clear all filters" [ref=e103] [cursor=pointer]:
+                - img [ref=e105]
+            - generic [ref=e107]:
+              - button "descending" [ref=e108] [cursor=pointer]:
+                - img [ref=e110]
+              - button "Last Updated On" [ref=e112] [cursor=pointer]:
+                - text: Last Updated On
+                - img [ref=e114]
+        - generic [ref=e115]:
+          - generic [ref=e117]:
+            - banner [ref=e119]:
+              - generic [ref=e121]:
+                - checkbox "Select All" [ref=e123]
+                - generic "Click to sort by ID" [ref=e124]: ID
+              - generic [ref=e125]:
+                - generic [ref=e126]: Refreshing...
+                - generic "Liked by me" [ref=e128]:
+                  - img [ref=e129]
+            - generic [ref=e132] [cursor=pointer]:
+              - generic [ref=e134]:
+                - checkbox [ref=e136]
+                - link "Nairobi County Team" [ref=e138]:
+                  - /url: /desk/hd-team/Nairobi%20County%20Team
+              - generic [ref=e140]:
+                - generic [ref=e141]: 1 m
+                - generic [ref=e142]:
+                  - img [ref=e143]
+                  - text: "0"
+                - generic [ref=e144]: ·
+                - img [ref=e147]
+            - generic [ref=e150] [cursor=pointer]:
+              - generic [ref=e152]:
+                - checkbox [ref=e154]
+                - link "Nyamira County Team" [ref=e156]:
+                  - /url: /desk/hd-team/Nyamira%20County%20Team
+              - generic [ref=e158]:
+                - generic [ref=e159]: 1 m
+                - generic [ref=e160]:
+                  - img [ref=e161]
+                  - text: "0"
+                - generic [ref=e162]: ·
+                - img [ref=e165]
+            - generic [ref=e168] [cursor=pointer]:
+              - generic [ref=e170]:
+                - checkbox [ref=e172]
+                - link "Kisii County Team" [ref=e174]:
+                  - /url: /desk/hd-team/Kisii%20County%20Team
+              - generic [ref=e176]:
+                - generic [ref=e177]: 1 m
+                - generic [ref=e178]:
+                  - img [ref=e179]
+                  - text: "0"
+                - generic [ref=e180]: ·
+                - img [ref=e183]
+            - generic [ref=e186] [cursor=pointer]:
+              - generic [ref=e188]:
+                - checkbox [ref=e190]
+                - link "Migori County Team" [ref=e192]:
+                  - /url: /desk/hd-team/Migori%20County%20Team
+              - generic [ref=e194]:
+                - generic [ref=e195]: 1 m
+                - generic [ref=e196]:
+                  - img [ref=e197]
+                  - text: "0"
+                - generic [ref=e198]: ·
+                - img [ref=e201]
+            - generic [ref=e204] [cursor=pointer]:
+              - generic [ref=e206]:
+                - checkbox [ref=e208]
+                - link "Homa Bay County Team" [ref=e210]:
+                  - /url: /desk/hd-team/Homa%20Bay%20County%20Team
+              - generic [ref=e212]:
+                - generic [ref=e213]: 1 m
+                - generic [ref=e214]:
+                  - img [ref=e215]
+                  - text: "0"
+                - generic [ref=e216]: ·
+                - img [ref=e219]
+            - generic [ref=e222] [cursor=pointer]:
+              - generic [ref=e224]:
+                - checkbox [ref=e226]
+                - link "Kisumu County Team" [ref=e228]:
+                  - /url: /desk/hd-team/Kisumu%20County%20Team
+              - generic [ref=e230]:
+                - generic [ref=e231]: 1 m
+                - generic [ref=e232]:
+                  - img [ref=e233]
+                  - text: "0"
+                - generic [ref=e234]: ·
+                - img [ref=e237]
+            - generic [ref=e240] [cursor=pointer]:
+              - generic [ref=e242]:
+                - checkbox [ref=e244]
+                - link "Siaya County Team" [ref=e246]:
+                  - /url: /desk/hd-team/Siaya%20County%20Team
+              - generic [ref=e248]:
+                - generic [ref=e249]: 1 m
+                - generic [ref=e250]:
+                  - img [ref=e251]
+                  - text: "0"
+                - generic [ref=e252]: ·
+                - img [ref=e255]
+            - generic [ref=e258] [cursor=pointer]:
+              - generic [ref=e260]:
+                - checkbox [ref=e262]
+                - link "Busia County Team" [ref=e264]:
+                  - /url: /desk/hd-team/Busia%20County%20Team
+              - generic [ref=e266]:
+                - generic [ref=e267]: 1 m
+                - generic [ref=e268]:
+                  - img [ref=e269]
+                  - text: "0"
+                - generic [ref=e270]: ·
+                - img [ref=e273]
+            - generic [ref=e276] [cursor=pointer]:
+              - generic [ref=e278]:
+                - checkbox [ref=e280]
+                - link "Bungoma County Team" [ref=e282]:
+                  - /url: /desk/hd-team/Bungoma%20County%20Team
+              - generic [ref=e284]:
+                - generic [ref=e285]: 1 m
+                - generic [ref=e286]:
+                  - img [ref=e287]
+                  - text: "0"
+                - generic [ref=e288]: ·
+                - img [ref=e291]
+            - generic [ref=e294] [cursor=pointer]:
+              - generic [ref=e296]:
+                - checkbox [ref=e298]
+                - link "Vihiga County Team" [ref=e300]:
+                  - /url: /desk/hd-team/Vihiga%20County%20Team
+              - generic [ref=e302]:
+                - generic [ref=e303]: 1 m
+                - generic [ref=e304]:
+                  - img [ref=e305]
+                  - text: "0"
+                - generic [ref=e306]: ·
+                - img [ref=e309]
+            - generic [ref=e312] [cursor=pointer]:
+              - generic [ref=e314]:
+                - checkbox [ref=e316]
+                - link "Kakamega County Team" [ref=e318]:
+                  - /url: /desk/hd-team/Kakamega%20County%20Team
+              - generic [ref=e320]:
+                - generic [ref=e321]: 1 m
+                - generic [ref=e322]:
+                  - img [ref=e323]
+                  - text: "0"
+                - generic [ref=e324]: ·
+                - img [ref=e327]
+            - generic [ref=e330] [cursor=pointer]:
+              - generic [ref=e332]:
+                - checkbox [ref=e334]
+                - link "Bomet County Team" [ref=e336]:
+                  - /url: /desk/hd-team/Bomet%20County%20Team
+              - generic [ref=e338]:
+                - generic [ref=e339]: 1 m
+                - generic [ref=e340]:
+                  - img [ref=e341]
+                  - text: "0"
+                - generic [ref=e342]: ·
+                - img [ref=e345]
+            - generic [ref=e348] [cursor=pointer]:
+              - generic [ref=e350]:
+                - checkbox [ref=e352]
+                - link "Kericho County Team" [ref=e354]:
+                  - /url: /desk/hd-team/Kericho%20County%20Team
+              - generic [ref=e356]:
+                - generic [ref=e357]: 1 m
+                - generic [ref=e358]:
+                  - img [ref=e359]
+                  - text: "0"
+                - generic [ref=e360]: ·
+                - img [ref=e363]
+            - generic [ref=e366] [cursor=pointer]:
+              - generic [ref=e368]:
+                - checkbox [ref=e370]
+                - link "Kajiado County Team" [ref=e372]:
+                  - /url: /desk/hd-team/Kajiado%20County%20Team
+              - generic [ref=e374]:
+                - generic [ref=e375]: 1 m
+                - generic [ref=e376]:
+                  - img [ref=e377]
+                  - text: "0"
+                - generic [ref=e378]: ·
+                - img [ref=e381]
+            - generic [ref=e384] [cursor=pointer]:
+              - generic [ref=e386]:
+                - checkbox [ref=e388]
+                - link "Narok County Team" [ref=e390]:
+                  - /url: /desk/hd-team/Narok%20County%20Team
+              - generic [ref=e392]:
+                - generic [ref=e393]: 1 m
+                - generic [ref=e394]:
+                  - img [ref=e395]
+                  - text: "0"
+                - generic [ref=e396]: ·
+                - img [ref=e399]
+            - generic [ref=e402] [cursor=pointer]:
+              - generic [ref=e404]:
+                - checkbox [ref=e406]
+                - link "Nakuru County Team" [ref=e408]:
+                  - /url: /desk/hd-team/Nakuru%20County%20Team
+              - generic [ref=e410]:
+                - generic [ref=e411]: 1 m
+                - generic [ref=e412]:
+                  - img [ref=e413]
+                  - text: "0"
+                - generic [ref=e414]: ·
+                - img [ref=e417]
+            - generic [ref=e420] [cursor=pointer]:
+              - generic [ref=e422]:
+                - checkbox [ref=e424]
+                - link "Laikipia County Team" [ref=e426]:
+                  - /url: /desk/hd-team/Laikipia%20County%20Team
+              - generic [ref=e428]:
+                - generic [ref=e429]: 1 m
+                - generic [ref=e430]:
+                  - img [ref=e431]
+                  - text: "0"
+                - generic [ref=e432]: ·
+                - img [ref=e435]
+            - generic [ref=e438] [cursor=pointer]:
+              - generic [ref=e440]:
+                - checkbox [ref=e442]
+                - link "Baringo County Team" [ref=e444]:
+                  - /url: /desk/hd-team/Baringo%20County%20Team
+              - generic [ref=e446]:
+                - generic [ref=e447]: 1 m
+                - generic [ref=e448]:
+                  - img [ref=e449]
+                  - text: "0"
+                - generic [ref=e450]: ·
+                - img [ref=e453]
+            - generic [ref=e456] [cursor=pointer]:
+              - generic [ref=e458]:
+                - checkbox [ref=e460]
+                - link "Nandi County Team" [ref=e462]:
+                  - /url: /desk/hd-team/Nandi%20County%20Team
+              - generic [ref=e464]:
+                - generic [ref=e465]: 1 m
+                - generic [ref=e466]:
+                  - img [ref=e467]
+                  - text: "0"
+                - generic [ref=e468]: ·
+                - img [ref=e471]
+            - generic [ref=e474] [cursor=pointer]:
+              - generic [ref=e476]:
+                - checkbox [ref=e478]
+                - link "Elgeyo-Marakwet County Team" [ref=e480]:
+                  - /url: /desk/hd-team/Elgeyo-Marakwet%20County%20Team
+              - generic [ref=e482]:
+                - generic [ref=e483]: 1 m
+                - generic [ref=e484]:
+                  - img [ref=e485]
+                  - text: "0"
+                - generic [ref=e486]: ·
+                - img [ref=e489]
+          - generic [ref=e491]:
+            - generic [ref=e493]:
+              - button "20" [disabled] [ref=e494]
+              - button "100" [ref=e495] [cursor=pointer]
+              - button "500" [ref=e496] [cursor=pointer]
+              - button "2500" [ref=e497] [cursor=pointer]
+            - button "Load More" [ref=e499] [cursor=pointer]
+    - contentinfo

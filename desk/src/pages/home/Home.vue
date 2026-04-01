@@ -92,6 +92,14 @@
               </div>
             </div>
           </div>
+          <!-- County Tier Dashboard — auto-renders for L0/L1/L2/L3 users, hidden for others -->
+          <div class="mt-5">
+            <CountyDashboard
+              v-if="!agentDashboard.loading"
+              ref="countyDashboardRef"
+            />
+          </div>
+
           <div class="mt-5">
             <GridLayout
               v-if="!agentDashboard.loading && layout.length > 0"
@@ -156,7 +164,9 @@ import {
 } from "frappe-ui";
 import { storeToRefs } from "pinia";
 import { computed, ref } from "vue";
+const countyDashboardRef = ref<InstanceType<typeof CountyDashboard> | null>(null);
 import ChartItem from "./components/ChartItem.vue";
+import CountyDashboard from "./components/CountyDashboard.vue";
 
 type Layout = {
   x: number;
@@ -371,6 +381,17 @@ const chartsDropdown = computed(() => {
           minW: 15,
           minH: 12,
           maxH: 20,
+        }),
+    },
+    {
+      label: __("County / Tier Dashboard"),
+      chart: "county_dashboard",
+      onClick: () =>
+        addChart("county_dashboard", {
+          w: 50,
+          h: 40,
+          minW: 30,
+          minH: 30,
         }),
     },
   ].filter((chart) => {

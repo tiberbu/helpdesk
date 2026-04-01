@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - contentinfo
