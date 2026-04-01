@@ -1,0 +1,341 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - button:
+          - img
+          - generic:
+            - generic: ServiceDesk
+            - generic: Administrator
+          - generic:
+            - img
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - text: Search
+            - generic:
+              - img
+              - generic: K
+        - generic:
+          - generic:
+            - img
+          - generic: Dashboard
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Notifications
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Home
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Tickets
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Knowledge Base
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Customers
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Contacts
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Live Chat
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Major Incidents
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Automations
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic: Public Views
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - generic: ⭐
+                    - generic: My Feedback
+                  - generic:
+                    - generic:
+                      - generic: 📋
+                    - generic: Pending Tickets
+                  - generic:
+                    - generic:
+                      - generic: 🆕
+                    - generic: Recently Assigned Tickets
+                  - generic:
+                    - generic:
+                      - generic: ⏳
+                    - generic: SLA Due
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Help
+          - generic:
+            - generic:
+              - img
+            - generic: Collapse
+      - generic:
+        - generic:
+          - generic:
+            - banner:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /helpdesk/tickets
+                        - generic: Tickets
+                      - generic: /
+                      - button:
+                        - generic: QA Auto-Routing Test
+              - generic:
+                - generic:
+                  - generic:
+                    - button [disabled]:
+                      - img
+                    - button:
+                      - img
+                  - generic: Sub-County Support
+                  - button:
+                    - img
+                    - generic: Escalate
+                  - button:
+                    - img
+                    - generic: Open
+                  - button:
+                    - img
+            - generic:
+              - generic:
+                - paragraph: "#284"
+                - generic:
+                  - generic: via
+                  - img
+                  - generic: Email
+              - generic:
+                - generic: First Response
+                - generic: Due in 1d 0h
+              - generic:
+                - generic: Resolution
+                - generic: Due in 5d 0h
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - tablist:
+                  - tab [selected]:
+                    - img
+                    - text: Activity
+                  - tab:
+                    - img
+                    - text: Emails
+                  - tab:
+                    - img
+                    - text: Comments
+                  - tab:
+                    - img
+                    - text: Internal Notes
+                - tabpanel:
+                  - generic:
+                    - generic: Activity
+                    - button:
+                      - img
+                      - generic: New
+                      - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: a
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: admin@example.com
+                                  - generic: <admin@example.com>
+                                - generic:
+                                  - paragraph: 30 minutes ago
+                                  - button:
+                                    - generic:
+                                      - img
+                                  - button:
+                                    - generic:
+                                      - img
+                              - iframe [ref=e236] [cursor=pointer]:
+                                - generic [ref=f2e2]: Testing facility auto-routing
+              - generic:
+                - generic:
+                  - generic:
+                    - button:
+                      - img
+                      - generic: Reply
+                    - button:
+                      - img
+                      - generic: Comment
+                - text: Hi John, we are looking into this issue.
+            - generic:
+              - radiogroup:
+                - radio [checked]:
+                  - button:
+                    - generic:
+                      - generic: Details
+                - radio:
+                  - button:
+                    - generic:
+                      - generic: Contact
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: q
+                      - generic:
+                        - generic:
+                          - paragraph: qa_facility_test
+                          - img
+                        - generic:
+                          - button:
+                            - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Ticket Type
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Unspecified
+                                - img
+                        - generic:
+                          - generic: Priority
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Medium
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Customer
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Enter Customer
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Team
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Billing
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Assignee
+                          - button:
+                            - generic:
+                              - paragraph: No assignees
+                            - img
+                      - generic:
+                        - generic:
+                          - generic: Category
+                          - generic:
+                            - combobox:
+                              - generic: Select Category
+                              - img
+                  - generic:
+                    - generic: Support Routing
+                    - generic:
+                      - generic:
+                        - generic: Support Level
+                        - generic: Sub-County Support
+                      - generic:
+                        - generic: Facility
+                        - generic: QA Test Health Centre
+                      - generic:
+                        - generic: Sub-County
+                        - generic: Westlands
+                      - generic:
+                        - generic: County
+                        - generic: Nairobi
+                  - generic:
+                    - generic:
+                      - generic: Linked Articles
+                      - generic:
+                        - button:
+                          - img
+                          - generic: Create Article
+                        - button:
+                          - img
+                          - generic: Link
+                    - generic: No linked articles
+                  - generic:
+                    - generic:
+                      - generic: Related Tickets
+                      - button:
+                        - img
+                        - generic: Link
+                    - generic: No related tickets
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Time Tracking
+                      - button:
+                        - img
+                        - generic: Add Entry
+                    - button:
+                      - img
+                      - generic: Start Timer
+                    - generic:
+                      - img
+                      - paragraph: No time logged yet
+    - list
+  - dialog "Escalate Ticket" [ref=e385]:
+    - generic [ref=e388]:
+      - generic [ref=e389]:
+        - banner [ref=e391]:
+          - heading "Escalate Ticket" [level=3] [ref=e392]
+        - button [active] [ref=e393] [cursor=pointer]:
+          - img [ref=e394]
+      - generic [ref=e397]:
+        - generic [ref=e398]:
+          - generic [ref=e399]:
+            - generic [ref=e400]: From
+            - generic [ref=e401]: Sub-County Support
+          - img [ref=e402]
+          - generic [ref=e404]:
+            - generic [ref=e405]: To
+            - generic [ref=e406]: County Support
+        - generic [ref=e407]:
+          - generic [ref=e408]: Reason *
+          - textbox "Enter reason for escalating this ticket…" [ref=e409]
+    - generic [ref=e410]:
+      - button "Cancel" [ref=e411] [cursor=pointer]:
+        - generic [ref=e412]: Cancel
+      - button "Escalate" [disabled] [ref=e413]:
+        - generic [ref=e414]: Escalate

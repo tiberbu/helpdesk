@@ -1,0 +1,179 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Major Incidents
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89]
+            - generic [ref=e91]: Automations
+        - generic [ref=e93]:
+          - generic [ref=e94] [cursor=pointer]:
+            - img [ref=e95]
+            - generic [ref=e97]: Public Views
+          - navigation [ref=e99]:
+            - generic [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]: ⭐
+              - generic [ref=e103]: My Feedback
+            - generic [ref=e104] [cursor=pointer]:
+              - generic [ref=e106]: 📋
+              - generic [ref=e107]: Pending Tickets
+            - generic [ref=e108] [cursor=pointer]:
+              - generic [ref=e110]: 🆕
+              - generic [ref=e111]: Recently Assigned Tickets
+            - generic [ref=e112] [cursor=pointer]:
+              - generic [ref=e114]: ⏳
+              - generic [ref=e115]: SLA Due
+      - generic [ref=e116]:
+        - generic [ref=e117] [cursor=pointer]:
+          - img [ref=e119]
+          - generic [ref=e121]: Help
+        - generic [ref=e122] [cursor=pointer]:
+          - img [ref=e124]
+          - generic [ref=e126]: Collapse
+    - generic [ref=e127]:
+      - banner [ref=e451]:
+        - generic [ref=e453]:
+          - link "Tickets" [ref=e454] [cursor=pointer]:
+            - /url: /helpdesk/tickets
+          - generic [ref=e455]: /
+          - button "List" [ref=e456] [cursor=pointer]:
+            - img [ref=e457]
+            - generic [ref=e458]: List
+            - img [ref=e459]
+        - link "Create" [ref=e462] [cursor=pointer]:
+          - /url: /helpdesk/tickets/new
+          - button "Create" [ref=e463]:
+            - img [ref=e464]
+            - generic [ref=e465]: Create
+      - generic [ref=e466]:
+        - generic [ref=e467]:
+          - generic [ref=e469]:
+            - textbox "ID" [ref=e472]
+            - textbox "Subject" [ref=e475]
+            - button "Brand" [ref=e480] [cursor=pointer]:
+              - generic [ref=e482]: Brand
+              - img [ref=e483]
+            - button "Customer" [ref=e489] [cursor=pointer]:
+              - generic [ref=e491]: Customer
+              - img [ref=e492]
+            - combobox "Customise options" [ref=e496] [cursor=pointer]:
+              - generic: Source
+              - img [ref=e497]
+            - button "Support Level" [ref=e503] [cursor=pointer]:
+              - generic [ref=e505]: Support Level
+              - img [ref=e506]
+            - textbox "County" [ref=e510]
+          - generic [ref=e511]:
+            - button "Refresh" [ref=e512] [cursor=pointer]:
+              - img [ref=e513]
+            - generic [ref=e517]:
+              - button "Filter 1" [ref=e518] [cursor=pointer]:
+                - img [ref=e519]
+                - generic [ref=e520]: Filter
+                - generic [ref=e521]: "1"
+              - button [ref=e523] [cursor=pointer]:
+                - img [ref=e524]
+            - generic [ref=e529]:
+              - button [ref=e530] [cursor=pointer]:
+                - img [ref=e532]
+              - button "Last Modified" [ref=e536] [cursor=pointer]:
+                - generic [ref=e537]: Last Modified
+                - img [ref=e538]
+            - button "Columns" [ref=e542] [cursor=pointer]:
+              - img [ref=e543]
+              - generic [ref=e545]: Columns
+        - generic [ref=e547]:
+          - generic [ref=e548]:
+            - checkbox [ref=e550] [cursor=pointer]
+            - generic [ref=e553]: ID
+            - generic [ref=e556]: Subject
+            - generic [ref=e559]: Status
+            - generic [ref=e562]: First response
+            - generic [ref=e565]: Resolution
+            - generic [ref=e568]: Assigned To
+            - generic [ref=e571]: Customer
+            - generic [ref=e574]: Priority
+            - generic [ref=e577]: Type
+            - generic [ref=e580]: Team
+            - generic [ref=e583]: Contact
+            - generic [ref=e586]: Rating
+            - generic [ref=e589]: Created
+          - link [ref=e591] [cursor=pointer]:
+            - /url: /helpdesk/tickets/1
+            - generic [ref=e593]:
+              - checkbox [ref=e596]
+              - generic [ref=e599]: "1"
+              - generic [ref=e602]: Welcome to Helpdesk
+              - generic [ref=e605]:
+                - img [ref=e606]
+                - generic [ref=e608]: Open
+              - generic [ref=e611]: Failed
+              - generic [ref=e614]: Breached
+              - generic [ref=e620]: A
+              - generic [ref=e623]: Medium
+              - generic [ref=e626]: Unspecified
+              - generic [ref=e629]: John Doe
+              - generic [ref=e632]:
+                - img [ref=e633]
+                - img [ref=e635]
+                - img [ref=e637]
+                - img [ref=e639]
+                - img [ref=e641]
+              - generic [ref=e645]: 1 w
+        - generic [ref=e647]:
+          - radiogroup [ref=e648]:
+            - radio "20" [checked] [ref=e649]:
+              - button "20" [ref=e650] [cursor=pointer]:
+                - generic [ref=e652]: "20"
+            - radio "50" [ref=e653]:
+              - button "50" [ref=e654] [cursor=pointer]:
+                - generic [ref=e656]: "50"
+            - radio "100" [ref=e657]:
+              - button "100" [ref=e658] [cursor=pointer]:
+                - generic [ref=e660]: "100"
+          - generic [ref=e662]:
+            - generic [ref=e663]: "1"
+            - generic [ref=e664]: of
+            - generic [ref=e665]: "1"
+  - region "Notifications (F8)":
+    - list

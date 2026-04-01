@@ -1,17 +1,17 @@
-# Story: QA: [County-7] Kenya seed data — 47 counties, sub-counties, team structure template
+# Story: QA: [County-5] Escalation UI — one-click escalate/de-escalate with reason dialog
 
-Status: done
-Task ID: mngbjm2hqtcnhy
-Task Number: #349
+Status: in-progress
+Task ID: mngbviw86sq0fk
+Task Number: #351
 Workflow: playwright-qa
 Model: opus
-Created: 2026-04-01T17:27:34.187Z
+Created: 2026-04-01T17:36:49.872Z
 
 ## Description
 
 ## QA Report Task — DO NOT MODIFY CODE
 
-**Review task #343: [County-7] Kenya seed data — 47 counties, sub-counties, team structure template**
+**Review task #341: [County-5] Escalation UI — one-click escalate/de-escalate with reason dialog**
 **QA Depth: 1/1** (max depth reached = no further QA cycles)
 
 ### MANDATORY: Use Playwright MCP for ALL browser testing
@@ -31,7 +31,7 @@ Start by navigating to the app: `mcp__playwright__browser_navigate` with url `ht
 Then login with credentials from docs/testing-info.md (or use: Administrator / admin)
 
 ### What to verify
-Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-343-county-7-kenya-seed-data-47-counties-sub-counties-team-struc.md`
+Read the story file for acceptance criteria: `_bmad-output/implementation-artifacts/story-341-county-5-escalation-ui-one-click-escalate-de-escalate-with-r.md`
 
 ### Files changed
 (check git diff for changes)
@@ -48,7 +48,7 @@ Read the story file for acceptance criteria: `_bmad-output/implementation-artifa
 5. Verify no console errors
 
 ### Deliverable
-Produce `docs/qa-report-task-343.md` with:
+Produce `docs/qa-report-task-341.md` with:
 - Each AC: PASS/FAIL with evidence
 - Screenshots referenced (use task-prefixed naming)
 - Console errors captured
@@ -70,7 +70,7 @@ Create the fix task using:
 curl -b /tmp/ccs.cookie -X POST http://localhost:3000/api/tasks -H "Content-Type: application/json" -d @- <<'TASK_JSON'
 {
   "title": "Fix: [story title] — [1-line summary of all issues]",
-  "description": "## Fix Task (from QA report docs/qa-report-task-343.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
+  "description": "## Fix Task (from QA report docs/qa-report-task-341.md)\n\n### SCOPE LOCK\nYou MUST only modify the files listed below. Any change outside this scope = failure.\n\n### Issues to fix\n#### Issue 1: [title]\n- File: [exact path]\n- Line: [number]\n- Current: `[code snippet]`\n- Expected: `[code snippet]`\n- Verify: `[command that proves fix works]`\n\n#### Issue 2: ...\n\n### Done Checklist (ALL must pass)\n- [ ] Issue 1 fixed — verify with: [command]\n- [ ] Issue 2 fixed — verify with: [command]\n- [ ] No files modified outside scope\n- [ ] `git diff --stat` shows only expected files\n- [ ] App builds without errors: [build command]\n- [ ] No console errors on affected pages\n\n### MANDATORY COMPLETION GATE\nBefore marking done, run EVERY verify command above. If ANY fails, fix it. Do not skip.",
   "workdir": "/home/ubuntu/bmad-project/helpdesk",
   "status": "bmad_workflow",
   "notes": "[bmad-workflow:quick-dev]",
@@ -127,7 +127,7 @@ TASK_JSON
 
 ### References
 
-- Task source: Claude Code Studio task #349
+- Task source: Claude Code Studio task #351
 
 ## Dev Agent Record
 
@@ -137,42 +137,7 @@ opus
 
 ### Completion Notes List
 
-**Completed:** 2026-04-01T17:38:37.354Z
-
-ion.
-
----
-
-## MANDATORY POST-TASK VERIFICATION
-
-### Step 1 — Requirements Audit
-
-1. Read story file for acceptance criteria
-2. Test each AC using Playwright browser tools
-3. Navigate to relevant pages, interact with UI
-4. Take screenshots
-5. Check console for errors
-6. Check for regressions
-7. Produce `docs/qa-report-task-343.md` with PASS/FAIL per AC
-8. Create fix task if P0/P1 failures found
-
-### Step 2 — Proof of Completion### Verification Report
-
-```
-VERIFICATION:
-✅ AC1 (47 county teams): 47 counties under National Support Team confirmed via bench console
-✅ AC2 (~310 sub-county teams): 304 sub-counties with correct parent_team links verified
-✅ AC3 (National + Engineering): Both exist with correct support_level, territory=Kenya, is_group=1
-✅ AC4 (SLA configs per level): All 4 SLAs verified — L0(30m/4h OLA), L1(1h/8h), L2(2h/24h), L3(4h/72h)
-✅ AC5 (CSV template): 305 lines (header + 304 rows), correct columns, both dev + bench copies
-⚠️ AC6 (bench migrate): Pre-existing unrelated patch blocks migrate — P2, not caused by this story
-✅ AC7 (No regressions): Helpdesk home + tickets page load correctly
-✅ AC8 (Code builds): Pure Python patches + CSV, no build errors
-🌐 Browser tests: 6 screenshots taken — HD Team list, team detail, SLA list/detail, helpdesk home, tickets
-✅ QA report: docs/qa-report-task-343.md created with all ACs documented
-✅ Screenshots: 6 screenshots in test-screenshots/task-349-*.png
-FINAL: ✅ All requirements verified — no P0/P1 issues, no fix task needed
-```
+_(Updated by agent on completion)_
 
 ### Change Log
 
