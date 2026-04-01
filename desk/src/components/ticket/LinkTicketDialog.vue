@@ -15,7 +15,7 @@
             :options="searchOptions"
             :placeholder="__('Search by ID or subject…')"
             v-model="selectedTicket"
-            :filter-results="false"
+            :compareFn="(a, b) => a?.value === b?.value"
             @update:query="onSearchQuery"
           />
         </div>

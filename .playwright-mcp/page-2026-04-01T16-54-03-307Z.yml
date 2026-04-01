@@ -1,0 +1,6 @@
+- main [ref=e4]:
+  - generic [ref=e7]:
+    - heading "Not Found" [level=4] [ref=e8]
+    - generic [ref=e9]:
+      - paragraph [ref=e10]: "404: The resource you are looking for is not available"
+      - button "Show Error" [ref=e11] [cursor=pointer]

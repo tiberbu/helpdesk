@@ -202,9 +202,11 @@ class TestEscalationChain(FrappeTestCase):
 		"""Escalation from a terminal tier (allow_escalation_to_next=False) is blocked."""
 		from helpdesk.api.escalation import escalate_ticket
 
-		# L3 terminal team (no parent needed because escalation will be blocked before team check)
+		# Create team as Administrator (team creation touches Assignment Rule)
+		frappe.set_user("Administrator")
 		l3_team = _make_team("EscTest-L3-Team", support_level=self.l3.name)
 		self._cleanup.append(("HD Team", "EscTest-L3-Team"))
+		frappe.set_user("escalation.test.agent@test.com")
 
 		ticket = self._make_ticket(
 			support_level=self.l3.name,
@@ -218,8 +220,11 @@ class TestEscalationChain(FrappeTestCase):
 		"""Escalation blocked when assigned team has no parent_team."""
 		from helpdesk.api.escalation import escalate_ticket
 
+		# Create team as Administrator (team creation touches Assignment Rule)
+		frappe.set_user("Administrator")
 		orphan_team = _make_team("EscTest-Orphan-Team", support_level=self.l0.name, parent_team=None)
 		self._cleanup.append(("HD Team", "EscTest-Orphan-Team"))
+		frappe.set_user("escalation.test.agent@test.com")
 
 		# Force no parent_team
 		frappe.db.set_value("HD Team", orphan_team.name, "parent_team", None)

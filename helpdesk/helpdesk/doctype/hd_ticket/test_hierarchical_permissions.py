@@ -119,6 +119,7 @@ class TestHierarchicalPermissions(IntegrationTestCase):
         frappe.set_user("Administrator")
         frappe.db.set_single_value("HD Settings", "restrict_tickets_by_agent_group", 0)
 
+        # Use direct DB delete to avoid Comment/activity-log deadlocks during teardown
         for team in [
             "SubCounty-Westlands",
             "SubCounty-Langata",
@@ -126,12 +127,11 @@ class TestHierarchicalPermissions(IntegrationTestCase):
             "National-Team",
             "Engineering-Team",
         ]:
-            if frappe.db.exists("HD Team", team):
-                frappe.delete_doc("HD Team", team, ignore_permissions=True, force=True)
+            frappe.db.delete("HD Team Member", {"parent": team})
+            frappe.db.delete("HD Team", {"name": team})
 
         for level in ["L0 - Sub-County", "L1 - County", "L2 - National", "L3 - Engineering"]:
-            if frappe.db.exists("HD Support Level", level):
-                frappe.delete_doc("HD Support Level", level, ignore_permissions=True, force=True)
+            frappe.db.delete("HD Support Level", {"name": level})
 
         frappe.db.commit()
 
@@ -160,9 +160,9 @@ class TestHierarchicalPermissions(IntegrationTestCase):
     def test_is_national_level_true_for_l2(self):
         self.assertTrue(is_national_level(["National-Team"]))
 
-    def test_is_national_level_true_for_l3(self):
-        # L3 also has level_order >= 2
-        self.assertTrue(is_national_level(["Engineering-Team"]))
+    def test_is_national_level_false_for_l3(self):
+        # L3 Engineering is NOT treated as national (level_order=3, only level_order==2 is national)
+        self.assertFalse(is_national_level(["Engineering-Team"]))
 
     def test_is_national_level_false_for_l0(self):
         self.assertFalse(is_national_level(["SubCounty-Westlands"]))
@@ -218,8 +218,9 @@ class TestHierarchicalPermissions(IntegrationTestCase):
         self.assertIn("SubCounty-Westlands", sql)
         self.assertIn("SubCounty-Langata", sql)
 
-    def test_permission_query_l2_returns_none_or_empty(self):
-        # L2 national agent should see everything — returns None or empty string
+    def test_permission_query_l2_returns_none(self):
+        # L2 national agent should see everything — permission_query returns None
+        # (no WHERE clause → unrestricted access)
         result = permission_query("l2agent@county.test")
         self.assertIsNone(result)
 

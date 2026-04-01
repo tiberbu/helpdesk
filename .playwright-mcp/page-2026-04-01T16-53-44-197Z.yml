@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner
+    - generic [ref=e4]:
+      - text: /
+      - generic [ref=e11]:
+        - navigation [ref=e12]:
+          - img "App Logo" [ref=e14]
+          - button "Search Ctrl+K" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]:
+              - img [ref=e18]
+              - text: Search
+            - generic [ref=e20]: Ctrl+K
+          - generic [ref=e21]:
+            - button [ref=e24] [cursor=pointer]:
+              - img [ref=e25]
+            - generic "Administrator" [ref=e28] [cursor=pointer]:
+              - generic "Administrator" [ref=e29]: A
+        - generic [ref=e32]:
+          - generic [ref=e33] [cursor=pointer]:
+            - img "Framework" [ref=e35]
+            - generic [ref=e36]:
+              - generic [ref=e37]: Framework
+              - generic [ref=e38]: 9 Workspaces
+          - link "ServiceDesk ServiceDesk" [ref=e39] [cursor=pointer]:
+            - /url: http://help.frappe.local/helpdesk
+            - img "ServiceDesk" [ref=e41]
+            - generic [ref=e43]: ServiceDesk
+    - contentinfo
+  - button [ref=e44] [cursor=pointer]:
+    - img [ref=e45]

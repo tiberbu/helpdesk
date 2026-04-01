@@ -1543,12 +1543,18 @@ def permission_query(user):
 
     # --- Hierarchical visibility (County support tier model) ---
     # get_scoped_teams_for_agent returns:
-    #   None  → user has L2+ national level or no support levels configured
-    #           → fall through to legacy behaviour below
-    #   list  → explicit set of teams whose tickets the agent may see
+    #   True              → L2 National: user sees ALL tickets (no restriction)
+    #   _LEGACY_FALLBACK  → no support levels configured → use legacy filter below
+    #   list              → restricted to these teams (L0 / L1 / L3)
+    from .team_hierarchy import _LEGACY_FALLBACK
+
     scoped = get_scoped_teams_for_agent(user)
 
-    if scoped is not None:
+    if scoped is True:
+        # L2 National: unrestricted — no WHERE clause needed
+        return
+
+    if scoped is not _LEGACY_FALLBACK:
         # Hierarchical mode: restrict to the computed team scope
         query += (
             " OR (JSON_SEARCH(`tabHD Ticket`._assign, 'all', {user}) IS NOT NULL)".format(
