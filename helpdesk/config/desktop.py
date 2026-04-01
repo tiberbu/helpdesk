@@ -6,7 +6,7 @@ def get_data():
         {
             "module_name": "ServiceDesk",
             "color": "grey",
-            "icon": "octicon octicon-file-directory",
+            "icon": "fa fa-headset",
             "type": "module",
             "label": _("ServiceDesk"),
         }

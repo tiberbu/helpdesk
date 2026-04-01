@@ -6,13 +6,23 @@
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M93.9278 0H23.1013C10.3428 0 0 10.3428 0 23.1013V93.9278C0 106.686 10.3428 117.029 23.1013 117.029H93.9278C106.686 117.029 117.029 106.686 117.029 93.9278V23.1013C117.029 10.3428 106.686 0 93.9278 0Z"
-      fill="#7D42FB"
-    />
-    <path
-      d="M95.9759 50.8753V27.8265L21 27.8265V38.3271H85.5278V48.3027C81.3275 49.5103 78.2824 53.3955 78.2824 57.9632C78.2824 62.531 81.3275 66.3637 85.5278 67.5713V77.5468H31.5006V50.1403H21V88.0474H96.0284V64.9986L89.7805 60.5359V55.3906L96.0284 50.9278L95.9759 50.8753Z"
-      fill="#EDF7FF"
-    />
+    <defs>
+      <linearGradient id="sdBgLogo" x1="0" y1="0" x2="118" y2="118" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#0E7490"/>
+        <stop offset="100%" stop-color="#164E63"/>
+      </linearGradient>
+    </defs>
+    <!-- Background: deep teal rounded square -->
+    <rect width="118" height="118" rx="22" fill="url(#sdBgLogo)"/>
+    <!-- Headset arc (top band) -->
+    <path d="M27 64 C27 37 91 37 91 64" stroke="white" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <!-- Left ear cup -->
+    <rect x="18" y="59" width="17" height="28" rx="8.5" fill="white"/>
+    <!-- Right ear cup -->
+    <rect x="83" y="59" width="17" height="28" rx="8.5" fill="white"/>
+    <!-- Mic arm curving down from right ear cup -->
+    <path d="M91 73 Q90 90 75 93" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+    <!-- Mic capsule -->
+    <circle cx="71" cy="94" r="5.5" fill="white"/>
   </svg>
 </template>

@@ -1,6 +1,6 @@
 {
 	"charts": [],
-	"content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\" style=\\\"\\\"><a href=\\\"/helpdesk\\\">Visit Helpdesk</a></span>\",\"col\":12}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Helpdesk Configuration<br></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Ticket Configuration\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Agent Configuration\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Helpdesk Reports\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Automation\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Channels\",\"col\":4}}]",
+	"content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\" style=\\\"\\\"><a href=\\\"/helpdesk\\\">Visit ServiceDesk</a></span>\",\"col\":12}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">ServiceDesk Configuration<br></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Ticket Configuration\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Agent Configuration\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"ServiceDesk Reports\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Automation\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Channels\",\"col\":4}}]",
 	"creation": "2022-09-17 11:48:26.825712",
 	"docstatus": 0,
 	"doctype": "Workspace",
@@ -8,7 +8,7 @@
 	"hide_custom": 0,
 	"icon": "support",
 	"idx": 0,
-	"label": "Helpdesk",
+	"label": "ServiceDesk",
 	"links": [
 		{
 			"hidden": 0,
@@ -125,7 +125,7 @@
 		{
 			"hidden": 0,
 			"is_query_report": 0,
-			"label": "Helpdesk Reports",
+			"label": "ServiceDesk Reports",
 			"link_count": 2,
 			"onboard": 0,
 			"type": "Card Break"
@@ -162,5 +162,5 @@
 	"roles": [],
 	"sequence_id": 1,
 	"shortcuts": [],
-	"title": "Helpdesk"
+	"title": "ServiceDesk"
 }
