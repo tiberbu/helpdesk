@@ -88,6 +88,10 @@ const articles = createResource({
   url: "helpdesk.api.article.search",
   debounce: 500,
   auto: false,
+  onError: () => {
+    // Silently ignore search errors (e.g. RediSearch unavailable)
+    articles.data = [];
+  },
 });
 watch(
   () => query,

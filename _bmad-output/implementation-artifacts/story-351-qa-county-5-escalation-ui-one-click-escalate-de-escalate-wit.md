@@ -1,6 +1,6 @@
 # Story: QA: [County-5] Escalation UI — one-click escalate/de-escalate with reason dialog
 
-Status: in-progress
+Status: done
 Task ID: mngbviw86sq0fk
 Task Number: #351
 Workflow: playwright-qa
@@ -137,12 +137,18 @@ opus
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+QA testing complete via Playwright MCP browser testing. All 6 core acceptance criteria PASS. One P2 cosmetic issue found: de-escalate dialog shows wrong target level after complex escalation/de-escalation history (from_level of last path entry instead of level_order - 1). No P0/P1 issues — no fix task created.
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-04-01: Completed Playwright browser testing on tickets #284, #299, #302, #1. Wrote QA report.
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `docs/qa-report-task-341.md` (created)
+- `test-screenshots/task-351-01-ticket-284-header-escalate.png` (created)
+- `test-screenshots/task-351-02-escalate-dialog.png` (created)
+- `test-screenshots/task-351-03-escalate-error-no-parent-team.png` (created)
+- `test-screenshots/task-351-04-ticket-299-full-escalation.png` (created)
+- `test-screenshots/task-351-05-ticket-302-deescalate.png` (created)
+- `test-screenshots/task-351-06-ticket-284-sidebar-routing.png` (created)

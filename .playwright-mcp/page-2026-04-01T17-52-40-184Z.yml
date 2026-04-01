@@ -1,0 +1,73 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - navigation [ref=e23]:
+        - generic [ref=e24] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e28]: Tickets
+        - generic [ref=e29] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e33]: Knowledge Base
+      - generic [ref=e36] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e40]: Collapse
+    - generic [ref=e41]:
+      - banner [ref=e44]:
+        - generic [ref=e47]:
+          - link "Tickets" [ref=e48] [cursor=pointer]:
+            - /url: /helpdesk/my-tickets
+            - generic [ref=e49]: Tickets
+          - generic [ref=e50]: /
+          - link "New Ticket" [ref=e51] [cursor=pointer]:
+            - /url: /helpdesk/my-tickets/new
+            - generic [ref=e52]: New Ticket
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: Subject *
+          - textbox "A short description" [active] [ref=e60]: Jomvu Per Ward (All Days)
+        - generic [ref=e132]:
+          - img [ref=e133]
+          - generic [ref=e136]:
+            - paragraph [ref=e137]: No answers found
+            - generic [ref=e138]: Rephrase the question and try again with some keywords
+        - generic [ref=e64]:
+          - generic [ref=e67]:
+            - generic [ref=e69]: A
+            - generic [ref=e70]: Administrator
+          - paragraph [ref=e73]: Detailed explanation
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e78]:
+                - button "Paragraph" [ref=e80] [cursor=pointer]:
+                  - img [ref=e81]
+                - button [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+                - button "Bullet List" [ref=e91] [cursor=pointer]:
+                  - img [ref=e92]
+                - button "Numbered List" [ref=e96] [cursor=pointer]:
+                  - img [ref=e97]
+                - button "Image" [ref=e100] [cursor=pointer]:
+                  - img [ref=e101]
+                - button "Video" [ref=e104] [cursor=pointer]:
+                  - img [ref=e105]
+                - button "Link" [ref=e108] [cursor=pointer]:
+                  - img [ref=e109]
+                - button "Blockquote" [ref=e113] [cursor=pointer]:
+                  - img [ref=e114]
+                - button "Code" [ref=e118] [cursor=pointer]:
+                  - img [ref=e119]
+              - button [ref=e124] [cursor=pointer]:
+                - img [ref=e125]
+            - generic [ref=e127]:
+              - button "Discard" [ref=e128] [cursor=pointer]:
+                - generic [ref=e129]: Discard
+              - button "Submit" [disabled] [ref=e130]:
+                - generic [ref=e131]: Submit
+  - region "Notifications (F8)":
+    - list

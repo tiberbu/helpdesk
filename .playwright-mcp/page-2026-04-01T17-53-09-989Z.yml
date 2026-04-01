@@ -1,0 +1,82 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - navigation [ref=e23]:
+        - generic [ref=e24] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e28]: Tickets
+        - generic [ref=e29] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e33]: Knowledge Base
+      - generic [ref=e36] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e40]: Collapse
+    - generic [ref=e41]:
+      - banner [ref=e139]:
+        - generic [ref=e142]:
+          - link "Tickets" [ref=e143] [cursor=pointer]:
+            - /url: /helpdesk/my-tickets
+            - generic [ref=e144]: Tickets
+          - generic [ref=e145]: /
+          - link "Jomvu Per Ward (All Days)" [ref=e146] [cursor=pointer]:
+            - /url: /helpdesk/my-tickets/305
+            - generic [ref=e147]: Jomvu Per Ward (All Days)
+        - button "Close" [ref=e149] [cursor=pointer]:
+          - img [ref=e150]
+          - generic [ref=e152]: Close
+      - generic [ref=e154]:
+        - generic [ref=e155]:
+          - generic [ref=e156]: Activity
+          - generic [ref=e159]:
+            - generic [ref=e162]: a
+            - generic [ref=e163]:
+              - generic [ref=e165]:
+                - generic [ref=e167]: admin@example.com
+                - img [ref=e168]
+                - generic [ref=e170]: just now
+              - iframe [ref=e171]:
+                - paragraph [ref=f1e3]: Test ticket description for validation
+          - generic [ref=e173] [cursor=pointer]:
+            - generic [ref=e176]: A
+            - generic [ref=e177]: Type a message
+        - generic [ref=e178]:
+          - generic [ref=e180]: Ticket details
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - generic [ref=e184]: A
+              - generic [ref=e185]:
+                - generic [ref=e186]: Administrator
+                - button [ref=e188] [cursor=pointer]:
+                  - img [ref=e189]
+            - generic [ref=e192]:
+              - generic [ref=e193]: Ticket ID
+              - generic [ref=e194]: "305"
+            - generic [ref=e195]:
+              - generic [ref=e196]: Status
+              - generic [ref=e197]: Open
+            - generic [ref=e198]:
+              - generic [ref=e199]: First Response
+              - generic [ref=e201]: Due in 1d 0h 6m 56s
+            - generic [ref=e202]:
+              - generic [ref=e203]: Resolution
+              - generic [ref=e204]:
+                - generic [ref=e205]: Due in 5d 0h 6m 56s
+                - img [ref=e206] [cursor=pointer]
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - generic [ref=e211]: Subject
+              - generic [ref=e212]: Jomvu Per Ward (All Days)
+            - generic [ref=e213]:
+              - generic [ref=e214]: Team
+              - generic [ref=e215]: "-"
+            - generic [ref=e216]:
+              - generic [ref=e217]: Priority
+              - generic [ref=e218]: Medium
+  - region "Notifications (F8)":
+    - list
