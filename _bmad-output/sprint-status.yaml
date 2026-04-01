@@ -162,33 +162,33 @@ development_status:
   23-story-1-7-per-ticket-time-tracking: done  # [create-story] Story 1.7: Per-Ticket Time Tracking
   24-story-1-8-major-incident-flag-and-workflow: done  # [create-story] Story 1.8: Major Incident Flag and Workflow
   25-story-1-9-incident-models-templates: done  # [create-story] Story 1.9: Incident Models / Templates
-  26-story-2-1-automation-rule-doctype-and-engine-core: review  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
-  27-story-2-2-automation-rule-builder-ui: review  # [dev-story] Story 2.2: Automation Rule Builder UI
-  28-story-2-3-sla-based-automation-triggers: review  # [create-story] Story 2.3: SLA-Based Automation Triggers
-  29-story-2-4-automation-execution-logging: review  # [dev-story] Story 2.4: Automation Execution Logging
+  26-story-2-1-automation-rule-doctype-and-engine-core: done  # [create-story] Story 2.1: Automation Rule DocType and Engine Core
+  27-story-2-2-automation-rule-builder-ui: done  # [dev-story] Story 2.2: Automation Rule Builder UI
+  28-story-2-3-sla-based-automation-triggers: done  # [create-story] Story 2.3: SLA-Based Automation Triggers
+  29-story-2-4-automation-execution-logging: done  # [dev-story] Story 2.4: Automation Execution Logging
 
   # New tasks (added by Claude Studio)
-  30-story-3-1-channel-abstraction-layer: review  # [dev-story] Story 3.1: Channel Abstraction Layer
-  31-story-3-2-chat-session-management-backend: ready-for-dev  # [dev-story] Story 3.2: Chat Session Management Backend
-  32-story-3-3-embeddable-chat-widget: ready-for-dev  # [create-story] Story 3.3: Embeddable Chat Widget
-  33-story-3-4-real-time-chat-communication: ready-for-dev  # [dev-story] Story 3.4: Real-Time Chat Communication
+  30-story-3-1-channel-abstraction-layer: done  # [dev-story] Story 3.1: Channel Abstraction Layer
+  31-story-3-2-chat-session-management-backend: done  # [dev-story] Story 3.2: Chat Session Management Backend
+  32-story-3-3-embeddable-chat-widget: done  # [create-story] Story 3.3: Embeddable Chat Widget
+  33-story-3-4-real-time-chat-communication: done  # [dev-story] Story 3.4: Real-Time Chat Communication
 
   # New tasks (added by Claude Studio)
-  34-story-3-5-agent-chat-interface: ready-for-dev  # [create-story] Story 3.5: Agent Chat Interface
-  35-story-3-6-chat-to-ticket-transcript-and-follow-up: ready-for-dev  # [dev-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
-  36-story-3-7-csat-survey-infrastructure-and-delivery: ready-for-dev  # [dev-story] Story 3.7: CSAT Survey Infrastructure and Delivery
-  37-story-3-8-multi-brand-configuration: ready-for-dev  # [dev-story] Story 3.8: Multi-Brand Configuration
-  38-story-4-1-business-hours-sla-calculation-engine: in-progress  # [create-story] Story 4.1: Business Hours SLA Calculation Engine
-  39-story-4-2-proactive-sla-breach-alerts: ready-for-dev  # [create-story] Story 4.2: Proactive SLA Breach Alerts
-  40-story-4-3-sla-compliance-dashboard: ready-for-dev  # [dev-story] Story 4.3: SLA Compliance Dashboard
-  41-story-4-4-ola-uc-agreement-type-preparation: ready-for-dev  # [create-story] Story 4.4: OLA/UC Agreement Type Preparation
+  34-story-3-5-agent-chat-interface: done  # [create-story] Story 3.5: Agent Chat Interface
+  35-story-3-6-chat-to-ticket-transcript-and-follow-up: done  # [dev-story] Story 3.6: Chat-to-Ticket Transcript and Follow-up
+  36-story-3-7-csat-survey-infrastructure-and-delivery: done  # [dev-story] Story 3.7: CSAT Survey Infrastructure and Delivery
+  37-story-3-8-multi-brand-configuration: done  # [dev-story] Story 3.8: Multi-Brand Configuration
+  38-story-4-1-business-hours-sla-calculation-engine: done  # [create-story] Story 4.1: Business Hours SLA Calculation Engine
+  39-story-4-2-proactive-sla-breach-alerts: done  # [create-story] Story 4.2: Proactive SLA Breach Alerts
+  40-story-4-3-sla-compliance-dashboard: done  # [dev-story] Story 4.3: SLA Compliance Dashboard
+  41-story-4-4-ola-uc-agreement-type-preparation: done  # [create-story] Story 4.4: OLA/UC Agreement Type Preparation
 
   # New tasks (added by Claude Studio)
-  42-story-5-1-article-review-workflow: review  # [dev-story] Story 5.1: Article Review Workflow
-  43-story-5-2-article-versioning: review  # [dev-story] Story 5.2: Article Versioning
-  44-story-5-3-review-dates-and-expiry-reminders: review  # [create-story] Story 5.3: Review Dates and Expiry Reminders
-  45-story-5-4-ticket-article-linking: review  # [create-story] Story 5.4: Ticket-Article Linking
-  46-story-5-5-internal-only-articles: review  # [create-story] Story 5.5: Internal-Only Articles
+  42-story-5-1-article-review-workflow: done  # [dev-story] Story 5.1: Article Review Workflow
+  43-story-5-2-article-versioning: done  # [dev-story] Story 5.2: Article Versioning
+  44-story-5-3-review-dates-and-expiry-reminders: done  # [create-story] Story 5.3: Review Dates and Expiry Reminders
+  45-story-5-4-ticket-article-linking: done  # [create-story] Story 5.4: Ticket-Article Linking
+  46-story-5-5-internal-only-articles: done  # [create-story] Story 5.5: Internal-Only Articles
   47-story-6-1-custom-report-builder: done  # [create-story] Story 6.1: Custom Report Builder
   48-story-6-2-report-scheduling-and-export: done  # [create-story] Story 6.2: Report Scheduling and Export
   49-story-6-3-csat-analytics-dashboard: done  # [create-story] Story 6.3: CSAT Analytics Dashboard
@@ -232,7 +232,7 @@ development_status:
 
   71-qa-fix-p1-issues-in-story-1-7-time-tracking-n-1-query-starte: done  # [adversarial-review] QA: Fix: P1 issues in Story 1.7 Time Tracking (N+1 query, st
 
-  72-fix-time-tracking-adversarial-review-findings-p1-p2: review  # [quick-dev] Fix: Time Tracking adversarial review findings (P1/P2)
+  72-fix-time-tracking-adversarial-review-findings-p1-p2: done  # [quick-dev] Fix: Time Tracking adversarial review findings (P1/P2)
 
   73-fix-p1-findings-from-qa-task-69-status-category-none-regress: done  # [quick-dev] Fix: P1 findings from QA task-69 — status_category None regr
 
@@ -248,11 +248,11 @@ development_status:
 
   79-fix-p1s-from-adversarial-review-task-77-tz-conversion-maxlen: done  # [quick-dev] Fix: P1s from adversarial review task-77 — tz conversion, ma
 
-  80-fix-time-tracking-qa-p1-p2-findings-bench-sync-tz-aware-cras: review  # [quick-dev] Fix: Time Tracking QA P1/P2 findings (bench sync, tz-aware c
+  80-fix-time-tracking-qa-p1-p2-findings-bench-sync-tz-aware-cras: done  # [quick-dev] Fix: Time Tracking QA P1/P2 findings (bench sync, tz-aware c
 
   81-fix-p1-findings-from-qa-task-78-regression-test-gaps-migrati: done  # [quick-dev] Fix: P1 findings from QA task-78 — regression test gaps, mig
 
-  82-fix-qa-p1-findings-from-task-76-agent-manager-perm-is-agent-: review  # [quick-dev] Fix: QA P1 findings from task #76 — Agent Manager perm, is_a
+  82-fix-qa-p1-findings-from-task-76-agent-manager-perm-is-agent-: done  # [quick-dev] Fix: QA P1 findings from task #76 — Agent Manager perm, is_a
 
   83-qa-fix-p1-findings-from-qa-task-78-regression-test-gaps-migr: done  # [adversarial-review] QA: Fix: P1 findings from QA task-78 — regression test gaps,
 
@@ -269,11 +269,11 @@ development_status:
   89-qa-fix-time-tracking-qa-p1-p2-findings-bench-sync-tz-aware-c: done  # [adversarial-review] QA: Fix: Time Tracking QA P1/P2 findings (bench sync, tz-awa
 
   90-qa-fix-p1s-from-adversarial-review-task-84-deduplicate-privi: done  # [adversarial-review] QA: Fix: P1s from adversarial review task-84 — deduplicate p
-  91-fix-time-tracking-adversarial-review-p1-p2-findings-candelet: review  # [quick-dev] Fix: Time Tracking adversarial review P1/P2 findings (canDel
+  91-fix-time-tracking-adversarial-review-p1-p2-findings-candelet: done  # [quick-dev] Fix: Time Tracking adversarial review P1/P2 findings (canDel
 
   92-qa-fix-p1-findings-from-qa-task-83-performance-regression-in: done  # [adversarial-review] QA: Fix: P1 findings from QA task-83 — performance regressio
 
-  93-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps-qa-: review  # [quick-dev] Fix: TimeTracker.vue bench drift + P2 defense-in-depth gaps 
+  93-fix-timetracker-vue-bench-drift-p2-defense-in-depth-gaps-qa-: done  # [quick-dev] Fix: TimeTracker.vue bench drift + P2 defense-in-depth gaps 
 
   94-fix-p1s-from-adversarial-review-task-90-dedup-delete-entry-l: done  # [quick-dev] Fix: P1s from adversarial review task-90 — dedup delete_entr
 
@@ -290,13 +290,13 @@ development_status:
 
   101-qa-fix-p1s-from-adversarial-review-task-90-dedup-delete-entr: done  # [adversarial-review] QA: Fix: P1s from adversarial review task-90 — dedup delete_
 
-  102-fix-p1-time-tracking-issues-from-adversarial-review-story-95: review  # [quick-dev] Fix: P1 time tracking issues from adversarial review (Story 
+  102-fix-p1-time-tracking-issues-from-adversarial-review-story-95: done  # [quick-dev] Fix: P1 time tracking issues from adversarial review (Story 
 
   103-qa-fix-p1-findings-from-adversarial-review-task-92-none-stat: done  # [adversarial-review] QA: Fix: P1 findings from adversarial review task-92 — None 
 
-  104-fix-delete-entry-regression-p0-cint-silent-conversion-p1-fro: review  # [quick-dev] Fix: delete_entry regression (P0) + cint silent conversion (
+  104-fix-delete-entry-regression-p0-cint-silent-conversion-p1-fro: done  # [quick-dev] Fix: delete_entry regression (P0) + cint silent conversion (
 
-  105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: review  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
+  105-fix-hd-admin-phantom-permission-broken-test-missing-doctype-: done  # [quick-dev] Fix: HD Admin phantom permission — broken test, missing DocT
 
   106-fix-p1s-from-adversarial-review-task-101-bench-time-tracking: done  # [quick-dev] Fix: P1s from adversarial review task-101 — bench time_track
 
@@ -306,29 +306,29 @@ development_status:
 
   109-qa-fix-hd-admin-phantom-permission-broken-test-missing-docty: done  # [adversarial-review] QA: Fix: HD Admin phantom permission — broken test, missing 
 
-  110-fix-p1-p2-findings-from-adversarial-review-task-108-missing-: review  # [quick-dev] Fix: P1/P2 findings from adversarial review task-108 — missi
+  110-fix-p1-p2-findings-from-adversarial-review-task-108-missing-: done  # [quick-dev] Fix: P1/P2 findings from adversarial review task-108 — missi
 
   111-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: done  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
 
   112-qa-fix-delete-entry-regression-p0-cint-silent-conversion-p1-: done  # [adversarial-review] QA: Fix: delete_entry regression (P0) + cint silent conversi
 
-  113-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-forwar: review  # [quick-dev] Fix: P0 delete_entry ownership bypass + P1 is_agent user-for
+  113-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-forwar: done  # [quick-dev] Fix: P0 delete_entry ownership bypass + P1 is_agent user-for
 
-  114-fix-before-delete-on-trash-test-mismatch-p0-missing-system-m: review  # [quick-dev] Fix: before_delete→on_trash test mismatch (P0) + missing Sys
+  114-fix-before-delete-on-trash-test-mismatch-p0-missing-system-m: done  # [quick-dev] Fix: before_delete→on_trash test mismatch (P0) + missing Sys
 
   115-qa-fix-p0-delete-entry-ownership-bypass-p1-is-agent-user-for: done  # [adversarial-review] QA: Fix: P0 delete_entry ownership bypass + P1 is_agent user
 
   116-qa-fix-p1s-from-adversarial-review-task-101-bench-time-track: done  # [adversarial-review] QA: Fix: P1s from adversarial review task-101 — bench time_t
 
-  117-qa-fix-p1-p2-findings-from-adversarial-review-task-108: review  # [code-review] QA: Fix P1/P2 findings from adversarial review task-108
+  117-qa-fix-p1-p2-findings-from-adversarial-review-task-108: done  # [code-review] QA: Fix P1/P2 findings from adversarial review task-108
 
   118-qa-fix-before-delete-on-trash-test-mismatch-p0-missing-syste: done  # [adversarial-review] QA: Fix: before_delete→on_trash test mismatch (P0) + missing
 
-  119-fix-flaky-time-tracking-tests-duplicate-test-missing-coverag: review  # [quick-dev] Fix: Flaky time tracking tests (duplicate test, missing cove
+  119-fix-flaky-time-tracking-tests-duplicate-test-missing-coverag: done  # [quick-dev] Fix: Flaky time tracking tests (duplicate test, missing cove
 
   120-qa-fix-p1-p2-findings-from-adversarial-review-task-108-missi: done  # [adversarial-review] QA: Fix: P1/P2 findings from adversarial review task-108 — m
 
-  121-fix-require-int-str-float-string-mismatch-p1-undocumented-is: review  # [quick-dev] Fix: _require_int_str float-string mismatch (P1) + undocumen
+  121-fix-require-int-str-float-string-mismatch-p1-undocumented-is: done  # [quick-dev] Fix: _require_int_str float-string mismatch (P1) + undocumen
 
   122-fix-p1-performance-regression-uncached-db-query-every-save-m: done  # [quick-dev] Fix: P1 performance regression (uncached DB query every save
 
@@ -338,7 +338,7 @@ development_status:
 
   125-fix-reverted-savepoint-isolation-broad-except-in-close-ticke: done  # [quick-dev] Fix: Reverted savepoint isolation + broad except in close_ti
 
-  126-fix-missing-on-trash-tests-for-system-manager-hd-admin-test-: review  # [quick-dev] Fix: Missing on_trash tests for System Manager/HD Admin + te
+  126-fix-missing-on-trash-tests-for-system-manager-hd-admin-test-: done  # [quick-dev] Fix: Missing on_trash tests for System Manager/HD Admin + te
 
   127-qa-fix-p1-performance-regression-misleading-error-test-split: done  # [adversarial-review] QA: Fix P1 performance regression + misleading error + test 
 
@@ -346,21 +346,21 @@ development_status:
 
   129-qa-fix-missing-on-trash-tests-for-system-manager-hd-admin-te: done  # [adversarial-review] QA: Fix: Missing on_trash tests for System Manager/HD Admin 
 
-  130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-: review  # [quick-dev] Fix: P1/P2 from adversarial review task-120 — stale test cou
+  130-fix-p1-p2-from-adversarial-review-task-120-stale-test-count-: done  # [quick-dev] Fix: P1/P2 from adversarial review task-120 — stale test cou
 
-  131-fix-require-int-str-overflowerror-on-inf-missing-stop-timer-: review  # [quick-dev] Fix: _require_int_str OverflowError on inf + missing stop_ti
+  131-fix-require-int-str-overflowerror-on-inf-missing-stop-timer-: done  # [quick-dev] Fix: _require_int_str OverflowError on inf + missing stop_ti
 
-  132-fix-require-int-str-inf-nan-500-error-p1-empty-commit-audit-: review  # [quick-dev] Fix: _require_int_str inf/nan 500 error (P1) + empty commit 
+  132-fix-require-int-str-inf-nan-500-error-p1-empty-commit-audit-: done  # [quick-dev] Fix: _require_int_str inf/nan 500 error (P1) + empty commit 
 
-  133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-: review  # [quick-dev] Fix: _require_int_str OverflowError on inf/nan input (P1) + 
+  133-fix-require-int-str-overflowerror-on-inf-nan-input-p1-story-: done  # [quick-dev] Fix: _require_int_str OverflowError on inf/nan input (P1) + 
 
   134-qa-fix-require-int-str-overflowerror-on-inf-missing-stop-tim: done  # [adversarial-review] QA: Fix: _require_int_str OverflowError on inf + missing sto
 
   135-qa-fix-require-int-str-inf-nan-500-error-p1-empty-commit-aud: done  # [adversarial-review] QA: Fix: _require_int_str inf/nan 500 error (P1) + empty com
 
-  136-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-logi: review  # [quick-dev] Fix: P0 bench test sync broken + P1 divergent delete_entry l
+  136-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-logi: done  # [quick-dev] Fix: P0 bench test sync broken + P1 divergent delete_entry l
 
-  137-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-delete: review  # [quick-dev] Fix: Wrong nan comment + non-string float NaN/Inf bypass + d
+  137-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-delete: done  # [quick-dev] Fix: Wrong nan comment + non-string float NaN/Inf bypass + d
 
   138-qa-fix-p0-bench-test-sync-broken-p1-divergent-delete-entry-l: done  # [adversarial-review] QA: Fix: P0 bench test sync broken + P1 divergent delete_ent
 
@@ -368,24 +368,24 @@ development_status:
 
   140-qa-fix-require-int-str-overflowerror-on-inf-nan-input-p1-sto: done  # [adversarial-review] QA: Fix: _require_int_str OverflowError on inf/nan input (P1
 
-  142-fix-delete-entry-reimplements-is-agent-inline-consolidate-pe: review  # [quick-dev] Fix: delete_entry reimplements is_agent inline - consolidate
+  142-fix-delete-entry-reimplements-is-agent-inline-consolidate-pe: done  # [quick-dev] Fix: delete_entry reimplements is_agent inline - consolidate
   141-qa-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-del: done  # [adversarial-review] QA: Fix: Wrong nan comment + non-string float NaN/Inf bypass
 
   143-qa-fix-wrong-nan-comment-non-string-float-nan-inf-bypass-del: done  # [adversarial-review] QA: Fix: Wrong nan comment + non-string float NaN/Inf bypass
 
-  144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin: review  # [quick-dev] Fix: P1 recursive audit trail violation in task-133 + P2 mis
+  144-fix-p1-recursive-audit-trail-violation-in-task-133-p2-missin: done  # [quick-dev] Fix: P1 recursive audit trail violation in task-133 + P2 mis
 
   145-qa-fix-delete-entry-reimplements-is-agent-inline-consolidate: done  # [adversarial-review] QA: Fix: delete_entry reimplements is_agent inline - consoli
 
-  146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-: review  # [quick-dev] Fix: P1 delete_entry double get_roles + stale test count + a
+  146-fix-p1-delete-entry-double-get-roles-stale-test-count-audit-: done  # [quick-dev] Fix: P1 delete_entry double get_roles + stale test count + a
 
   147-qa-fix-p1-recursive-audit-trail-violation-in-task-133-p2-mis: done  # [adversarial-review] QA: Fix: P1 recursive audit trail violation in task-133 + P2
 
-  148-fix-system-manager-delete-permission-contradictory-between-d: review  # [quick-dev] Fix: System Manager delete permission contradictory between 
+  148-fix-system-manager-delete-permission-contradictory-between-d: done  # [quick-dev] Fix: System Manager delete permission contradictory between 
 
   149-qa-fix-system-manager-delete-permission-contradictory-betwee: done  # [adversarial-review] QA: Fix: System Manager delete permission contradictory betw
 
-  150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-: review  # [quick-dev] Fix: P1 story-133 still claims 7 inf/nan tests (actual 5-6) 
+  150-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-p2-: done  # [quick-dev] Fix: P1 story-133 still claims 7 inf/nan tests (actual 5-6) 
 
   151-qa-fix-system-manager-delete-permission-contradictory-betwee: done  # [adversarial-review] QA: Fix: System Manager delete permission contradictory betw
 
@@ -395,13 +395,13 @@ development_status:
 
   154-qa-fix-p1-story-133-still-claims-7-inf-nan-tests-actual-5-6-: done  # [adversarial-review] QA: Fix: P1 story-133 still claims 7 inf/nan tests (actual 5
 
-  155-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p2-o: review  # [quick-dev] Fix: P1 inline is_agent() reimplementation in delete_entry +
+  155-fix-p1-inline-is-agent-reimplementation-in-delete-entry-p2-o: done  # [quick-dev] Fix: P1 inline is_agent() reimplementation in delete_entry +
 
-  156-fix-delete-entry-re-inlines-is-agent-dry-violation-on-trash-: review  # [quick-dev] Fix: delete_entry re-inlines is_agent() DRY violation + on_t
+  156-fix-delete-entry-re-inlines-is-agent-dry-violation-on-trash-: done  # [quick-dev] Fix: delete_entry re-inlines is_agent() DRY violation + on_t
 
   157-qa-fix-reverted-savepoint-isolation-broad-except-in-close-ti: done  # [adversarial-review] QA: Fix: Reverted savepoint isolation + broad except in clos
 
-  158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco: review  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-150 + P2 i
+  158-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-inco: done  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-150 + P2 i
 
   159-qa-fix-delete-entry-dry-violation-on-trash-missing-is-agent-: done  # [adversarial-review] QA: Fix delete_entry DRY violation + on_trash missing is_age
 
@@ -411,9 +411,9 @@ development_status:
 
   162-qa-fix-p1-recursive-commit-scope-pollution-in-story-150-p2-i: done  # [adversarial-review] QA: Fix: P1 recursive commit-scope pollution in story-150 + 
 
-  163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-: review  # [quick-dev] Fix: P1 hd_time_entry.json out of sync + recursive audit tra
+  163-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-trail-: done  # [quick-dev] Fix: P1 hd_time_entry.json out of sync + recursive audit tra
 
-  164-fix-p2-findings-from-adversarial-review-of-story-122-fixes: review  # [quick-dev] Fix: P2 findings from adversarial review of Story #122 fixes
+  164-fix-p2-findings-from-adversarial-review-of-story-122-fixes: done  # [quick-dev] Fix: P2 findings from adversarial review of Story #122 fixes
 
   165-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-exc: done  # [quick-dev] Fix: P1 test deadlocks in test_close_tickets + P2 redundant 
   166-qa-fix-p1-hd-time-entry-json-out-of-sync-recursive-audit-tra: done  # [adversarial-review] QA: Fix: P1 hd_time_entry.json out of sync + recursive audit
@@ -422,11 +422,11 @@ development_status:
 
   168-fix-redundant-except-types-operationalerror-kills-cron-batch: done  # [quick-dev] Fix: Redundant except types + OperationalError kills cron ba
 
-  169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g: review  # [quick-dev] Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash doubl
+  169-fix-p1-privileged-roles-agent-roles-unsync-on-trash-double-g: done  # [quick-dev] Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash doubl
 
   170-qa-fix-p2-findings-from-adversarial-review-of-story-122-fixe: done  # [adversarial-review] QA: Fix: P2 findings from adversarial review of Story #122 f
 
-  171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw: review  # [quick-dev] Fix: P1 commit-scope pollution in task-163 + stale frappe.th
+  171-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-throw: done  # [quick-dev] Fix: P1 commit-scope pollution in task-163 + stale frappe.th
 
   172-qa-fix-p1-privileged-roles-agent-roles-unsync-on-trash-doubl: done  # [adversarial-review] QA: Fix: P1 PRIVILEGED_ROLES/AGENT_ROLES unsync + on_trash d
 
@@ -434,41 +434,41 @@ development_status:
 
   174-qa-fix-p1-test-deadlocks-in-test-close-tickets-p2-redundant-: done  # [adversarial-review] QA: Fix: P1 test deadlocks in test_close_tickets + P2 redund
 
-  175-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is-ag: review  # [quick-dev] Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 i
+  175-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is-ag: done  # [quick-dev] Fix: P1 _ensure_sm_agent_user missing HD Agent record + P1 i
 
-  176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc: review  # [quick-dev] Fix: P1 4th recursive commit-scope pollution in story-158 + 
+  176-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-inc: done  # [quick-dev] Fix: P1 4th recursive commit-scope pollution in story-158 + 
 
   177-qa-fix-p1-commit-scope-pollution-in-task-163-stale-frappe-th: done  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-163 + stale frapp
 
   178-qa-fix-p1-4th-recursive-commit-scope-pollution-in-story-158-: done  # [adversarial-review] QA: Fix: P1 4th recursive commit-scope pollution in story-15
 
-  179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun: review  # [quick-dev] Fix: P1 undeclared scope creep in task-163 + P2 stale test c
+  179-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-coun: done  # [quick-dev] Fix: P1 undeclared scope creep in task-163 + P2 stale test c
 
   180-qa-fix-redundant-except-types-operationalerror-kills-cron-ba: done  # [adversarial-review] QA: Fix: Redundant except types + OperationalError kills cro
 
   181-qa-fix-p1-ensure-sm-agent-user-missing-hd-agent-record-p1-is: done  # [adversarial-review] QA: Fix: P1 _ensure_sm_agent_user missing HD Agent record + 
 
-  182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: review  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co
+  182-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-commit-: done  # [quick-dev] Fix: P1 dev/bench desync in utils.py + hd_time_entry.py + co
 
   183-qa-fix-p1-undeclared-scope-creep-in-task-163-p2-stale-test-c: done  # [adversarial-review] QA: Fix: P1 undeclared scope creep in task-163 + P2 stale te
 
-  184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage: review  # [quick-dev] Fix: P1 dead AGENT_ROLES import + zero ValueError test cover
+  184-fix-p1-dead-agent-roles-import-zero-valueerror-test-coverage: done  # [quick-dev] Fix: P1 dead AGENT_ROLES import + zero ValueError test cover
 
   185-fix-p1-hd-ticket-py-production-code-not-updated-savepoint-cm: done  # [quick-dev] Fix: P1 hd_ticket.py production code not updated — savepoint
 
   186-qa-fix-p1-dev-bench-desync-in-utils-py-hd-time-entry-py-comm: done  # [adversarial-review] QA: Fix: P1 dev/bench desync in utils.py + hd_time_entry.py 
 
-  187-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-fals: review  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-176 + f
+  187-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-fals: done  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-176 + f
 
   188-qa-fix-p1-dead-agent-roles-import-zero-valueerror-test-cover: done  # [adversarial-review] QA: Fix: P1 dead AGENT_ROLES import + zero ValueError test c
 
-  189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde: review  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-171 + u
+  189-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-unde: done  # [quick-dev] Fix: P1 5th recursive commit-scope pollution in task-171 + u
 
   190-qa-fix-p1-hd-ticket-py-production-code-not-updated-savepoint: done  # [adversarial-review] QA: Fix: P1 hd_ticket.py production code not updated — savep
 
   191-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-176-f: done  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-176
 
-  192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun: review  # [quick-dev] Fix: P1 commit-scope pollution in task-179 + P2 stale test c
+  192-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-coun: done  # [quick-dev] Fix: P1 commit-scope pollution in task-179 + P2 stale test c
 
   193-qa-fix-p1-5th-recursive-commit-scope-pollution-in-task-171-u: done  # [adversarial-review] QA: Fix: P1 5th recursive commit-scope pollution in task-171
 
@@ -476,8 +476,8 @@ development_status:
 
   195-qa-fix-p1-commit-scope-pollution-in-task-179-p2-stale-test-c: done  # [adversarial-review] QA: Fix: P1 commit-scope pollution in task-179 + P2 stale te
 
-  197-fix-p1-6th-recursive-commit-scope-pollution-in-task-184-unde: review  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-184 + u
-  196-fix-p1-recursive-commit-scope-pollution-in-story-182-missing: review  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-182 + miss
+  197-fix-p1-6th-recursive-commit-scope-pollution-in-task-184-unde: done  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-184 + u
+  196-fix-p1-recursive-commit-scope-pollution-in-story-182-missing: done  # [quick-dev] Fix: P1 recursive commit-scope pollution in story-182 + miss
 
 # =============================================================
 # SCOPE-POLLUTION PROLIFERATION ASSESSMENT (task #196, 2026-03-23)
@@ -502,11 +502,11 @@ development_status:
 
   201-qa-fix-p1-6th-recursive-commit-scope-pollution-in-task-184-u: done  # [adversarial-review] QA: Fix: P1 6th recursive commit-scope pollution in task-184
 
-  202-fix-p1-6th-recursive-commit-scope-pollution-in-task-189-wron: review  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-189 + w
+  202-fix-p1-6th-recursive-commit-scope-pollution-in-task-189-wron: done  # [quick-dev] Fix: P1 6th recursive commit-scope pollution in task-189 + w
 
-  203-fix-p1-commit-bf2e19d09-task-196-bundles-17-files-declaring-: review  # [quick-dev] Fix: P1 commit bf2e19d09 (task-196) bundles 17 files declari
+  203-fix-p1-commit-bf2e19d09-task-196-bundles-17-files-declaring-: done  # [quick-dev] Fix: P1 commit bf2e19d09 (task-196) bundles 17 files declari
 
-  204-fix-p1-story-192-claims-credit-for-task-189-work-commit-scop: review  # [quick-dev] Fix: P1 story-192 claims credit for task-189 work + commit-s
+  204-fix-p1-story-192-claims-credit-for-task-189-work-commit-scop: done  # [quick-dev] Fix: P1 story-192 claims credit for task-189 work + commit-s
 
   205-qa-fix-p1-6th-recursive-commit-scope-pollution-in-task-189-w: done  # [adversarial-review] QA: Fix: P1 6th recursive commit-scope pollution in task-189
 
@@ -516,119 +516,221 @@ development_status:
 
   208-qa-fix-p1-story-192-claims-credit-for-task-189-work-commit-s: done  # [adversarial-review] QA: Fix: P1 story-192 claims credit for task-189 work + comm
 
-  209-fix-p1-7th-recursive-commit-scope-pollution-root-cause-is-au: review  # [quick-dev] Fix: P1 7th recursive commit-scope pollution — root cause is
+  209-fix-p1-7th-recursive-commit-scope-pollution-root-cause-is-au: done  # [quick-dev] Fix: P1 7th recursive commit-scope pollution — root cause is
 
-  210-fix-p1-7th-recursive-commit-scope-pollution-in-task-202-stal: review  # [quick-dev] Fix: P1 7th recursive commit-scope pollution in task-202 + s
+  210-fix-p1-7th-recursive-commit-scope-pollution-in-task-202-stal: done  # [quick-dev] Fix: P1 7th recursive commit-scope pollution in task-202 + s
 
-  211-fix-p1-task-203-commit-5c626bfce-modifies-7-files-declaring-: review  # [quick-dev] Fix: P1 task-203 commit 5c626bfce modifies 7 files declaring
+  211-fix-p1-task-203-commit-5c626bfce-modifies-7-files-declaring-: done  # [quick-dev] Fix: P1 task-203 commit 5c626bfce modifies 7 files declaring
 
   212-qa-fix-p1-unguarded-commit-asymmetric-validationerror-droppe: done  # [adversarial-review] QA: Fix P1 unguarded commit() + asymmetric ValidationError +
 
   213-qa-fix-p1-unguarded-commit-in-autoclose-loop-asymmetric-vali: done  # [adversarial-review] QA: Fix: P1 unguarded commit() in autoclose loop + asymmetri
 
-  214-fix-p1-story-204-claims-credit-for-task-203-work-commit-scop: review  # [quick-dev] Fix: P1 story-204 claims credit for task-203 work + commit-s
+  214-fix-p1-story-204-claims-credit-for-task-203-work-commit-scop: done  # [quick-dev] Fix: P1 story-204 claims credit for task-203 work + commit-s
 
   215-fix-p1-unguarded-fallback-logger-commit-failure-cascade-in-a: done  # [quick-dev] Fix: P1 unguarded fallback logger + commit failure cascade i
 
   216-qa-story-2-1-automation-rule-doctype-and-engine-core: done  # [adversarial-review] QA: Story 2.1: Automation Rule DocType and Engine Core
 
-  217-fix-story-2-1-automation-rule-nested-conditions-rejected-tri: review  # [quick-dev] Fix: Story 2.1 Automation Rule — Nested conditions rejected 
+  217-fix-story-2-1-automation-rule-nested-conditions-rejected-tri: done  # [quick-dev] Fix: Story 2.1 Automation Rule — Nested conditions rejected 
 
   218-qa-story-2-2-automation-rule-builder-ui: done  # [adversarial-review] QA: Story 2.2: Automation Rule Builder UI
 
-  219-fix-story-2-2-automation-rule-builder-ui-and-or-logic-lost-o: review  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — AND/OR logic los
+  219-fix-story-2-2-automation-rule-builder-ui-and-or-logic-lost-o: done  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — AND/OR logic los
 
   220-qa-story-2-3-sla-based-automation-triggers: done  # [adversarial-review] QA: Story 2.3: SLA-Based Automation Triggers
 
-  221-fix-story-2-3-sla-based-automation-triggers-dead-notificatio: review  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — dead notifica
+  221-fix-story-2-3-sla-based-automation-triggers-dead-notificatio: done  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — dead notifica
 
   222-qa-story-2-4-automation-execution-logging: done  # [adversarial-review] QA: Story 2.4: Automation Execution Logging
 
-  223-fix-story-2-4-automation-execution-logging-missing-indexes-s: review  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — Missing indexe
+  223-fix-story-2-4-automation-execution-logging-missing-indexes-s: done  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — Missing indexe
 
   224-qa-story-3-1-channel-abstraction-layer: done  # [adversarial-review] QA: Story 3.1: Channel Abstraction Layer
 
-  225-fix-story-3-1-channel-abstraction-layer-uncommitted-code-is-: review  # [quick-dev] Fix: Story 3.1 Channel Abstraction Layer — uncommitted code 
+  225-fix-story-3-1-channel-abstraction-layer-uncommitted-code-is-: done  # [quick-dev] Fix: Story 3.1 Channel Abstraction Layer — uncommitted code 
 
   226-qa-story-3-2-chat-session-management-backend: done  # [adversarial-review] QA: Story 3.2: Chat Session Management Backend
 
-  227-fix-story-3-2-chat-session-backend-dead-feature-flag-wrong-r: review  # [quick-dev] Fix: Story 3.2 Chat Session Backend — dead feature flag, wro
+  227-fix-story-3-2-chat-session-backend-dead-feature-flag-wrong-r: done  # [quick-dev] Fix: Story 3.2 Chat Session Backend — dead feature flag, wro
 
-  228-qa-story-3-3-embeddable-chat-widget: ready-for-dev  # [playwright-qa] QA: Story 3.3: Embeddable Chat Widget
+  228-qa-story-3-3-embeddable-chat-widget: done  # [playwright-qa] QA: Story 3.3: Embeddable Chat Widget
 
-  229-fix-story-3-3-embeddable-chat-widget-wrong-api-paths-offline: review  # [quick-dev] Fix: Story 3.3 Embeddable Chat Widget — wrong API paths + of
+  229-fix-story-3-3-embeddable-chat-widget-wrong-api-paths-offline: done  # [quick-dev] Fix: Story 3.3 Embeddable Chat Widget — wrong API paths + of
 
-  230-qa-story-3-4-real-time-chat-communication: ready-for-dev  # [playwright-qa] QA: Story 3.4: Real-Time Chat Communication
+  230-qa-story-3-4-real-time-chat-communication: done  # [playwright-qa] QA: Story 3.4: Real-Time Chat Communication
 
-  231-fix-story-3-4-real-time-chat-communication-wrong-api-path-in: review  # [quick-dev] Fix: Story 3.4 Real-Time Chat Communication — wrong API path
+  231-fix-story-3-4-real-time-chat-communication-wrong-api-path-in: done  # [quick-dev] Fix: Story 3.4 Real-Time Chat Communication — wrong API path
 
-  232-qa-story-3-5-agent-chat-interface: ready-for-dev  # [playwright-qa] QA: Story 3.5: Agent Chat Interface
+  232-qa-story-3-5-agent-chat-interface: done  # [playwright-qa] QA: Story 3.5: Agent Chat Interface
 
-  233-fix-story-3-5-agent-chat-interface-agent-send-message-jwt-by: review  # [quick-dev] Fix: Story 3.5 Agent Chat Interface — agent send_message JWT
+  233-fix-story-3-5-agent-chat-interface-agent-send-message-jwt-by: done  # [quick-dev] Fix: Story 3.5 Agent Chat Interface — agent send_message JWT
 
-  234-qa-story-3-6-chat-to-ticket-transcript-and-follow-up: ready-for-dev  # [playwright-qa] QA: Story 3.6: Chat-to-Ticket Transcript and Follow-up
+  234-qa-story-3-6-chat-to-ticket-transcript-and-follow-up: done  # [playwright-qa] QA: Story 3.6: Chat-to-Ticket Transcript and Follow-up
 
-  235-qa-story-3-7-csat-survey-infrastructure-and-delivery: ready-for-dev  # [playwright-qa] QA: Story 3.7: CSAT Survey Infrastructure and Delivery
+  235-qa-story-3-7-csat-survey-infrastructure-and-delivery: done  # [playwright-qa] QA: Story 3.7: CSAT Survey Infrastructure and Delivery
 
-  236-qa-story-3-8-multi-brand-configuration: ready-for-dev  # [playwright-qa] QA: Story 3.8: Multi-Brand Configuration
+  236-qa-story-3-8-multi-brand-configuration: done  # [playwright-qa] QA: Story 3.8: Multi-Brand Configuration
 
-  237-qa-story-4-1-business-hours-sla-calculation-engine: ready-for-dev  # [playwright-qa] QA: Story 4.1: Business Hours SLA Calculation Engine
+  237-qa-story-4-1-business-hours-sla-calculation-engine: done  # [playwright-qa] QA: Story 4.1: Business Hours SLA Calculation Engine
 
-  238-qa-story-4-2-proactive-sla-breach-alerts: ready-for-dev  # [playwright-qa] QA: Story 4.2: Proactive SLA Breach Alerts
+  238-qa-story-4-2-proactive-sla-breach-alerts: done  # [playwright-qa] QA: Story 4.2: Proactive SLA Breach Alerts
 
-  239-qa-story-4-3-sla-compliance-dashboard: ready-for-dev  # [playwright-qa] QA: Story 4.3: SLA Compliance Dashboard
+  239-qa-story-4-3-sla-compliance-dashboard: done  # [playwright-qa] QA: Story 4.3: SLA Compliance Dashboard
 
-  240-qa-story-4-4-ola-uc-agreement-type-preparation: ready-for-dev  # [playwright-qa] QA: Story 4.4: OLA/UC Agreement Type Preparation
+  240-qa-story-4-4-ola-uc-agreement-type-preparation: done  # [playwright-qa] QA: Story 4.4: OLA/UC Agreement Type Preparation
 
-  241-qa-story-5-1-article-review-workflow: review  # [playwright-qa] QA: Story 5.1: Article Review Workflow
+  241-qa-story-5-1-article-review-workflow: done  # [playwright-qa] QA: Story 5.1: Article Review Workflow
 
-  242-fix-story-5-1-article-review-workflow-email-notification-cra: review  # [quick-dev] Fix: Story 5.1 Article Review Workflow — Email notification 
+  242-fix-story-5-1-article-review-workflow-email-notification-cra: done  # [quick-dev] Fix: Story 5.1 Article Review Workflow — Email notification 
 
-  243-qa-story-5-2-article-versioning: review  # [playwright-qa] QA: Story 5.2: Article Versioning
+  243-qa-story-5-2-article-versioning: done  # [playwright-qa] QA: Story 5.2: Article Versioning
 
-  244-fix-story-5-2-article-versioning-missing-content-field-in-ge: review  # [quick-dev] Fix: Story 5.2 Article Versioning — Missing content field in
+  244-fix-story-5-2-article-versioning-missing-content-field-in-ge: done  # [quick-dev] Fix: Story 5.2 Article Versioning — Missing content field in
 
-  245-qa-story-5-3-review-dates-and-expiry-reminders: review  # [playwright-qa] QA: Story 5.3: Review Dates and Expiry Reminders
+  245-qa-story-5-3-review-dates-and-expiry-reminders: done  # [playwright-qa] QA: Story 5.3: Review Dates and Expiry Reminders
 
-  246-qa-story-5-4-ticket-article-linking: review  # [playwright-qa] QA: Story 5.4: Ticket-Article Linking
+  246-qa-story-5-4-ticket-article-linking: done  # [playwright-qa] QA: Story 5.4: Ticket-Article Linking
 
-  247-qa-story-5-5-internal-only-articles: review  # [playwright-qa] QA: Story 5.5: Internal-Only Articles
+  247-qa-story-5-5-internal-only-articles: done  # [playwright-qa] QA: Story 5.5: Internal-Only Articles
 
-  248-qa-story-1-1-story-1-1-feature-flag-infrastructure-for-itil-: review  # [playwright-qa] QA: Story 1.1: Story 1.1: Feature Flag Infrastructure for IT
+  248-qa-story-1-1-story-1-1-feature-flag-infrastructure-for-itil-: done  # [playwright-qa] QA: Story 1.1: Story 1.1: Feature Flag Infrastructure for IT
 
-  249-qa-story-1-2-story-1-2-impact-and-urgency-fields-with-priori: review  # [playwright-qa] QA: Story 1.2: Story 1.2: Impact and Urgency Fields with Pri
-  250-qa-story-1-3-story-1-3-multi-level-ticket-categorization: review  # [playwright-qa] QA: Story 1.3: Story 1.3: Multi-Level Ticket Categorization
-  251-qa-story-1-4-story-1-4-internal-notes-on-tickets: review  # [playwright-qa] QA: Story 1.4: Story 1.4: Internal Notes on Tickets
-  252-qa-story-1-5-story-1-5-mention-notifications-in-internal-not: review  # [playwright-qa] QA: Story 1.5: Story 1.5: @Mention Notifications in Internal
-  253-qa-story-1-6-story-1-6-related-ticket-linking: review  # [playwright-qa] QA: Story 1.6: Story 1.6: Related Ticket Linking
-  254-qa-story-1-7-story-1-7-per-ticket-time-tracking: review  # [playwright-qa] QA: Story 1.7: Story 1.7: Per-Ticket Time Tracking
-  255-qa-story-1-8-story-1-8-major-incident-flag-and-workflow: review  # [playwright-qa] QA: Story 1.8: Story 1.8: Major Incident Flag and Workflow
-  256-qa-story-1-9-story-1-9-incident-models-templates: review  # [playwright-qa] QA: Story 1.9: Story 1.9: Incident Models / Templates
+  249-qa-story-1-2-story-1-2-impact-and-urgency-fields-with-priori: done  # [playwright-qa] QA: Story 1.2: Story 1.2: Impact and Urgency Fields with Pri
+  250-qa-story-1-3-story-1-3-multi-level-ticket-categorization: done  # [playwright-qa] QA: Story 1.3: Story 1.3: Multi-Level Ticket Categorization
+  251-qa-story-1-4-story-1-4-internal-notes-on-tickets: done  # [playwright-qa] QA: Story 1.4: Story 1.4: Internal Notes on Tickets
+  252-qa-story-1-5-story-1-5-mention-notifications-in-internal-not: done  # [playwright-qa] QA: Story 1.5: Story 1.5: @Mention Notifications in Internal
+  253-qa-story-1-6-story-1-6-related-ticket-linking: done  # [playwright-qa] QA: Story 1.6: Story 1.6: Related Ticket Linking
+  254-qa-story-1-7-story-1-7-per-ticket-time-tracking: done  # [playwright-qa] QA: Story 1.7: Story 1.7: Per-Ticket Time Tracking
+  255-qa-story-1-8-story-1-8-major-incident-flag-and-workflow: done  # [playwright-qa] QA: Story 1.8: Story 1.8: Major Incident Flag and Workflow
+  256-qa-story-1-9-story-1-9-incident-models-templates: done  # [playwright-qa] QA: Story 1.9: Story 1.9: Incident Models / Templates
 
-  257-fix-story-1-3-qa-issues-missing-seed-data-categories: review  # [quick-dev] Fix: Story 1.3 QA Issues - Missing Seed Data Categories
+  257-fix-story-1-3-qa-issues-missing-seed-data-categories: done  # [quick-dev] Fix: Story 1.3 QA Issues - Missing Seed Data Categories
 
-  258-fix-story-1-5-qa-issues-non-internal-comment-mention-notific: review  # [quick-dev] Fix: Story 1.5 QA Issues — Non-Internal Comment Mention Noti
+  258-fix-story-1-5-qa-issues-non-internal-comment-mention-notific: done  # [quick-dev] Fix: Story 1.5 QA Issues — Non-Internal Comment Mention Noti
 
-  259-fix-story-1-9-qa-issues-remove-incorrect-itil-mode-gating-mi: review  # [quick-dev] Fix: Story 1.9 QA Issues - Remove incorrect ITIL mode gating
+  259-fix-story-1-9-qa-issues-remove-incorrect-itil-mode-gating-mi: done  # [quick-dev] Fix: Story 1.9 QA Issues - Remove incorrect ITIL mode gating
 
-  260-qa-story-2-1-automation-rule-doctype-and-engine-core: review  # [playwright-qa] QA: Story 2.1: Automation Rule DocType and Engine Core
+  260-qa-story-2-1-automation-rule-doctype-and-engine-core: done  # [playwright-qa] QA: Story 2.1: Automation Rule DocType and Engine Core
 
-  261-fix-story-2-1-automation-rule-deep-nesting-validation-phanto: review  # [quick-dev] Fix: Story 2.1 Automation Rule — Deep nesting validation + p
+  261-fix-story-2-1-automation-rule-deep-nesting-validation-phanto: done  # [quick-dev] Fix: Story 2.1 Automation Rule — Deep nesting validation + p
 
-  262-qa-story-2-2-automation-rule-builder-ui: review  # [playwright-qa] QA: Story 2.2: Automation Rule Builder UI
+  262-qa-story-2-2-automation-rule-builder-ui: done  # [playwright-qa] QA: Story 2.2: Automation Rule Builder UI
 
-  264-fix-story-2-2-automation-rule-builder-ui-engine-ignores-all-: review  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — Engine ignores a
-  263-qa-story-2-3-sla-based-automation-triggers: review  # [playwright-qa] QA: Story 2.3: SLA-Based Automation Triggers
+  264-fix-story-2-2-automation-rule-builder-ui-engine-ignores-all-: done  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — Engine ignores a
+  263-qa-story-2-3-sla-based-automation-triggers: done  # [playwright-qa] QA: Story 2.3: SLA-Based Automation Triggers
 
-  265-fix-story-2-2-automation-rule-builder-ui-conditions-save-for: review  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — Conditions save 
+  265-fix-story-2-2-automation-rule-builder-ui-conditions-save-for: done  # [quick-dev] Fix: Story 2.2 Automation Rule Builder UI — Conditions save 
 
-  267-fix-story-2-3-sla-based-automation-triggers-clear-warning-de: review  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — clear_warning
-  266-qa-story-2-4-automation-execution-logging: review  # [playwright-qa] QA: Story 2.4: Automation Execution Logging
+  267-fix-story-2-3-sla-based-automation-triggers-clear-warning-de: done  # [quick-dev] Fix: Story 2.3 SLA-Based Automation Triggers — clear_warning
+  266-qa-story-2-4-automation-execution-logging: done  # [playwright-qa] QA: Story 2.4: Automation Execution Logging
 
-  268-fix-story-2-4-automation-execution-logging-missing-ignore-li: review  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — missing ignore
+  268-fix-story-2-4-automation-execution-logging-missing-ignore-li: done  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — missing ignore
 
-  269-fix-story-2-4-automation-execution-logging-missing-hd-automa: review  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — missing HD Aut
+  269-fix-story-2-4-automation-execution-logging-missing-hd-automa: done  # [quick-dev] Fix: Story 2.4 Automation Execution Logging — missing HD Aut
 
-  270-qa-story-3-1-story-3-1-channel-abstraction-layer: review  # [playwright-qa] QA: Story 3.1: Story 3.1: Channel Abstraction Layer
+  270-qa-story-3-1-story-3-1-channel-abstraction-layer: done  # [playwright-qa] QA: Story 3.1: Story 3.1: Channel Abstraction Layer
 
-  271-qa-story-3-2-story-3-2-chat-session-management-backend: review  # [playwright-qa] QA: Story 3.2: Story 3.2: Chat Session Management Backend
+  271-qa-story-3-2-story-3-2-chat-session-management-backend: done  # [playwright-qa] QA: Story 3.2: Story 3.2: Chat Session Management Backend
+
+  272-qa-story-3-1-channel-abstraction-layer: done  # [playwright-qa] QA: Story 3.1: Channel Abstraction Layer
+
+  273-qa-story-4-1-business-hours-sla-calculation-engine: done  # [playwright-qa] QA: Story 4.1: Business Hours SLA Calculation Engine
+
+  274-qa-story-3-2-chat-session-management-backend: done  # [playwright-qa] QA: Story 3.2: Chat Session Management Backend
+
+  275-qa-story-3-3-embeddable-chat-widget: done  # [playwright-qa] QA: Story 3.3: Embeddable Chat Widget
+
+  276-qa-story-4-2-proactive-sla-breach-alerts: done  # [playwright-qa] QA: Story 4.2: Proactive SLA Breach Alerts
+
+  277-qa-story-4-3-sla-compliance-dashboard: done  # [playwright-qa] QA: Story 4.3: SLA Compliance Dashboard
+
+  278-fix-story-4-2-proactive-sla-breach-alerts-color-coded-sla-ba: done  # [quick-dev] Fix: Story 4.2 Proactive SLA Breach Alerts — Color-coded SLA
+
+  279-fix-story-3-3-embeddable-chat-widget-process-env-node-env-no: done  # [quick-dev] Fix: Story 3.3 Embeddable Chat Widget — process.env.NODE_ENV
+
+  280-fix-story-3-3-embeddable-chat-widget-process-env-node-env-cr: done  # [quick-dev] Fix: Story 3.3 Embeddable Chat Widget — process.env.NODE_ENV
+
+  281-qa-story-4-4-ola-uc-agreement-type-preparation: done  # [playwright-qa] QA: Story 4.4: OLA/UC Agreement Type Preparation
+
+  282-qa-story-3-4-real-time-chat-communication: done  # [playwright-qa] QA: Story 3.4: Real-Time Chat Communication
+
+  283-qa-story-3-5-agent-chat-interface: done  # [playwright-qa] QA: Story 3.5: Agent Chat Interface
+
+  284-qa-story-5-1-article-review-workflow: done  # [playwright-qa] QA: Story 5.1: Article Review Workflow
+
+  285-qa-story-3-6-chat-to-ticket-transcript-and-follow-up: done  # [playwright-qa] QA: Story 3.6: Chat-to-Ticket Transcript and Follow-up
+
+  286-qa-story-3-7-csat-survey-infrastructure-and-delivery: done  # [playwright-qa] QA: Story 3.7: CSAT Survey Infrastructure and Delivery
+  287-fix-story-5-1-article-review-workflow-archive-wipes-article-: done  # [quick-dev] Fix: Story 5.1 Article Review Workflow — Archive wipes artic
+
+  288-qa-story-5-2-article-versioning: done  # [playwright-qa] QA: Story 5.2: Article Versioning
+
+  289-fix-story-3-7-csat-survey-comment-submission-csrf-error-for-: done  # [quick-dev] Fix: Story 3.7 CSAT Survey — Comment submission CSRF error f
+
+  291-fix-story-5-2-article-versioning-broken-string-interpolation: done  # [quick-dev] Fix: Story 5.2 Article Versioning — Broken __() string inter
+  290-qa-story-5-3-review-dates-and-expiry-reminders: done  # [playwright-qa] QA: Story 5.3: Review Dates and Expiry Reminders
+
+  292-qa-story-3-8-multi-brand-configuration: done  # [playwright-qa] QA: Story 3.8: Multi-Brand Configuration
+
+  293-qa-story-5-4-ticket-article-linking: done  # [playwright-qa] QA: Story 5.4: Ticket-Article Linking
+
+  294-qa-story-4-1-business-hours-sla-calculation-engine: done  # [playwright-qa] QA: Story 4.1: Business Hours SLA Calculation Engine
+
+  295-qa-story-5-5-internal-only-articles: done  # [playwright-qa] QA: Story 5.5: Internal-Only Articles
+
+  296-qa-story-4-2-proactive-sla-breach-alerts: done  # [playwright-qa] QA: Story 4.2: Proactive SLA Breach Alerts
+
+  297-qa-story-4-3-sla-compliance-dashboard: done  # [playwright-qa] QA: Story 4.3: SLA Compliance Dashboard
+
+  298-fix-story-5-4-ticket-article-linking-create-article-routing-: cancelled  # [quick-dev] Fix: Story 5.4 Ticket-Article Linking — Create Article routi
+
+  299-fix-story-5-4-ticket-article-linking-search-dialog-empty-res: done  # [quick-dev] Fix: Story 5.4 Ticket-Article Linking — Search dialog empty 
+
+  300-qa-story-4-4-ola-uc-agreement-type-preparation: done  # [playwright-qa] QA: Story 4.4: OLA/UC Agreement Type Preparation
+
+  301-qa-story-5-1-article-review-workflow: done  # [playwright-qa] QA: Story 5.1: Article Review Workflow
+
+  302-qa-story-5-2-article-versioning: done  # [playwright-qa] QA: Story 5.2: Article Versioning
+
+  303-qa-story-5-3-review-dates-and-expiry-reminders: done  # [playwright-qa] QA: Story 5.3: Review Dates and Expiry Reminders
+
+  305-fix-story-5-3-review-dates-toast-called-as-function-instead-: done  # [quick-dev] Fix: Story 5.3 Review Dates — toast() called as function ins
+  304-qa-story-5-4-ticket-article-linking: done  # [playwright-qa] QA: Story 5.4: Ticket-Article Linking
+
+  306-qa-story-5-5-internal-only-articles: done  # [playwright-qa] QA: Story 5.5: Internal-Only Articles
+
+  307-bmad-research-helpdesk-phase-2-4-competitive-gap-analysis-fo: done  # [quick-dev] BMAD Research: Helpdesk Phase 2-4 — Competitive Gap Analysis
+
+  308-bmad-prd-helpdesk-phase-2-4-full-feature-parity-product-requ: done  # [quick-dev] BMAD PRD: Helpdesk Phase 2-4 — Full Feature Parity Product R
+  309-bmad-architecture-helpdesk-phase-2-4-technical-architecture-: done  # [quick-dev] BMAD Architecture: Helpdesk Phase 2-4 — Technical Architectu
+  310-bmad-sprint-planning-helpdesk-phase-2-4-epics-stories-full-i: done  # [quick-dev] BMAD Sprint Planning: Helpdesk Phase 2-4 — Epics, Stories & 
+
+  311-qa-bmad-research-helpdesk-phase-2-4-competitive-gap-analysis: done  # [playwright-qa] QA: BMAD Research: Helpdesk Phase 2-4 — Competitive Gap Anal
+
+  312-qa-bmad-prd-helpdesk-phase-2-4-full-feature-parity-product-r: done  # [playwright-qa] QA: BMAD PRD: Helpdesk Phase 2-4 — Full Feature Parity Produ
+
+  313-fix-bmad-prd-helpdesk-phase-2-4-prd-document-never-created-a: cancelled  # [quick-dev] Fix: BMAD PRD Helpdesk Phase 2-4 — PRD document never create
+
+  314-bmad-prd-part-1-phase-2-intelligence-channels-ai-copilot-wha: done  # [quick-dev] BMAD PRD Part 1: Phase 2 Intelligence & Channels — AI Copilo
+
+  315-bmad-prd-part-2-phase-3-enterprise-automation-ai-agent-chang: done  # [quick-dev] BMAD PRD Part 2: Phase 3 Enterprise & Automation — AI Agent,
+  316-bmad-prd-part-3-phase-4-innovation-voice-webrtc-video-llm-ma: done  # [quick-dev] BMAD PRD Part 3: Phase 4 Innovation — Voice/WebRTC, Video, L
+
+  317-qa-bmad-architecture-helpdesk-phase-2-4-technical-architectu: done  # [playwright-qa] QA: BMAD Architecture: Helpdesk Phase 2-4 — Technical Archit
+
+  318-qa-bmad-prd-part-1-phase-2-intelligence-channels-ai-copilot-: done  # [playwright-qa] QA: BMAD PRD Part 1: Phase 2 Intelligence & Channels — AI Co
+
+  319-qa-bmad-prd-part-2-phase-3-enterprise-automation-ai-agent-ch: done  # [playwright-qa] QA: BMAD PRD Part 2: Phase 3 Enterprise & Automation — AI Ag
+
+  320-qa-bmad-prd-part-3-phase-4-innovation-voice-webrtc-video-llm: done  # [playwright-qa] QA: BMAD PRD Part 3: Phase 4 Innovation — Voice/WebRTC, Vide
+
+  321-fix-bmad-prd-part-3-phase-4-innovation-docs-phase-4-prd-md-n: done  # [quick-dev] Fix: BMAD PRD Part 3: Phase 4 Innovation — docs/phase-4-prd.
+
+  322-qa-bmad-sprint-planning-helpdesk-phase-2-4-epics-stories-ful: done  # [playwright-qa] QA: BMAD Sprint Planning: Helpdesk Phase 2-4 — Epics, Storie
+
+  323-fix-bmad-sprint-planning-phase-2-4-docs-phase-2-4-epics-md-n: done  # [quick-dev] Fix: BMAD Sprint Planning Phase 2-4 — docs/phase-2-4-epics.m
+
+  324-fix-automation-rule-builder-content-not-scrollable-panels-ov: review  # [quick-dev] Fix: Automation Rule Builder — content not scrollable, panel
+
+  325-rebrand-helpdesk-servicedesk-name-icon-and-all-references-ac: review  # [quick-dev] Rebrand: Helpdesk → ServiceDesk — name, icon, and all refere
