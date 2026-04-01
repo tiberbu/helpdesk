@@ -1,0 +1,268 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Major Incidents
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89]
+            - generic [ref=e91]: County Dashboard
+          - generic [ref=e92] [cursor=pointer]:
+            - img [ref=e94]
+            - generic [ref=e96]: Automations
+        - generic [ref=e98]:
+          - generic [ref=e99] [cursor=pointer]:
+            - img [ref=e100]
+            - generic [ref=e102]: Public Views
+          - navigation [ref=e104]:
+            - generic [ref=e105] [cursor=pointer]:
+              - generic [ref=e107]: ⭐
+              - generic [ref=e108]: My Feedback
+            - generic [ref=e109] [cursor=pointer]:
+              - generic [ref=e111]: 📋
+              - generic [ref=e112]: Pending Tickets
+            - generic [ref=e113] [cursor=pointer]:
+              - generic [ref=e115]: 🆕
+              - generic [ref=e116]: Recently Assigned Tickets
+            - generic [ref=e117] [cursor=pointer]:
+              - generic [ref=e119]: ⏳
+              - generic [ref=e120]: SLA Due
+      - generic [ref=e121]:
+        - generic [ref=e122] [cursor=pointer]:
+          - img [ref=e124]
+          - generic [ref=e126]: Help
+        - generic [ref=e127] [cursor=pointer]:
+          - img [ref=e129]
+          - generic [ref=e131]: Collapse
+    - generic [ref=e148]:
+      - banner [ref=e151]:
+        - generic [ref=e153]: Home
+        - generic [ref=e155]:
+          - button "Refresh" [ref=e156] [cursor=pointer]:
+            - img [ref=e157]
+            - generic [ref=e161]: Refresh
+          - button "Edit" [ref=e162] [cursor=pointer]:
+            - img [ref=e163]
+            - generic [ref=e166]: Edit
+          - button "New" [ref=e167] [cursor=pointer]:
+            - img [ref=e168]
+            - generic [ref=e169]: New
+      - generic [ref=e173]:
+        - generic [ref=e174]: Hey, Administrator
+        - generic [ref=e176]:
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - generic [ref=e183]: SLA Compliance
+              - link "View details" [ref=e184] [cursor=pointer]:
+                - /url: /helpdesk/dashboard/sla
+            - generic [ref=e185]:
+              - generic [ref=e186]:
+                - generic [ref=e187]: Response
+                - generic [ref=e188]: 1.5%
+                - generic [ref=e191]: 1/68
+              - generic [ref=e192]:
+                - generic [ref=e193]: Resolution
+                - generic [ref=e194]: 0%
+                - generic [ref=e196]: 0/68
+            - 'generic "2026-04-01: 0%" [ref=e198]'
+          - generic [ref=e204]:
+            - generic [ref=e205]: Average Resolution
+            - generic [ref=e206]:
+              - generic [ref=e207]:
+                - generic [ref=e208]: 0m
+                - generic [ref=e209]:
+                  - generic [ref=e210]:
+                    - img [ref=e211]
+                    - generic [ref=e214]: 0%
+                  - generic [ref=e215] [cursor=pointer]:
+                    - text: vs last month
+                    - img [ref=e216]
+              - img [ref=e221]
+          - generic [ref=e228]:
+            - generic [ref=e229]: Average First Response
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]: 0m
+                - generic [ref=e233]:
+                  - generic [ref=e234]:
+                    - img [ref=e235]
+                    - generic [ref=e238]: 0%
+                  - generic [ref=e239] [cursor=pointer]:
+                    - text: vs last month
+                    - img [ref=e240]
+              - img [ref=e245]
+          - generic [ref=e252]:
+            - generic [ref=e253]: My Tickets
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]: "1"
+                - generic [ref=e257]:
+                  - generic [ref=e258]:
+                    - img [ref=e259]
+                    - generic [ref=e262]: +999%
+                  - generic [ref=e263] [cursor=pointer]:
+                    - text: vs last month
+                    - img [ref=e264]
+              - img [ref=e269]
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - text: SLA Alerts
+                - img [ref=e282]
+              - radiogroup [ref=e285]:
+                - radio "SLA Alerts" [checked] [ref=e286]:
+                  - button "SLA Alerts" [ref=e287] [cursor=pointer]:
+                    - generic [ref=e289]: SLA Alerts
+                - radio "Pending" [ref=e290]:
+                  - button "Pending" [ref=e291] [cursor=pointer]:
+                    - generic [ref=e293]: Pending
+                - radio "Recent" [ref=e294]:
+                  - button "Recent" [ref=e295] [cursor=pointer]:
+                    - generic [ref=e297]: Recent
+            - table [ref=e299]:
+              - rowgroup [ref=e300]:
+                - row [ref=e301]:
+                  - cell [ref=e302]
+                  - cell [ref=e304]
+                  - cell [ref=e306]
+                  - cell [ref=e308]
+                  - cell [ref=e309]
+                  - cell [ref=e311]
+                - row [ref=e313]:
+                  - cell [ref=e314]
+                  - cell [ref=e316]
+                  - cell [ref=e318]
+                  - cell [ref=e320]
+                  - cell [ref=e321]
+                  - cell [ref=e323]
+                - row [ref=e325]:
+                  - cell [ref=e326]
+                  - cell [ref=e328]
+                  - cell [ref=e330]
+                  - cell [ref=e332]
+                  - cell [ref=e333]
+                  - cell [ref=e335]
+                - row [ref=e337]:
+                  - cell [ref=e338]
+                  - cell [ref=e340]
+                  - cell [ref=e342]
+                  - cell [ref=e344]
+                  - cell [ref=e345]
+                  - cell [ref=e347]
+                - row [ref=e349]:
+                  - cell [ref=e350]
+                  - cell [ref=e352]
+                  - cell [ref=e354]
+                  - cell [ref=e356]
+                  - cell [ref=e357]
+                  - cell [ref=e359]
+                - row [ref=e361]:
+                  - cell [ref=e362]
+                  - cell [ref=e364]
+                  - cell [ref=e366]
+                  - cell [ref=e368]
+                  - cell [ref=e369]
+                  - cell [ref=e371]
+                - row [ref=e373]:
+                  - cell [ref=e374]
+                  - cell [ref=e376]
+                  - cell [ref=e378]
+                  - cell [ref=e380]
+                  - cell [ref=e381]
+                  - cell [ref=e383]
+                - row [ref=e385]:
+                  - cell [ref=e386]
+                  - cell [ref=e388]
+                  - cell [ref=e390]
+                  - cell [ref=e392]
+                  - cell [ref=e393]
+                  - cell [ref=e395]
+                - generic:
+                  - generic:
+                    - generic: All SLAs on track
+                    - generic: Great! All your tickets are within SLA
+          - generic [ref=e403]:
+            - generic [ref=e404]:
+              - generic [ref=e406]: Reviews
+              - generic [ref=e408]:
+                - generic [ref=e409]:
+                  - img [ref=e410]
+                  - generic [ref=e412]: "0"
+                - generic [ref=e413] [cursor=pointer]:
+                  - text: 0 reviews
+                  - img [ref=e414]
+              - img [ref=e420]:
+                - generic [ref=e422]:
+                  - generic [ref=e423]: "1"
+                  - generic [ref=e424]: "2"
+                  - generic [ref=e425]: "3"
+                  - generic [ref=e426]: "4"
+                  - generic [ref=e427]: "5"
+            - generic [ref=e434]:
+              - generic [ref=e435]:
+                - button "All Time" [ref=e436] [cursor=pointer]:
+                  - generic [ref=e437]: All Time
+                  - img [ref=e438]
+                - button "Positive first" [ref=e440] [cursor=pointer]:
+                  - generic [ref=e441]: Positive first
+                  - img [ref=e442]
+              - generic [ref=e445]:
+                - generic [ref=e446]: No feedback
+                - generic [ref=e447]: You haven't received any feedback yet
+          - generic [ref=e452]:
+            - generic [ref=e453]:
+              - generic [ref=e454]: Average Time Metrics
+              - radiogroup [ref=e455]:
+                - radio "3M" [ref=e456]:
+                  - button "3M" [ref=e457] [cursor=pointer]:
+                    - generic [ref=e459]: 3M
+                - radio "6M" [checked] [ref=e460]:
+                  - button "6M" [ref=e461] [cursor=pointer]:
+                    - generic [ref=e463]: 6M
+                - radio "1Y" [ref=e464]:
+                  - button "1Y" [ref=e465] [cursor=pointer]:
+                    - generic [ref=e467]: 1Y
+            - generic [ref=e469]:
+              - generic [ref=e470]: No average metrics
+              - generic [ref=e471]: Average response and resolution metrics not yet generated
+  - region "Notifications (F8)":
+    - list
