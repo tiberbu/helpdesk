@@ -1,0 +1,170 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e233] [cursor=pointer]:
+      - img [ref=e237]
+      - generic [ref=e239]:
+        - generic [ref=e240]: Helpdesk
+        - generic [ref=e241]: ServiceDesk
+      - button [ref=e242]:
+        - img [ref=e243]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e245]:
+      - link "Home" [ref=e247] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e249]
+        - generic [ref=e250]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e56]:
+      - text: / /
+      - generic [ref=e251]:
+        - generic [ref=e254]:
+          - generic [ref=e255]:
+            - button [ref=e256] [cursor=pointer]:
+              - img [ref=e257]
+            - list [ref=e260]:
+              - text: /
+              - listitem [ref=e261]:
+                - link "/ L0 - Sub-County":
+                  - /url: /desk/hd-support-level/L0%20-%20Sub-County
+          - generic [ref=e264]:
+            - button "Menu" [ref=e266] [cursor=pointer]:
+              - img [ref=e269]
+            - button "Save" [ref=e270] [cursor=pointer]:
+              - generic [ref=e271]: Save
+        - generic [ref=e275]:
+          - generic [ref=e276]:
+            - generic [ref=e283]:
+              - generic [ref=e285]:
+                - text: "*"
+                - generic [ref=e286]:
+                  - generic [ref=e287]:
+                    - generic [ref=e289]: Level Order *
+                    - textbox [ref=e292]: "0"
+                  - generic: level_order
+                - generic [ref=e293]:
+                  - generic [ref=e294]:
+                    - generic [ref=e296]: Display Name
+                    - textbox [ref=e299]: Sub-County Support
+                  - generic: display_name
+                - generic [ref=e300]:
+                  - generic [ref=e301]:
+                    - generic [ref=e303]: Color
+                    - textbox "Choose a color" [ref=e306]
+                  - generic: color
+              - generic [ref=e309]:
+                - generic [ref=e310]:
+                  - generic [ref=e311]:
+                    - generic [ref=e312]:
+                      - checkbox "Allow Escalation to Next Level" [checked] [ref=e314]
+                      - generic [ref=e315]: Allow Escalation to Next Level
+                    - paragraph
+                  - generic: allow_escalation_to_next
+                - generic [ref=e316]:
+                  - generic [ref=e317]:
+                    - generic [ref=e318]:
+                      - checkbox "Auto-Escalate on SLA Breach" [checked] [ref=e320]
+                      - generic [ref=e321]: Auto-Escalate on SLA Breach
+                    - paragraph
+                  - generic: auto_escalate_on_breach
+                - generic [ref=e322]:
+                  - generic [ref=e323]:
+                    - generic [ref=e325]: Auto-Escalate After (Minutes)
+                    - textbox [ref=e328]: "60"
+                  - generic: auto_escalate_minutes
+            - generic [ref=e330]:
+              - generic [ref=e331]:
+                - generic [ref=e333]:
+                  - generic [ref=e335]: Comments
+                  - generic [ref=e336]:
+                    - generic "Administrator" [ref=e337]:
+                      - generic "Administrator" [ref=e338]: A
+                    - generic [ref=e339]:
+                      - generic: comment
+                      - generic [ref=e340]:
+                        - generic [ref=e341]:
+                          - text: Type a reply / comment
+                          - paragraph [ref=e342]
+                        - text: ×
+                - generic [ref=e343]:
+                  - generic [ref=e344]:
+                    - heading "Activity" [level=4] [ref=e345]
+                    - button "New Email" [ref=e349] [cursor=pointer]:
+                      - img [ref=e350]
+                      - text: New Email
+                  - generic [ref=e351]:
+                    - generic [ref=e354]:
+                      - text: You created this
+                      - generic [ref=e355]: · 29 minutes ago
+                    - generic [ref=e358]:
+                      - text: You last edited this
+                      - generic [ref=e359]: · 29 minutes ago
+              - button [ref=e360] [cursor=pointer]:
+                - img [ref=e361]
+          - generic [ref=e364]:
+            - generic [ref=e366]:
+              - generic [ref=e369]: L0 - Sub-County
+              - generic [ref=e370]:
+                - button [ref=e372] [cursor=pointer]:
+                  - img [ref=e373]
+                - button [ref=e375] [cursor=pointer]:
+                  - img [ref=e376]
+                - generic [ref=e377]:
+                  - img [ref=e378] [cursor=pointer]
+                  - generic [ref=e380]: "0"
+            - generic [ref=e383]:
+              - generic [ref=e384]:
+                - img [ref=e385]
+                - generic [ref=e386]: Assign
+              - button [ref=e387] [cursor=pointer]:
+                - img [ref=e388]
+            - generic [ref=e392]:
+              - generic [ref=e394] [cursor=pointer]:
+                - img [ref=e395]
+                - text: Attachments
+              - button [ref=e396] [cursor=pointer]:
+                - img [ref=e397]
+            - generic [ref=e401]:
+              - generic [ref=e402]:
+                - img [ref=e403]
+                - generic [ref=e404]: Tags
+              - button [ref=e405] [cursor=pointer]:
+                - img [ref=e406]
+            - generic [ref=e410]:
+              - generic [ref=e411]:
+                - img [ref=e412]
+                - generic [ref=e413]: Share
+              - button [ref=e414] [cursor=pointer]:
+                - img [ref=e415]
+            - list [ref=e418]:
+              - listitem [ref=e419]:
+                - text: Last Edited by You
+                - generic "01-04-2026 19:55:07" [ref=e420]: 29 minutes ago
+              - listitem [ref=e421]:
+                - text: Created By You
+                - generic "01-04-2026 19:55:07" [ref=e422]: 29 minutes ago
+              - listitem
+    - contentinfo

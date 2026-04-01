@@ -1,6 +1,305 @@
 facility_name,facility_code,sub_county,county,l0_team,l1_team
-Pumwani Maternity Hospital,13010,Kamukunji,Nairobi,Kamukunji Sub-County Team,Nairobi County Team
-Kenyatta National Hospital,13001,Starehe,Nairobi,Starehe Sub-County Team,Nairobi County Team
-Makadara Health Centre,13030,Makadara,Nairobi,Makadara Sub-County Team,Nairobi County Team
-Kisumu County Referral Hospital,14001,Kisumu Central,Kisumu,Kisumu Central Sub-County Team,Kisumu County Team
-Mombasa County Hospital,15001,Mvita,Mombasa,Mvita Sub-County Team,Mombasa County Team
+,,Changamwe,Mombasa,Changamwe Sub-County Team,Mombasa County Team
+,,Jomvu,Mombasa,Jomvu Sub-County Team,Mombasa County Team
+,,Kisauni,Mombasa,Kisauni Sub-County Team,Mombasa County Team
+,,Likoni,Mombasa,Likoni Sub-County Team,Mombasa County Team
+,,Mvita,Mombasa,Mvita Sub-County Team,Mombasa County Team
+,,Nyali,Mombasa,Nyali Sub-County Team,Mombasa County Team
+,,Kinango,Kwale,Kinango Sub-County Team,Kwale County Team
+,,Lungalunga,Kwale,Lungalunga Sub-County Team,Kwale County Team
+,,Matuga,Kwale,Matuga Sub-County Team,Kwale County Team
+,,Msambweni,Kwale,Msambweni Sub-County Team,Kwale County Team
+,,Ganze,Kilifi,Ganze Sub-County Team,Kilifi County Team
+,,Kaloleni,Kilifi,Kaloleni Sub-County Team,Kilifi County Team
+,,Kilifi North,Kilifi,Kilifi North Sub-County Team,Kilifi County Team
+,,Kilifi South,Kilifi,Kilifi South Sub-County Team,Kilifi County Team
+,,Magarini,Kilifi,Magarini Sub-County Team,Kilifi County Team
+,,Malindi,Kilifi,Malindi Sub-County Team,Kilifi County Team
+,,Rabai,Kilifi,Rabai Sub-County Team,Kilifi County Team
+,,Bura,Tana River,Bura Sub-County Team,Tana River County Team
+,,Galole,Tana River,Galole Sub-County Team,Tana River County Team
+,,Garsen,Tana River,Garsen Sub-County Team,Tana River County Team
+,,Lamu East,Lamu,Lamu East Sub-County Team,Lamu County Team
+,,Lamu West,Lamu,Lamu West Sub-County Team,Lamu County Team
+,,Mwatate,Taita-Taveta,Mwatate Sub-County Team,Taita-Taveta County Team
+,,Taveta,Taita-Taveta,Taveta Sub-County Team,Taita-Taveta County Team
+,,Voi,Taita-Taveta,Voi Sub-County Team,Taita-Taveta County Team
+,,Wundanyi,Taita-Taveta,Wundanyi Sub-County Team,Taita-Taveta County Team
+,,Balambala,Garissa,Balambala Sub-County Team,Garissa County Team
+,,Daadab,Garissa,Daadab Sub-County Team,Garissa County Team
+,,Fafi,Garissa,Fafi Sub-County Team,Garissa County Team
+,,Garissa Township,Garissa,Garissa Township Sub-County Team,Garissa County Team
+,,Hulugho,Garissa,Hulugho Sub-County Team,Garissa County Team
+,,Ijara,Garissa,Ijara Sub-County Team,Garissa County Team
+,,Lagdera,Garissa,Lagdera Sub-County Team,Garissa County Team
+,,Eldas,Wajir,Eldas Sub-County Team,Wajir County Team
+,,Tarbaj,Wajir,Tarbaj Sub-County Team,Wajir County Team
+,,Wajir East,Wajir,Wajir East Sub-County Team,Wajir County Team
+,,Wajir North,Wajir,Wajir North Sub-County Team,Wajir County Team
+,,Wajir South,Wajir,Wajir South Sub-County Team,Wajir County Team
+,,Wajir West,Wajir,Wajir West Sub-County Team,Wajir County Team
+,,Banissa,Mandera,Banissa Sub-County Team,Mandera County Team
+,,Lafey,Mandera,Lafey Sub-County Team,Mandera County Team
+,,Mandera East,Mandera,Mandera East Sub-County Team,Mandera County Team
+,,Mandera North,Mandera,Mandera North Sub-County Team,Mandera County Team
+,,Mandera South,Mandera,Mandera South Sub-County Team,Mandera County Team
+,,Mandera West,Mandera,Mandera West Sub-County Team,Mandera County Team
+,,Laisamis,Marsabit,Laisamis Sub-County Team,Marsabit County Team
+,,Moyale,Marsabit,Moyale Sub-County Team,Marsabit County Team
+,,North Horr,Marsabit,North Horr Sub-County Team,Marsabit County Team
+,,Saku,Marsabit,Saku Sub-County Team,Marsabit County Team
+,,Garbatulla,Isiolo,Garbatulla Sub-County Team,Isiolo County Team
+,,Isiolo,Isiolo,Isiolo Sub-County Team,Isiolo County Team
+,,Merti,Isiolo,Merti Sub-County Team,Isiolo County Team
+,,Buuri,Meru,Buuri Sub-County Team,Meru County Team
+,,Igembe Central,Meru,Igembe Central Sub-County Team,Meru County Team
+,,Igembe North,Meru,Igembe North Sub-County Team,Meru County Team
+,,Igembe South,Meru,Igembe South Sub-County Team,Meru County Team
+,,Imenti Central,Meru,Imenti Central Sub-County Team,Meru County Team
+,,Imenti North,Meru,Imenti North Sub-County Team,Meru County Team
+,,Imenti South,Meru,Imenti South Sub-County Team,Meru County Team
+,,Tigania East,Meru,Tigania East Sub-County Team,Meru County Team
+,,Tigania West,Meru,Tigania West Sub-County Team,Meru County Team
+,,Chuka/Igambangombe,Tharaka-Nithi,Chuka/Igambangombe Sub-County Team,Tharaka-Nithi County Team
+,,Maara,Tharaka-Nithi,Maara Sub-County Team,Tharaka-Nithi County Team
+,,Tharaka North,Tharaka-Nithi,Tharaka North Sub-County Team,Tharaka-Nithi County Team
+,,Tharaka South,Tharaka-Nithi,Tharaka South Sub-County Team,Tharaka-Nithi County Team
+,,Embu East,Embu,Embu East Sub-County Team,Embu County Team
+,,Embu North,Embu,Embu North Sub-County Team,Embu County Team
+,,Embu West,Embu,Embu West Sub-County Team,Embu County Team
+,,Manyatta,Embu,Manyatta Sub-County Team,Embu County Team
+,,Mbeere North,Embu,Mbeere North Sub-County Team,Embu County Team
+,,Mbeere South,Embu,Mbeere South Sub-County Team,Embu County Team
+,,Kitui Central,Kitui,Kitui Central Sub-County Team,Kitui County Team
+,,Kitui East,Kitui,Kitui East Sub-County Team,Kitui County Team
+,,Kitui Rural,Kitui,Kitui Rural Sub-County Team,Kitui County Team
+,,Kitui South,Kitui,Kitui South Sub-County Team,Kitui County Team
+,,Kitui West,Kitui,Kitui West Sub-County Team,Kitui County Team
+,,Mwingi Central,Kitui,Mwingi Central Sub-County Team,Kitui County Team
+,,Mwingi North,Kitui,Mwingi North Sub-County Team,Kitui County Team
+,,Mwingi West,Kitui,Mwingi West Sub-County Team,Kitui County Team
+,,Kathiani,Machakos,Kathiani Sub-County Team,Machakos County Team
+,,Machakos Town,Machakos,Machakos Town Sub-County Team,Machakos County Team
+,,Masinga,Machakos,Masinga Sub-County Team,Machakos County Team
+,,Matungulu,Machakos,Matungulu Sub-County Team,Machakos County Team
+,,Mavoko,Machakos,Mavoko Sub-County Team,Machakos County Team
+,,Mwala,Machakos,Mwala Sub-County Team,Machakos County Team
+,,Yatta,Machakos,Yatta Sub-County Team,Machakos County Team
+,,Kaiti,Makueni,Kaiti Sub-County Team,Makueni County Team
+,,Kibwezi East,Makueni,Kibwezi East Sub-County Team,Makueni County Team
+,,Kibwezi West,Makueni,Kibwezi West Sub-County Team,Makueni County Team
+,,Kilome,Makueni,Kilome Sub-County Team,Makueni County Team
+,,Makueni,Makueni,Makueni Sub-County Team,Makueni County Team
+,,Mbooni,Makueni,Mbooni Sub-County Team,Makueni County Team
+,,Kinangop,Nyandarua,Kinangop Sub-County Team,Nyandarua County Team
+,,Kipipiri,Nyandarua,Kipipiri Sub-County Team,Nyandarua County Team
+,,Ndaragwa,Nyandarua,Ndaragwa Sub-County Team,Nyandarua County Team
+,,Ol Kalou,Nyandarua,Ol Kalou Sub-County Team,Nyandarua County Team
+,,Ol Joro Orok,Nyandarua,Ol Joro Orok Sub-County Team,Nyandarua County Team
+,,Kieni East,Nyeri,Kieni East Sub-County Team,Nyeri County Team
+,,Kieni West,Nyeri,Kieni West Sub-County Team,Nyeri County Team
+,,Mathira East,Nyeri,Mathira East Sub-County Team,Nyeri County Team
+,,Mathira West,Nyeri,Mathira West Sub-County Team,Nyeri County Team
+,,Mukurweini,Nyeri,Mukurweini Sub-County Team,Nyeri County Team
+,,Nyeri Town,Nyeri,Nyeri Town Sub-County Team,Nyeri County Team
+,,Tetu,Nyeri,Tetu Sub-County Team,Nyeri County Team
+,,Gichugu,Kirinyaga,Gichugu Sub-County Team,Kirinyaga County Team
+,,Kirinyaga Central,Kirinyaga,Kirinyaga Central Sub-County Team,Kirinyaga County Team
+,,Mwea East,Kirinyaga,Mwea East Sub-County Team,Kirinyaga County Team
+,,Mwea West,Kirinyaga,Mwea West Sub-County Team,Kirinyaga County Team
+,,Ndia,Kirinyaga,Ndia Sub-County Team,Kirinyaga County Team
+,,Gatanga,Muranga,Gatanga Sub-County Team,Muranga County Team
+,,Kahuro,Muranga,Kahuro Sub-County Team,Muranga County Team
+,,Kandara,Muranga,Kandara Sub-County Team,Muranga County Team
+,,Kangema,Muranga,Kangema Sub-County Team,Muranga County Team
+,,Kigumo,Muranga,Kigumo Sub-County Team,Muranga County Team
+,,Kiharu,Muranga,Kiharu Sub-County Team,Muranga County Team
+,,Mathioya,Muranga,Mathioya Sub-County Team,Muranga County Team
+,,Muranga South,Muranga,Muranga South Sub-County Team,Muranga County Team
+,,Gatundu North,Kiambu,Gatundu North Sub-County Team,Kiambu County Team
+,,Gatundu South,Kiambu,Gatundu South Sub-County Team,Kiambu County Team
+,,Githunguri,Kiambu,Githunguri Sub-County Team,Kiambu County Team
+,,Kabete,Kiambu,Kabete Sub-County Team,Kiambu County Team
+,,Kiambaa,Kiambu,Kiambaa Sub-County Team,Kiambu County Team
+,,Kiambu,Kiambu,Kiambu Sub-County Team,Kiambu County Team
+,,Kikuyu,Kiambu,Kikuyu Sub-County Team,Kiambu County Team
+,,Lari,Kiambu,Lari Sub-County Team,Kiambu County Team
+,,Limuru,Kiambu,Limuru Sub-County Team,Kiambu County Team
+,,Ruiru,Kiambu,Ruiru Sub-County Team,Kiambu County Team
+,,Thika Town,Kiambu,Thika Town Sub-County Team,Kiambu County Team
+,,Kibish,Turkana,Kibish Sub-County Team,Turkana County Team
+,,Loima,Turkana,Loima Sub-County Team,Turkana County Team
+,,Turkana Central,Turkana,Turkana Central Sub-County Team,Turkana County Team
+,,Turkana East,Turkana,Turkana East Sub-County Team,Turkana County Team
+,,Turkana North,Turkana,Turkana North Sub-County Team,Turkana County Team
+,,Turkana South,Turkana,Turkana South Sub-County Team,Turkana County Team
+,,Turkana West,Turkana,Turkana West Sub-County Team,Turkana County Team
+,,Central Pokot,West Pokot,Central Pokot Sub-County Team,West Pokot County Team
+,,North Pokot,West Pokot,North Pokot Sub-County Team,West Pokot County Team
+,,Pokot South,West Pokot,Pokot South Sub-County Team,West Pokot County Team
+,,West Pokot,West Pokot,West Pokot Sub-County Team,West Pokot County Team
+,,Samburu East,Samburu,Samburu East Sub-County Team,Samburu County Team
+,,Samburu North,Samburu,Samburu North Sub-County Team,Samburu County Team
+,,Samburu West,Samburu,Samburu West Sub-County Team,Samburu County Team
+,,Cherangany,Trans-Nzoia,Cherangany Sub-County Team,Trans-Nzoia County Team
+,,Endebess,Trans-Nzoia,Endebess Sub-County Team,Trans-Nzoia County Team
+,,Kiminini,Trans-Nzoia,Kiminini Sub-County Team,Trans-Nzoia County Team
+,,Kwanza,Trans-Nzoia,Kwanza Sub-County Team,Trans-Nzoia County Team
+,,Trans-Nzoia East,Trans-Nzoia,Trans-Nzoia East Sub-County Team,Trans-Nzoia County Team
+,,Trans-Nzoia West,Trans-Nzoia,Trans-Nzoia West Sub-County Team,Trans-Nzoia County Team
+,,Ainabkoi,Uasin Gishu,Ainabkoi Sub-County Team,Uasin Gishu County Team
+,,Kapseret,Uasin Gishu,Kapseret Sub-County Team,Uasin Gishu County Team
+,,Kesses,Uasin Gishu,Kesses Sub-County Team,Uasin Gishu County Team
+,,Moiben,Uasin Gishu,Moiben Sub-County Team,Uasin Gishu County Team
+,,Soy,Uasin Gishu,Soy Sub-County Team,Uasin Gishu County Team
+,,Turbo,Uasin Gishu,Turbo Sub-County Team,Uasin Gishu County Team
+,,Keiyo North,Elgeyo-Marakwet,Keiyo North Sub-County Team,Elgeyo-Marakwet County Team
+,,Keiyo South,Elgeyo-Marakwet,Keiyo South Sub-County Team,Elgeyo-Marakwet County Team
+,,Marakwet East,Elgeyo-Marakwet,Marakwet East Sub-County Team,Elgeyo-Marakwet County Team
+,,Marakwet West,Elgeyo-Marakwet,Marakwet West Sub-County Team,Elgeyo-Marakwet County Team
+,,Aldai,Nandi,Aldai Sub-County Team,Nandi County Team
+,,Chesumei,Nandi,Chesumei Sub-County Team,Nandi County Team
+,,Emgwen,Nandi,Emgwen Sub-County Team,Nandi County Team
+,,Mosop,Nandi,Mosop Sub-County Team,Nandi County Team
+,,Nandi Hills,Nandi,Nandi Hills Sub-County Team,Nandi County Team
+,,Tindiret,Nandi,Tindiret Sub-County Team,Nandi County Team
+,,Baringo Central,Baringo,Baringo Central Sub-County Team,Baringo County Team
+,,Baringo North,Baringo,Baringo North Sub-County Team,Baringo County Team
+,,Baringo South,Baringo,Baringo South Sub-County Team,Baringo County Team
+,,Eldama Ravine,Baringo,Eldama Ravine Sub-County Team,Baringo County Team
+,,Mogotio,Baringo,Mogotio Sub-County Team,Baringo County Team
+,,Tiaty,Baringo,Tiaty Sub-County Team,Baringo County Team
+,,Laikipia Central,Laikipia,Laikipia Central Sub-County Team,Laikipia County Team
+,,Laikipia East,Laikipia,Laikipia East Sub-County Team,Laikipia County Team
+,,Laikipia North,Laikipia,Laikipia North Sub-County Team,Laikipia County Team
+,,Laikipia West,Laikipia,Laikipia West Sub-County Team,Laikipia County Team
+,,Nyahururu,Laikipia,Nyahururu Sub-County Team,Laikipia County Team
+,,Bahati,Nakuru,Bahati Sub-County Team,Nakuru County Team
+,,Gilgil,Nakuru,Gilgil Sub-County Team,Nakuru County Team
+,,Kuresoi North,Nakuru,Kuresoi North Sub-County Team,Nakuru County Team
+,,Kuresoi South,Nakuru,Kuresoi South Sub-County Team,Nakuru County Team
+,,Molo,Nakuru,Molo Sub-County Team,Nakuru County Team
+,,Naivasha,Nakuru,Naivasha Sub-County Team,Nakuru County Team
+,,Nakuru Town East,Nakuru,Nakuru Town East Sub-County Team,Nakuru County Team
+,,Nakuru Town West,Nakuru,Nakuru Town West Sub-County Team,Nakuru County Team
+,,Njoro,Nakuru,Njoro Sub-County Team,Nakuru County Team
+,,Rongai,Nakuru,Rongai Sub-County Team,Nakuru County Team
+,,Subukia,Nakuru,Subukia Sub-County Team,Nakuru County Team
+,,Emurua Dikirr,Narok,Emurua Dikirr Sub-County Team,Narok County Team
+,,Kilgoris,Narok,Kilgoris Sub-County Team,Narok County Team
+,,Narok East,Narok,Narok East Sub-County Team,Narok County Team
+,,Narok North,Narok,Narok North Sub-County Team,Narok County Team
+,,Narok South,Narok,Narok South Sub-County Team,Narok County Team
+,,Narok West,Narok,Narok West Sub-County Team,Narok County Team
+,,Isinya,Kajiado,Isinya Sub-County Team,Kajiado County Team
+,,Kajiado Central,Kajiado,Kajiado Central Sub-County Team,Kajiado County Team
+,,Kajiado East,Kajiado,Kajiado East Sub-County Team,Kajiado County Team
+,,Kajiado North,Kajiado,Kajiado North Sub-County Team,Kajiado County Team
+,,Kajiado West,Kajiado,Kajiado West Sub-County Team,Kajiado County Team
+,,Loitokitok,Kajiado,Loitokitok Sub-County Team,Kajiado County Team
+,,Mashuuru,Kajiado,Mashuuru Sub-County Team,Kajiado County Team
+,,Ainamoi,Kericho,Ainamoi Sub-County Team,Kericho County Team
+,,Belgut,Kericho,Belgut Sub-County Team,Kericho County Team
+,,Bureti,Kericho,Bureti Sub-County Team,Kericho County Team
+,,Kipkelion East,Kericho,Kipkelion East Sub-County Team,Kericho County Team
+,,Kipkelion West,Kericho,Kipkelion West Sub-County Team,Kericho County Team
+,,Soin-Sigowet,Kericho,Soin-Sigowet Sub-County Team,Kericho County Team
+,,Bomet Central,Bomet,Bomet Central Sub-County Team,Bomet County Team
+,,Bomet East,Bomet,Bomet East Sub-County Team,Bomet County Team
+,,Chepalungu,Bomet,Chepalungu Sub-County Team,Bomet County Team
+,,Konoin,Bomet,Konoin Sub-County Team,Bomet County Team
+,,Sotik,Bomet,Sotik Sub-County Team,Bomet County Team
+,,Butere,Kakamega,Butere Sub-County Team,Kakamega County Team
+,,Ikolomani,Kakamega,Ikolomani Sub-County Team,Kakamega County Team
+,,Khwisero,Kakamega,Khwisero Sub-County Team,Kakamega County Team
+,,Likuyani,Kakamega,Likuyani Sub-County Team,Kakamega County Team
+,,Lugari,Kakamega,Lugari Sub-County Team,Kakamega County Team
+,,Lurambi,Kakamega,Lurambi Sub-County Team,Kakamega County Team
+,,Matungu,Kakamega,Matungu Sub-County Team,Kakamega County Team
+,,Mumias East,Kakamega,Mumias East Sub-County Team,Kakamega County Team
+,,Mumias West,Kakamega,Mumias West Sub-County Team,Kakamega County Team
+,,Navakholo,Kakamega,Navakholo Sub-County Team,Kakamega County Team
+,,Shinyalu,Kakamega,Shinyalu Sub-County Team,Kakamega County Team
+,,Emuhaya,Vihiga,Emuhaya Sub-County Team,Vihiga County Team
+,,Hamisi,Vihiga,Hamisi Sub-County Team,Vihiga County Team
+,,Luanda,Vihiga,Luanda Sub-County Team,Vihiga County Team
+,,Sabatia,Vihiga,Sabatia Sub-County Team,Vihiga County Team
+,,Vihiga,Vihiga,Vihiga Sub-County Team,Vihiga County Team
+,,Bumula,Bungoma,Bumula Sub-County Team,Bungoma County Team
+,,Kabuchai,Bungoma,Kabuchai Sub-County Team,Bungoma County Team
+,,Kanduyi,Bungoma,Kanduyi Sub-County Team,Bungoma County Team
+,,Kimilili,Bungoma,Kimilili Sub-County Team,Bungoma County Team
+,,Mt Elgon,Bungoma,Mt Elgon Sub-County Team,Bungoma County Team
+,,Sirisia,Bungoma,Sirisia Sub-County Team,Bungoma County Team
+,,Tongaren,Bungoma,Tongaren Sub-County Team,Bungoma County Team
+,,Webuye East,Bungoma,Webuye East Sub-County Team,Bungoma County Team
+,,Webuye West,Bungoma,Webuye West Sub-County Team,Bungoma County Team
+,,Budalangi,Busia,Budalangi Sub-County Team,Busia County Team
+,,Butula,Busia,Butula Sub-County Team,Busia County Team
+,,Funyula,Busia,Funyula Sub-County Team,Busia County Team
+,,Nambale,Busia,Nambale Sub-County Team,Busia County Team
+,,Teso North,Busia,Teso North Sub-County Team,Busia County Team
+,,Teso South,Busia,Teso South Sub-County Team,Busia County Team
+,,Alego-Usonga,Siaya,Alego-Usonga Sub-County Team,Siaya County Team
+,,Bondo,Siaya,Bondo Sub-County Team,Siaya County Team
+,,Gem,Siaya,Gem Sub-County Team,Siaya County Team
+,,Rarieda,Siaya,Rarieda Sub-County Team,Siaya County Team
+,,Ugenya,Siaya,Ugenya Sub-County Team,Siaya County Team
+,,Ugunja,Siaya,Ugunja Sub-County Team,Siaya County Team
+,,Kisumu Central,Kisumu,Kisumu Central Sub-County Team,Kisumu County Team
+,,Kisumu East,Kisumu,Kisumu East Sub-County Team,Kisumu County Team
+,,Kisumu West,Kisumu,Kisumu West Sub-County Team,Kisumu County Team
+,,Muhoroni,Kisumu,Muhoroni Sub-County Team,Kisumu County Team
+,,Nyakach,Kisumu,Nyakach Sub-County Team,Kisumu County Team
+,,Nyando,Kisumu,Nyando Sub-County Team,Kisumu County Team
+,,Seme,Kisumu,Seme Sub-County Team,Kisumu County Team
+,,Homabay Town,Homa Bay,Homabay Town Sub-County Team,Homa Bay County Team
+,,Kabondo Kasipul,Homa Bay,Kabondo Kasipul Sub-County Team,Homa Bay County Team
+,,Karachuonyo,Homa Bay,Karachuonyo Sub-County Team,Homa Bay County Team
+,,Kasipul,Homa Bay,Kasipul Sub-County Team,Homa Bay County Team
+,,Mbita,Homa Bay,Mbita Sub-County Team,Homa Bay County Team
+,,Ndhiwa,Homa Bay,Ndhiwa Sub-County Team,Homa Bay County Team
+,,Rangwe,Homa Bay,Rangwe Sub-County Team,Homa Bay County Team
+,,Suba North,Homa Bay,Suba North Sub-County Team,Homa Bay County Team
+,,Suba South,Homa Bay,Suba South Sub-County Team,Homa Bay County Team
+,,Awendo,Migori,Awendo Sub-County Team,Migori County Team
+,,Kuria East,Migori,Kuria East Sub-County Team,Migori County Team
+,,Kuria West,Migori,Kuria West Sub-County Team,Migori County Team
+,,Mabera,Migori,Mabera Sub-County Team,Migori County Team
+,,Ntimaru,Migori,Ntimaru Sub-County Team,Migori County Team
+,,Rongo,Migori,Rongo Sub-County Team,Migori County Team
+,,Suna East,Migori,Suna East Sub-County Team,Migori County Team
+,,Suna West,Migori,Suna West Sub-County Team,Migori County Team
+,,Uriri,Migori,Uriri Sub-County Team,Migori County Team
+,,Bobasi,Kisii,Bobasi Sub-County Team,Kisii County Team
+,,Bomachoge Borabu,Kisii,Bomachoge Borabu Sub-County Team,Kisii County Team
+,,Bomachoge Chache,Kisii,Bomachoge Chache Sub-County Team,Kisii County Team
+,,Bonchari,Kisii,Bonchari Sub-County Team,Kisii County Team
+,,Kitutu Chache North,Kisii,Kitutu Chache North Sub-County Team,Kisii County Team
+,,Kitutu Chache South,Kisii,Kitutu Chache South Sub-County Team,Kisii County Team
+,,Kitutu Masaba,Kisii,Kitutu Masaba Sub-County Team,Kisii County Team
+,,Nyamache,Kisii,Nyamache Sub-County Team,Kisii County Team
+,,South Mugirango,Kisii,South Mugirango Sub-County Team,Kisii County Team
+,,Borabu,Nyamira,Borabu Sub-County Team,Nyamira County Team
+,,Manga,Nyamira,Manga Sub-County Team,Nyamira County Team
+,,Masaba North,Nyamira,Masaba North Sub-County Team,Nyamira County Team
+,,Nyamira North,Nyamira,Nyamira North Sub-County Team,Nyamira County Team
+,,Nyamira South,Nyamira,Nyamira South Sub-County Team,Nyamira County Team
+,,Dagoretti North,Nairobi,Dagoretti North Sub-County Team,Nairobi County Team
+,,Dagoretti South,Nairobi,Dagoretti South Sub-County Team,Nairobi County Team
+,,Embakasi Central,Nairobi,Embakasi Central Sub-County Team,Nairobi County Team
+,,Embakasi East,Nairobi,Embakasi East Sub-County Team,Nairobi County Team
+,,Embakasi North,Nairobi,Embakasi North Sub-County Team,Nairobi County Team
+,,Embakasi South,Nairobi,Embakasi South Sub-County Team,Nairobi County Team
+,,Embakasi West,Nairobi,Embakasi West Sub-County Team,Nairobi County Team
+,,Kamukunji,Nairobi,Kamukunji Sub-County Team,Nairobi County Team
+,,Kasarani,Nairobi,Kasarani Sub-County Team,Nairobi County Team
+,,Kibra,Nairobi,Kibra Sub-County Team,Nairobi County Team
+,,Langata,Nairobi,Langata Sub-County Team,Nairobi County Team
+,,Makadara,Nairobi,Makadara Sub-County Team,Nairobi County Team
+,,Mathare,Nairobi,Mathare Sub-County Team,Nairobi County Team
+,,Njiru,Nairobi,Njiru Sub-County Team,Nairobi County Team
+,,Roysambu,Nairobi,Roysambu Sub-County Team,Nairobi County Team
+,,Ruaraka,Nairobi,Ruaraka Sub-County Team,Nairobi County Team
+,,Starehe,Nairobi,Starehe Sub-County Team,Nairobi County Team
+,,Westlands,Nairobi,Westlands Sub-County Team,Nairobi County Team

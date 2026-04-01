@@ -75,3 +75,6 @@ helpdesk.patches.v1_phase1.add_missing_default_categories
 helpdesk.patches.v1_phase1.add_hd_support_level
 helpdesk.patches.v1_phase1.add_escalation_fields_to_hd_ticket
 helpdesk.patches.v1_phase1.add_hd_facility_mapping
+
+helpdesk.patches.v1_county.seed_kenya_teams
+helpdesk.patches.v1_county.seed_sla_configs

@@ -1,0 +1,86 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - link "/ HD Support Level" [ref=e68] [cursor=pointer]:
+                - /url: /desk/hd-support-level
+        - generic [ref=e72]:
+          - button [ref=e74] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Menu" [ref=e77] [cursor=pointer]:
+            - img [ref=e80]
+          - button "Add" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+            - generic [ref=e83]: Add
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e92]:
+            - textbox "ID" [ref=e93]
+            - generic: name
+          - generic [ref=e94]:
+            - generic [ref=e96]:
+              - button "Filter" [ref=e97] [cursor=pointer]:
+                - img [ref=e99]
+                - generic [ref=e100]: Filter
+              - button "Clear all filters" [ref=e101] [cursor=pointer]:
+                - img [ref=e103]
+            - generic [ref=e105]:
+              - button "ascending" [ref=e106] [cursor=pointer]:
+                - img [ref=e108]
+              - button "Level Order" [ref=e110] [cursor=pointer]:
+                - text: Level Order
+                - img [ref=e112]
+        - generic [ref=e115]:
+          - banner [ref=e117]:
+            - generic [ref=e119]:
+              - checkbox "Select All" [ref=e121]
+              - generic "Click to sort by ID" [ref=e122]: ID
+            - generic [ref=e123]:
+              - generic [ref=e124]: Refreshing...
+              - generic "Liked by me" [ref=e126]:
+                - img [ref=e127]
+          - checkbox [ref=e133]
+    - contentinfo

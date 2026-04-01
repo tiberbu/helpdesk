@@ -1,0 +1,263 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Major Incidents
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89]
+            - generic [ref=e91]: Automations
+        - generic [ref=e106]:
+          - generic [ref=e107] [cursor=pointer]:
+            - img [ref=e108]
+            - generic [ref=e110]: Public Views
+          - navigation [ref=e112]:
+            - generic [ref=e113] [cursor=pointer]:
+              - generic [ref=e115]: ⭐
+              - generic [ref=e116]: My Feedback
+            - generic [ref=e117] [cursor=pointer]:
+              - generic [ref=e119]: 📋
+              - generic [ref=e120]: Pending Tickets
+            - generic [ref=e121] [cursor=pointer]:
+              - generic [ref=e123]: 🆕
+              - generic [ref=e124]: Recently Assigned Tickets
+            - generic [ref=e125] [cursor=pointer]:
+              - generic [ref=e127]: ⏳
+              - generic [ref=e128]: SLA Due
+      - generic [ref=e92]:
+        - generic [ref=e93] [cursor=pointer]:
+          - img [ref=e95]
+          - generic [ref=e97]: Help
+        - generic [ref=e98] [cursor=pointer]:
+          - img [ref=e100]
+          - generic [ref=e102]: Collapse
+    - generic [ref=e103]:
+      - generic [ref=e129]:
+        - banner [ref=e130]:
+          - generic [ref=e134]:
+            - link "Tickets" [ref=e135] [cursor=pointer]:
+              - /url: /helpdesk/tickets
+              - generic [ref=e136]: Tickets
+            - generic [ref=e137]: /
+            - button "QA-No-History-Test" [ref=e138] [cursor=pointer]:
+              - generic [ref=e139]: QA-No-History-Test
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - button [disabled] [ref=e143]:
+                - img [ref=e144]
+              - button [ref=e146] [cursor=pointer]:
+                - img [ref=e147]
+            - generic [ref=e149]: County Support
+            - button "Escalate" [active] [ref=e150] [cursor=pointer]:
+              - img [ref=e151]
+              - generic [ref=e154]: Escalate
+            - button "De-escalate" [ref=e384] [cursor=pointer]:
+              - img [ref=e385]
+              - generic [ref=e388]: De-escalate
+            - button "Open" [ref=e155] [cursor=pointer]:
+              - img [ref=e156]
+              - generic [ref=e158]: Open
+            - button [ref=e159] [cursor=pointer]:
+              - img [ref=e160]
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - paragraph [ref=e166]: "#302"
+            - generic [ref=e167]:
+              - generic [ref=e168]: via
+              - img [ref=e169]
+              - generic [ref=e172]: Email
+          - generic [ref=e174]:
+            - generic [ref=e175]: First Response
+            - generic [ref=e176]: Due in 1d 0h
+          - generic [ref=e178]:
+            - generic [ref=e179]: Resolution
+            - generic [ref=e180]: Due in 5d 0h
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - generic [ref=e184]:
+            - tablist [ref=e185]:
+              - tab "Activity" [selected] [ref=e188] [cursor=pointer]:
+                - img [ref=e189]
+                - text: Activity
+              - tab "Emails" [ref=e191] [cursor=pointer]:
+                - img [ref=e192]
+                - text: Emails
+              - tab "Comments" [ref=e195] [cursor=pointer]:
+                - img [ref=e196]
+                - text: Comments
+              - tab "Internal Notes" [ref=e198] [cursor=pointer]:
+                - img [ref=e199]
+                - text: Internal Notes
+            - tabpanel "Activity" [ref=e203]:
+              - generic [ref=e204]:
+                - generic [ref=e205]: Activity
+                - button "New" [ref=e206] [cursor=pointer]:
+                  - img [ref=e207]
+                  - generic [ref=e208]: New
+                  - img [ref=e209]
+              - generic [ref=e389]:
+                - generic [ref=e391]:
+                  - img [ref=e394]
+                  - generic [ref=e398]:
+                    - generic [ref=e399]: Administrator viewed this
+                    - generic [ref=e400]: just now
+                - generic [ref=e402]:
+                  - img [ref=e405]
+                  - generic [ref=e410]:
+                    - generic [ref=e411]:
+                      - generic [ref=e412]:
+                        - generic [ref=e413]: Escalated
+                        - generic [ref=e414]: Administrator
+                      - generic [ref=e415]:
+                        - generic [ref=e416]: L0 - Sub-County
+                        - img [ref=e417]
+                        - generic [ref=e419]: L1 - County
+                      - paragraph [ref=e420]: "\"QA test escalation: needs county-level support review\""
+                    - generic [ref=e421]: just now
+                - generic [ref=e423]:
+                  - img [ref=e426]
+                  - generic [ref=e430]:
+                    - generic [ref=e431]: Administrator set team to QA-County-Nairobi
+                    - generic [ref=e432]: just now
+            - tabpanel "Emails"
+            - tabpanel "Comments"
+            - tabpanel "Internal Notes"
+          - generic [ref=e215]:
+            - generic [ref=e217]:
+              - button "Reply" [ref=e218] [cursor=pointer]:
+                - img [ref=e219]
+                - generic [ref=e222]: Reply
+              - button "Comment" [ref=e223] [cursor=pointer]:
+                - img [ref=e224]
+                - generic [ref=e226]: Comment
+            - text: Hi John, we are looking into this issue.
+        - generic [ref=e227]:
+          - radiogroup [ref=e228]:
+            - radio "Details" [checked] [ref=e229]:
+              - button "Details" [ref=e230] [cursor=pointer]:
+                - generic [ref=e232]: Details
+            - radio "Contact" [ref=e233]:
+              - button "Contact" [ref=e234] [cursor=pointer]:
+                - generic [ref=e236]: Contact
+          - generic [ref=e238]:
+            - generic [ref=e239]:
+              - generic [ref=e240]:
+                - generic [ref=e242]: a
+                - generic [ref=e243]:
+                  - generic [ref=e244]:
+                    - paragraph [ref=e245]: admin
+                    - img [ref=e246] [cursor=pointer]
+                  - button [ref=e249] [cursor=pointer]:
+                    - img [ref=e250]
+              - generic [ref=e253]:
+                - generic [ref=e254]:
+                  - generic [ref=e255]:
+                    - generic [ref=e256]: Ticket Type
+                    - button "Unspecified" [ref=e259] [cursor=pointer]:
+                      - generic [ref=e261]: Unspecified
+                      - img [ref=e262]
+                  - generic [ref=e264]:
+                    - generic [ref=e265]: Priority
+                    - button "Medium" [ref=e268] [cursor=pointer]:
+                      - generic [ref=e270]: Medium
+                      - img [ref=e271]
+                - generic [ref=e274]:
+                  - generic [ref=e275]: Customer
+                  - button "Enter Customer" [ref=e278] [cursor=pointer]:
+                    - generic [ref=e280]: Enter Customer
+                    - img [ref=e281]
+                - generic [ref=e284]:
+                  - generic [ref=e285]: Team
+                  - button "QA-County-Nairobi" [ref=e433] [cursor=pointer]:
+                    - generic [ref=e290]: QA-County-Nairobi
+                    - img [ref=e291]
+                - generic [ref=e294]:
+                  - generic [ref=e295]: Assignee
+                  - button "No assignees" [ref=e296] [cursor=pointer]:
+                    - paragraph [ref=e298]: No assignees
+                    - img [ref=e299]
+                - generic [ref=e302]:
+                  - generic [ref=e303]: Category
+                  - combobox "Customise options" [ref=e305] [cursor=pointer]:
+                    - generic: Select Category
+                    - img [ref=e306]
+            - generic [ref=e309]:
+              - generic [ref=e310]: Support Routing
+              - generic [ref=e311]:
+                - generic [ref=e312]:
+                  - generic [ref=e313]: Support Level
+                  - generic [ref=e314]: County Support
+                - generic [ref=e434]:
+                  - generic [ref=e435]: Escalations
+                  - generic [ref=e436]: "1"
+            - generic [ref=e315]:
+              - generic [ref=e316]:
+                - generic [ref=e317]: Linked Articles
+                - generic [ref=e318]:
+                  - button "Create Article" [ref=e319] [cursor=pointer]:
+                    - img [ref=e320]
+                    - generic [ref=e323]: Create Article
+                  - button "Link" [ref=e324] [cursor=pointer]:
+                    - img [ref=e325]
+                    - generic [ref=e326]: Link
+              - generic [ref=e327]: No linked articles
+            - generic [ref=e328]:
+              - generic [ref=e329]:
+                - generic [ref=e330]: Related Tickets
+                - button "Link" [ref=e331] [cursor=pointer]:
+                  - img [ref=e332]
+                  - generic [ref=e333]: Link
+              - generic [ref=e334]: No related tickets
+            - generic [ref=e335]:
+              - generic [ref=e336]:
+                - heading "Time Tracking" [level=3] [ref=e337]
+                - button "Add Entry" [ref=e338] [cursor=pointer]:
+                  - img [ref=e339]
+                  - generic [ref=e340]: Add Entry
+              - button "Start Timer" [ref=e341] [cursor=pointer]:
+                - img [ref=e342]
+                - generic [ref=e345]: Start Timer
+              - generic [ref=e346]:
+                - img [ref=e347]
+                - paragraph [ref=e350]: No time logged yet
+  - region "Notifications (F8)":
+    - list

@@ -1,0 +1,175 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - list [ref=e66]:
+            - text: /
+            - listitem [ref=e67]:
+              - link "/ QA-SubCounty-Westlands":
+                - /url: /desk/hd-team/QA-SubCounty-Westlands
+        - generic [ref=e70]:
+          - button "Menu" [ref=e72] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Save" [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]: Save
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e87]:
+            - generic [ref=e89]:
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - generic [ref=e93]:
+                    - generic [ref=e95]: Assignment Rule
+                    - link "QA-SubCounty-Westlands - Support Rotation" [ref=e98] [cursor=pointer]:
+                      - /url: /desk/assignment-rule/QA-SubCounty-Westlands%20-%20Support%20Rotation
+                  - generic: assignment_rule
+                - generic [ref=e99]:
+                  - generic [ref=e100]:
+                    - generic [ref=e102]: Users
+                    - generic [ref=e104]:
+                      - button "qa_l0@test.local" [ref=e105] [cursor=pointer]:
+                        - text: qa_l0@test.local
+                        - img [ref=e107]
+                      - generic [ref=e109]:
+                        - combobox [ref=e110]
+                        - status [ref=e111]: Begin typing for results.
+                  - generic: users
+              - generic [ref=e112]:
+                - generic [ref=e113] [cursor=pointer]: Settings
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - generic [ref=e117]:
+                      - checkbox "Ignore Restrictions" [ref=e119]
+                      - generic [ref=e120]: Ignore Restrictions
+                    - paragraph [ref=e121]: Do not apply filters and restrictions to agents of this team
+                  - generic: ignore_restrictions
+            - generic [ref=e122]:
+              - generic [ref=e123]: SLA Notifications
+              - generic [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e130]: SLA Notification Manager
+                  - generic [ref=e131]:
+                    - generic [ref=e134]:
+                      - combobox [ref=e135]
+                      - status [ref=e136]: Begin typing for results.
+                    - generic [ref=e137]: Agent who receives in-app notification when a team ticket is 15 minutes from SLA breach
+                - generic: sla_manager
+            - generic [ref=e138]:
+              - generic [ref=e139] [cursor=pointer]:
+                - text: Hierarchy
+                - img [ref=e141]
+              - text: "*"
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - generic [ref=e146]:
+                - generic [ref=e148]: Comments
+                - generic [ref=e149]:
+                  - generic "Administrator" [ref=e150]:
+                    - generic "Administrator" [ref=e151]: A
+                  - generic [ref=e152]:
+                    - generic: comment
+                    - generic [ref=e153]:
+                      - generic [ref=e154]:
+                        - text: Type a reply / comment
+                        - paragraph [ref=e155]
+                      - text: ×
+              - generic [ref=e156]:
+                - generic [ref=e157]:
+                  - heading "Activity" [level=4] [ref=e158]
+                  - button "New Email" [ref=e162] [cursor=pointer]:
+                    - img [ref=e163]
+                    - text: New Email
+                - generic [ref=e164]:
+                  - generic [ref=e167]:
+                    - text: You last edited this
+                    - generic [ref=e168]: · 18 minutes ago
+                  - generic [ref=e171]:
+                    - text: You created this
+                    - generic [ref=e172]: · 18 minutes ago
+            - button [ref=e173] [cursor=pointer]:
+              - img [ref=e174]
+        - generic [ref=e177]:
+          - generic [ref=e179]:
+            - generic [ref=e182]: QA-SubCounty-Westlands
+            - generic [ref=e183]:
+              - button [ref=e185] [cursor=pointer]:
+                - img [ref=e186]
+              - button [ref=e188] [cursor=pointer]:
+                - img [ref=e189]
+              - generic [ref=e190]:
+                - img [ref=e191] [cursor=pointer]
+                - generic [ref=e193]: "0"
+          - generic [ref=e196]:
+            - generic [ref=e197]:
+              - img [ref=e198]
+              - generic [ref=e199]: Assign
+            - button [ref=e200] [cursor=pointer]:
+              - img [ref=e201]
+          - generic [ref=e205]:
+            - generic [ref=e207] [cursor=pointer]:
+              - img [ref=e208]
+              - text: Attachments
+            - button [ref=e209] [cursor=pointer]:
+              - img [ref=e210]
+          - generic [ref=e214]:
+            - generic [ref=e215]:
+              - img [ref=e216]
+              - generic [ref=e217]: Tags
+            - button [ref=e218] [cursor=pointer]:
+              - img [ref=e219]
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - img [ref=e225]
+              - generic [ref=e226]: Share
+            - button [ref=e227] [cursor=pointer]:
+              - img [ref=e228]
+          - list [ref=e231]:
+            - listitem [ref=e232]:
+              - text: Last Edited by You
+              - generic "01-04-2026 20:08:00" [ref=e233]: 18 minutes ago
+            - listitem [ref=e234]:
+              - text: Created By You
+              - generic "01-04-2026 20:07:39" [ref=e235]: 18 minutes ago
+            - listitem
+    - contentinfo
