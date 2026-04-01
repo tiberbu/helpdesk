@@ -68,7 +68,7 @@
     <!-- Builder layout -->
     <div v-else class="flex flex-1 min-h-0 overflow-hidden">
       <!-- Left sidebar: metadata -->
-      <div class="w-72 shrink-0 border-r border-gray-200 flex flex-col gap-5 p-5 overflow-y-auto bg-gray-50">
+      <div class="w-72 shrink-0 min-h-0 border-r border-gray-200 flex flex-col gap-5 p-5 overflow-y-auto bg-gray-50">
         <div class="flex flex-col gap-1.5">
           <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __("Rule Name") }}</label>
           <FormControl
@@ -120,7 +120,7 @@
       </div>
 
       <!-- Main: WHEN / IF / THEN -->
-      <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+      <div class="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
 
         <!-- WHEN -->
         <div class="rounded-xl border border-gray-200 bg-white overflow-hidden">
