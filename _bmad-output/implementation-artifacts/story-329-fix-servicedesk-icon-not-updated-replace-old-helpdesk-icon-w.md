@@ -1,6 +1,6 @@
 # Story: Fix: ServiceDesk icon not updated — replace old Helpdesk icon with modern professional SVG
 
-Status: completed
+Status: done
 Task ID: mng7lvuuqqz9yv
 Task Number: #329
 Workflow: quick-dev
