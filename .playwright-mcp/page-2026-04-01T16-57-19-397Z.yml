@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6]:
+    - paragraph [ref=e7]:
+      - generic [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - generic [ref=e10]: Getting Started
+    - generic [ref=e11] [cursor=pointer]:
+      - img [ref=e12]
+      - generic [ref=e13]: Collapse
+    - button "User Menu" [ref=e15] [cursor=pointer]:
+      - generic "Administrator" [ref=e17]:
+        - generic "Administrator" [ref=e18]: A
+      - generic [ref=e19]:
+        - generic [ref=e20]: Administrator
+        - generic [ref=e21]: admin@example.com
+  - generic [ref=e22]:
+    - banner
+    - contentinfo

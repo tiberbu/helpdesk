@@ -1,0 +1,120 @@
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - generic [ref=e65]:
+            - list [ref=e66]:
+              - text: /
+              - listitem [ref=e67]:
+                - link "/ New HD Facility Mapping":
+                  - /url: /desk/hd-facility-mapping/new-hd-facility-mapping-gtzuelptgf
+            - generic [ref=e69]: Not Saved
+        - button "Save" [ref=e73] [cursor=pointer]:
+          - generic [ref=e74]: Save
+      - generic [ref=e79]:
+        - generic [ref=e86]:
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - generic [ref=e90]:
+                - generic [ref=e92]: Facility Name *
+                - generic [ref=e93]:
+                  - textbox [active] [ref=e95]
+                  - generic [ref=e96]: Healthcare facility name (used for auto-routing tickets)
+              - generic: facility_name
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - generic [ref=e100]: Facility Code (MFL)
+                - generic [ref=e101]:
+                  - textbox [ref=e103]
+                  - generic [ref=e104]: Master Facility List (MFL) code if available
+              - generic: facility_code
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e108]: Sub-County *
+                - textbox [ref=e111]
+              - generic: sub_county
+            - generic [ref=e112]:
+              - generic [ref=e113]:
+                - generic [ref=e115]: County *
+                - textbox [ref=e118]
+              - generic: county
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e124]: L0 Team (Sub-County) *
+                - generic [ref=e125]:
+                  - generic [ref=e128]:
+                    - combobox [ref=e129]
+                    - status [ref=e130]: Begin typing for results.
+                  - generic [ref=e131]: Sub-County support team — first-line support for this facility
+              - generic: l0_team
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - generic [ref=e135]: L1 Team (County)
+                - generic [ref=e136]:
+                  - generic [ref=e139]:
+                    - combobox [ref=e140]
+                    - status [ref=e141]: Begin typing for results.
+                  - generic [ref=e142]: County support team (auto-resolved from l0_team.parent_team if not set)
+              - generic: l1_team
+            - generic [ref=e143]:
+              - generic [ref=e144]:
+                - generic [ref=e146]: L2 Team (National)
+                - generic [ref=e147]:
+                  - generic [ref=e150]:
+                    - combobox [ref=e151]
+                    - status [ref=e152]: Begin typing for results.
+                  - generic [ref=e153]: National support team (auto-resolved)
+              - generic: l2_team
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - generic [ref=e157]: Product
+                - generic [ref=e158]:
+                  - generic [ref=e161]:
+                    - combobox [ref=e162]
+                    - status [ref=e163]: Begin typing for results.
+                  - generic [ref=e164]: Which product/brand this facility uses
+              - generic: product
+        - text: Type a reply / comment ×
+    - contentinfo

@@ -1,0 +1,203 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - list [ref=e66]:
+            - text: /
+            - listitem [ref=e67]:
+              - link "/ Product Experts":
+                - /url: /desk/hd-team/Product%20Experts
+        - generic [ref=e70]:
+          - button "Menu" [ref=e72] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Save" [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]: Save
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e87]:
+            - generic [ref=e89]:
+              - generic [ref=e91]:
+                - generic [ref=e92]:
+                  - generic [ref=e93]:
+                    - generic [ref=e95]: Assignment Rule
+                    - link "Product Experts - Support Rotation" [ref=e98] [cursor=pointer]:
+                      - /url: /desk/assignment-rule/Product%20Experts%20-%20Support%20Rotation
+                  - generic: assignment_rule
+                - generic [ref=e99]:
+                  - generic [ref=e100]:
+                    - generic [ref=e102]: Users
+                    - generic [ref=e106]:
+                      - combobox [ref=e107]
+                      - status [ref=e108]: Begin typing for results.
+                  - generic: users
+              - generic [ref=e109]:
+                - generic [ref=e110] [cursor=pointer]: Settings
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - generic [ref=e114]:
+                      - checkbox "Ignore Restrictions" [ref=e116]
+                      - generic [ref=e117]: Ignore Restrictions
+                    - paragraph [ref=e118]: Do not apply filters and restrictions to agents of this team
+                  - generic: ignore_restrictions
+            - generic [ref=e119]:
+              - generic [ref=e120]: SLA Notifications
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - generic [ref=e127]: SLA Notification Manager
+                  - generic [ref=e128]:
+                    - generic [ref=e131]:
+                      - combobox [ref=e132]
+                      - status [ref=e133]: Begin typing for results.
+                    - generic [ref=e134]: Agent who receives in-app notification when a team ticket is 15 minutes from SLA breach
+                - generic: sla_manager
+            - generic [ref=e135]:
+              - generic [ref=e136] [cursor=pointer]:
+                - text: Hierarchy
+                - img [ref=e138]
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - generic [ref=e145]: Parent Team
+                    - generic [ref=e146]:
+                      - generic [ref=e149]:
+                        - combobox [ref=e150]
+                        - status [ref=e151]: Begin typing for results.
+                      - generic [ref=e152]: The escalation parent team (e.g. County team is parent of Sub-County team)
+                  - generic: parent_team
+                - generic [ref=e153]:
+                  - generic [ref=e154]:
+                    - generic [ref=e156]: Support Level *
+                    - generic [ref=e157]:
+                      - generic [ref=e160]:
+                        - combobox [ref=e161]
+                        - status [ref=e162]: Begin typing for results.
+                      - generic [ref=e163]: The support tier this team belongs to
+                  - generic: support_level
+                - generic [ref=e164]:
+                  - generic [ref=e165]:
+                    - generic [ref=e167]: Territory
+                    - generic [ref=e168]:
+                      - textbox [ref=e170]
+                      - generic [ref=e171]: Kenya admin hierarchy identifier (county/sub-county name)
+                  - generic: territory
+                - generic [ref=e172]:
+                  - generic [ref=e173]:
+                    - generic [ref=e174]:
+                      - checkbox "Is Group" [ref=e176]
+                      - generic [ref=e177]: Is Group
+                    - paragraph [ref=e178]: If checked, this is a grouping node (e.g. county team with sub-county children)
+                  - generic: is_group
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - generic [ref=e183]:
+                - generic [ref=e185]: Comments
+                - generic [ref=e186]:
+                  - generic "Administrator" [ref=e187]:
+                    - generic "Administrator" [ref=e188]: A
+                  - generic [ref=e189]:
+                    - generic: comment
+                    - generic [ref=e190]:
+                      - generic [ref=e191]:
+                        - text: Type a reply / comment
+                        - paragraph [ref=e192]
+                      - text: ×
+              - generic [ref=e193]:
+                - generic [ref=e194]:
+                  - heading "Activity" [level=4] [ref=e195]
+                  - button "New Email" [ref=e199] [cursor=pointer]:
+                    - img [ref=e200]
+                    - text: New Email
+                - generic [ref=e201]:
+                  - generic [ref=e204]:
+                    - text: You last edited this
+                    - generic [ref=e205]: · 1 week ago
+                  - generic [ref=e208]:
+                    - text: You created this
+                    - generic [ref=e209]: · 1 week ago
+            - button [ref=e210] [cursor=pointer]:
+              - img [ref=e211]
+        - generic [ref=e214]:
+          - generic [ref=e216]:
+            - generic [ref=e219]: Product Experts
+            - generic [ref=e220]:
+              - button [ref=e222] [cursor=pointer]:
+                - img [ref=e223]
+              - button [ref=e225] [cursor=pointer]:
+                - img [ref=e226]
+              - generic [ref=e227]:
+                - img [ref=e228] [cursor=pointer]
+                - generic [ref=e230]: "0"
+          - generic [ref=e233]:
+            - generic [ref=e234]:
+              - img [ref=e235]
+              - generic [ref=e236]: Assign
+            - button [ref=e237] [cursor=pointer]:
+              - img [ref=e238]
+          - generic [ref=e242]:
+            - generic [ref=e244] [cursor=pointer]:
+              - img [ref=e245]
+              - text: Attachments
+            - button [ref=e246] [cursor=pointer]:
+              - img [ref=e247]
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - img [ref=e253]
+              - generic [ref=e254]: Tags
+            - button [ref=e255] [cursor=pointer]:
+              - img [ref=e256]
+          - generic [ref=e260]:
+            - generic [ref=e261]:
+              - img [ref=e262]
+              - generic [ref=e263]: Share
+            - button [ref=e264] [cursor=pointer]:
+              - img [ref=e265]
+          - list [ref=e268]:
+            - listitem [ref=e269]:
+              - text: Last Edited by You
+              - generic "24-03-2026 12:33:30" [ref=e270]: 1 week ago
+            - listitem [ref=e271]:
+              - text: Created By You
+              - generic "24-03-2026 12:33:30" [ref=e272]: 1 week ago
+            - listitem
+    - contentinfo

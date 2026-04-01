@@ -1,0 +1,163 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - list [ref=e66]:
+            - text: /
+            - listitem [ref=e67]:
+              - link "/ L3 - Engineering":
+                - /url: /desk/hd-support-level/L3%20-%20Engineering
+        - generic [ref=e70]:
+          - button "Menu" [ref=e72] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Save" [ref=e76] [cursor=pointer]:
+            - generic [ref=e77]: Save
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e89]:
+            - generic [ref=e91]:
+              - text: "*"
+              - generic [ref=e92]:
+                - generic [ref=e93]:
+                  - generic [ref=e95]: Level Order *
+                  - textbox [ref=e98]: "3"
+                - generic: level_order
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - generic [ref=e102]: Display Name
+                  - textbox [ref=e105]: Engineering
+                - generic: display_name
+              - generic [ref=e106]:
+                - generic [ref=e107]:
+                  - generic [ref=e109]: Color
+                  - textbox "Choose a color" [ref=e112]
+                - generic: color
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - generic [ref=e117]:
+                  - generic [ref=e118]:
+                    - checkbox "Allow Escalation to Next Level" [ref=e120]
+                    - generic [ref=e121]: Allow Escalation to Next Level
+                  - paragraph
+                - generic: allow_escalation_to_next
+              - generic [ref=e122]:
+                - generic [ref=e123]:
+                  - generic [ref=e124]:
+                    - checkbox "Auto-Escalate on SLA Breach" [ref=e126]
+                    - generic [ref=e127]: Auto-Escalate on SLA Breach
+                  - paragraph
+                - generic: auto_escalate_on_breach
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - generic [ref=e132]:
+                - generic [ref=e134]: Comments
+                - generic [ref=e135]:
+                  - generic "Administrator" [ref=e136]:
+                    - generic "Administrator" [ref=e137]: A
+                  - generic [ref=e138]:
+                    - generic: comment
+                    - generic [ref=e139]:
+                      - generic [ref=e140]:
+                        - text: Type a reply / comment
+                        - paragraph [ref=e141]
+                      - text: ×
+              - generic [ref=e142]:
+                - generic [ref=e143]:
+                  - heading "Activity" [level=4] [ref=e144]
+                  - button "New Email" [ref=e148] [cursor=pointer]:
+                    - img [ref=e149]
+                    - text: New Email
+                - generic [ref=e150]:
+                  - generic [ref=e153]:
+                    - text: You created this
+                    - generic [ref=e154]: · 2 minutes ago
+                  - generic [ref=e157]:
+                    - text: You last edited this
+                    - generic [ref=e158]: · 2 minutes ago
+            - button [ref=e159] [cursor=pointer]:
+              - img [ref=e160]
+        - generic [ref=e163]:
+          - generic [ref=e165]:
+            - generic [ref=e168]: L3 - Engineering
+            - generic [ref=e169]:
+              - button [ref=e171] [cursor=pointer]:
+                - img [ref=e172]
+              - button [ref=e174] [cursor=pointer]:
+                - img [ref=e175]
+              - generic [ref=e176]:
+                - img [ref=e177] [cursor=pointer]
+                - generic [ref=e179]: "0"
+          - generic [ref=e182]:
+            - generic [ref=e183]:
+              - img [ref=e184]
+              - generic [ref=e185]: Assign
+            - button [ref=e186] [cursor=pointer]:
+              - img [ref=e187]
+          - generic [ref=e191]:
+            - generic [ref=e193] [cursor=pointer]:
+              - img [ref=e194]
+              - text: Attachments
+            - button [ref=e195] [cursor=pointer]:
+              - img [ref=e196]
+          - generic [ref=e200]:
+            - generic [ref=e201]:
+              - img [ref=e202]
+              - generic [ref=e203]: Tags
+            - button [ref=e204] [cursor=pointer]:
+              - img [ref=e205]
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - img [ref=e211]
+              - generic [ref=e212]: Share
+            - button [ref=e213] [cursor=pointer]:
+              - img [ref=e214]
+          - list [ref=e217]:
+            - listitem [ref=e218]:
+              - text: Last Edited by You
+              - generic "01-04-2026 19:55:07" [ref=e219]: 2 minutes ago
+            - listitem [ref=e220]:
+              - text: Created By You
+              - generic "01-04-2026 19:55:07" [ref=e221]: 2 minutes ago
+            - listitem
+    - contentinfo

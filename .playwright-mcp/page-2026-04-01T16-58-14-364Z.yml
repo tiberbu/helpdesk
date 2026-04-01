@@ -1,0 +1,133 @@
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5] [cursor=pointer]:
+      - img [ref=e9]
+      - generic [ref=e11]:
+        - generic [ref=e12]: Helpdesk
+        - generic [ref=e13]: ServiceDesk
+      - button [ref=e14]:
+        - img [ref=e15]
+    - generic [ref=e17]:
+      - generic "Search" [ref=e18]:
+        - generic [ref=e20] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e23]: Search
+          - generic [ref=e24]: Ctrl+K
+      - generic "Notification" [ref=e25]:
+        - generic [ref=e27] [cursor=pointer]:
+          - img [ref=e29]
+          - generic [ref=e30]: Notification
+    - generic "Home" [ref=e33]:
+      - link "Home" [ref=e35] [cursor=pointer]:
+        - /url: /desk/helpdesk
+        - img [ref=e37]
+        - generic [ref=e38]: Home
+    - generic [ref=e39]:
+      - paragraph [ref=e40]:
+        - generic [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+          - generic [ref=e43]: Getting Started
+      - generic [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e46]: Collapse
+      - button "User Menu" [ref=e48] [cursor=pointer]:
+        - generic "Administrator" [ref=e50]:
+          - generic "Administrator" [ref=e51]: A
+        - generic [ref=e52]:
+          - generic [ref=e53]: Administrator
+          - generic [ref=e54]: admin@example.com
+  - generic [ref=e55]:
+    - banner
+    - generic [ref=e57]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - button [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - link "/ HD Facility Mapping" [ref=e68] [cursor=pointer]:
+                - /url: /desk/hd-facility-mapping
+        - generic [ref=e72]:
+          - button [ref=e74] [cursor=pointer]:
+            - img [ref=e75]
+          - button "Menu" [ref=e77] [cursor=pointer]:
+            - img [ref=e80]
+          - button "Add" [ref=e81] [cursor=pointer]:
+            - img [ref=e144]
+            - generic [ref=e145]: Add
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e146]:
+                - textbox "ID" [ref=e93]
+                - button [ref=e148] [cursor=pointer]:
+                  - img [ref=e149]
+              - generic: name
+            - generic [ref=e94]:
+              - generic [ref=e150]:
+                - textbox "Facility Name" [ref=e95]
+                - button [ref=e152] [cursor=pointer]:
+                  - img [ref=e153]
+              - generic: facility_name
+            - generic [ref=e96]:
+              - generic [ref=e154]:
+                - textbox "County" [ref=e97]
+                - button [ref=e156] [cursor=pointer]:
+                  - img [ref=e157]
+              - generic: county
+          - generic [ref=e98]:
+            - generic [ref=e100]:
+              - button "Filter" [ref=e101] [cursor=pointer]:
+                - img [ref=e103]
+                - generic [ref=e104]: Filter
+              - button "Clear all filters" [ref=e105] [cursor=pointer]:
+                - img [ref=e107]
+            - generic [ref=e109]:
+              - button "ascending" [ref=e110] [cursor=pointer]:
+                - img [ref=e112]
+              - button "County" [ref=e114] [cursor=pointer]:
+                - text: County
+                - img [ref=e116]
+        - generic [ref=e159]:
+          - img [ref=e161]
+          - paragraph [ref=e163]: You haven't created a HD Facility Mapping yet
+          - paragraph [ref=e164]:
+            - button "Create your first HD Facility Mapping" [ref=e165] [cursor=pointer]
+    - contentinfo
+  - dialog [ref=e167]:
+    - generic [ref=e168]:
+      - generic [ref=e169]:
+        - heading "New HD Facility Mapping" [level=4] [ref=e171]
+        - button [ref=e173] [cursor=pointer]:
+          - img [ref=e174]
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - generic [ref=e184]:
+            - generic [ref=e186]: Facility Name *
+            - generic [ref=e187]:
+              - textbox [active] [ref=e189]
+              - generic [ref=e190]: Healthcare facility name (used for auto-routing tickets)
+          - generic: facility_name
+        - generic [ref=e191]:
+          - generic [ref=e192]:
+            - generic [ref=e194]: Sub-County *
+            - textbox [ref=e197]
+          - generic: sub_county
+        - generic [ref=e198]:
+          - generic [ref=e199]:
+            - generic [ref=e201]: County *
+            - textbox [ref=e204]
+          - generic: county
+        - generic [ref=e205]:
+          - generic [ref=e206]:
+            - generic [ref=e208]: L0 Team (Sub-County) *
+            - generic [ref=e209]:
+              - generic [ref=e212]:
+                - combobox [ref=e213]
+                - status [ref=e214]: Begin typing for results.
+              - generic [ref=e215]: Sub-County support team — first-line support for this facility
+          - generic: l0_team
+      - generic [ref=e216]:
+        - button "Edit Full Form" [ref=e218] [cursor=pointer]
+        - button "Save" [ref=e220] [cursor=pointer]
