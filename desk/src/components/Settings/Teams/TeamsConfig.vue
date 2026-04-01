@@ -29,15 +29,33 @@ const teamsSearchQuery = ref("");
 const teams = createListResource({
   doctype: "HD Team",
   cache: ["Teams"],
-  fields: ["name"],
+  fields: ["name", "support_level", "parent_team"],
   auto: true,
   orderBy: "modified desc",
   start: 0,
   pageLength: 20,
 });
 
+// Shared support-levels resource for dropdowns
+const supportLevels = createListResource({
+  doctype: "HD Support Level",
+  fields: ["name", "level_name", "level_order", "display_name"],
+  orderBy: "level_order asc",
+  auto: true,
+});
+
+// Full teams list for parent-team dropdown (unfiltered/unpaginated up to 100)
+const allTeamsForLinks = createListResource({
+  doctype: "HD Team",
+  fields: ["name", "support_level", "parent_team"],
+  pageLength: 100,
+  auto: true,
+});
+
 provide("teamsSearchQuery", teamsSearchQuery);
 provide(TeamListResourceSymbol, teams);
+provide("supportLevels", supportLevels);
+provide("allTeamsForLinks", allTeamsForLinks);
 
 onUnmounted(() => {
   teamsSearchQuery.value = "";

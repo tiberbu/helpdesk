@@ -1,0 +1,145 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: County Dashboard
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89]
+            - generic [ref=e91]: Automations
+        - generic [ref=e93]:
+          - generic [ref=e94] [cursor=pointer]:
+            - img [ref=e95]
+            - generic [ref=e97]: Public Views
+          - navigation [ref=e99]:
+            - generic [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]: ⭐
+              - generic [ref=e103]: My Feedback
+            - generic [ref=e104] [cursor=pointer]:
+              - generic [ref=e106]: 📋
+              - generic [ref=e107]: Pending Tickets
+            - generic [ref=e108] [cursor=pointer]:
+              - generic [ref=e110]: 🆕
+              - generic [ref=e111]: Recently Assigned Tickets
+            - generic [ref=e112] [cursor=pointer]:
+              - generic [ref=e114]: ⏳
+              - generic [ref=e115]: SLA Due
+      - generic [ref=e116]:
+        - generic [ref=e117] [cursor=pointer]:
+          - img [ref=e119]
+          - generic [ref=e121]: Help
+        - generic [ref=e122] [cursor=pointer]:
+          - img [ref=e124]
+          - generic [ref=e126]: Collapse
+    - generic [ref=e127]:
+      - banner [ref=e515]:
+        - generic [ref=e517]: County Dashboard
+      - generic [ref=e522]:
+        - generic [ref=e523]:
+          - generic [ref=e524]:
+            - generic [ref=e525]: National Dashboard
+            - generic [ref=e526]: Kenya-wide support overview across all 47 counties
+          - button "Refresh" [ref=e527] [cursor=pointer]:
+            - img [ref=e528]
+            - generic [ref=e532]: Refresh
+        - generic [ref=e533]:
+          - generic [ref=e534]:
+            - generic [ref=e535]:
+              - generic [ref=e536]: Open Tickets
+              - img [ref=e538]
+            - generic [ref=e541]: "249"
+          - generic [ref=e542]:
+            - generic [ref=e543]:
+              - generic [ref=e544]: SLA Compliance
+              - img [ref=e546]
+            - generic [ref=e548]: 7.8%
+          - generic [ref=e549]:
+            - generic [ref=e550]:
+              - generic [ref=e551]: Engineering Tickets
+              - img [ref=e553]
+            - generic [ref=e555]: "0"
+        - generic [ref=e556]:
+          - generic [ref=e557]:
+            - generic [ref=e558]:
+              - generic [ref=e559]: County Leaderboard
+              - generic [ref=e560]: SLA compliance ranking
+            - table [ref=e562]:
+              - rowgroup [ref=e563]:
+                - row "# County Tickets SLA % Esc. Rate" [ref=e564]:
+                  - columnheader "#" [ref=e565]
+                  - columnheader "County" [ref=e566]
+                  - columnheader "Tickets" [ref=e567]
+                  - columnheader "SLA %" [ref=e568]
+                  - columnheader "Esc. Rate" [ref=e569]
+              - rowgroup [ref=e570]:
+                - row "1 Kiambu County 1 0% 0%" [ref=e571]:
+                  - cell "1" [ref=e572]
+                  - cell "Kiambu County" [ref=e573]
+                  - cell "1" [ref=e574]
+                  - cell "0%" [ref=e575]
+                  - cell "0%" [ref=e576]
+          - generic [ref=e577]:
+            - generic [ref=e578]: National Trends — Last 7 Days
+            - generic [ref=e579]:
+              - generic [ref=e580]:
+                - generic [ref=e581]: 2026-03-27
+                - generic [ref=e583]: "0"
+              - generic [ref=e584]:
+                - generic [ref=e585]: 2026-03-28
+                - generic [ref=e587]: "0"
+              - generic [ref=e588]:
+                - generic [ref=e589]: 2026-03-29
+                - generic [ref=e591]: "0"
+              - generic [ref=e592]:
+                - generic [ref=e593]: 2026-03-30
+                - generic [ref=e595]: "0"
+              - generic [ref=e596]:
+                - generic [ref=e597]: 2026-03-31
+                - generic [ref=e599]: "0"
+              - generic [ref=e600]:
+                - generic [ref=e601]: 2026-04-01
+                - generic [ref=e603]: "0"
+              - generic [ref=e604]:
+                - generic [ref=e605]: 2026-04-02
+                - generic [ref=e608]: "1"
+  - region "Notifications (F8)":
+    - list

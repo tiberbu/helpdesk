@@ -28,6 +28,8 @@ import SettingsGear from "~icons/lucide/settings";
 import SavedReplyIcon from "../icons/SavedReplyIcon.vue";
 import BrandsConfig from "./Brands/BrandsConfig.vue";
 import LucideTag from "~icons/lucide/tag";
+import SupportLevels from "./SupportLevels/SupportLevels.vue";
+import LucideLayers from "~icons/lucide/layers";
 
 export const showSettingsModal = ref(false);
 
@@ -128,6 +130,12 @@ export const tabs = computed(() => {
           component: markRaw(BrandsConfig),
           condition: () => auth.isAdmin,
         },
+        {
+          label: __("Support Levels"),
+          icon: markRaw(LucideLayers),
+          component: markRaw(SupportLevels),
+          condition: () => auth.isAdmin || auth.isManager,
+        },
       ],
     },
     {
@@ -174,7 +182,8 @@ type TabName =
   | "Field Dependencies"
   | "Telephony"
   | "Saved Replies"
-  | "Brands";
+  | "Brands"
+  | "Support Levels";
 
 export const setActiveSettingsTab = (tabName: TabName) => {
   activeTab.value =
