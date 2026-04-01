@@ -185,9 +185,10 @@ class TestHierarchicalPermissions(IntegrationTestCase):
         self.assertIn("SubCounty-Westlands", scoped)
         self.assertIn("SubCounty-Langata", scoped)
 
-    def test_scoped_teams_l2_returns_none_for_see_all(self):
+    def test_scoped_teams_l2_returns_true_for_see_all(self):
+        # L2 national returns True sentinel (see all tickets, no restriction)
         scoped = get_scoped_teams_for_agent("l2agent@county.test")
-        self.assertIsNone(scoped)
+        self.assertIs(scoped, True)
 
     def test_scoped_teams_l3_returns_own_engineering_team_only(self):
         scoped = get_scoped_teams_for_agent("l3agent@county.test")
