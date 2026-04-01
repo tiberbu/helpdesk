@@ -7,18 +7,18 @@ CONTENT = """
 <p>
 Hi 👋
 <br><br>
-I'm glad you decided to try Helpdesk! We're working hard to build a better way for teams
+I'm glad you decided to try ServiceDesk! We're working hard to build a better way for teams
 to communicate and serve customers well.
 <br><br>
 You can get started right away by setting up a support email. This will help you see what
-your support will look like with Helpdesk!
+your support will look like with ServiceDesk!
 <br><br>
 If you face any issues, please reach out to us via <a href="https://support.frappe.io/helpdesk">
 https://support.frappe.io/helpdesk</a>
 <br><br>
 Best,
 <br>
-Ritvik Sardana | Frappe Helpdesk.
+Ritvik Sardana | ServiceDesk.
 """
 
 
@@ -32,7 +32,7 @@ def create_ticket():
         return
 
     d = frappe.new_doc("HD Ticket")
-    d.subject = "Welcome to Helpdesk"
+    d.subject = "Welcome to ServiceDesk"
     d.description = CONTENT
     d.raised_by = AUTHOR_EMAIl
     d.contact = AUTHOR_NAME

@@ -146,7 +146,7 @@
       v-model="showHelpModal"
       v-model:articles="articles"
       appName="helpdesk"
-      title="Frappe Helpdesk"
+      title="ServiceDesk"
       :logo="logo"
       docsLink="https://docs.frappe.io/helpdesk"
       :afterSkip="(step: string) => capture('onboarding_step_skipped_' + step)"
@@ -598,7 +598,7 @@ const articles = ref([
     ],
   },
   {
-    title: "Frappe Helpdesk Mobile",
+    title: "ServiceDesk",
     opened: false,
     subArticles: [
       { name: "pwa-installation", title: "Mobile App Installation" },

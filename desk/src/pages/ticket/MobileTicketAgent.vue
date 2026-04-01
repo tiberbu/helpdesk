@@ -504,6 +504,6 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  document.title = "Helpdesk";
+  document.title = "ServiceDesk";
 });
 </script>

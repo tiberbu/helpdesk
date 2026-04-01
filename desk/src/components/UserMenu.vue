@@ -23,7 +23,7 @@
           <div
             class="text-base font-medium leading-none text-gray-900 truncate"
           >
-            {{ config.brandName || "Helpdesk" }}
+            {{ config.brandName || "ServiceDesk" }}
           </div>
           <div class="mt-1 text-sm leading-none text-gray-700">
             {{ authStore.userName }}

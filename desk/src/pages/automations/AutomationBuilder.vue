@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full overflow-hidden">
+  <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
     <!-- Header / breadcrumb -->
     <div class="flex items-center justify-between px-6 py-3 border-b border-outline-gray-2 shrink-0">
       <div class="flex items-center gap-2 text-sm">
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Builder layout -->
-    <div v-else class="flex flex-1 overflow-hidden">
+    <div v-else class="flex flex-1 min-h-0 overflow-hidden">
       <!-- Left sidebar: metadata -->
       <div class="w-72 shrink-0 border-r border-gray-200 flex flex-col gap-5 p-5 overflow-y-auto bg-gray-50">
         <div class="flex flex-col gap-1.5">
@@ -263,6 +263,10 @@ import LucideCheckCircle from "~icons/lucide/check-circle"
 import LucideXCircle from "~icons/lucide/x-circle"
 import LucideCheck from "~icons/lucide/check"
 import LucideX from "~icons/lucide/x"
+
+// Prevent router-view's inherited classes (flex flex-1 flex-col overflow-auto) from
+// merging onto our root element and conflicting with overflow-hidden / height layout.
+defineOptions({ inheritAttrs: false })
 import LucidePlay from "~icons/lucide/play"
 import LucideMinus from "~icons/lucide/minus"
 import LucideLock from "~icons/lucide/lock"

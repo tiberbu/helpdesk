@@ -2,7 +2,7 @@
   "name": "@helpdesk/chat-widget",
   "version": "1.0.0",
   "private": true,
-  "description": "Embeddable chat widget for Frappe Helpdesk",
+  "description": "Embeddable chat widget for ServiceDesk",
   "scripts": {
     "build": "vite build",
     "build:watch": "vite build --watch",

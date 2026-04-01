@@ -37,7 +37,7 @@
         <slot name="bottom-left" />
         <FileUploader
           :upload-args="{
-            folder: 'Home/Helpdesk',
+            folder: 'Home/ServiceDesk',
             private: true,
           }"
           @success="

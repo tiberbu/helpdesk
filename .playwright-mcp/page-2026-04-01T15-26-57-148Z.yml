@@ -1,0 +1,58 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "Helpdesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e9]:
+          - generic [ref=e10]: Helpdesk
+          - generic [ref=e11]: Administrator
+        - img [ref=e13]
+      - generic [ref=e15] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e20]:
+          - text: Search
+          - generic [ref=e21]:
+            - img [ref=e22]
+            - generic [ref=e24]: K
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e32]: Dashboard
+      - generic [ref=e34] [cursor=pointer]:
+        - img [ref=e36]
+        - generic [ref=e39]: Notifications
+      - navigation [ref=e44]:
+        - generic [ref=e45] [cursor=pointer]:
+          - img [ref=e47]
+          - generic [ref=e50]: Home
+        - generic [ref=e51] [cursor=pointer]:
+          - img [ref=e53]
+          - generic [ref=e55]: Tickets
+        - generic [ref=e56] [cursor=pointer]:
+          - img [ref=e58]
+          - generic [ref=e60]: Knowledge Base
+        - generic [ref=e61] [cursor=pointer]:
+          - img [ref=e63]
+          - generic [ref=e65]: Customers
+        - generic [ref=e66] [cursor=pointer]:
+          - img [ref=e68]
+          - generic [ref=e72]: Contacts
+        - generic [ref=e73] [cursor=pointer]:
+          - img [ref=e75]
+          - generic [ref=e77]: Live Chat
+        - generic [ref=e78] [cursor=pointer]:
+          - img [ref=e80]
+          - generic [ref=e82]: Automations
+      - generic [ref=e84]:
+        - generic [ref=e85] [cursor=pointer]:
+          - img [ref=e87]
+          - generic [ref=e89]: Help
+        - generic [ref=e90] [cursor=pointer]:
+          - img [ref=e92]
+          - generic [ref=e94]: Collapse
+    - generic [ref=e98]:
+      - generic [ref=e99]: Invalid page or not permitted to access
+      - button "Tickets" [ref=e100] [cursor=pointer]:
+        - img [ref=e101]
+        - generic [ref=e103]: Tickets
+  - region "Notifications (F8)":
+    - list
