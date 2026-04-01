@@ -93,10 +93,11 @@ let searchTimer: ReturnType<typeof setTimeout> | null = null;
 const searchResource = createResource({
   url: "frappe.client.get_list",
   onSuccess(data: { name: string; subject: string; status: string }[]) {
+    // Include subject in label so Autocomplete's internal filter can match
+    // subject searches (Autocomplete only filters by label and value, not description)
     searchOptions.value = data.map((t) => ({
-      value: t.name,
-      label: `#${t.name}`,
-      description: t.subject,
+      value: String(t.name),
+      label: `#${t.name} — ${t.subject}`,
     }));
   },
 });

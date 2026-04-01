@@ -120,7 +120,8 @@
       </div>
 
       <!-- Main: WHEN / IF / THEN -->
-      <div class="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
+      <!-- space-y-6 (block layout) prevents flex-shrink compressing the cards -->
+      <div class="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
 
         <!-- WHEN -->
         <div class="rounded-xl border border-gray-200 bg-white overflow-hidden">
@@ -263,13 +264,13 @@ import LucideCheckCircle from "~icons/lucide/check-circle"
 import LucideXCircle from "~icons/lucide/x-circle"
 import LucideCheck from "~icons/lucide/check"
 import LucideX from "~icons/lucide/x"
+import LucidePlay from "~icons/lucide/play"
+import LucideMinus from "~icons/lucide/minus"
+import LucideLock from "~icons/lucide/lock"
 
 // Prevent router-view's inherited classes (flex flex-1 flex-col overflow-auto) from
 // merging onto our root element and conflicting with overflow-hidden / height layout.
 defineOptions({ inheritAttrs: false })
-import LucidePlay from "~icons/lucide/play"
-import LucideMinus from "~icons/lucide/minus"
-import LucideLock from "~icons/lucide/lock"
 
 const route = useRoute()
 const router = useRouter()
@@ -277,6 +278,17 @@ const authStore = useAuthStore()
 
 const id = computed(() => route.params.id as string)
 const isNew = computed(() => id.value === "new")
+
+// formState must be declared BEFORE usePageMeta to avoid TDZ error
+// (usePageMeta eagerly evaluates its callback during setup)
+const formState = ref({
+  rule_name: "",
+  description: "",
+  trigger_type: "",
+  priority_order: 10,
+  enabled: true,
+  failure_count: 0,
+})
 
 usePageMeta(() => ({
   title: isNew.value ? "New Automation Rule" : (formState.value.rule_name || "Edit Rule"),
@@ -289,15 +301,6 @@ const showTestModal = ref(false)
 const testLoading = ref(false)
 const testTicketId = ref("")
 const testResult = ref<any>(null)
-
-const formState = ref({
-  rule_name: "",
-  description: "",
-  trigger_type: "",
-  priority_order: 10,
-  enabled: true,
-  failure_count: 0,
-})
 
 const conditionsState = ref({ logic: "AND", conditions: [] as any[] })
 const actionsState = ref([] as any[])

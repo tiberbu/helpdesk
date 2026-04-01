@@ -1,0 +1,355 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - button:
+          - img
+          - generic:
+            - generic: ServiceDesk
+            - generic: Administrator
+          - generic:
+            - img
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - text: Search
+            - generic:
+              - img
+              - generic: K
+        - generic:
+          - generic:
+            - img
+          - generic: Dashboard
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Notifications
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Home
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Tickets
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Knowledge Base
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Customers
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Contacts
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Live Chat
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Major Incidents
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Automations
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic: Public Views
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - generic: ⭐
+                    - generic: My Feedback
+                  - generic:
+                    - generic:
+                      - generic: 📋
+                    - generic: Pending Tickets
+                  - generic:
+                    - generic:
+                      - generic: 🆕
+                    - generic: Recently Assigned Tickets
+                  - generic:
+                    - generic:
+                      - generic: ⏳
+                    - generic: SLA Due
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Help
+          - generic:
+            - generic:
+              - img
+            - generic: Collapse
+      - generic:
+        - generic:
+          - generic:
+            - banner:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /helpdesk/tickets
+                        - generic: Tickets
+                      - generic: /
+                      - button:
+                        - generic: Welcome to Helpdesk
+              - generic:
+                - generic:
+                  - generic:
+                    - button [disabled]:
+                      - img
+                    - button [disabled]:
+                      - img
+                  - button:
+                    - img
+                    - generic: Open
+                  - button:
+                    - img
+            - generic:
+              - generic:
+                - paragraph: "#1"
+                - generic:
+                  - generic: via
+                  - img
+                  - generic: Portal
+              - generic:
+                - generic: First Response
+                - generic: Failed by 7d 4h
+              - generic:
+                - generic: Resolution
+                - generic: Failed by 5d 4h
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - tablist:
+                  - tab [selected]:
+                    - img
+                    - text: Activity
+                  - tab:
+                    - img
+                    - text: Emails
+                  - tab:
+                    - img
+                    - text: Comments
+                  - tab:
+                    - img
+                    - text: Internal Notes
+                - tabpanel:
+                  - generic:
+                    - generic: Activity
+                    - button:
+                      - img
+                      - generic: New
+                      - img
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: Administrator viewed this
+                                - generic: 1 week ago
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: a
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: admin@example.com
+                                  - generic: <admin@example.com>
+                                - generic:
+                                  - paragraph: 1 week ago
+                                  - button:
+                                    - generic:
+                                      - img
+                                  - button:
+                                    - generic:
+                                      - img
+                              - iframe [ref=e241] [cursor=pointer]:
+                                - paragraph [ref=f2e3]:
+                                  - text: Hi 👋
+                                  - text: I'm glad you decided to try Helpdesk! We're working hard to build a better way for teams to communicate and serve customers well.
+                                  - text: You can get started right away by setting up a support email. This will help you see what your support will look like with Helpdesk!
+                                  - text: If you face any issues, please reach out to us via
+                                  - link "https://support.frappe.io/helpdesk" [ref=f2e4] [cursor=pointer]:
+                                    - /url: https://support.frappe.io/helpdesk
+                                  - text: Best,
+                                  - text: Ritvik Sardana | Frappe Helpdesk.
+              - generic:
+                - generic:
+                  - generic:
+                    - button:
+                      - img
+                      - generic: Reply
+                    - button:
+                      - img
+                      - generic: Comment
+                - text: Hi John, we are looking into this issue.
+            - generic:
+              - radiogroup:
+                - radio [checked]:
+                  - button:
+                    - generic:
+                      - generic: Details
+                - radio:
+                  - button:
+                    - generic:
+                      - generic: Contact
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: J
+                      - generic:
+                        - generic:
+                          - paragraph: John Doe
+                          - img
+                        - generic:
+                          - button:
+                            - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Ticket Type
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Unspecified
+                                - img
+                        - generic:
+                          - generic: Priority
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Medium
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Customer
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Enter Customer
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Team
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Enter Team
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Assignee
+                          - button:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic: A
+                                    - generic: Admin
+                            - img
+                      - generic:
+                        - generic:
+                          - generic: Category
+                          - generic:
+                            - combobox:
+                              - generic: Select Category
+                              - img
+                  - generic:
+                    - generic:
+                      - generic: Linked Articles (1)
+                      - generic:
+                        - button:
+                          - img
+                          - generic: Create Article
+                        - button:
+                          - img
+                          - generic: Link
+                    - list:
+                      - listitem:
+                        - generic: Introduction
+                        - button:
+                          - img
+                  - generic:
+                    - generic:
+                      - generic: Related Tickets
+                      - button:
+                        - img
+                        - generic: Link
+                    - generic: No related tickets
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Time Tracking
+                      - button:
+                        - img
+                        - generic: Add Entry
+                    - button:
+                      - img
+                      - generic: Start Timer
+                    - generic:
+                      - img
+                      - paragraph: No time logged yet
+    - list
+  - dialog "Link a Ticket" [ref=e386]:
+    - generic [ref=e389]:
+      - generic [ref=e390]:
+        - banner [ref=e392]:
+          - heading "Link a Ticket" [level=3] [ref=e393]
+        - button [ref=e394] [cursor=pointer]:
+          - img [ref=e395]
+      - generic [ref=e398]:
+        - generic [ref=e399]:
+          - generic [ref=e400]: Search Ticket
+          - button "Search by ID or subject…" [ref=e403] [cursor=pointer]:
+            - generic [ref=e405]: Search by ID or subject…
+            - img [ref=e406]
+        - generic [ref=e408]:
+          - generic [ref=e409]: Link Type
+          - combobox "Customise options" [ref=e410] [cursor=pointer]:
+            - generic: Select option
+            - img [ref=e411]
+    - generic [ref=e414]:
+      - button "Cancel" [ref=e415] [cursor=pointer]:
+        - generic [ref=e416]: Cancel
+      - button "Link Ticket" [disabled] [ref=e417]:
+        - generic [ref=e418]: Link Ticket
+  - dialog [ref=e419]:
+    - listbox [ref=e423]:
+      - generic [ref=e425]:
+        - combobox "Search" [active] [ref=e426]
+        - button [ref=e428] [cursor=pointer]:
+          - img [ref=e429]
+      - listitem [ref=e432]: No results found
