@@ -1,6 +1,6 @@
 # Story: Feat: Team creation/edit UI — add Support Level, Parent Team, Territory fields
 
-Status: in-progress
+Status: done
 Task ID: mngdz4p0rnh4g5
 Task Number: #355
 Workflow: quick-dev
@@ -40,7 +40,7 @@ Add these fields after Team Name, before Members:
 
 ### Backend Fields (already exist on HD Team DocType):
 - `support_level` — Link to HD Support Level
-- `parent_team` — Link to HD Team  
+- `parent_team` — Link to HD Team
 - `territory` — Data field
 
 ## Build
@@ -55,20 +55,28 @@ Add these fields after Team Name, before Members:
 
 ## Acceptance Criteria
 
-- [ ] ### 1. New Team Form (`desk/src/components/Settings/Teams/NewTeam.vue`)
-- [ ] Add these fields after Team Name, before Members:
-- [ ] **Support Level** (Link to HD Support Level) — dropdown showing available support levels (L0/Sub-County, L1/County, L2/National, L3/Engineering)
-- [ ] **Parent Team** (Link to HD Team) — dropdown to select parent team in hierarchy. Should filter to show only teams with a higher-level support level.
-- [ ] **Territory** (Data/text) — free text field for county/sub-county/region name
+- [x] ### 1. New Team Form (`desk/src/components/Settings/Teams/NewTeam.vue`)
+- [x] Add these fields after Team Name, before Members:
+- [x] **Support Level** (Link to HD Support Level) — dropdown showing available support levels (L0/Sub-County, L1/County, L2/National, L3/Engineering)
+- [x] **Parent Team** (Link to HD Team) — dropdown to select parent team in hierarchy. Should filter to show only teams with a higher-level support level.
+- [x] **Territory** (Data/text) — free text field for county/sub-county/region name
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
+### Implementation Details
 
+- Used shared `createListResource` resources (provided from `TeamsConfig.vue` via Vue `provide`/`inject`) to load `HD Support Level` and `HD Team` data — no duplicate API calls.
+- `Autocomplete` component (`@/components/Autocomplete.vue`) used for link fields (Support Level, Parent Team); supports search-filter by default.
+- Parent Team options are filtered by level_order > current team's level_order when a support level is set.
+- Circular reference validation in `TeamEdit.vue`: traverses the `parent_team` chain in loaded team data to prevent A→B→A loops.
+- `TeamEdit.vue` uses a "Team Details" form section with a "Save Details" button; state pre-populated from `team.doc` via `watch`.
+- `TeamsConfig.vue` now also fetches `support_level` and `parent_team` fields for the list view.
+- `TeamsList.vue` shows: Support Level badge column, ↳ arrow for child teams, "under X Team" sub-line for parent hierarchy.
 
 ### References
 
@@ -82,12 +90,30 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Added Support Level, Parent Team, Territory fields to NewTeam.vue (new team creation form)
+- Added "Team Details" section to TeamEdit.vue (edit existing team) with pre-population from team.doc, dirty tracking, and Save Details button
+- Updated TeamsList.vue to show Support Level column and hierarchy (↳ arrow + "under X Team" sub-line)
+- Updated TeamsConfig.vue to provide shared list resources (supportLevels, allTeamsForLinks) and fetch support_level/parent_team in the main teams list
+- Build passes (yarn build from bench path: 29.65s, no errors)
+- Browser verified: all three views (list, new, edit) show fields correctly with pre-populated data
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-04-01: Added support_level, parent_team, territory fields to NewTeam.vue
+- 2026-04-01: Added Team Details section with same fields to TeamEdit.vue
+- 2026-04-01: Updated TeamsList.vue with Support Level column and hierarchy visual
+- 2026-04-01: Updated TeamsConfig.vue to share support level / all-teams resources via provide/inject
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+**Modified:**
+- `desk/src/components/Settings/Teams/NewTeam.vue`
+- `desk/src/components/Settings/Teams/TeamEdit.vue`
+- `desk/src/components/Settings/Teams/TeamsList.vue`
+- `desk/src/components/Settings/Teams/TeamsConfig.vue`
+
+**Also synced to bench path:**
+- `frappe-bench/apps/helpdesk/desk/src/components/Settings/Teams/NewTeam.vue`
+- `frappe-bench/apps/helpdesk/desk/src/components/Settings/Teams/TeamEdit.vue`
+- `frappe-bench/apps/helpdesk/desk/src/components/Settings/Teams/TeamsList.vue`
+- `frappe-bench/apps/helpdesk/desk/src/components/Settings/Teams/TeamsConfig.vue`
