@@ -53,6 +53,30 @@
           </template>
         </UniInput>
       </div>
+      <!-- county + sub-county picker -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="flex flex-col gap-2">
+          <label class="block text-sm text-gray-700">{{ __("County") }}</label>
+          <FormControl
+            type="select"
+            :options="countyOptions"
+            v-model="county"
+            :placeholder="__('Select county')"
+            @change="onCountyChange"
+          />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label class="block text-sm text-gray-700">{{ __("Sub-County") }}</label>
+          <FormControl
+            type="select"
+            :options="subCountyOptions"
+            v-model="subCounty"
+            :placeholder="county ? __('Select sub-county') : __('Select a county first')"
+            :disabled="!county"
+          />
+        </div>
+      </div>
+
       <!-- existing fields -->
       <div
         class="flex flex-col"
@@ -156,7 +180,7 @@ import {
 } from "frappe-ui";
 import { useOnboarding } from "frappe-ui/frappe";
 import sanitizeHtml from "sanitize-html";
-import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
+import { computed, defineAsyncComponent, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchArticles from "../../components/SearchArticles.vue";
 
@@ -181,6 +205,59 @@ const subject = ref("");
 const description = ref("");
 const attachments = ref([]);
 const templateFields = reactive({});
+const county = ref("");
+const subCounty = ref("");
+
+// ── County / Sub-County picker ──────────────────────────────────────────────
+
+const countiesResource = createResource({
+  url: "helpdesk.api.location.get_counties",
+  auto: true,
+});
+
+const subCountiesResource = createResource({
+  url: "helpdesk.api.location.get_sub_counties",
+  makeParams: () => ({ county: county.value }),
+});
+
+const countyOptions = computed(() => {
+  const list: string[] = countiesResource.data || [];
+  return [{ label: __("-- None --"), value: "" }, ...list.map((c) => ({ label: c, value: c }))];
+});
+
+const subCountyOptions = computed(() => {
+  const list: string[] = subCountiesResource.data || [];
+  return [{ label: __("-- None --"), value: "" }, ...list.map((s) => ({ label: s, value: s }))];
+});
+
+function onCountyChange() {
+  subCounty.value = "";
+  if (county.value) {
+    subCountiesResource.fetch();
+  }
+}
+
+watch(county, (val) => {
+  if (val) subCountiesResource.fetch();
+});
+
+// Pre-fill from saved contact location
+const contactLocationResource = createResource({
+  url: "helpdesk.api.location.get_contact_location",
+  auto: true,
+  onSuccess: (data: { county?: string; sub_county?: string }) => {
+    if (data?.county && !county.value) {
+      county.value = data.county;
+    }
+    if (data?.sub_county && !subCounty.value) {
+      subCounty.value = data.sub_county;
+      // load sub-county options for the pre-filled county
+      if (county.value) subCountiesResource.fetch();
+    }
+  },
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const template = createResource({
   url: "helpdesk.helpdesk.doctype.hd_ticket_template.api.get_one",
@@ -255,6 +332,8 @@ const ticket = createResource({
       description: description.value,
       subject: subject.value,
       template: props.templateId,
+      ...(county.value ? { county: county.value } : {}),
+      ...(subCounty.value ? { sub_county: subCounty.value } : {}),
       ...templateFields,
     },
     attachments: attachments.value,

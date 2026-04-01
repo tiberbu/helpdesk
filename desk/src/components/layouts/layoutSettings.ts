@@ -4,6 +4,7 @@ import LucideTicket from "~icons/lucide/ticket";
 import LucideAlertTriangle from "~icons/lucide/alert-triangle";
 import LucideZap from "~icons/lucide/zap";
 import LucideMessageCircle from "~icons/lucide/message-circle";
+import LucideMap from "~icons/lucide/map";
 import { OrganizationsIcon } from "../icons";
 import PhoneIcon from "../icons/PhoneIcon.vue";
 import LucideHome from "~icons/lucide/home";
@@ -49,6 +50,11 @@ export const agentPortalSidebarOptions = [
     label: __("Major Incidents"),
     icon: LucideAlertTriangle,
     to: "MajorIncidents",
+  },
+  {
+    label: __("County Dashboard"),
+    icon: LucideMap,
+    to: "CountyDashboard",
   },
   {
     label: __("Automations"),

@@ -639,14 +639,12 @@
   {
    "fieldname": "sub_county",
    "fieldtype": "Data",
-   "label": "Sub-County",
-   "read_only": 1
+   "label": "Sub-County"
   },
   {
    "fieldname": "county",
    "fieldtype": "Data",
    "label": "County",
-   "read_only": 1,
    "in_standard_filter": 1
   },
   {

@@ -1,0 +1,186 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - button:
+          - img
+          - generic:
+            - generic: ServiceDesk
+            - generic: Administrator
+          - generic:
+            - img
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - text: Search
+            - generic:
+              - img
+              - generic: K
+        - generic:
+          - generic:
+            - img
+          - generic: Dashboard
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Notifications
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Home
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Tickets
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Knowledge Base
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Customers
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Contacts
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Live Chat
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Automations
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic: Public Views
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - generic: ⭐
+                    - generic: My Feedback
+                  - generic:
+                    - generic:
+                      - generic: 📋
+                    - generic: Pending Tickets
+                  - generic:
+                    - generic:
+                      - generic: 🆕
+                    - generic: Recently Assigned Tickets
+                  - generic:
+                    - generic:
+                      - generic: ⏳
+                    - generic: SLA Due
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Help
+          - generic:
+            - generic:
+              - img
+            - generic: Collapse
+      - generic:
+        - generic:
+          - generic:
+            - banner:
+              - generic:
+                - generic:
+                  - generic:
+                    - link:
+                      - /url: /helpdesk/tickets
+                      - generic: Tickets
+                    - generic: /
+                    - link:
+                      - /url: /helpdesk/my-tickets/new
+                      - generic: New Ticket
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic: County
+                - generic:
+                  - combobox [expanded]:
+                    - generic: Select county
+                    - img
+              - generic:
+                - generic: Sub-County
+                - generic:
+                  - combobox [disabled]:
+                    - generic: Select a county first
+                    - img
+            - generic:
+              - generic:
+                - generic: Subject *
+                - generic:
+                  - generic:
+                    - textbox:
+                      - /placeholder: A short description
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: A
+                        - generic: Administrator
+                  - generic:
+                    - generic:
+                      - paragraph: Detailed explanation
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - button:
+                                - img
+                            - generic:
+                              - generic:
+                                - button:
+                                  - img
+                            - generic:
+                              - button:
+                                - img
+                            - generic:
+                              - button:
+                                - img
+                            - button:
+                              - img
+                            - button:
+                              - img
+                            - button:
+                              - img
+                            - generic:
+                              - button:
+                                - img
+                            - generic:
+                              - button:
+                                - img
+                        - generic:
+                          - generic:
+                            - button:
+                              - img
+                      - generic:
+                        - button:
+                          - generic: Discard
+                        - button [disabled]:
+                          - generic: Submit
+    - list
+  - listbox [ref=e225]:
+    - option "Mombasa" [active] [ref=e226]:
+      - generic [ref=e227]: Mombasa
+    - option "Nairobi" [ref=e228]:
+      - generic [ref=e229]: Nairobi

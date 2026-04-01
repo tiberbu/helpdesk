@@ -1,0 +1,129 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Automations
+        - generic [ref=e88]:
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e90]
+            - generic [ref=e92]: Public Views
+          - navigation [ref=e94]:
+            - generic [ref=e95] [cursor=pointer]:
+              - generic [ref=e97]: ⭐
+              - generic [ref=e98]: My Feedback
+            - generic [ref=e99] [cursor=pointer]:
+              - generic [ref=e101]: 📋
+              - generic [ref=e102]: Pending Tickets
+            - generic [ref=e103] [cursor=pointer]:
+              - generic [ref=e105]: 🆕
+              - generic [ref=e106]: Recently Assigned Tickets
+            - generic [ref=e107] [cursor=pointer]:
+              - generic [ref=e109]: ⏳
+              - generic [ref=e110]: SLA Due
+      - generic [ref=e111]:
+        - generic [ref=e112] [cursor=pointer]:
+          - img [ref=e114]
+          - generic [ref=e116]: Help
+        - generic [ref=e117] [cursor=pointer]:
+          - img [ref=e119]
+          - generic [ref=e121]: Collapse
+    - generic [ref=e122]:
+      - banner [ref=e125]:
+        - generic [ref=e128]:
+          - link "Tickets" [ref=e129] [cursor=pointer]:
+            - /url: /helpdesk/tickets
+            - generic [ref=e130]: Tickets
+          - generic [ref=e131]: /
+          - link "New Ticket" [ref=e132] [cursor=pointer]:
+            - /url: /helpdesk/my-tickets/new
+            - generic [ref=e133]: New Ticket
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - generic [ref=e138]: County
+            - combobox "Customise options" [ref=e140] [cursor=pointer]:
+              - generic: Nairobi
+              - img [ref=e141]
+          - generic [ref=e143]:
+            - generic [ref=e144]: Sub-County
+            - combobox "Customise options" [active] [ref=e146] [cursor=pointer]:
+              - generic: Westlands
+              - img [ref=e147]
+        - generic [ref=e150]:
+          - generic [ref=e151]: Subject *
+          - textbox "A short description" [ref=e154]
+        - generic [ref=e157]:
+          - generic [ref=e160]:
+            - generic [ref=e162]: A
+            - generic [ref=e163]: Administrator
+          - paragraph [ref=e166]: Detailed explanation
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - generic [ref=e171]:
+                - button "Paragraph" [ref=e173] [cursor=pointer]:
+                  - img [ref=e174]
+                - button [ref=e179] [cursor=pointer]:
+                  - img [ref=e180]
+                - button "Bullet List" [ref=e184] [cursor=pointer]:
+                  - img [ref=e185]
+                - button "Numbered List" [ref=e189] [cursor=pointer]:
+                  - img [ref=e190]
+                - button "Image" [ref=e193] [cursor=pointer]:
+                  - img [ref=e194]
+                - button "Video" [ref=e197] [cursor=pointer]:
+                  - img [ref=e198]
+                - button "Link" [ref=e201] [cursor=pointer]:
+                  - img [ref=e202]
+                - button "Blockquote" [ref=e206] [cursor=pointer]:
+                  - img [ref=e207]
+                - button "Code" [ref=e211] [cursor=pointer]:
+                  - img [ref=e212]
+              - button [ref=e217] [cursor=pointer]:
+                - img [ref=e218]
+            - generic [ref=e220]:
+              - button "Discard" [ref=e221] [cursor=pointer]:
+                - generic [ref=e222]: Discard
+              - button "Submit" [disabled] [ref=e223]:
+                - generic [ref=e224]: Submit
+  - region "Notifications (F8)":
+    - list

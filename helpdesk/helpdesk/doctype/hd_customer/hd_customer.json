@@ -10,6 +10,8 @@
   "image",
   "customer_name",
   "domain",
+  "county",
+  "sub_county",
   "references_tab",
   "contact_html"
  ],
@@ -31,6 +33,18 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Domain"
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "label": "County",
+   "description": "Last used county — auto-populated for new ticket pre-fill"
+  },
+  {
+   "fieldname": "sub_county",
+   "fieldtype": "Data",
+   "label": "Sub-County",
+   "description": "Last used sub-county — auto-populated for new ticket pre-fill"
   },
   {
    "fieldname": "references_tab",

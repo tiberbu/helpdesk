@@ -77,16 +77,21 @@ class HDTicket(Document):
         self.generate_key()
         self._apply_facility_routing()
 
+    def after_insert(self):
+        self._remember_contact_location()
+
     def _apply_facility_routing(self):
         """Auto-populate facility, county, sub_county and assign to L0 team.
 
         Story County-2: AC — auto-routing engine.
-        1. Look up the ticket creator's facility from User.facility custom field.
-        2. Find HD Facility Mapping for that facility.
-        3. Populate ticket.facility, ticket.sub_county, ticket.county.
-        4. Set ticket.support_level to the L0 team's support level.
-        5. Assign ticket to l0_team (agent_group).
-        6. If no mapping found, fall back to the default national team.
+        Story 354: Extended to honour user-supplied county/sub_county and to
+        route by county+sub_county when the user has no facility set.
+
+        Priority order:
+        1. Facility from User.facility → look up HD Facility Mapping by facility.
+        2. User-supplied county + sub_county → look up HD Facility Mapping by
+           county + sub_county (e.g. from the ticket creation picker).
+        3. Fall back to the default national team.
         """
         raised_by = self.raised_by or frappe.session.user
         if not raised_by or raised_by == "Guest":
@@ -94,25 +99,38 @@ class HDTicket(Document):
 
         # Step 1: get facility from user profile
         user_facility = frappe.db.get_value("User", raised_by, "facility")
-        if not user_facility:
-            return
 
-        # Always stamp the facility on the ticket
-        if not self.facility:
+        # Always stamp the facility on the ticket if we know it
+        if user_facility and not self.facility:
             self.facility = user_facility
 
-        # Step 2: look up HD Facility Mapping
-        mapping = frappe.db.get_value(
-            "HD Facility Mapping",
-            {"facility_name": user_facility},
-            ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
-            as_dict=True,
-        )
+        mapping = None
+
+        if user_facility:
+            # Step 2a: look up HD Facility Mapping by facility name
+            mapping = frappe.db.get_value(
+                "HD Facility Mapping",
+                {"facility_name": user_facility},
+                ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
+                as_dict=True,
+            )
+
+        if not mapping and self.county and self.sub_county:
+            # Step 2b: no facility mapping — try to match by county + sub_county
+            # (user explicitly chose them via the ticket creation form)
+            mapping = frappe.db.get_value(
+                "HD Facility Mapping",
+                {"county": self.county, "sub_county": self.sub_county},
+                ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
+                as_dict=True,
+            )
 
         if mapping:
-            # Step 3: populate geography
-            self.sub_county = mapping.sub_county
-            self.county = mapping.county
+            # Step 3: populate geography — don't overwrite user-supplied values
+            if not self.sub_county:
+                self.sub_county = mapping.sub_county
+            if not self.county:
+                self.county = mapping.county
 
             # Step 4: assign to l0_team
             if not self.agent_group and mapping.l0_team:
@@ -129,6 +147,35 @@ class HDTicket(Document):
                 national_team = _get_default_national_team()
                 if national_team:
                     self.agent_group = national_team
+
+    def _remember_contact_location(self):
+        """Persist county + sub_county to HD Customer after ticket insert.
+
+        Story 354: Auto-remember — when a ticket is created with county/sub_county,
+        update the HD Customer record so the next ticket creation can pre-fill them.
+        Only updates if values are non-empty.
+        """
+        if not self.county and not self.sub_county:
+            return
+
+        if not self.contact:
+            return
+
+        from helpdesk.utils import get_customer
+
+        customers = get_customer(self.contact)
+        if not customers:
+            return
+
+        customer_name = customers[0]
+        update_vals = {}
+        if self.county:
+            update_vals["county"] = self.county
+        if self.sub_county:
+            update_vals["sub_county"] = self.sub_county
+
+        if update_vals:
+            frappe.db.set_value("HD Customer", customer_name, update_vals)
 
     def before_validate(self):
         self.check_update_perms()
