@@ -51,6 +51,59 @@
       </div>
     </template>
     <template #content>
+      <!-- ── Team Details section ──────────────────────────────────────── -->
+      <div class="flex flex-col gap-4 pb-4 border-b border-outline-gray-1 mb-4">
+        <div class="text-sm font-medium text-ink-gray-5 uppercase tracking-wide">
+          {{ __("Team Details") }}
+        </div>
+
+        <!-- Support Level -->
+        <div class="space-y-1.5">
+          <FormLabel :label="__('Support Level')" />
+          <Autocomplete
+            :value="getSupportLevelOption(teamDetails.support_level)"
+            :options="supportLevelOptions"
+            :placeholder="__('Select support level…')"
+            @change="(opt) => onSupportLevelChange(opt)"
+          />
+        </div>
+
+        <!-- Parent Team -->
+        <div class="space-y-1.5">
+          <FormLabel :label="__('Parent Team')" />
+          <Autocomplete
+            :value="getTeamOption(teamDetails.parent_team)"
+            :options="parentTeamOptions"
+            :placeholder="__('Select parent team…')"
+            @change="(opt) => onParentTeamChange(opt)"
+          />
+          <ErrorMessage v-if="detailsError" :message="detailsError" />
+        </div>
+
+        <!-- Territory -->
+        <div class="space-y-1.5">
+          <FormControl
+            v-model="teamDetails.territory"
+            :label="__('Territory')"
+            :placeholder="__('e.g. Nairobi County')"
+            type="text"
+          />
+        </div>
+
+        <!-- Save Details button -->
+        <div>
+          <Button
+            :label="__('Save Details')"
+            variant="solid"
+            size="sm"
+            :disabled="!isDetailsDirty || !!detailsError"
+            :loading="team.setValue.loading"
+            @click="saveDetails"
+          />
+        </div>
+      </div>
+
+      <!-- ── Members section ────────────────────────────────────────────── -->
       <div class="w-full h-full" v-if="teamMembers?.length > 0">
         <div class="grid grid-cols-8 items-center gap-3 text-sm text-gray-600">
           <div class="col-span-6 text-p-sm">
@@ -151,10 +204,13 @@ import {
   createResource,
   Dialog,
   Dropdown,
+  ErrorMessage,
+  FormControl,
+  FormLabel,
   toast,
   Tooltip,
 } from "frappe-ui";
-import { computed, h, inject, markRaw, onMounted, ref } from "vue";
+import { computed, h, inject, markRaw, onMounted, ref, watch } from "vue";
 import LucideLock from "~icons/lucide/lock";
 import Settings from "~icons/lucide/settings-2";
 import LucideUnlock from "~icons/lucide/unlock";
@@ -162,6 +218,7 @@ import UserIcon from "~icons/lucide/user";
 import AgentCard from "../AgentCard.vue";
 import { setActiveSettingsTab } from "../settingsModal";
 import AgentSelector from "./components/AgentSelector.vue";
+import Autocomplete from "@/components/Autocomplete.vue";
 
 const props = defineProps<{
   teamName: string;
@@ -175,6 +232,8 @@ const emit = defineEmits<E>();
 const { getUser } = useUserStore();
 const { agents } = useAgentStore();
 const teamsList = inject(TeamListResourceSymbol);
+const supportLevels = inject<any>("supportLevels");
+const allTeamsForLinks = inject<any>("allTeamsForLinks");
 
 const { teamRestrictionApplied } = useConfigStore();
 const invitees = ref<string[]>([]);
@@ -191,6 +250,157 @@ const team = createDocumentResource({
     },
   },
 });
+
+// ── Team Details state ────────────────────────────────────────────────────────
+
+const teamDetails = ref({
+  support_level: "",
+  parent_team: "",
+  territory: "",
+});
+
+const detailsError = ref("");
+
+watch(
+  () => team.doc,
+  (doc) => {
+    if (doc) {
+      teamDetails.value = {
+        support_level: doc.support_level || "",
+        parent_team: doc.parent_team || "",
+        territory: doc.territory || "",
+      };
+    }
+  },
+  { immediate: true }
+);
+
+const isDetailsDirty = computed(() => {
+  const doc = team.doc;
+  if (!doc) return false;
+  return (
+    (doc.support_level || "") !== teamDetails.value.support_level ||
+    (doc.parent_team || "") !== teamDetails.value.parent_team ||
+    (doc.territory || "") !== teamDetails.value.territory
+  );
+});
+
+// ── Options ───────────────────────────────────────────────────────────────────
+
+const supportLevelOptions = computed(() => {
+  const levels: any[] = supportLevels?.data || [];
+  return levels.map((l) => ({
+    label: l.display_name || l.level_name || l.name,
+    value: l.name,
+    level_order: l.level_order ?? 0,
+  }));
+});
+
+const teamsMap = computed(() => {
+  const map: Record<string, any> = {};
+  (allTeamsForLinks?.data || []).forEach((t: any) => {
+    map[t.name] = t;
+  });
+  return map;
+});
+
+const parentTeamOptions = computed(() => {
+  const teams: any[] = allTeamsForLinks?.data || [];
+  const selOpt = supportLevelOptions.value.find(
+    (o) => o.value === teamDetails.value.support_level
+  );
+  const selOrder: number = selOpt?.level_order ?? -1;
+
+  return teams
+    .filter((t) => {
+      if (t.name === props.teamName) return false;
+      if (hasCircularRef(t.name, props.teamName, teamsMap.value)) return false;
+      if (selOrder >= 0 && teamDetails.value.support_level) {
+        const teamSLOpt = supportLevelOptions.value.find(
+          (o) => o.value === t.support_level
+        );
+        return (teamSLOpt?.level_order ?? -1) > selOrder;
+      }
+      return true;
+    })
+    .map((t) => ({ label: t.name, value: t.name }));
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function hasCircularRef(
+  candidate: string,
+  currentTeam: string,
+  map: Record<string, any>
+): boolean {
+  let current = candidate;
+  const visited = new Set<string>();
+  while (current) {
+    if (current === currentTeam) return true;
+    if (visited.has(current)) break;
+    visited.add(current);
+    current = map[current]?.parent_team;
+  }
+  return false;
+}
+
+function getSupportLevelOption(val: string) {
+  if (!val) return null;
+  return supportLevelOptions.value.find((o) => o.value === val) || null;
+}
+
+function getTeamOption(val: string) {
+  if (!val) return null;
+  return parentTeamOptions.value.find((o) => o.value === val) || null;
+}
+
+function onSupportLevelChange(opt: any) {
+  teamDetails.value.support_level = opt?.value || "";
+  detailsError.value = "";
+  if (teamDetails.value.parent_team && opt) {
+    const stillValid = parentTeamOptions.value.some(
+      (o) => o.value === teamDetails.value.parent_team
+    );
+    if (!stillValid) {
+      teamDetails.value.parent_team = "";
+    }
+  }
+}
+
+function onParentTeamChange(opt: any) {
+  const newParent = opt?.value || "";
+  if (newParent === props.teamName) {
+    detailsError.value = __("A team cannot be its own parent");
+    return;
+  }
+  if (newParent && hasCircularRef(newParent, props.teamName, teamsMap.value)) {
+    detailsError.value = __(
+      "This selection would create a circular team hierarchy"
+    );
+    return;
+  }
+  detailsError.value = "";
+  teamDetails.value.parent_team = newParent;
+}
+
+function saveDetails() {
+  if (detailsError.value) return;
+  team.setValue.submit(
+    {
+      support_level: teamDetails.value.support_level || null,
+      parent_team: teamDetails.value.parent_team || null,
+      territory: teamDetails.value.territory || null,
+    },
+    {
+      onSuccess() {
+        toast.success(__("Team details saved"));
+        allTeamsForLinks?.reload?.();
+      },
+    }
+  );
+}
+
+// ── Members ───────────────────────────────────────────────────────────────────
 
 const ignoreRestrictions = computed({
   get() {
@@ -312,7 +522,6 @@ const options = [
         },
         {
           default: () => [
-            //create a div with 2 columns, one for icon and one for label
             h(
               "div",
               {

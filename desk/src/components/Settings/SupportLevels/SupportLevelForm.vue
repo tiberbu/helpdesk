@@ -224,7 +224,7 @@ const docResource = isEditMode.value
       doctype: "HD Support Level",
       name: props.levelName,
       auto: true,
-      onSuccess: (doc) => {
+      onSuccess: (doc: any) => {
         formData.value = {
           level_name: doc.level_name || "",
           level_order: doc.level_order ?? 0,
@@ -252,7 +252,7 @@ function validate(): boolean {
     errors.value.level_name = __("Level Name is required");
     valid = false;
   }
-  if (formData.value.level_order === null || formData.value.level_order === undefined || formData.value.level_order === "") {
+  if (formData.value.level_order === null || formData.value.level_order === undefined || String(formData.value.level_order) === "") {
     errors.value.level_order = __("Level Order is required");
     valid = false;
   }
@@ -291,14 +291,14 @@ async function saveLevel() {
               saving.value = false;
               levels.reload();
             },
-            onError: (err) => {
+            onError: (err: any) => {
               toast.error(err?.message || __("Failed to save"));
               saving.value = false;
             },
           }
         );
       },
-      onError: (err) => {
+      onError: (err: any) => {
         toast.error(err?.message || __("Failed to save"));
         saving.value = false;
       },
@@ -311,7 +311,7 @@ async function saveLevel() {
         saving.value = false;
         emit("update:step", "list");
       },
-      onError: (err) => {
+      onError: (err: any) => {
         toast.error(err?.message || __("Failed to create support level"));
         saving.value = false;
       },
@@ -344,7 +344,7 @@ function doDelete() {
       toast.success(__("Support level deleted"));
       emit("update:step", "list");
     },
-    onError: (err) => {
+    onError: (err: any) => {
       toast.error(err?.message || __("Failed to delete"));
     },
   });

@@ -44,36 +44,67 @@
         v-if="!teams.loading && teams.data?.length > 0"
         class="w-full h-full -ml-2"
       >
-        <div class="flex text-sm text-gray-600">
-          <div class="ml-2">{{ __("Team name") }}</div>
+        <!-- Header row -->
+        <div class="flex text-sm text-gray-600 ml-2 pr-10">
+          <div class="flex-1">{{ __("Team name") }}</div>
+          <div class="w-28 text-right text-xs">{{ __("Support Level") }}</div>
         </div>
         <hr class="mx-2 mt-2" />
+
+        <!-- Team rows -->
         <div v-for="(team, index) in teams.data" :key="team.name">
           <div
-            class="flex items-center cursor-pointer hover:bg-gray-50 rounded h-12.5"
+            class="flex items-center cursor-pointer hover:bg-gray-50 rounded min-h-[50px]"
           >
             <div
-              class="w-full py-3 pl-2"
+              class="flex-1 py-3 pl-2"
               @click="() => emit('update:step', 'team-edit', team.name)"
             >
-              <div class="text-base text-ink-gray-7 font-medium">
-                {{ team.name }}
+              <!-- Team name row -->
+              <div class="flex items-center gap-2">
+                <!-- Hierarchy indent for child teams -->
+                <span
+                  v-if="team.parent_team"
+                  class="text-ink-gray-4 text-xs select-none"
+                  aria-hidden="true"
+                >↳</span>
+                <div class="text-base text-ink-gray-7 font-medium">
+                  {{ team.name }}
+                </div>
+              </div>
+              <!-- Parent team sub-line -->
+              <div
+                v-if="team.parent_team"
+                class="text-xs text-ink-gray-4 mt-0.5 ml-4"
+              >
+                {{ __("under {0}", [team.parent_team]) }}
               </div>
             </div>
-            <div class="flex justify-between items-center pr-2">
-              <div>
-                <Dropdown placement="right" :options="dropdownOptions(team)">
-                  <Button
-                    icon="more-horizontal"
-                    variant="ghost"
-                    @click="isConfirmingDelete = false"
-                  />
-                </Dropdown>
-              </div>
+
+            <!-- Support level badge -->
+            <div class="w-28 flex justify-end pr-2" @click="() => emit('update:step', 'team-edit', team.name)">
+              <span
+                v-if="team.support_level"
+                class="text-xs bg-surface-gray-2 text-ink-gray-5 px-2 py-0.5 rounded-full whitespace-nowrap"
+              >
+                {{ team.support_level }}
+              </span>
+            </div>
+
+            <!-- Actions dropdown -->
+            <div class="flex items-center pr-2">
+              <Dropdown placement="right" :options="dropdownOptions(team)">
+                <Button
+                  icon="more-horizontal"
+                  variant="ghost"
+                  @click="isConfirmingDelete = false"
+                />
+              </Dropdown>
             </div>
           </div>
           <hr v-if="index !== teams.data.length - 1" class="mx-2" />
         </div>
+
         <!-- Load More Button -->
         <div class="flex justify-center">
           <Button
@@ -86,6 +117,7 @@
           />
         </div>
       </div>
+
       <!-- Loading State -->
       <div
         v-if="teams.loading"
@@ -98,6 +130,7 @@
           size="2xl"
         />
       </div>
+
       <!-- Empty State -->
       <div
         v-if="!teams.loading && !teams.data?.length"

@@ -22,8 +22,8 @@ type SupportLevelStep = "list" | "form";
 const step: Ref<SupportLevelStep> = ref("list");
 const editingLevelName: Ref<string> = ref("");
 
-function updateStep(newStep: SupportLevelStep, levelName?: string): void {
-  step.value = newStep;
+function updateStep(newStep: string, levelName?: string): void {
+  step.value = newStep as SupportLevelStep;
   editingLevelName.value = levelName || "";
 }
 

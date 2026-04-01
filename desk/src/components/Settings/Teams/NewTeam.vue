@@ -30,6 +30,7 @@
     </template>
     <template #content>
       <div class="flex flex-col gap-4">
+        <!-- Team Name -->
         <div class="space-y-1.5">
           <FormControl
             v-model="teamData.name"
@@ -41,6 +42,40 @@
           />
           <ErrorMessage :message="errors.name" />
         </div>
+
+        <!-- Support Level -->
+        <div class="space-y-1.5">
+          <FormLabel :label="__('Support Level')" />
+          <Autocomplete
+            :value="getSupportLevelOption(teamData.support_level)"
+            :options="supportLevelOptions"
+            :placeholder="__('Select support level…')"
+            @change="(opt) => onSupportLevelChange(opt)"
+          />
+        </div>
+
+        <!-- Parent Team -->
+        <div class="space-y-1.5">
+          <FormLabel :label="__('Parent Team')" />
+          <Autocomplete
+            :value="getTeamOption(teamData.parent_team)"
+            :options="parentTeamOptions"
+            :placeholder="__('Select parent team…')"
+            @change="(opt) => { teamData.parent_team = opt?.value || '' }"
+          />
+        </div>
+
+        <!-- Territory -->
+        <div class="space-y-1.5">
+          <FormControl
+            v-model="teamData.territory"
+            :label="__('Territory')"
+            :placeholder="__('e.g. Nairobi County')"
+            type="text"
+          />
+        </div>
+
+        <!-- Members -->
         <div class="flex flex-col gap-1.5">
           <FormLabel :label="__('Members')" required />
           <div class="flex">
@@ -68,6 +103,7 @@ import SettingsLayoutBase from "@/components/layouts/SettingsLayoutBase.vue";
 import { Badge, ErrorMessage, FormControl, FormLabel, toast } from "frappe-ui";
 import { __ } from "@/translation";
 import AgentSelector from "./components/AgentSelector.vue";
+import Autocomplete from "@/components/Autocomplete.vue";
 import { useAgentStore } from "@/stores/agent";
 import { TeamListResourceSymbol } from "@/types";
 import ConfirmDialog from "../../ConfirmDialog.vue";
@@ -79,11 +115,20 @@ interface E {
 const emit = defineEmits<E>();
 
 const teamsList = inject(TeamListResourceSymbol);
+const supportLevels = inject<any>("supportLevels");
+const allTeamsForLinks = inject<any>("allTeamsForLinks");
 const { agents } = useAgentStore();
 
 const isDirty = computed(() => {
-  return teamData.value.name || teamData.value.agents.length;
+  return (
+    teamData.value.name ||
+    teamData.value.agents.length ||
+    teamData.value.support_level ||
+    teamData.value.parent_team ||
+    teamData.value.territory
+  );
 });
+
 const showConfirmDialog = ref({
   show: false,
   title: "",
@@ -93,13 +138,74 @@ const showConfirmDialog = ref({
 
 const teamData = ref({
   name: "",
-  agents: [],
+  agents: [] as string[],
+  support_level: "",
+  parent_team: "",
+  territory: "",
 });
 
 const errors = ref({
   name: "",
   agents: "",
 });
+
+// ── Options computed ──────────────────────────────────────────────────────────
+
+const supportLevelOptions = computed(() => {
+  const levels: any[] = supportLevels?.data || [];
+  return levels.map((l) => ({
+    label: l.display_name || l.level_name || l.name,
+    value: l.name,
+    level_order: l.level_order ?? 0,
+  }));
+});
+
+const parentTeamOptions = computed(() => {
+  const teams: any[] = allTeamsForLinks?.data || [];
+  const selOpt = supportLevelOptions.value.find(
+    (o) => o.value === teamData.value.support_level
+  );
+  const selOrder: number = selOpt?.level_order ?? -1;
+
+  return teams
+    .filter((t) => {
+      if (selOrder >= 0 && teamData.value.support_level) {
+        const teamSLOpt = supportLevelOptions.value.find(
+          (o) => o.value === t.support_level
+        );
+        return (teamSLOpt?.level_order ?? -1) > selOrder;
+      }
+      return true;
+    })
+    .map((t) => ({ label: t.name, value: t.name }));
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function getSupportLevelOption(val: string) {
+  if (!val) return null;
+  return supportLevelOptions.value.find((o) => o.value === val) || null;
+}
+
+function getTeamOption(val: string) {
+  if (!val) return null;
+  return parentTeamOptions.value.find((o) => o.value === val) || null;
+}
+
+function onSupportLevelChange(opt: any) {
+  teamData.value.support_level = opt?.value || "";
+  // Clear parent team if it no longer matches the level filter
+  if (teamData.value.parent_team && opt) {
+    const stillValid = parentTeamOptions.value.some(
+      (o) => o.value === teamData.value.parent_team
+    );
+    if (!stillValid) {
+      teamData.value.parent_team = "";
+    }
+  }
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
 
 const goBack = () => {
   const confirmDialogInfo = {
@@ -122,6 +228,8 @@ const goBack = () => {
   showConfirmDialog.value.show = false;
 };
 
+// ── Save ──────────────────────────────────────────────────────────────────────
+
 const saveTeam = () => {
   validateData();
   if (Object.values(errors.value).some((error) => error)) {
@@ -132,6 +240,9 @@ const saveTeam = () => {
     {
       team_name: teamData.value.name,
       users: teamData.value.agents.map((agent) => ({ user: agent })),
+      support_level: teamData.value.support_level || null,
+      parent_team: teamData.value.parent_team || null,
+      territory: teamData.value.territory || null,
     },
     {
       onSuccess: (data) => {
@@ -141,6 +252,8 @@ const saveTeam = () => {
     }
   );
 };
+
+// ── Validation ────────────────────────────────────────────────────────────────
 
 const validateData = (key?: string) => {
   const validateField = (field: string) => {

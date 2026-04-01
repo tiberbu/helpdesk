@@ -1,0 +1,6 @@
+- main [ref=e4]:
+  - generic [ref=e7]:
+    - heading "Session Expired" [level=4] [ref=e8]
+    - generic [ref=e9]:
+      - paragraph [ref=e10]: "401: Your session has expired, please login again to continue."
+      - button "Show Error" [ref=e11] [cursor=pointer]

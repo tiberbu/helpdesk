@@ -1,0 +1,135 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: Major Incidents
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89]
+            - generic [ref=e91]: County Dashboard
+          - generic [ref=e92] [cursor=pointer]:
+            - img [ref=e94]
+            - generic [ref=e96]: Automations
+        - generic [ref=e136]:
+          - generic [ref=e137] [cursor=pointer]:
+            - img [ref=e138]
+            - generic [ref=e140]: Public Views
+          - navigation [ref=e142]:
+            - generic [ref=e143] [cursor=pointer]:
+              - generic [ref=e145]: ⭐
+              - generic [ref=e146]: My Feedback
+            - generic [ref=e147] [cursor=pointer]:
+              - generic [ref=e149]: 📋
+              - generic [ref=e150]: Pending Tickets
+            - generic [ref=e151] [cursor=pointer]:
+              - generic [ref=e153]: 🆕
+              - generic [ref=e154]: Recently Assigned Tickets
+            - generic [ref=e155] [cursor=pointer]:
+              - generic [ref=e157]: ⏳
+              - generic [ref=e158]: SLA Due
+      - generic [ref=e97]:
+        - generic [ref=e98] [cursor=pointer]:
+          - img [ref=e100]
+          - generic [ref=e102]: Help
+        - generic [ref=e103] [cursor=pointer]:
+          - img [ref=e105]
+          - generic [ref=e107]: Collapse
+    - generic [ref=e108]:
+      - banner [ref=e358]:
+        - generic [ref=e361]:
+          - link "Tickets" [ref=e362] [cursor=pointer]:
+            - /url: /helpdesk/tickets
+            - generic [ref=e363]: Tickets
+          - generic [ref=e364]: /
+          - link "New Ticket" [ref=e365] [cursor=pointer]:
+            - /url: /helpdesk/my-tickets/new
+            - generic [ref=e366]: New Ticket
+      - generic [ref=e368]:
+        - generic [ref=e369]:
+          - generic [ref=e370]:
+            - generic [ref=e371]: County
+            - combobox "Customise options" [ref=e373] [cursor=pointer]:
+              - generic: Select county
+              - img [ref=e374]
+          - generic [ref=e376]:
+            - generic [ref=e377]: Sub-County
+            - combobox "Customise options" [disabled] [ref=e379]:
+              - generic: Select a county first
+              - img [ref=e380]
+        - generic [ref=e383]:
+          - generic [ref=e384]: Subject *
+          - textbox "A short description" [ref=e387]
+        - generic [ref=e390]:
+          - generic [ref=e393]:
+            - generic [ref=e395]: A
+            - generic [ref=e396]: Administrator
+          - paragraph [ref=e399]: Detailed explanation
+          - generic [ref=e401]:
+            - generic [ref=e402]:
+              - generic [ref=e404]:
+                - button "Paragraph" [ref=e406] [cursor=pointer]:
+                  - img [ref=e407]
+                - button [ref=e412] [cursor=pointer]:
+                  - img [ref=e413]
+                - button "Bullet List" [ref=e417] [cursor=pointer]:
+                  - img [ref=e418]
+                - button "Numbered List" [ref=e422] [cursor=pointer]:
+                  - img [ref=e423]
+                - button "Image" [ref=e426] [cursor=pointer]:
+                  - img [ref=e427]
+                - button "Video" [ref=e430] [cursor=pointer]:
+                  - img [ref=e431]
+                - button "Link" [ref=e434] [cursor=pointer]:
+                  - img [ref=e435]
+                - button "Blockquote" [ref=e439] [cursor=pointer]:
+                  - img [ref=e440]
+                - button "Code" [ref=e444] [cursor=pointer]:
+                  - img [ref=e445]
+              - button [ref=e450] [cursor=pointer]:
+                - img [ref=e451]
+            - generic [ref=e453]:
+              - button "Discard" [ref=e454] [cursor=pointer]:
+                - generic [ref=e455]: Discard
+              - button "Submit" [disabled] [ref=e456]:
+                - generic [ref=e457]: Submit
+  - region "Notifications (F8)":
+    - list
