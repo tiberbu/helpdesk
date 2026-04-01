@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:team_name",
- "creation": "2022-02-24 20:55:48.766967",
+ "creation": "2022-02-24 20:55:48.966967",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -13,7 +13,12 @@
   "column_break_feto",
   "ignore_restrictions",
   "sla_section",
-  "sla_manager"
+  "sla_manager",
+  "hierarchy_section",
+  "parent_team",
+  "support_level",
+  "territory",
+  "is_group"
  ],
  "fields": [
   {
@@ -58,11 +63,45 @@
    "fieldtype": "Link",
    "label": "SLA Notification Manager",
    "options": "HD Agent"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "hierarchy_section",
+   "fieldtype": "Section Break",
+   "label": "Hierarchy"
+  },
+  {
+   "fieldname": "parent_team",
+   "fieldtype": "Link",
+   "label": "Parent Team",
+   "options": "HD Team",
+   "description": "The escalation parent team (e.g. County team is parent of Sub-County team)"
+  },
+  {
+   "fieldname": "support_level",
+   "fieldtype": "Link",
+   "label": "Support Level",
+   "options": "HD Support Level",
+   "reqd": 1,
+   "description": "The support tier this team belongs to"
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Data",
+   "label": "Territory",
+   "description": "Kenya admin hierarchy identifier (county/sub-county name)"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group",
+   "description": "If checked, this is a grouping node (e.g. county team with sub-county children)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-23 00:00:00.000000",
+ "modified": "2026-04-01 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Team",

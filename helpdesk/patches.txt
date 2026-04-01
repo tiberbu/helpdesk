@@ -71,3 +71,7 @@ helpdesk.patches.v1_phase1.add_kb_review_settings_to_hd_settings
 helpdesk.patches.v1_phase1.add_linked_articles_to_hd_ticket
 helpdesk.patches.v1_phase1.add_internal_only_to_hd_article
 helpdesk.patches.v1_phase1.add_missing_default_categories
+
+helpdesk.patches.v1_phase1.add_hd_support_level
+helpdesk.patches.v1_phase1.add_escalation_fields_to_hd_ticket
+helpdesk.patches.v1_phase1.add_hd_facility_mapping

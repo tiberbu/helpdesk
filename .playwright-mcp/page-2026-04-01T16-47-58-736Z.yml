@@ -1,0 +1,305 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - button:
+          - img
+          - generic:
+            - generic: ServiceDesk
+            - generic: Administrator
+          - generic:
+            - img
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - text: Search
+            - generic:
+              - img
+              - generic: K
+        - generic:
+          - generic:
+            - img
+          - generic: Dashboard
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Notifications
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Home
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Tickets
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Knowledge Base
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Customers
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Contacts
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Live Chat
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Major Incidents
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Automations
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic: Public Views
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - generic: ⭐
+                    - generic: My Feedback
+                  - generic:
+                    - generic:
+                      - generic: 📋
+                    - generic: Pending Tickets
+                  - generic:
+                    - generic:
+                      - generic: 🆕
+                    - generic: Recently Assigned Tickets
+                  - generic:
+                    - generic:
+                      - generic: ⏳
+                    - generic: SLA Due
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Help
+          - generic:
+            - generic:
+              - img
+            - generic: Collapse
+      - generic:
+        - generic:
+          - generic:
+            - banner:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /helpdesk/tickets
+                        - generic: Tickets
+                      - generic: /
+                      - button:
+                        - generic: QA Test Low Priority - No Automation
+              - generic:
+                - generic:
+                  - generic:
+                    - button [disabled]:
+                      - img
+                    - button:
+                      - img
+                  - button:
+                    - img
+                    - generic: Open
+                  - button:
+                    - img
+            - generic:
+              - generic:
+                - paragraph: "#3"
+                - generic:
+                  - generic: via
+                  - img
+                  - generic: Email
+              - generic:
+                - generic: First Response
+                - generic: Failed by 5d 6h
+              - generic:
+                - generic: Resolution
+                - generic: Due in 4d 17h
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - tablist:
+                  - tab [selected]:
+                    - img
+                    - text: Activity
+                  - tab:
+                    - img
+                    - text: Emails
+                  - tab:
+                    - img
+                    - text: Comments
+                  - tab:
+                    - img
+                    - text: Internal Notes
+                - tabpanel:
+                  - generic:
+                    - generic: Activity
+                    - button:
+                      - img
+                      - generic: New
+                      - img
+                  - generic:
+                    - generic:
+                      - img
+              - generic:
+                - generic:
+                  - generic:
+                    - button:
+                      - img
+                      - generic: Reply
+                    - button:
+                      - img
+                      - generic: Comment
+                - text: Hi John, we are looking into this issue.
+            - generic:
+              - radiogroup:
+                - radio [checked]:
+                  - button:
+                    - generic:
+                      - generic: Details
+                - radio:
+                  - button:
+                    - generic:
+                      - generic: Contact
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: q
+                      - generic:
+                        - generic:
+                          - paragraph: qa-auto-test2
+                          - img
+                        - generic:
+                          - button:
+                            - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Ticket Type
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Unspecified
+                                - img
+                        - generic:
+                          - generic: Priority
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Low
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Customer
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Enter Customer
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Team
+                          - generic:
+                            - generic:
+                              - button:
+                                - generic:
+                                  - generic: Enter Team
+                                - img
+                      - generic:
+                        - generic:
+                          - generic: Assignee
+                          - button:
+                            - generic:
+                              - paragraph: No assignees
+                            - img
+                      - generic:
+                        - generic:
+                          - generic: Category
+                          - generic:
+                            - combobox:
+                              - generic: Select Category
+                              - img
+                  - generic:
+                    - generic:
+                      - generic: Linked Articles
+                      - generic:
+                        - button:
+                          - img
+                          - generic: Create Article
+                        - button:
+                          - img
+                          - generic: Link
+                    - generic: No linked articles
+                  - generic:
+                    - generic:
+                      - generic: Related Tickets
+                      - button:
+                        - img
+                        - generic: Link
+                    - generic: No related tickets
+                  - generic:
+                    - generic:
+                      - heading [level=3]: Time Tracking
+                      - button:
+                        - img
+                        - generic: Add Entry
+                    - button:
+                      - img
+                      - generic: Start Timer
+                    - generic:
+                      - img
+                      - paragraph: No time logged yet
+    - list
+  - dialog "Link a Ticket" [ref=e342]:
+    - generic [ref=e345]:
+      - generic [ref=e346]:
+        - banner [ref=e348]:
+          - heading "Link a Ticket" [level=3] [ref=e349]
+        - button [ref=e350] [cursor=pointer]:
+          - img [ref=e351]
+      - generic [ref=e354]:
+        - generic [ref=e355]:
+          - generic [ref=e356]: Search Ticket
+          - button "Search by ID or subject…" [ref=e359] [cursor=pointer]:
+            - generic [ref=e361]: Search by ID or subject…
+            - img [ref=e362]
+        - generic [ref=e364]:
+          - generic [ref=e365]: Link Type
+          - combobox "Customise options" [ref=e366] [cursor=pointer]:
+            - generic: Select option
+            - img [ref=e367]
+    - generic [ref=e370]:
+      - button "Cancel" [active] [ref=e371] [cursor=pointer]:
+        - generic [ref=e372]: Cancel
+      - button "Link Ticket" [disabled] [ref=e373]:
+        - generic [ref=e374]: Link Ticket
+  - dialog [ref=e375]:
+    - listbox [ref=e379]:
+      - combobox "Search" [expanded] [ref=e382]: "10"
+      - button [ref=e384] [cursor=pointer]
+      - text: No results found

@@ -84,7 +84,15 @@
   "prevention_measures",
   "ticket_checklist",
   "kb_section",
-  "linked_articles"
+  "linked_articles",
+  "county_support_section",
+  "support_level",
+  "escalation_count",
+  "column_break_county",
+  "facility",
+  "sub_county",
+  "county",
+  "escalation_path"
  ],
  "fields": [
   {
@@ -597,6 +605,57 @@
    "fieldtype": "Table",
    "label": "Linked Articles",
    "options": "HD Ticket Article"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "county_support_section",
+   "fieldtype": "Section Break",
+   "label": "Support Routing"
+  },
+  {
+   "fieldname": "support_level",
+   "fieldtype": "Link",
+   "label": "Support Level",
+   "options": "HD Support Level",
+   "in_standard_filter": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "escalation_count",
+   "fieldtype": "Int",
+   "label": "Escalation Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_county",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "facility",
+   "fieldtype": "Data",
+   "label": "Facility",
+   "description": "Healthcare facility that raised this ticket"
+  },
+  {
+   "fieldname": "sub_county",
+   "fieldtype": "Data",
+   "label": "Sub-County",
+   "read_only": 1
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "label": "County",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "escalation_path",
+   "fieldtype": "Long Text",
+   "label": "Escalation Path",
+   "read_only": 1,
+   "hidden": 1,
+   "description": "JSON audit trail of all escalations/de-escalations"
   }
  ],
  "grid_page_length": 50,

@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:facility_name",
+ "creation": "2026-04-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "facility_name",
+  "facility_code",
+  "sub_county",
+  "county",
+  "column_break_1",
+  "l0_team",
+  "l1_team",
+  "l2_team",
+  "product"
+ ],
+ "fields": [
+  {
+   "fieldname": "facility_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Facility Name",
+   "reqd": 1,
+   "unique": 1,
+   "description": "Healthcare facility name (used for auto-routing tickets)"
+  },
+  {
+   "fieldname": "facility_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Facility Code (MFL)",
+   "description": "Master Facility List (MFL) code if available"
+  },
+  {
+   "fieldname": "sub_county",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sub-County",
+   "reqd": 1
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "County",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "l0_team",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "L0 Team (Sub-County)",
+   "options": "HD Team",
+   "reqd": 1,
+   "description": "Sub-County support team — first-line support for this facility"
+  },
+  {
+   "fieldname": "l1_team",
+   "fieldtype": "Link",
+   "label": "L1 Team (County)",
+   "options": "HD Team",
+   "description": "County support team (auto-resolved from l0_team.parent_team if not set)"
+  },
+  {
+   "fieldname": "l2_team",
+   "fieldtype": "Link",
+   "label": "L2 Team (National)",
+   "options": "HD Team",
+   "description": "National support team (auto-resolved)"
+  },
+  {
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "label": "Product",
+   "options": "HD Brand",
+   "description": "Which product/brand this facility uses"
+  }
+ ],
+ "links": [],
+ "modified": "2026-04-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD Facility Mapping",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "All",
+   "select": 1
+  }
+ ],
+ "quick_entry": 1,
+ "search_fields": "county,sub_county,facility_code",
+ "sort_field": "county",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "facility_name"
+}

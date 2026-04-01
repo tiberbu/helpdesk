@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:level_name",
+ "creation": "2026-04-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "level_name",
+  "level_order",
+  "display_name",
+  "color",
+  "column_break_1",
+  "allow_escalation_to_next",
+  "auto_escalate_on_breach",
+  "auto_escalate_minutes"
+ ],
+ "fields": [
+  {
+   "fieldname": "level_name",
+   "fieldtype": "Data",
+   "label": "Level Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "level_order",
+   "fieldtype": "Int",
+   "label": "Level Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "display_name",
+   "fieldtype": "Data",
+   "label": "Display Name"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Color",
+   "label": "Color"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_escalation_to_next",
+   "fieldtype": "Check",
+   "label": "Allow Escalation to Next Level"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_escalate_on_breach",
+   "fieldtype": "Check",
+   "label": "Auto-Escalate on SLA Breach"
+  },
+  {
+   "default": "60",
+   "depends_on": "eval:doc.auto_escalate_on_breach",
+   "fieldname": "auto_escalate_minutes",
+   "fieldtype": "Int",
+   "label": "Auto-Escalate After (Minutes)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD Support Level",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Agent",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "role": "All",
+   "read": 1,
+   "select": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "level_order",
+ "sort_order": "ASC",
+ "states": []
+}

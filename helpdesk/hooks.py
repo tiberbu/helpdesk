@@ -44,6 +44,7 @@ scheduler_events = {
         "*/5 * * * *": [
             "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.check_sla_breaches",
             "helpdesk.helpdesk.chat.session_cleanup.cleanup_inactive_sessions",
+            "helpdesk.helpdesk.doctype.hd_ticket.escalation_scheduler.auto_escalate_tickets",
         ],
         # Chat response timeout: sends auto-message after 2 min with no agent reply (Story 3.4)
         "*/1 * * * *": [

@@ -75,6 +75,60 @@ class HDTicket(Document):
 
     def before_insert(self):
         self.generate_key()
+        self._apply_facility_routing()
+
+    def _apply_facility_routing(self):
+        """Auto-populate facility, county, sub_county and assign to L0 team.
+
+        Story County-2: AC — auto-routing engine.
+        1. Look up the ticket creator's facility from User.facility custom field.
+        2. Find HD Facility Mapping for that facility.
+        3. Populate ticket.facility, ticket.sub_county, ticket.county.
+        4. Set ticket.support_level to the L0 team's support level.
+        5. Assign ticket to l0_team (agent_group).
+        6. If no mapping found, fall back to the default national team.
+        """
+        raised_by = self.raised_by or frappe.session.user
+        if not raised_by or raised_by == "Guest":
+            return
+
+        # Step 1: get facility from user profile
+        user_facility = frappe.db.get_value("User", raised_by, "facility")
+        if not user_facility:
+            return
+
+        # Always stamp the facility on the ticket
+        if not self.facility:
+            self.facility = user_facility
+
+        # Step 2: look up HD Facility Mapping
+        mapping = frappe.db.get_value(
+            "HD Facility Mapping",
+            {"facility_name": user_facility},
+            ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
+            as_dict=True,
+        )
+
+        if mapping:
+            # Step 3: populate geography
+            self.sub_county = mapping.sub_county
+            self.county = mapping.county
+
+            # Step 4: assign to l0_team
+            if not self.agent_group and mapping.l0_team:
+                self.agent_group = mapping.l0_team
+
+            # Step 5: set support_level from l0_team
+            if not self.support_level and mapping.l0_team:
+                self.support_level = frappe.db.get_value(
+                    "HD Team", mapping.l0_team, "support_level"
+                )
+        else:
+            # Step 6: no mapping — assign to default national team
+            if not self.agent_group:
+                national_team = _get_default_national_team()
+                if national_team:
+                    self.agent_group = national_team
 
     def before_validate(self):
         self.check_update_perms()
@@ -1437,6 +1491,8 @@ def has_permission(doc, user=None):
 # Custom perms for list query. Only the `WHERE` part
 # https://frappeframework.com/docs/user/en/python-api/hooks#modify-list-query
 def permission_query(user):
+    from .team_hierarchy import get_scoped_teams_for_agent
+
     if not user:
         user = frappe.session.user
     if is_admin(user):
@@ -1472,7 +1528,7 @@ def permission_query(user):
 
     # If agent belongs to the team which has ignore_permission set to 1.
     # that means this team can see all the tickets without any restriction,
-    # Event the other team's tickets.
+    # even the other team's tickets.
     if any(team.get("ignore_restrictions") for team in teams):
         all_teams = frappe.get_all("HD Team", pluck="name")
         if not all_teams:
@@ -1485,6 +1541,28 @@ def permission_query(user):
             query += " OR (`tabHD Ticket`.agent_group is null)"
         return query
 
+    # --- Hierarchical visibility (County support tier model) ---
+    # get_scoped_teams_for_agent returns:
+    #   None  → user has L2+ national level or no support levels configured
+    #           → fall through to legacy behaviour below
+    #   list  → explicit set of teams whose tickets the agent may see
+    scoped = get_scoped_teams_for_agent(user)
+
+    if scoped is not None:
+        # Hierarchical mode: restrict to the computed team scope
+        query += (
+            " OR (JSON_SEARCH(`tabHD Ticket`._assign, 'all', {user}) IS NOT NULL)".format(
+                user=frappe.db.escape(user)
+            )
+        )
+        if not scoped:
+            # Agent is in no teams — no additional team-based tickets
+            return query
+        scoped_str = ", ".join(frappe.db.escape(t) for t in scoped)
+        query += f" OR (`tabHD Ticket`.agent_group in ({scoped_str}))"
+        return query
+
+    # --- Legacy flat-team behaviour (no support levels configured) ---
     query += (
         " OR (JSON_SEARCH(`tabHD Ticket`._assign, 'all', {user}) IS NOT NULL)".format(
             user=frappe.db.escape(user)
@@ -1676,3 +1754,31 @@ def close_tickets_after_n_days():
             except Exception:  # noqa: BLE001
                 pass  # ignore rollback errors — connection may already be dead
             break  # dead connection — abort remaining tickets
+
+
+def _get_default_national_team():
+    """Return the name of the best-available fallback national team.
+
+    Story County-2: when no HD Facility Mapping exists for a user's facility,
+    assign the ticket to the 'L2 - National' support level team.
+    Looks for a team whose support_level has the highest level_order (≥ 2).
+    Returns None if no suitable team is found.
+    """
+    # Find support level with level_order >= 2 (national or higher)
+    national_level = frappe.db.get_value(
+        "HD Support Level",
+        filters=[["level_order", ">=", 2]],
+        fieldname="name",
+        order_by="level_order asc",
+    )
+    if not national_level:
+        return None
+
+    # Find a team assigned to that support level
+    team = frappe.db.get_value(
+        "HD Team",
+        filters={"support_level": national_level},
+        fieldname="name",
+        order_by="creation asc",
+    )
+    return team
