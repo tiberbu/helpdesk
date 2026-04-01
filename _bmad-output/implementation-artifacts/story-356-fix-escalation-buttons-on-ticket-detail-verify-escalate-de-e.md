@@ -1,6 +1,6 @@
 # Story: Fix: Escalation buttons on ticket detail — verify escalate/de-escalate actually works end-to-end
 
-Status: in-progress
+Status: done
 Task ID: mnge0nowgvf6uk
 Task Number: #356
 Workflow: quick-dev
@@ -60,20 +60,37 @@ County-5 created EscalationDialog.vue and EscalationEvent.vue components, but sc
 
 ## Acceptance Criteria
 
-- [ ] ### 1. Verify Escalation Button Placement
-- [ ] On ticket detail page, there should be an "Escalate" button visible when:
-- [ ] Ticket has a support_level set
-- [ ] The support level allows escalation (`allow_escalation_to_next = true`)
-- [ ] De-escalate button visible when ticket has been escalated
+- [x] ### 1. Verify Escalation Button Placement
+- [x] On ticket detail page, there should be an "Escalate" button visible when:
+- [x] Ticket has a support_level set
+- [x] The support level allows escalation (`allow_escalation_to_next = true`)
+- [x] De-escalate button visible when ticket has been escalated
 
 ## Tasks / Subtasks
 
-- [ ] Implement changes
-- [ ] Verify build passes
+- [x] Implement changes
+- [x] Verify build passes
 
 ## Dev Notes
 
+Two bugs were found and fixed in `helpdesk/api/escalation.py`:
 
+1. **`get_ticket_escalation_info` — missing parent_team check**: The function set
+   `can_escalate = True` based only on `allow_escalation_to_next` and next-level
+   existence, but did NOT check whether the ticket's assigned team has a `parent_team`
+   configured. This caused the "Escalate" button to appear even when clicking it would
+   always fail with "no parent team". Fix: added `parent_team` lookup before setting
+   `can_escalate = True`.
+
+2. **`de_escalate_ticket` — `from_team` captured after `doc.save()`**: The audit-trail
+   entry used `doc.agent_group` for `from_team`, but by that point `doc.agent_group`
+   had already been updated to `resolved_team` (the lower-level team). This meant
+   `from_team == to_team` in every de-escalation entry. Fix: capture `original_team =
+   doc.agent_group` before updating the field.
+
+All Vue components (EscalationDialog, EscalationEvent, TicketHeader, TicketDetailsTab,
+TicketAgentActivities, TicketActivityPanel) were already correctly implemented and
+identical between dev and bench. No frontend changes were needed.
 
 ### References
 
@@ -87,12 +104,27 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- Verified all escalation Vue components were already correctly wired up (TicketHeader,
+  EscalationDialog, EscalationEvent, SupportLevelBadge, TicketDetailsTab, TicketActivityPanel)
+- Fixed `get_ticket_escalation_info`: now checks `agent_group.parent_team` before
+  `can_escalate = True` — button correctly hidden when team has no parent
+- Fixed `de_escalate_ticket`: `from_team` now captured before `doc.save()` so audit
+  trail is accurate
+- Browser tested: Escalate button visible on ticket #303 (L0 / Westlands Sub-County
+  Team), dialog shows Sub-County Support → County Support, reason required, confirm
+  submits and updates ticket to L1-County / Nairobi County Team
+- API tested: full escalate → de-escalate → re-escalate cycle on ticket #303 all succeed
+  with correct audit trail entries
+- yarn build passes (✓ built in 32.07s, no errors)
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- `helpdesk/api/escalation.py`: Fixed `get_ticket_escalation_info` to check
+  `parent_team` before `can_escalate = True`
+- `helpdesk/api/escalation.py`: Fixed `de_escalate_ticket` to capture `original_team`
+  before `doc.agent_group` update so audit trail `from_team` is correct
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+- `helpdesk/api/escalation.py` — modified (2 bug fixes)
+- `helpdesk/api/escalation.py` (bench copy) — synced

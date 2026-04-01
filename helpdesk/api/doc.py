@@ -437,6 +437,26 @@ def get_quick_filters(doctype: str, show_customer_portal_fields: bool = False):
     if doctype != "HD Ticket":
         return quick_filters
 
+    # Add Support Level and County quick filters for HD Ticket
+    if not any(f.get("name") == "support_level" for f in quick_filters):
+        quick_filters.append(
+            {
+                "label": _("Support Level"),
+                "name": "support_level",
+                "type": "Link",
+                "options": "HD Support Level",
+            }
+        )
+    if not any(f.get("name") == "county" for f in quick_filters):
+        quick_filters.append(
+            {
+                "label": _("County"),
+                "name": "county",
+                "type": "Data",
+                "options": [],
+            }
+        )
+
     _list = get_controller(doctype)
     if hasattr(_list, "filter_standard_fields") and show_customer_portal_fields:
         # to filter out more fields from customer remember to update customer_not_allowed_fields in hd_ticket.py

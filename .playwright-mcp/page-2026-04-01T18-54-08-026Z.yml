@@ -1,0 +1,489 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - button:
+          - img
+          - generic:
+            - generic: ServiceDesk
+            - generic: Administrator
+          - generic:
+            - img
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - text: Search
+            - generic:
+              - img
+              - generic: K
+        - generic:
+          - generic:
+            - img
+          - generic: Dashboard
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Notifications
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Home
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Tickets
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Knowledge Base
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Customers
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Contacts
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Live Chat
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Major Incidents
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: County Dashboard
+                  - generic:
+                    - generic:
+                      - img
+                    - generic: Automations
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - generic: Public Views
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - generic: ⭐
+                    - generic: My Feedback
+                  - generic:
+                    - generic:
+                      - generic: 📋
+                    - generic: Pending Tickets
+                  - generic:
+                    - generic:
+                      - generic: 🆕
+                    - generic: Recently Assigned Tickets
+                  - generic:
+                    - generic:
+                      - generic: ⏳
+                    - generic: SLA Due
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic: Help
+          - generic:
+            - generic:
+              - img
+            - generic: Collapse
+      - generic:
+        - generic:
+          - generic:
+            - banner:
+              - generic:
+                - generic: Home
+              - generic:
+                - generic:
+                  - button:
+                    - img
+                    - generic: Refresh
+                  - button:
+                    - img
+                    - generic: Edit
+                  - button:
+                    - img
+                    - generic: New
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic: Hey, Administrator
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: SLA Compliance
+                                - link:
+                                  - /url: /helpdesk/dashboard/sla
+                                  - text: View details
+                              - generic:
+                                - generic:
+                                  - generic: Response
+                                  - generic: 1.5%
+                                  - generic: 1/68
+                                - generic:
+                                  - generic: Resolution
+                                  - generic: 0%
+                                  - generic: 0/68
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: Average Resolution
+                                - generic:
+                                  - generic:
+                                    - generic: 0m
+                                    - generic:
+                                      - generic:
+                                        - img
+                                        - generic: 0%
+                                      - generic:
+                                        - text: vs last month
+                                        - img
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: Average First Response
+                                - generic:
+                                  - generic:
+                                    - generic: 0m
+                                    - generic:
+                                      - generic:
+                                        - img
+                                        - generic: 0%
+                                      - generic:
+                                        - text: vs last month
+                                        - img
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: My Tickets
+                                - generic:
+                                  - generic:
+                                    - generic: "1"
+                                    - generic:
+                                      - generic:
+                                        - img
+                                        - generic: +999%
+                                      - generic:
+                                        - text: vs last month
+                                        - img
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - text: SLA Alerts
+                                  - img
+                                - generic:
+                                  - radiogroup:
+                                    - radio [checked]:
+                                      - button:
+                                        - generic:
+                                          - generic: SLA Alerts
+                                    - radio:
+                                      - button:
+                                        - generic:
+                                          - generic: Pending
+                                    - radio:
+                                      - button:
+                                        - generic:
+                                          - generic: Recent
+                              - generic:
+                                - table:
+                                  - rowgroup:
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - row:
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                      - cell
+                                    - generic:
+                                      - generic:
+                                        - generic: All SLAs on track
+                                        - generic: Great! All your tickets are within SLA
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic: Reviews
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - img
+                                          - generic: "0"
+                                        - generic:
+                                          - text: 0 reviews
+                                          - img
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - img:
+                                            - generic:
+                                              - generic: "1"
+                                              - generic: "2"
+                                              - generic: "3"
+                                              - generic: "4"
+                                              - generic: "5"
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: All Time
+                                        - img
+                                      - button:
+                                        - generic: Positive first
+                                        - img
+                                    - generic:
+                                      - generic:
+                                        - generic: No feedback
+                                        - generic: You haven't received any feedback yet
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: Average Time Metrics
+                                - radiogroup:
+                                  - radio:
+                                    - button:
+                                      - generic:
+                                        - generic: 3M
+                                  - radio [checked]:
+                                    - button:
+                                      - generic:
+                                        - generic: 6M
+                                  - radio:
+                                    - button:
+                                      - generic:
+                                        - generic: 1Y
+                              - generic:
+                                - generic:
+                                  - generic: No average metrics
+                                  - generic: Average response and resolution metrics not yet generated
+    - list
+  - generic [ref=e525]:
+    - dialog:
+      - generic:
+        - generic:
+          - heading [level=1]: Settings
+          - generic:
+            - navigation:
+              - button:
+                - generic:
+                  - generic: A
+                - generic: Profile
+          - generic:
+            - generic:
+              - generic: Email Settings
+            - navigation:
+              - button:
+                - img
+                - generic: Email Accounts
+              - button:
+                - img
+                - generic: Email Notifications
+          - generic:
+            - generic:
+              - generic: App Settings
+            - navigation:
+              - button:
+                - img
+                - generic: General
+              - button:
+                - img
+                - generic: Agents
+              - button:
+                - img
+                - generic: Invite Agents
+              - button:
+                - img
+                - generic: Teams
+              - button:
+                - img
+                - generic: SLA Policies
+              - button:
+                - img
+                - generic: Business Holidays
+              - button:
+                - img
+                - generic: Assignment Rules
+              - button:
+                - img
+                - generic: Field Dependencies
+              - button:
+                - img
+                - generic: Saved Replies
+              - button:
+                - img
+                - generic: Brands
+              - button:
+                - img
+                - generic: Support Levels
+          - generic:
+            - generic:
+              - generic: Integrations
+            - navigation:
+              - button:
+                - img
+                - generic: Telephony
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - button:
+                      - img
+                      - generic: L4 - QA Test Level
+                - generic:
+                  - button:
+                    - generic: Delete
+                  - button [disabled]:
+                    - generic: Save
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - text: Level Name *
+                      - generic: (required)
+                    - generic:
+                      - textbox:
+                        - /placeholder: e.g. Sub-County Support
+                        - text: L4 - QA Test Level
+                - generic:
+                  - generic:
+                    - generic:
+                      - text: Level Order *
+                      - generic: (required)
+                    - generic:
+                      - spinbutton: "4"
+                    - paragraph: Lower numbers = lower tiers (e.g. 0 = L0 / frontline, 3 = L3 / specialist)
+                - generic:
+                  - generic: Display Name
+                  - generic:
+                    - textbox:
+                      - /placeholder: e.g. L0 - Sub-County Support
+                      - text: QA Test Tier
+                  - paragraph: Optional label shown in ticket views
+                - generic:
+                  - generic: Color
+                  - generic:
+                    - textbox: "#000000"
+                    - generic: None
+                - separator
+                - generic:
+                  - checkbox [checked]
+                  - generic:
+                    - text: Allow Escalation to Next Level
+                    - paragraph: Tickets at this level can be escalated to the next higher support tier.
+                - generic:
+                  - checkbox
+                  - generic:
+                    - text: Auto-Escalate on SLA Breach
+                    - paragraph: Automatically escalate tickets when the SLA response window is breached.
+  - dialog "Delete Support Level" [ref=e1212]:
+    - generic [ref=e1215]:
+      - generic [ref=e1216]:
+        - banner [ref=e1218]:
+          - heading "Delete Support Level" [level=3] [ref=e1219]
+        - button [active] [ref=e1220] [cursor=pointer]:
+          - img [ref=e1221]
+      - paragraph [ref=e1225]: Are you sure you want to delete this support level? This action cannot be undone.
+    - button "Confirm" [ref=e1227] [cursor=pointer]:
+      - generic [ref=e1228]: Confirm

@@ -1,0 +1,199 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - button "ServiceDesk Administrator" [ref=e5] [cursor=pointer]:
+        - img [ref=e6]
+        - generic [ref=e13]:
+          - generic [ref=e14]: ServiceDesk
+          - generic [ref=e15]: Administrator
+        - img [ref=e17]
+      - generic [ref=e19] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]:
+          - text: Search
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - generic [ref=e28]: K
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e36]: Dashboard
+      - generic [ref=e38] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - generic [ref=e44]:
+        - navigation [ref=e48]:
+          - generic [ref=e49] [cursor=pointer]:
+            - img [ref=e51]
+            - generic [ref=e54]: Home
+          - generic [ref=e55] [cursor=pointer]:
+            - img [ref=e57]
+            - generic [ref=e59]: Tickets
+          - generic [ref=e60] [cursor=pointer]:
+            - img [ref=e62]
+            - generic [ref=e64]: Knowledge Base
+          - generic [ref=e65] [cursor=pointer]:
+            - img [ref=e67]
+            - generic [ref=e69]: Customers
+          - generic [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - generic [ref=e76]: Contacts
+          - generic [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e81]: Live Chat
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e86]: County Dashboard
+          - generic [ref=e87] [cursor=pointer]:
+            - img [ref=e89]
+            - generic [ref=e91]: Automations
+        - generic [ref=e93]:
+          - generic [ref=e94] [cursor=pointer]:
+            - img [ref=e95]
+            - generic [ref=e97]: Public Views
+          - navigation [ref=e99]:
+            - generic [ref=e100] [cursor=pointer]:
+              - generic [ref=e102]: ⭐
+              - generic [ref=e103]: My Feedback
+            - generic [ref=e104] [cursor=pointer]:
+              - generic [ref=e106]: 📋
+              - generic [ref=e107]: Pending Tickets
+            - generic [ref=e108] [cursor=pointer]:
+              - generic [ref=e110]: 🆕
+              - generic [ref=e111]: Recently Assigned Tickets
+            - generic [ref=e112] [cursor=pointer]:
+              - generic [ref=e114]: ⏳
+              - generic [ref=e115]: SLA Due
+      - generic [ref=e116]:
+        - generic [ref=e117] [cursor=pointer]:
+          - img [ref=e119]
+          - generic [ref=e121]: Help
+        - generic [ref=e122] [cursor=pointer]:
+          - img [ref=e124]
+          - generic [ref=e126]: Collapse
+    - generic [ref=e127]:
+      - banner [ref=e130]:
+        - generic [ref=e132]:
+          - link "Tickets" [ref=e133] [cursor=pointer]:
+            - /url: /helpdesk/tickets
+          - generic [ref=e134]: /
+          - button "List" [ref=e135] [cursor=pointer]:
+            - img [ref=e136]
+            - generic [ref=e137]: List
+            - img [ref=e138]
+        - link "Create" [ref=e141] [cursor=pointer]:
+          - /url: /helpdesk/tickets/new
+          - button "Create" [ref=e142]:
+            - img [ref=e143]
+            - generic [ref=e144]: Create
+      - generic [ref=e145]:
+        - generic [ref=e146]:
+          - generic [ref=e148]:
+            - textbox "ID" [ref=e151]
+            - textbox "Subject" [ref=e154]
+            - button "Brand" [ref=e159] [cursor=pointer]:
+              - generic [ref=e161]: Brand
+              - img [ref=e162]
+            - button "Customer" [ref=e168] [cursor=pointer]:
+              - generic [ref=e170]: Customer
+              - img [ref=e171]
+            - combobox "Customise options" [ref=e175] [cursor=pointer]:
+              - generic: Source
+              - img [ref=e176]
+            - button "L0 - Sub-County" [ref=e1305] [cursor=pointer]:
+              - generic [ref=e1264]: L0 - Sub-County
+              - img [ref=e185]
+            - textbox "County" [ref=e189]
+          - generic [ref=e190]:
+            - button "Refresh" [ref=e191] [cursor=pointer]:
+              - img [ref=e1306]
+            - generic [ref=e196]:
+              - button "Filter 2" [ref=e1268] [cursor=pointer]:
+                - img [ref=e198]
+                - generic [ref=e199]: Filter
+                - generic [ref=e200]: "2"
+              - button [ref=e202] [cursor=pointer]:
+                - img [ref=e203]
+            - generic [ref=e208]:
+              - button [ref=e209] [cursor=pointer]:
+                - img [ref=e211]
+              - button "Last Modified" [ref=e215] [cursor=pointer]:
+                - generic [ref=e216]: Last Modified
+                - img [ref=e217]
+            - button "Columns" [ref=e221] [cursor=pointer]:
+              - img [ref=e222]
+              - generic [ref=e224]: Columns
+        - generic [ref=e1310]:
+          - generic [ref=e1311]:
+            - checkbox [ref=e1313] [cursor=pointer]
+            - generic [ref=e1316]: ID
+            - generic [ref=e1319]: Subject
+            - generic [ref=e1322]: Status
+            - generic [ref=e1325]: First response
+            - generic [ref=e1328]: Resolution
+            - generic [ref=e1331]: Assigned To
+            - generic [ref=e1334]: Customer
+            - generic [ref=e1337]: Priority
+            - generic [ref=e1340]: Type
+            - generic [ref=e1343]: Team
+            - generic [ref=e1346]: Contact
+            - generic [ref=e1349]: Rating
+            - generic [ref=e1352]: Created
+          - generic [ref=e1353]:
+            - link [ref=e1354] [cursor=pointer]:
+              - /url: /helpdesk/tickets/11981
+              - generic [ref=e1356]:
+                - checkbox [ref=e1359]
+                - generic [ref=e1362]: "11981"
+                - generic [ref=e1365]: Chat session 46b5fef537062f07
+                - generic [ref=e1368]:
+                  - img [ref=e1369]
+                  - generic [ref=e1371]: Open
+                - generic [ref=e1374]: Fulfilled
+                - generic [ref=e1377]: Breached
+                - generic [ref=e1380]: Medium
+                - generic [ref=e1383]: Unspecified
+                - generic [ref=e1386]:
+                  - img [ref=e1387]
+                  - img [ref=e1389]
+                  - img [ref=e1391]
+                  - img [ref=e1393]
+                  - img [ref=e1395]
+                - generic [ref=e1399]: 1 w
+            - link [ref=e1401] [cursor=pointer]:
+              - /url: /helpdesk/tickets/13008
+              - generic [ref=e1403]:
+                - checkbox [ref=e1406]
+                - generic [ref=e1409]: "13008"
+                - generic [ref=e1412]: Test ticket - county sub-county routing
+                - generic [ref=e1415]:
+                  - img [ref=e1416]
+                  - generic [ref=e1418]: Open
+                - generic [ref=e1420]: in 17 hours
+                - generic [ref=e1422]: in 5 days
+                - generic [ref=e1425]: Medium
+                - generic [ref=e1428]: Unspecified
+                - generic [ref=e1431]: Nairobi Central L0
+                - generic [ref=e1434]:
+                  - img [ref=e1435]
+                  - img [ref=e1437]
+                  - img [ref=e1439]
+                  - img [ref=e1441]
+                  - img [ref=e1443]
+                - generic [ref=e1447]: 23 m
+        - generic [ref=e1449]:
+          - radiogroup [ref=e1450]:
+            - radio "20" [checked] [ref=e1451]:
+              - button "20" [ref=e1452] [cursor=pointer]:
+                - generic [ref=e1454]: "20"
+            - radio "50" [ref=e1455]:
+              - button "50" [ref=e1456] [cursor=pointer]:
+                - generic [ref=e1458]: "50"
+            - radio "100" [ref=e1459]:
+              - button "100" [ref=e1460] [cursor=pointer]:
+                - generic [ref=e1462]: "100"
+          - generic [ref=e1464]:
+            - generic [ref=e1465]: "2"
+            - generic [ref=e1466]: of
+            - generic [ref=e1467]: "2"
+  - region "Notifications (F8)":
+    - list
