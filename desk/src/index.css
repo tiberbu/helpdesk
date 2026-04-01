@@ -4,11 +4,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── HD Theme CSS Variables ─────────────────────────────────────────────── */
+:root {
+  --hd-accent: #0891B2;
+  --hd-accent-hover: #0E7490;
+  --hd-accent-light: #ECFEFF;
+  --hd-sidebar-bg: #1A1D21;
+  --hd-sidebar-hover: #2D3239;
+  --hd-sidebar-active: #252A31;
+  --hd-sidebar-border: #3A3F47;
+  --hd-sidebar-text: #B0B7C3;
+  --hd-sidebar-text-hover: #E4E7EB;
+  --hd-content-bg: #F8F9FA;
+}
+
+/* ─── Dark Sidebar Thin Scrollbar ────────────────────────────────────────── */
+.hd-dark-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #3A3F47 #1A1D21;
+}
+.hd-dark-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.hd-dark-sidebar::-webkit-scrollbar-track {
+  background: #1A1D21;
+}
+.hd-dark-sidebar::-webkit-scrollbar-thumb {
+  background: #3A3F47;
+  border-radius: 2px;
+}
+
+/* ─── Prose helper ───────────────────────────────────────────────────────── */
 @layer components {
   .prose-f {
     @apply break-normal max-w-none prose prose-code:break-all prose-code:whitespace-pre-wrap prose-img:border prose-img:rounded-lg prose-sm;
   }
 }
+
 .tiptap input[placeholder="Add caption"] {
   display: none !important;
 }

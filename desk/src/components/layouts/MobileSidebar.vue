@@ -11,7 +11,7 @@
         leave-to="-translate-x-full"
       >
         <div
-          class="relative z-10 flex h-full w-[230px] flex-col border-r bg-gray-50 transition-all duration-300 ease-in-out"
+          class="relative z-10 flex h-full w-[230px] flex-col border-r border-[#3A3F47] bg-[#1A1D21] transition-all duration-300 ease-in-out"
         >
           <!-- user dropwdown -->
           <div class="p-1">
@@ -27,6 +27,7 @@
                 :on-click="() => (sidebarOpened = false)"
                 :is-expanded="true"
                 to="Notifications"
+                :dark="true"
               >
                 <template #right>
                   <Badge
@@ -45,6 +46,7 @@
                 :to="'Dashboard'"
                 :is-active="isActiveTab('Dashboard')"
                 :is-expanded="true"
+                :dark="true"
               />
             </div>
           </div>
@@ -62,13 +64,13 @@
               <template #header="{ opened, hide, toggle }">
                 <div
                   v-if="!hide"
-                  class="flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+                  class="flex cursor-pointer gap-1.5 px-1 text-base font-medium text-[#6B7280] transition-all duration-300 ease-in-out"
                   :class="'ml-2 mt-4 h-7 w-auto opacity-100'"
                   @click="toggle()"
                 >
                   <FeatherIcon
                     name="chevron-right"
-                    class="h-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
+                    class="h-4 text-[#6B7280] transition-all duration-300 ease-in-out"
                     :class="{ 'rotate-90': opened }"
                   />
                   <span>{{ view.label }}</span>
@@ -85,6 +87,7 @@
                   :is-active="isActiveTab(link.to)"
                   class="my-0.5"
                   :onClick="link.onClick"
+                  :dark="true"
                 />
               </nav>
             </Section>

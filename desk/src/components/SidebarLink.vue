@@ -1,20 +1,29 @@
 <template>
   <div
-    class="-all flex h-7 cursor-pointer items-center rounded pl-2 pr-1 text-gray-800 duration-300 ease-in-out"
+    class="-all flex h-7 cursor-pointer items-center rounded pl-2 pr-1 text-base duration-300 ease-in-out"
     :class="{
       'w-full': isExpanded,
       'w-8': !isExpanded,
-      'shadow-sm': isActive,
-      [bgColor]: isActive,
-      [hvColor]: !isActive,
+      // --- Light mode ---
+      'shadow-sm': isActive && !dark,
+      [bgColor]: isActive && !dark,
+      [hvColor]: !isActive && !dark,
+      'text-gray-800': !dark,
+      // --- Dark mode active ---
+      'border-l-[3px] border-[#0891B2] bg-[#252A31] text-white !rounded-l-none': dark && isActive,
+      // --- Dark mode inactive ---
+      'text-[#B0B7C3] hover:bg-[#2D3239] hover:text-[#E4E7EB]': dark && !isActive,
     }"
     @click="handleNavigation"
   >
     <Tooltip :text="__(label)" v-if="!isExpanded">
       <span
-        class="shrink-0 text-gray-700"
+        class="shrink-0"
         :class="{
-          'text-gray-900': !isExpanded,
+          'text-[#B0B7C3]': dark && !isActive,
+          'text-white': dark && isActive,
+          'text-gray-700': !dark,
+          'text-gray-900': !dark && !isExpanded,
           'icon-emoji': isMobileView,
         }"
       >
@@ -23,9 +32,12 @@
     </Tooltip>
     <span
       v-else
-      class="shrink-0 text-gray-700"
+      class="shrink-0"
       :class="{
-        'text-gray-900': !isExpanded,
+        'text-[#B0B7C3]': dark && !isActive,
+        'text-white': dark && isActive,
+        'text-gray-700': !dark,
+        'text-gray-900': !dark && !isExpanded,
         'icon-emoji': isMobileView,
       }"
     >
@@ -59,6 +71,7 @@ interface P {
   to?: string | object;
   bgColor?: string;
   hvColor?: string;
+  dark?: boolean;
 }
 
 const props = withDefaults(defineProps<P>(), {
@@ -67,6 +80,7 @@ const props = withDefaults(defineProps<P>(), {
   to: "",
   bgColor: "bg-white",
   hvColor: "hover:bg-gray-100",
+  dark: false,
 });
 const router = useRouter();
 const { isMobileView } = useScreenSize();

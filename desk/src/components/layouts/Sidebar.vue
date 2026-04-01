@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex select-none flex-col border-r border-gray-200 bg-gray-50 p-2 text-base duration-300 ease-in-out"
+    class="flex select-none flex-col border-r border-[#3A3F47] bg-[#1A1D21] p-2 text-base duration-300 ease-in-out"
     :style="{
       'min-width': width,
       'max-width': width,
@@ -14,6 +14,7 @@
       :icon="LucideSearch"
       :on-click="() => openCommandPalette()"
       :is-expanded="isExpanded"
+      :dark="true"
     >
       <template #right>
         <span class="flex items-center gap-0.5 font-medium text-gray-600">
@@ -30,11 +31,12 @@
       :to="'Dashboard'"
       :is-active="isActiveTab('Dashboard')"
       :is-expanded="isExpanded"
+      :dark="true"
     />
     <div class="mb-4" v-if="!isCustomerPortal">
       <div
         v-if="notificationStore.unread"
-        class="absolute size-1.5 translate-x-6 translate-y-1 rounded-full bg-blue-400 left-1"
+        class="absolute size-1.5 translate-x-6 translate-y-1 rounded-full bg-[#0891B2] left-1"
         theme="gray"
         variant="solid"
       />
@@ -44,6 +46,7 @@
         :icon="LucideBell"
         :on-click="() => notificationStore.toggle()"
         :is-expanded="isExpanded"
+        :dark="true"
       >
         <template #right>
           <Badge
@@ -57,11 +60,11 @@
         </template>
       </SidebarLink>
     </div>
-    <div class="overflow-y-auto overflow-x-hidden">
+    <div class="overflow-y-auto overflow-x-hidden hd-dark-sidebar">
       <div v-for="view in allViews" :key="view.label">
         <div
           v-if="!view.hideLabel && !isExpanded && view.views?.length"
-          class="mx-2 my-2 h-1 border-b"
+          class="mx-2 my-2 h-1 border-b border-[#3A3F47]"
         />
         <Section
           :label="view.label"
@@ -71,7 +74,7 @@
           <template #header="{ opened, hide, toggle }">
             <div
               v-if="!hide"
-              class="flex cursor-pointer gap-1.5 px-1 text-base font-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+              class="flex cursor-pointer gap-1.5 px-1 text-base font-medium text-[#6B7280] transition-all duration-300 ease-in-out"
               :class="
                 !isExpanded
                   ? 'ml-0 h-0 overflow-hidden opacity-0'
@@ -81,7 +84,7 @@
             >
               <FeatherIcon
                 name="chevron-right"
-                class="h-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
+                class="h-4 text-[#6B7280] transition-all duration-300 ease-in-out"
                 :class="{ 'rotate-90': opened }"
               />
               <span>{{ __(view.label) }}</span>
@@ -98,6 +101,7 @@
               :is-active="isActiveTab(link.to)"
               class="my-0.5 emoji"
               :onClick="link.onClick"
+              :dark="true"
             />
           </nav>
         </Section>
@@ -119,6 +123,7 @@
         :icon="HelpIcon"
         :label="__('Help')"
         :is-expanded="isExpanded"
+        :dark="true"
         @click="
           () => {
             showHelpModal = minimize ? true : !showHelpModal;
@@ -133,6 +138,7 @@
         :is-expanded="isExpanded"
         :label="isExpanded ? __('Collapse') : __('Expand')"
         :on-click="() => (isExpanded = !isExpanded)"
+        :dark="true"
       />
     </div>
     <TrialBanner
