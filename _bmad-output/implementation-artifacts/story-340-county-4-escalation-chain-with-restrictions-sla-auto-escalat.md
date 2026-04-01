@@ -1,6 +1,6 @@
 # Story: [County-4] Escalation chain with restrictions + SLA auto-escalation
 
-Status: in-progress
+Status: done
 Task ID: mnga2c5zg6tp19
 Task Number: #340
 Workflow: quick-dev
@@ -55,35 +55,35 @@ Store on ticket (JSON or child table):
 
 ## Acceptance Criteria
 
-- [ ] Check current ticket.support_level
-- [ ] Look up support_level.allow_escalation_to_next — if False, block with message "This tier does not allow escalation"
-- [ ] Find next support level (level_order + 1)
-- [ ] Find the parent_team of the current assigned team
-- [ ] Reassign ticket to parent team
-- [ ] Update ticket.support_level to next level
-- [ ] Increment ticket.escalation_count
-- [ ] Add internal note: "Escalated from [Level] to [Level] by [Agent]. Reason: [required]"
-- [ ] Notify new team via email/in-app
-- [ ] Find all open tickets where:
-- [ ] For each: auto-escalate following the same chain logic
-- [ ] Add internal note: "Auto-escalated due to no response within [X] minutes at [Level]"
-- [ ] Track in escalation_path
+- [x] Check current ticket.support_level
+- [x] Look up support_level.allow_escalation_to_next — if False, block with message "This tier does not allow escalation"
+- [x] Find next support level (level_order + 1)
+- [x] Find the parent_team of the current assigned team
+- [x] Reassign ticket to parent team
+- [x] Update ticket.support_level to next level
+- [x] Increment ticket.escalation_count
+- [x] Add internal note: "Escalated from [Level] to [Level] by [Agent]. Reason: [required]"
+- [x] Notify new team via email/in-app
+- [x] Find all open tickets where: auto_escalate_on_breach=True & no agent response > minutes & not at highest level
+- [x] For each: auto-escalate following the same chain logic
+- [x] Add internal note: "Auto-escalated due to no response within [X] minutes at [Level]"
+- [x] Track in escalation_path
 
 ## Tasks / Subtasks
 
-- [ ] Check current ticket.support_level
-- [ ] Look up support_level.allow_escalation_to_next — if False, block with message "This tier does not allow escalation"
-- [ ] Find next support level (level_order + 1)
-- [ ] Find the parent_team of the current assigned team
-- [ ] Reassign ticket to parent team
-- [ ] Update ticket.support_level to next level
-- [ ] Increment ticket.escalation_count
-- [ ] Add internal note: "Escalated from [Level] to [Level] by [Agent]. Reason: [required]"
-- [ ] Notify new team via email/in-app
-- [ ] Find all open tickets where:
-- [ ] For each: auto-escalate following the same chain logic
-- [ ] Add internal note: "Auto-escalated due to no response within [X] minutes at [Level]"
-- [ ] Track in escalation_path
+- [x] Check current ticket.support_level
+- [x] Look up support_level.allow_escalation_to_next — if False, block with message "This tier does not allow escalation"
+- [x] Find next support level (level_order + 1)
+- [x] Find the parent_team of the current assigned team
+- [x] Reassign ticket to parent team
+- [x] Update ticket.support_level to next level
+- [x] Increment ticket.escalation_count
+- [x] Add internal note: "Escalated from [Level] to [Level] by [Agent]. Reason: [required]"
+- [x] Notify new team via email/in-app
+- [x] Find all open tickets where: auto_escalate_on_breach=True & no agent response > minutes
+- [x] For each: auto-escalate following the same chain logic
+- [x] Add internal note: "Auto-escalated due to no response within [X] minutes at [Level]"
+- [x] Track in escalation_path
 
 ## Dev Notes
 
@@ -101,12 +101,41 @@ sonnet
 
 ### Completion Notes List
 
-_(Updated by agent on completion)_
+- HD Support Level DocType (prerequisite from County-1) was already scaffolded with the `add_hd_support_level.py` patch.
+- HD Team and HD Ticket JSON updated with hierarchy + escalation fields (parent_team, support_level, territory, is_group on Team; support_level, facility, sub_county, county, escalation_count, escalation_path on Ticket).
+- `helpdesk/api/escalation.py` implements: `escalate_ticket`, `de_escalate_ticket`, `get_escalation_path`, shared `_perform_escalation()` helper, and `_notify_team()` background job.
+- `helpdesk/helpdesk/doctype/hd_ticket/escalation_scheduler.py` implements `auto_escalate_tickets()` which scans for eligible tickets every 5 minutes and enqueues per-ticket background jobs.
+- Scheduler registered in hooks.py under the existing `*/5 * * * *` cron slot.
+- Migration patch `add_escalation_fields_to_hd_ticket.py` created and registered in patches.txt.
+- 20 unit tests covering: happy-path escalation, escalation count, audit trail, internal notes, all blocked cases (terminal tier, no parent team, no support level, empty reason, non-agent), de-escalation, get_escalation_path, and auto-escalation candidate detection (including skipping non-auto levels, terminal level, resolved tickets, and recent-response tickets).
+- **All 20 tests pass** (`Ran 20 tests in 8.189s OK`).
 
 ### Change Log
 
-_(Updated by agent during implementation)_
+- 2026-04-01: Created HD Support Level DocType
+- 2026-04-01: Updated HD Team JSON (parent_team, support_level, territory, is_group)
+- 2026-04-01: Updated HD Ticket JSON (support_level, facility, sub_county, county, escalation_count, escalation_path)
+- 2026-04-01: Created helpdesk/api/escalation.py
+- 2026-04-01: Created helpdesk/helpdesk/doctype/hd_ticket/escalation_scheduler.py
+- 2026-04-01: Updated helpdesk/hooks.py (added auto_escalate_tickets to */5 cron)
+- 2026-04-01: Created helpdesk/patches/v1_phase1/add_escalation_fields_to_hd_ticket.py
+- 2026-04-01: Updated helpdesk/patches.txt
+- 2026-04-01: Created helpdesk/tests/test_escalation.py (20 tests)
+- 2026-04-01: bench migrate ran successfully
 
 ### File List
 
-_(Updated by agent — list all files created or modified)_
+**Created:**
+- `helpdesk/helpdesk/doctype/hd_support_level/__init__.py`
+- `helpdesk/helpdesk/doctype/hd_support_level/hd_support_level.json`
+- `helpdesk/helpdesk/doctype/hd_support_level/hd_support_level.py`
+- `helpdesk/api/escalation.py`
+- `helpdesk/helpdesk/doctype/hd_ticket/escalation_scheduler.py`
+- `helpdesk/patches/v1_phase1/add_escalation_fields_to_hd_ticket.py`
+- `helpdesk/tests/test_escalation.py`
+
+**Modified:**
+- `helpdesk/helpdesk/doctype/hd_team/hd_team.json` (added parent_team, support_level, territory, is_group fields)
+- `helpdesk/helpdesk/doctype/hd_ticket/hd_ticket.json` (added support_level, facility, sub_county, county, escalation_count, escalation_path fields)
+- `helpdesk/hooks.py` (added escalation_scheduler to */5 cron)
+- `helpdesk/patches.txt` (added add_escalation_fields_to_hd_ticket)
