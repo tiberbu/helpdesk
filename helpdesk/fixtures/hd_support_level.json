@@ -1,0 +1,46 @@
+[
+ {
+  "doctype": "HD Support Level",
+  "name": "L0 - Sub-County",
+  "level_name": "L0 - Sub-County",
+  "level_order": 0,
+  "display_name": "Sub-County Support",
+  "color": "#4CAF50",
+  "allow_escalation_to_next": 1,
+  "auto_escalate_on_breach": 0,
+  "auto_escalate_minutes": 60
+ },
+ {
+  "doctype": "HD Support Level",
+  "name": "L1 - County",
+  "level_name": "L1 - County",
+  "level_order": 1,
+  "display_name": "County Support",
+  "color": "#2196F3",
+  "allow_escalation_to_next": 1,
+  "auto_escalate_on_breach": 0,
+  "auto_escalate_minutes": 60
+ },
+ {
+  "doctype": "HD Support Level",
+  "name": "L2 - National",
+  "level_name": "L2 - National",
+  "level_order": 2,
+  "display_name": "National Support",
+  "color": "#FF9800",
+  "allow_escalation_to_next": 1,
+  "auto_escalate_on_breach": 0,
+  "auto_escalate_minutes": 60
+ },
+ {
+  "doctype": "HD Support Level",
+  "name": "L3 - Engineering",
+  "level_name": "L3 - Engineering",
+  "level_order": 3,
+  "display_name": "Engineering Support",
+  "color": "#F44336",
+  "allow_escalation_to_next": 0,
+  "auto_escalate_on_breach": 0,
+  "auto_escalate_minutes": 60
+ }
+]

@@ -9,6 +9,9 @@ from helpdesk.setup.default_views import add_default_views
 
 from .default_template import create_default_template
 from .file import create_helpdesk_folder
+from .kenya_data import seed_kenya_teams
+from .sla_defaults import seed_sla_configs
+from .support_levels import seed_support_levels
 from .ticket_feedback import create_ticket_feedback_options
 from .ticket_type import create_fallback_ticket_type, create_ootb_ticket_types
 from .welcome_ticket import create_welcome_ticket
@@ -33,8 +36,24 @@ def after_install():
     add_property_setters()
     add_website_settings_permission()
     add_default_views()
+    # Kenya county/sub-county hierarchy, support levels, and SLA configs
+    seed_kenya_data()
     # Always keep this at last, because sql_ddl makes the db commit
     add_fts_index()
+
+
+def seed_kenya_data() -> None:
+    """
+    Seed Kenya support infrastructure for fresh installs.
+
+    Safe to call via bench on demand:
+        bench --site <site> execute helpdesk.setup.install.seed_kenya_data
+
+    Idempotent — safe to call multiple times.
+    """
+    seed_support_levels()
+    seed_kenya_teams()
+    seed_sla_configs()
 
 
 def add_default_categories_and_articles():

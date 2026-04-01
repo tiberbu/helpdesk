@@ -137,5 +137,6 @@ auth_hooks = ["helpdesk.auth.authenticate"]
 # --------
 fixtures = [
     {"dt": "HD Incident Model"},
+    {"dt": "HD Support Level"},
     {"dt": "Workflow", "filters": [["document_type", "=", "HD Article"]]},
 ]
