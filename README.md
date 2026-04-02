@@ -1,7 +1,7 @@
 <div align="center" markdown="1">
 
-<img src=".github/hd-logo.svg" alt="Frappe Helpdesk logo" width="80"/>
-<h1>Frappe Helpdesk</h1>
+<img src=".github/hd-logo.svg" alt="ServiceDesk logo" width="80"/>
+<h1>ServiceDesk</h1>
 
 **Customer Service, Made Simple and Effective**
 
@@ -24,13 +24,13 @@
 	<a href="https://docs.frappe.io/helpdesk">Documentation</a>
 </div>
 
-## Frappe Helpdesk
-Frappe Helpdesk is an 100% open-source Ticket Management tool which helps you  streamline your company's support, offers an easy setup, clean user interface, and automation tools to resolve customer queries efficiently.
+## ServiceDesk
+ServiceDesk is an 100% open-source Ticket Management tool which helps you  streamline your company's support, offers an easy setup, clean user interface, and automation tools to resolve customer queries efficiently.
 
 
 
 ### Motivation
-Managing issues from our customers was a big challenge for us. We were using the ERPNext support module which was not very good in UI and the UX was also not good. We wanted to have a tool that can be easily integrated with our existing system and can be customized as per our needs. So we decided to build Frappe Helpdesk.
+Managing issues from our customers was a big challenge for us. We were using the ERPNext support module which was not very good in UI and the UX was also not good. We wanted to have a tool that can be easily integrated with our existing system and can be customized as per our needs. So we decided to build ServiceDesk.
 
 ### Key Features
 
@@ -106,7 +106,7 @@ It takes care of installation, setup, upgrades, monitoring, maintenance and supp
 
 ### Self Hosting
 
-Follow these steps to set up Frappe Helpdesk in production:
+Follow these steps to set up ServiceDesk in production:
 
 **Step 1**: Download the easy install script
 
@@ -130,7 +130,7 @@ Replace the following parameters with your values:
 - `your_email.example.com`: Your email address
 - `subdomain.domain.tld`: Your domain name where Helpdesk will be hosted
 
-The script will set up a production-ready instance of Frappe Helpdesk with all the necessary configurations in about 5 minutes.
+The script will set up a production-ready instance of ServiceDesk with all the necessary configurations in about 5 minutes.
 
 ## Development Setup
 
