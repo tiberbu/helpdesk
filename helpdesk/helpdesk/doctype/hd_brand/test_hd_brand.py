@@ -128,3 +128,108 @@ class TestHDBrand(FrappeTestCase):
             portal_domain="",
         )
         self.assertFalse(brand_b.portal_domain)
+
+    # ------------------------------------------------------------------
+    # Sprint 1 (Login Redesign): default uniqueness, host_patterns, assets
+    # ------------------------------------------------------------------
+
+    def test_only_one_active_default_brand_allowed(self):
+        """Two active brands cannot both have is_default=1."""
+        self._make_brand(
+            brand_name="Test Brand Default One",
+            portal_domain="default-one.example.com",
+            is_default=1,
+        )
+        with self.assertRaises(frappe.exceptions.ValidationError):
+            self._make_brand(
+                brand_name="Test Brand Default Two",
+                portal_domain="default-two.example.com",
+                is_default=1,
+            )
+
+    def test_inactive_default_does_not_block_active_default(self):
+        """An inactive default brand does not collide with a new active default."""
+        self._make_brand(
+            brand_name="Test Brand Default Inactive",
+            portal_domain="d-inactive.example.com",
+            is_default=1,
+            is_active=0,
+        )
+        # Should succeed despite the inactive default existing.
+        brand = self._make_brand(
+            brand_name="Test Brand Default Active",
+            portal_domain="d-active.example.com",
+            is_default=1,
+            is_active=1,
+        )
+        self.assertTrue(brand.is_default)
+
+    def test_external_logo_url_rejected(self):
+        """External URLs in image fields are rejected."""
+        with self.assertRaises(frappe.exceptions.ValidationError):
+            self._make_brand(
+                brand_name="Test Brand External Logo",
+                portal_domain="ext.example.com",
+                logo="https://evil.example.com/logo.png",
+            )
+
+    def test_first_party_logo_accepted(self):
+        """A path under /files/ or /assets/ is accepted."""
+        brand = self._make_brand(
+            brand_name="Test Brand Asset Path",
+            portal_domain="asset.example.com",
+            logo="/assets/helpdesk/desk/desk.png",
+        )
+        self.assertEqual(brand.logo, "/assets/helpdesk/desk/desk.png")
+
+    def test_host_pattern_invalid_chars_rejected(self):
+        with self.assertRaises(frappe.exceptions.ValidationError):
+            self._make_brand(
+                brand_name="Test Brand Bad Host A",
+                portal_domain="badhost-a.example.com",
+                host_patterns="foo!.bar",
+            )
+
+    def test_host_pattern_double_wildcard_rejected(self):
+        with self.assertRaises(frappe.exceptions.ValidationError):
+            self._make_brand(
+                brand_name="Test Brand Bad Host B",
+                portal_domain="badhost-b.example.com",
+                host_patterns="*.foo.*",
+            )
+
+    def test_host_pattern_inner_wildcard_rejected(self):
+        with self.assertRaises(frappe.exceptions.ValidationError):
+            self._make_brand(
+                brand_name="Test Brand Bad Host C",
+                portal_domain="badhost-c.example.com",
+                host_patterns="foo.*.bar",
+            )
+
+    def test_host_pattern_valid_exact(self):
+        brand = self._make_brand(
+            brand_name="Test Brand Host Exact",
+            portal_domain="host-exact.example.com",
+            host_patterns="erp.tiberbu.health",
+        )
+        self.assertEqual(brand.host_patterns, "erp.tiberbu.health")
+
+    def test_host_pattern_valid_wildcard(self):
+        brand = self._make_brand(
+            brand_name="Test Brand Host Wildcard",
+            portal_domain="host-wild.example.com",
+            host_patterns="*.tiberbu.health",
+        )
+        self.assertEqual(brand.host_patterns, "*.tiberbu.health")
+
+    def test_host_patterns_normalized_lowercase_and_trimmed(self):
+        """Save normalises lines to lowercase and strips whitespace + blank lines."""
+        brand = self._make_brand(
+            brand_name="Test Brand Host Norm",
+            portal_domain="host-norm.example.com",
+            host_patterns="  ERP.Tiberbu.Health  \n\n*.Tiberbu.health\n",
+        )
+        self.assertEqual(
+            brand.host_patterns,
+            "erp.tiberbu.health\n*.tiberbu.health",
+        )

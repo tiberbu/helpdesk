@@ -55,6 +55,7 @@ ALLOWED_PATHS = [
     "/api/method/frappe.desk.search.search_link",
     "/api/method/frappe.core.doctype.communication.email.make",
     "/api/method/frappe.core.doctype.user.user.reset_password",
+    "/api/method/helpdesk.api.forgot_password.request_reset",
     "/api/method/frappe.desk.form.load.getdoctype",
     "/api/method/run_doc_method",
     "/api/method/frappe.core.api.user_invitation.accept_invitation",

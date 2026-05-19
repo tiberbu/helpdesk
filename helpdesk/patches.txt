@@ -78,3 +78,6 @@ helpdesk.patches.v1_phase1.add_hd_facility_mapping
 
 helpdesk.patches.v1_county.seed_kenya_teams
 helpdesk.patches.v1_county.seed_sla_configs
+
+helpdesk.patches.v1_login_redesign.extend_hd_brand_for_login
+helpdesk.patches.v1_login_redesign.seed_tenant_brands

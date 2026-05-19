@@ -1,0 +1,13 @@
+{#-
+    /login routing shim (Sprint 8 cutover).
+
+    helpdesk/www/login.py::get_context picks the actual template:
+      - flag OFF → context.template = "frappe/www/login.html"   (framework default)
+      - flag ON  → this file renders, including the redesigned body.
+
+    When the flag is OFF, the framework template renders directly via
+    template_page.render_template's use of context.template, and this file is
+    not consulted. When ON, this file is the rendered template and includes
+    the shared body.
+-#}
+{% include "templates/includes/login/redesign.html" %}

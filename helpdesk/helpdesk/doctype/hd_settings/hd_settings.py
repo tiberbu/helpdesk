@@ -151,6 +151,11 @@ class HDSettings(Document):
 
         frappe.publish_realtime(event, room=room, after_commit=True)
 
+        # Invalidate the login-page settings cache so toggling
+        # new_login_page_enabled / login_hero_audience / mfa_policy takes effect
+        # on the next request without an app restart.
+        frappe.cache().delete_value("hd_login_settings_cache")
+
     def update_ticket_permissions(self):
         if self.allow_anyone_to_create_tickets:
             set_guest_ticket_creation_permission()

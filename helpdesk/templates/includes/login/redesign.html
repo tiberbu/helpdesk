@@ -1,0 +1,367 @@
+{#-
+    Helpdesk Redesigned Login Page — Shared template body (Sprint 8 cutover)
+
+    Used by both /login (when HD Settings.new_login_page_enabled is on) and
+    /login_preview (always, gated to System Manager / HD Admin). The thin
+    routing files at helpdesk/www/login.html and helpdesk/www/login_preview.html
+    include this template directly.
+
+    See PRD.md, architecture.md (AD-01 MPA, AD-06 feature flag, AD-09 dynamic
+    branding), and login.py / login_preview.py for the routing logic.
+-#}
+{%- set b = brand -%}
+<!DOCTYPE html>
+<html lang="{{ lang or 'en' }}" dir="{{ dir or 'ltr' }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="csrf-token" content="{{ csrf_token or '' }}">
+    <title>{{ title }}</title>
+    {%- if b.favicon %}
+    <link rel="icon" type="image/png" href="{{ b.favicon }}">
+    {%- endif %}
+    <style nonce="{{ csp_nonce }}">
+        /* Inline brand tokens — set per-request from the resolved HD Brand. */
+        .hd-login {
+            --hd-primary: {{ b.primary_color or '#5551FF' }};
+            --hd-accent:  {{ b.accent_color  or '#7B78FF' }};
+            --hd-bg-tint: {{ b.bg_tint_color or '#F5F5FF' }};
+            {%- if b.bg_image %}
+            --hd-bg-image: url('{{ b.bg_image }}');
+            {%- endif %}
+        }
+    </style>
+    <link rel="stylesheet" href="/assets/helpdesk/css/login.css?v={{ csp_nonce }}">
+    {#-
+        Sprint 6 — client i18n payload.
+        Sprint 7 — telemetry boot context (also seeded server-side so the
+        track() helper has the allow-list, request_id, brand_slug, and
+        PostHog config available before the module script runs). The CSP
+        forbids inline scripts without a nonce, so this block carries the
+        per-request nonce.
+    -#}
+    <script nonce="{{ csp_nonce }}">
+        window.__hdLoginI18n = {{ i18n | tojson }};
+        window.__hdTelemetry = {{ telemetry | tojson }};
+    </script>
+</head>
+<body class="hd-login">
+    {%- if is_preview %}
+    <div class="hd-login__preview-banner" role="status">
+        {{ _("Preview · This page is not live for end users.") }}
+    </div>
+    {%- endif %}
+
+    {#-
+        Sprint 6 — global polite live region.
+        login.js writes a one-line summary of every view swap here so a screen
+        reader announces "Reset your password.", "One-time code required.", etc.
+        It is positioned visually-hidden but still in the accessibility tree.
+    -#}
+    <div
+        class="hd-login__visually-hidden"
+        data-view-announcer
+        aria-live="polite"
+        aria-atomic="true"></div>
+
+    <main class="hd-login__shell">
+
+        {#- Left hero -#}
+        <section class="hd-login__hero" aria-labelledby="hd-login-headline">
+            <div class="hd-login__hero-inner">
+                <div class="hd-login__badge">
+                    {%- if b.logo %}
+                    <img src="{{ b.logo }}" alt="" class="hd-login__badge-logo" aria-hidden="true">
+                    {%- endif %}
+                    <span class="hd-login__badge-label">{{ b.brand_name or _("Helpdesk Platform") }}</span>
+                </div>
+
+                <h1 id="hd-login-headline" class="hd-login__headline">
+                    {{ b.headline or _("Welcome back") }}
+                </h1>
+
+                {%- if b.supporting_copy %}
+                <p class="hd-login__support-copy">{{ b.supporting_copy }}</p>
+                {%- endif %}
+
+                {%- if b.perks %}
+                <ul class="hd-login__perks" role="list">
+                    {%- for perk in b.perks %}
+                    <li class="hd-login__perk">
+                        <span class="hd-login__perk-icon" aria-hidden="true" data-icon="{{ perk.icon or 'check-circle' }}"></span>
+                        <span class="hd-login__perk-text">{{ perk.text }}</span>
+                    </li>
+                    {%- endfor %}
+                </ul>
+                {%- endif %}
+
+                {%- if b.trust_stats %}
+                <div class="hd-login__trust-stats">
+                    {%- for stat in b.trust_stats %}
+                    <div class="hd-login__trust-stat">
+                        <div class="hd-login__trust-stat-value">{{ stat.value }}</div>
+                        <div class="hd-login__trust-stat-label">{{ stat.label }}</div>
+                    </div>
+                    {%- endfor %}
+                </div>
+                {%- endif %}
+            </div>
+        </section>
+
+        {#- Right card -#}
+        <section class="hd-login__panel" aria-labelledby="hd-login-form-heading">
+            <div class="hd-login__card">
+                <h2 id="hd-login-form-heading" class="hd-login__card-title">
+                    {{ _("Sign in to your account") }}
+                </h2>
+
+                <div
+                    class="hd-login__banner"
+                    role="status"
+                    data-post-reset-banner
+                    hidden>
+                    {{ _("Password updated. Please sign in.") }}
+                </div>
+
+                <div class="hd-login__view" data-view="sign-in">
+                <form
+                    class="hd-login__form"
+                    method="post"
+                    action="/api/method/login"
+                    data-view-form="sign-in"
+                    novalidate>
+                    <input type="hidden" name="cmd" value="login">
+
+                    <div class="hd-login__field">
+                        <label for="hd-login-email" class="hd-login__label">{{ _("Email") }}</label>
+                        <input
+                            id="hd-login-email"
+                            name="usr"
+                            type="email"
+                            inputmode="email"
+                            autocomplete="username"
+                            autocapitalize="off"
+                            spellcheck="false"
+                            required
+                            autofocus
+                            aria-describedby="hd-login-error-sign-in"
+                            aria-invalid="false"
+                            class="hd-login__input">
+                    </div>
+
+                    <div class="hd-login__field">
+                        <label for="hd-login-password" class="hd-login__label">{{ _("Password") }}</label>
+                        <div class="hd-login__password-wrap">
+                            <input
+                                id="hd-login-password"
+                                name="pwd"
+                                type="password"
+                                autocomplete="current-password"
+                                required
+                                aria-describedby="hd-login-error-sign-in"
+                                aria-invalid="false"
+                                class="hd-login__input">
+                            <button
+                                type="button"
+                                class="hd-login__password-toggle"
+                                data-toggle-password="hd-login-password"
+                                aria-pressed="false"
+                                aria-label="{{ _('Show password') }}">
+                                <span aria-hidden="true">👁</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="hd-login__field hd-login__field--row">
+                        <label class="hd-login__checkbox-label">
+                            <input
+                                type="checkbox"
+                                name="remember_me"
+                                value="1"
+                                class="hd-login__checkbox">
+                            <span>{{ _("Remember me on this device") }}</span>
+                        </label>
+                        <a class="hd-login__link" href="#forgot">{{ _("Forgot password?") }}</a>
+                    </div>
+
+                    <div
+                        class="hd-login__error"
+                        id="hd-login-error-sign-in"
+                        data-error
+                        role="alert"
+                        aria-live="assertive"
+                        hidden></div>
+
+                    <button type="submit" class="hd-login__submit">
+                        {{ _("Sign in") }}
+                    </button>
+                </form>
+                </div>{# /sign-in view #}
+
+                <div class="hd-login__view" data-view="forgot" hidden>
+                    <form
+                        class="hd-login__form"
+                        data-view-form="forgot"
+                        novalidate>
+                        <p class="hd-login__support-copy">
+                            {{ _("Enter your work email and we'll send you a reset link.") }}
+                        </p>
+
+                        <div class="hd-login__field">
+                            <label for="hd-login-forgot-email" class="hd-login__label">{{ _("Email") }}</label>
+                            <input
+                                id="hd-login-forgot-email"
+                                type="email"
+                                inputmode="email"
+                                autocomplete="username"
+                                autocapitalize="off"
+                                spellcheck="false"
+                                required
+                                aria-describedby="hd-login-error-forgot"
+                                aria-invalid="false"
+                                class="hd-login__input">
+                        </div>
+
+                        <div
+                            class="hd-login__error"
+                            id="hd-login-error-forgot"
+                            data-error
+                            role="alert"
+                            aria-live="assertive"
+                            hidden></div>
+
+                        <button type="submit" class="hd-login__submit">
+                            {{ _("Send reset link") }}
+                        </button>
+
+                        <a href="#" class="hd-login__link hd-login__back-link" data-back-to-signin>
+                            ← {{ _("Back to sign in") }}
+                        </a>
+                    </form>
+                </div>{# /forgot view #}
+
+                <div class="hd-login__view" data-view="reset-success" hidden>
+                    <div class="hd-login__notice" role="status" aria-live="polite">
+                        {{ _("If an account exists for this address, we've sent a reset link. Check your inbox.") }}
+                    </div>
+                    <a href="#" class="hd-login__link hd-login__back-link" data-back-to-signin>
+                        ← {{ _("Back to sign in") }}
+                    </a>
+                </div>{# /reset-success view #}
+
+                <div class="hd-login__view" data-view="mfa-otp" hidden>
+                    <p class="hd-login__support-copy">
+                        {{ _("Enter the 6-digit code from your authenticator app.") }}
+                    </p>
+
+                    <fieldset class="hd-login__otp-grid" aria-describedby="hd-login-error-otp">
+                        <legend class="hd-login__visually-hidden">{{ _("One-time code") }}</legend>
+                        {% for i in range(6) %}
+                        <input
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            maxlength="1"
+                            pattern="[0-9]"
+                            class="hd-login__otp-cell"
+                            data-otp-cell
+                            aria-label="{{ _('Digit {0} of 6').format(i + 1) }}">
+                        {% endfor %}
+                    </fieldset>
+
+                    <div
+                        class="hd-login__error"
+                        id="hd-login-error-otp"
+                        data-error
+                        role="alert"
+                        aria-live="assertive"
+                        hidden></div>
+
+                    <button type="button" class="hd-login__link" data-resend-otp>
+                        {{ _("Resend code") }}
+                    </button>
+
+                    <a href="#" class="hd-login__link hd-login__back-link" data-back-to-signin>
+                        ← {{ _("Back to sign in") }}
+                    </a>
+                </div>{# /mfa-otp view #}
+
+                <div class="hd-login__view" data-view="new-password" hidden>
+                    <p class="hd-login__support-copy">
+                        {{ _("Set a new password to continue.") }}
+                    </p>
+                    <form
+                        class="hd-login__form"
+                        data-view-form="new-password"
+                        novalidate>
+                        <div class="hd-login__field">
+                            <label for="hd-new-password" class="hd-login__label">{{ _("New password") }}</label>
+                            <input
+                                id="hd-new-password"
+                                name="new_password"
+                                type="password"
+                                autocomplete="new-password"
+                                required
+                                aria-describedby="hd-new-password-help hd-login-error-new-password"
+                                aria-invalid="false"
+                                class="hd-login__input">
+                        </div>
+
+                        <div class="hd-login__field">
+                            <label for="hd-confirm-password" class="hd-login__label">{{ _("Confirm password") }}</label>
+                            <input
+                                id="hd-confirm-password"
+                                name="confirm_password"
+                                type="password"
+                                autocomplete="new-password"
+                                required
+                                aria-describedby="hd-login-error-new-password"
+                                aria-invalid="false"
+                                class="hd-login__input">
+                        </div>
+
+                        <p class="hd-login__small-print" id="hd-new-password-help">
+                            {{ _("Minimum 8 characters with a mix of letters and digits.") }}
+                        </p>
+
+                        <div
+                            class="hd-login__error"
+                            id="hd-login-error-new-password"
+                            data-error
+                            role="alert"
+                            aria-live="assertive"
+                            hidden></div>
+
+                        <button type="submit" class="hd-login__submit">
+                            {{ _("Set password") }}
+                        </button>
+                    </form>
+                </div>{# /new-password view #}
+
+                <div class="hd-login__view" data-view="locked-out" hidden>
+                    <div class="hd-login__notice hd-login__notice--warn" role="status" aria-live="polite">
+                        <span data-lockout-message>{{ _("Your account is temporarily locked. Try again later or reset your password.") }}</span>
+                    </div>
+                    <a href="#forgot" class="hd-login__link hd-login__back-link">
+                        {{ _("Reset password") }}
+                    </a>
+                </div>{# /locked-out view #}
+
+                <p class="hd-login__small-print">
+                    {%- if b.support_email %}
+                    {{ _("Need help?") }} <a class="hd-login__link" href="mailto:{{ b.support_email }}">{{ b.support_email }}</a>
+                    {%- else %}
+                    &nbsp;
+                    {%- endif %}
+                </p>
+            </div>
+        </section>
+    </main>
+    {#- Cache-bust the JS + CSS via the per-request CSP nonce. The nonce
+        rotates on every render, so any CDN/proxy in front (Cloudflare et al.)
+        treats each version as a new resource — eliminating stale-asset bugs
+        after a deploy without needing a CDN cache purge. -#}
+    <script type="module" src="/assets/helpdesk/js/login.js?v={{ csp_nonce }}"></script>
+</body>
+</html>

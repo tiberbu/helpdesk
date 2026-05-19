@@ -8,17 +8,31 @@
  "field_order": [
   "brand_name",
   "is_active",
+  "is_default",
   "column_break_1",
   "support_email",
   "portal_domain",
+  "host_patterns",
   "section_branding",
   "logo",
+  "wordmark",
+  "favicon",
+  "bg_image",
   "primary_color",
+  "accent_color",
+  "bg_tint_color",
   "chat_greeting",
   "column_break_2",
   "default_team",
   "default_sla",
-  "csat_template"
+  "csat_template",
+  "section_login_copy",
+  "headline",
+  "supporting_copy",
+  "section_perks",
+  "perks",
+  "section_trust_stats",
+  "trust_stats"
  ],
  "fields": [
   {
@@ -36,6 +50,14 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Active"
+  },
+  {
+   "default": "0",
+   "description": "Marks this brand as the fallback when no host_patterns or portal_domain match. At most one enabled brand may be default.",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Default Brand"
   },
   {
    "fieldname": "column_break_1",
@@ -56,6 +78,12 @@
    "label": "Portal Domain"
   },
   {
+   "description": "One pattern per line. Exact: erp.tiberbu.health. Wildcard: *.tiberbu.health (one * at the leftmost label only). Lowercase. Used by the redesigned login page to resolve a brand from the incoming Host header.",
+   "fieldname": "host_patterns",
+   "fieldtype": "Small Text",
+   "label": "Host Patterns"
+  },
+  {
    "fieldname": "section_branding",
    "fieldtype": "Section Break",
    "label": "Branding"
@@ -66,10 +94,37 @@
    "label": "Logo"
   },
   {
+   "fieldname": "wordmark",
+   "fieldtype": "Attach Image",
+   "label": "Wordmark"
+  },
+  {
+   "fieldname": "favicon",
+   "fieldtype": "Attach Image",
+   "label": "Favicon"
+  },
+  {
+   "fieldname": "bg_image",
+   "fieldtype": "Attach Image",
+   "label": "Background Image"
+  },
+  {
    "default": "#4F46E5",
    "fieldname": "primary_color",
    "fieldtype": "Color",
    "label": "Primary Color"
+  },
+  {
+   "default": "#7B78FF",
+   "fieldname": "accent_color",
+   "fieldtype": "Color",
+   "label": "Accent Color"
+  },
+  {
+   "default": "#F5F5FF",
+   "fieldname": "bg_tint_color",
+   "fieldtype": "Color",
+   "label": "Background Tint"
   },
   {
    "default": "Hi! How can we help you today?",
@@ -99,10 +154,49 @@
    "fieldtype": "Link",
    "label": "CSAT Survey Template",
    "options": "HD CSAT Survey Template"
+  },
+  {
+   "fieldname": "section_login_copy",
+   "fieldtype": "Section Break",
+   "label": "Login Hero Copy"
+  },
+  {
+   "description": "Headline shown on the redesigned login hero (e.g., 'Welcome back').",
+   "fieldname": "headline",
+   "fieldtype": "Data",
+   "label": "Headline"
+  },
+  {
+   "description": "Sub-headline shown beneath the headline.",
+   "fieldname": "supporting_copy",
+   "fieldtype": "Small Text",
+   "label": "Supporting Copy"
+  },
+  {
+   "fieldname": "section_perks",
+   "fieldtype": "Section Break",
+   "label": "Perks"
+  },
+  {
+   "fieldname": "perks",
+   "fieldtype": "Table",
+   "label": "Perks",
+   "options": "HD Brand Perk"
+  },
+  {
+   "fieldname": "section_trust_stats",
+   "fieldtype": "Section Break",
+   "label": "Trust Stats"
+  },
+  {
+   "fieldname": "trust_stats",
+   "fieldtype": "Table",
+   "label": "Trust Stats",
+   "options": "HD Brand Stat"
   }
  ],
  "links": [],
- "modified": "2026-03-23 00:00:00.000000",
+ "modified": "2026-05-14 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Brand",

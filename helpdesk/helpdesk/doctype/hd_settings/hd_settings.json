@@ -43,6 +43,10 @@
   "prefer_knowledge_base",
   "kb_reviewers",
   "kb_review_period_days",
+  "auth_section",
+  "new_login_page_enabled",
+  "login_hero_audience",
+  "mfa_policy",
   "ticket_tab",
   "ticket_type_section",
   "default_ticket_type",
@@ -700,6 +704,34 @@
    "label": "Max Concurrent Chats per Agent",
    "description": "Maximum number of simultaneous chat sessions an agent can handle. Default: 5.",
    "insert_after": "chat_response_timeout_seconds"
+  },
+  {
+   "fieldname": "auth_section",
+   "fieldtype": "Section Break",
+   "label": "Authentication"
+  },
+  {
+   "default": "0",
+   "description": "When enabled, /login serves the redesigned, brand-aware login page. Disable to instantly revert to the Frappe default.",
+   "fieldname": "new_login_page_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Redesigned Login Page"
+  },
+  {
+   "default": "both",
+   "description": "Controls the left-hero copy preset on the redesigned login when the active brand does not override it.",
+   "fieldname": "login_hero_audience",
+   "fieldtype": "Select",
+   "label": "Login Hero Audience",
+   "options": "agent\ncustomer\nboth"
+  },
+  {
+   "default": "optional",
+   "description": "Multi-factor authentication policy. 'required' will eventually gate sign-in for users without MFA enrolled. v1 ships the field; full enforcement path is a follow-up.",
+   "fieldname": "mfa_policy",
+   "fieldtype": "Select",
+   "label": "Multi-Factor Authentication Policy",
+   "options": "optional\nencouraged\nrequired"
   }
  ],
  "grid_page_length": 50,

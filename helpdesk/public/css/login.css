@@ -1,0 +1,601 @@
+/*
+ * Helpdesk Redesigned Login (Sprint 2 — visual shell, JS-off)
+ *
+ * All styles scoped under .hd-login. Brand tokens come from an inline
+ * <style> block written by login.html; this file references the custom
+ * properties --hd-primary, --hd-accent, --hd-bg-tint at use-sites.
+ *
+ * Performance budget: this file gzipped + login.js gzipped ≤ 60 KB total
+ * (PRD NFR-P-06). Keep it lean.
+ */
+
+/* ---------- font ---------- */
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/assets/helpdesk/fonts/Inter-400-subset.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/assets/helpdesk/fonts/Inter-600-subset.woff2") format("woff2");
+}
+
+/* ---------- root reset (scoped) ---------- */
+
+.hd-login {
+    --hd-text:        #14142B;
+    --hd-text-muted:  #6E7191;
+    --hd-border:      rgba(20, 20, 43, 0.08);
+    --hd-bg:          #FFFFFF;
+    --hd-card-bg:     rgba(255, 255, 255, 0.72);
+    --hd-error:       #D8483B;
+    --hd-success:     #1A8755;
+    --hd-radius:      16px;
+    --hd-space-1:     4px;
+    --hd-space-2:     8px;
+    --hd-space-3:     12px;
+    --hd-space-4:     16px;
+    --hd-space-5:     24px;
+    --hd-space-6:     40px;
+
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--hd-text);
+    background-color: var(--hd-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+.hd-login *,
+.hd-login *::before,
+.hd-login *::after {
+    box-sizing: border-box;
+}
+
+.hd-login a {
+    color: var(--hd-primary);
+    text-decoration: none;
+}
+
+.hd-login a:hover,
+.hd-login a:focus-visible {
+    text-decoration: underline;
+}
+
+/* ---------- preview banner ---------- */
+
+.hd-login__preview-banner {
+    background: var(--hd-primary);
+    color: #fff;
+    text-align: center;
+    padding: var(--hd-space-2) var(--hd-space-4);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ---------- shell layout ---------- */
+
+.hd-login__shell {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.hd-login__shell::before,
+.hd-login__shell::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.hd-login__shell::before {
+    /* Ambient gradient blur — top-left */
+    top: -200px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--hd-primary) 0%, transparent 70%);
+    opacity: 0.18;
+    filter: blur(60px);
+}
+
+.hd-login__shell::after {
+    /* Ambient gradient blur — bottom-right */
+    bottom: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--hd-accent) 0%, transparent 70%);
+    opacity: 0.18;
+    filter: blur(60px);
+}
+
+/* ---------- left hero ---------- */
+
+.hd-login__hero {
+    background: var(--hd-bg-tint);
+    background-image:
+        radial-gradient(circle at 1px 1px, rgba(20, 20, 43, 0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+    padding: var(--hd-space-6);
+    display: flex;
+    align-items: center;
+}
+
+.hd-login__hero-inner {
+    max-width: 460px;
+    width: 100%;
+    margin-inline: auto;
+}
+
+.hd-login__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hd-space-2);
+    padding: var(--hd-space-2) var(--hd-space-3);
+    background: var(--hd-bg);
+    border: 1px solid var(--hd-border);
+    border-radius: 999px;
+    margin-bottom: var(--hd-space-5);
+}
+
+.hd-login__badge-logo {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.hd-login__badge-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hd-text);
+}
+
+.hd-login__headline {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 var(--hd-space-4) 0;
+    color: var(--hd-text);
+}
+
+.hd-login__support-copy {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--hd-text-muted);
+    margin: 0 0 var(--hd-space-6) 0;
+}
+
+.hd-login__perks {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--hd-space-6) 0;
+}
+
+.hd-login__perk {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--hd-space-3);
+    padding: var(--hd-space-2) 0;
+}
+
+.hd-login__perk-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: var(--hd-primary);
+    opacity: 0.12;
+    margin-top: 2px;
+}
+
+.hd-login__perk-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--hd-text);
+}
+
+.hd-login__trust-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--hd-space-4);
+    padding-top: var(--hd-space-5);
+    border-top: 1px solid var(--hd-border);
+}
+
+.hd-login__trust-stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--hd-text);
+}
+
+.hd-login__trust-stat-label {
+    font-size: 13px;
+    color: var(--hd-text-muted);
+    margin-top: var(--hd-space-1);
+}
+
+/* ---------- right panel + glass card ---------- */
+
+.hd-login__panel {
+    padding: var(--hd-space-6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hd-login__card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--hd-card-bg);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--hd-border);
+    border-radius: var(--hd-radius);
+    box-shadow: 0 8px 32px rgba(20, 20, 43, 0.08);
+    padding: var(--hd-space-6);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+    .hd-login__card {
+        background: #FFFFFF;
+    }
+}
+
+.hd-login__card-title {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0 0 var(--hd-space-5) 0;
+}
+
+/* ---------- view swap (Sprint 3) ---------- */
+
+.hd-login__view[hidden] {
+    display: none;
+}
+
+.hd-login__back-link {
+    display: inline-block;
+    margin-top: var(--hd-space-3);
+    font-size: 14px;
+    color: var(--hd-text-muted);
+}
+
+.hd-login__back-link:hover,
+.hd-login__back-link:focus-visible {
+    color: var(--hd-primary);
+}
+
+.hd-login__error {
+    padding: var(--hd-space-2) var(--hd-space-3);
+    font-size: 14px;
+    color: var(--hd-error);
+    background: color-mix(in srgb, var(--hd-error) 8%, transparent);
+    border-radius: 8px;
+}
+
+.hd-login__error[hidden] {
+    display: none;
+}
+
+.hd-login__notice {
+    padding: var(--hd-space-4);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--hd-text);
+    background: color-mix(in srgb, var(--hd-success) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hd-success) 24%, transparent);
+    border-radius: 10px;
+}
+
+.hd-login__banner {
+    padding: var(--hd-space-3) var(--hd-space-4);
+    margin-bottom: var(--hd-space-4);
+    font-size: 14px;
+    color: var(--hd-text);
+    background: color-mix(in srgb, var(--hd-success) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hd-success) 24%, transparent);
+    border-radius: 8px;
+}
+
+.hd-login__banner[hidden] {
+    display: none;
+}
+
+/* ---------- OTP grid (Sprint 4) ---------- */
+
+.hd-login__otp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--hd-space-2);
+    border: 0;
+    padding: 0;
+    margin: var(--hd-space-3) 0;
+}
+
+.hd-login__otp-cell {
+    width: 100%;
+    min-height: 56px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--hd-text);
+    background: var(--hd-bg);
+    border: 1px solid var(--hd-border);
+    border-radius: 10px;
+    padding: 0;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.hd-login__otp-cell:focus-visible {
+    outline: none;
+    border-color: var(--hd-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hd-primary) 24%, transparent);
+}
+
+.hd-login__notice--warn {
+    background: color-mix(in srgb, var(--hd-error) 6%, transparent);
+    border-color: color-mix(in srgb, var(--hd-error) 24%, transparent);
+}
+
+.hd-login__visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+@media (max-width: 360px) {
+    .hd-login__otp-grid {
+        gap: var(--hd-space-1);
+    }
+    .hd-login__otp-cell {
+        min-height: 48px;
+        font-size: 18px;
+    }
+}
+
+/* ---------- form ---------- */
+
+.hd-login__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hd-space-4);
+}
+
+.hd-login__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--hd-space-2);
+}
+
+.hd-login__field--row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--hd-space-3);
+}
+
+.hd-login__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--hd-text);
+}
+
+.hd-login__input {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--hd-space-3) var(--hd-space-4);
+    font: inherit;
+    color: var(--hd-text);
+    background: var(--hd-bg);
+    border: 1px solid var(--hd-border);
+    border-radius: 10px;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.hd-login__input:focus-visible {
+    outline: none;
+    border-color: var(--hd-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hd-primary) 24%, transparent);
+}
+
+.hd-login__input:disabled {
+    background: var(--hd-bg-tint);
+    cursor: not-allowed;
+}
+
+.hd-login__password-wrap {
+    position: relative;
+}
+
+.hd-login__password-wrap .hd-login__input {
+    padding-right: 44px;
+}
+
+.hd-login__password-toggle {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: var(--hd-space-2);
+    width: 32px;
+    border: 0;
+    background: transparent;
+    color: var(--hd-text-muted);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.hd-login__password-toggle:focus-visible {
+    outline: 2px solid var(--hd-primary);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.hd-login__checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--hd-space-2);
+    font-size: 14px;
+    color: var(--hd-text);
+    cursor: pointer;
+}
+
+.hd-login__checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--hd-primary);
+}
+
+.hd-login__link {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.hd-login__submit {
+    margin-top: var(--hd-space-2);
+    min-height: 48px;
+    padding: var(--hd-space-3) var(--hd-space-5);
+    font: inherit;
+    font-weight: 600;
+    color: #fff;
+    background: var(--hd-primary);
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 120ms ease, transform 60ms ease;
+}
+
+.hd-login__submit:hover {
+    opacity: 0.92;
+}
+
+.hd-login__submit:active {
+    transform: scale(0.99);
+}
+
+.hd-login__submit:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--hd-primary) 40%, transparent);
+    outline-offset: 2px;
+}
+
+.hd-login__submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hd-login__small-print {
+    margin: var(--hd-space-5) 0 0 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--hd-text-muted);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1023px) {
+    .hd-login__hero {
+        padding: var(--hd-space-5);
+    }
+
+    .hd-login__panel {
+        padding: var(--hd-space-5);
+    }
+}
+
+@media (max-width: 767px) {
+    .hd-login__shell {
+        grid-template-columns: 1fr;
+    }
+
+    .hd-login__hero {
+        display: block;
+        padding: var(--hd-space-5) var(--hd-space-4);
+        background-image: none;
+    }
+
+    .hd-login__hero-inner {
+        max-width: none;
+    }
+
+    .hd-login__perks,
+    .hd-login__trust-stats,
+    .hd-login__support-copy {
+        display: none;
+    }
+
+    .hd-login__headline {
+        font-size: 22px;
+        margin-bottom: 0;
+    }
+
+    .hd-login__panel {
+        padding: var(--hd-space-4);
+    }
+
+    .hd-login__card {
+        padding: var(--hd-space-5) var(--hd-space-4);
+    }
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .hd-login *,
+    .hd-login *::before,
+    .hd-login *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ---------- RTL (Sprint 6) ----------
+ *
+ * Most properties already use logical equivalents (inset-inline-*, padding
+ * with direction-agnostic values, gap, flex/grid). The few physical anchors
+ * below need explicit RTL overrides so the ambient gradients and back-arrow
+ * affordances mirror correctly.
+ */
+
+[dir="rtl"] .hd-login__shell::before {
+    /* Mirror top-left → top-right under RTL. */
+    left: auto;
+    right: -200px;
+}
+
+[dir="rtl"] .hd-login__shell::after {
+    /* Mirror bottom-right → bottom-left under RTL. */
+    right: auto;
+    left: -200px;
+}
+
+[dir="rtl"] .hd-login__back-link::before {
+    /* The back-arrow glyph "←" is hardcoded in the template; flip via CSS so
+     * we don't have to maintain two strings. */
+    content: "";
+}
+
+[dir="rtl"] .hd-login__back-link {
+    /* Physical → logical: drop the literal arrow from the text node when in
+     * RTL by inserting a flipped one via ::before would require restructuring
+     * the markup. Instead, we use unicode-bidi to let the inline glyph flow
+     * naturally, which is sufficient for "← Back to sign in" → "العودة →"
+     * because the arrow is part of the translated string in RTL locales. */
+    unicode-bidi: plaintext;
+}

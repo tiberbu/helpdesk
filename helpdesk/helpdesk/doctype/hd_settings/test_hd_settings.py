@@ -165,4 +165,56 @@ class TestHDSettingsFeatureFlags(IntegrationTestCase):
         frappe.db.set_value("HD Settings", "HD Settings", "chat_enabled", 0)
         frappe.db.set_value("HD Settings", "HD Settings", "csat_enabled", 0)
         frappe.db.set_value("HD Settings", "HD Settings", "automation_enabled", 0)
+        frappe.db.set_value("HD Settings", "HD Settings", "new_login_page_enabled", 0)
         frappe.db.commit()
+
+
+class TestHDSettingsLoginFields(IntegrationTestCase):
+    """Tests for the Authentication section added in Sprint 1 (Login Redesign)."""
+
+    def setUp(self):
+        frappe.set_user("Administrator")
+        frappe.cache().delete_value("hd_login_settings_cache")
+
+    def tearDown(self):
+        frappe.set_user("Administrator")
+        frappe.db.set_value("HD Settings", "HD Settings", "new_login_page_enabled", 0)
+        frappe.db.set_value("HD Settings", "HD Settings", "login_hero_audience", "both")
+        frappe.db.set_value("HD Settings", "HD Settings", "mfa_policy", "optional")
+        frappe.db.commit()
+        frappe.cache().delete_value("hd_login_settings_cache")
+
+    def test_new_login_page_enabled_field_exists_and_defaults_off(self):
+        meta = frappe.get_meta("HD Settings")
+        field = meta.get_field("new_login_page_enabled")
+        self.assertIsNotNone(field)
+        self.assertEqual(str(field.default), "0")
+
+    def test_login_hero_audience_field_exists_and_defaults_both(self):
+        meta = frappe.get_meta("HD Settings")
+        field = meta.get_field("login_hero_audience")
+        self.assertIsNotNone(field)
+        self.assertEqual(field.default, "both")
+
+    def test_mfa_policy_field_exists_and_defaults_optional(self):
+        meta = frappe.get_meta("HD Settings")
+        field = meta.get_field("mfa_policy")
+        self.assertIsNotNone(field)
+        self.assertEqual(field.default, "optional")
+
+    def test_on_update_invalidates_login_settings_cache(self):
+        """Saving HD Settings clears the hd_login_settings_cache key.
+
+        We avoid a full .save() because HD Settings has cross-cutting mandatory
+        fields (default_ticket_status, ticket_reopen_status) that aren't always
+        populated on a freshly bootstrapped test site. Instead we invoke the
+        document's on_update handler directly — that's the contract under test.
+        """
+        frappe.cache().set_value("hd_login_settings_cache", {"sentinel": True})
+        self.assertEqual(
+            frappe.cache().get_value("hd_login_settings_cache"),
+            {"sentinel": True},
+        )
+        doc = frappe.get_doc("HD Settings")
+        doc.run_method("on_update")
+        self.assertIsNone(frappe.cache().get_value("hd_login_settings_cache"))

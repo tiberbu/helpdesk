@@ -41,8 +41,17 @@ def _get_brand_email_map() -> dict:
 
 
 def invalidate_brand_cache(doc=None, method=None):
-    """Call this when an HD Brand is created/updated/deleted."""
+    """Call this when an HD Brand is created/updated/deleted.
+
+    Flushes both the Phase 1 email-routing map and the Sprint 1
+    login-page per-host resolver cache.
+    """
     frappe.cache().delete_value(_CACHE_KEY)
+    # Also flush the login-page per-host resolver cache (Sprint 1 / AD-09).
+    # Imported lazily to avoid a circular import on app boot.
+    from helpdesk.www.login import invalidate_login_brand_cache
+
+    invalidate_login_brand_cache()
 
 
 def assign_brand_from_email(doc, method=None):
