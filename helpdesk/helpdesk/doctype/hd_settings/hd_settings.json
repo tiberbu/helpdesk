@@ -60,6 +60,9 @@
   "auto_close_tickets",
   "auto_close_status",
   "auto_close_after_days",
+  "enable_priority_escalation",
+  "priority_escalation_hours",
+  "priority_escalation_repeat_hours",
   "section_break_ylvs",
   "enable_outside_hours_banner",
   "outside_working_hours_message",
@@ -700,6 +703,29 @@
    "label": "Max Concurrent Chats per Agent",
    "description": "Maximum number of simultaneous chat sessions an agent can handle. Default: 5.",
    "insert_after": "chat_response_timeout_seconds"
+  },
+  {
+   "fieldname": "enable_priority_escalation",
+   "fieldtype": "Check",
+   "label": "Enable Auto-Priority Escalation",
+   "description": "Automatically escalate ticket priority when a ticket has had no agent activity for too long.",
+   "default": "0"
+  },
+  {
+   "fieldname": "priority_escalation_hours",
+   "fieldtype": "Int",
+   "label": "Escalate After (Hours of Inactivity)",
+   "description": "Escalate priority if there has been no agent response for this many hours. Checked hourly. Default: 24.",
+   "default": "24",
+   "depends_on": "eval:doc.enable_priority_escalation==1"
+  },
+  {
+   "fieldname": "priority_escalation_repeat_hours",
+   "fieldtype": "Int",
+   "label": "Re-escalate Every (Hours)",
+   "description": "Continue escalating once per this many hours if the ticket is still inactive (e.g. every 12h). 0 = escalate only once. Default: 0.",
+   "default": "0",
+   "depends_on": "eval:doc.enable_priority_escalation==1"
   }
  ],
  "grid_page_length": 50,

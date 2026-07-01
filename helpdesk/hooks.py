@@ -27,6 +27,11 @@ after_migrate = [
     "helpdesk.search.download_corpus",
 ]
 
+# Session hooks for role-based redirects (commented out - using frontend router instead)
+# on_session_creation = "helpdesk.overrides.session.on_session_creation"
+
+# Request middleware to block customer desk access
+before_request = ["helpdesk.overrides.desk_middleware.block_customer_desk_access"]
 
 # Full Text Search
 # ------------------
@@ -45,6 +50,7 @@ scheduler_events = {
             "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.check_sla_breaches",
             "helpdesk.helpdesk.chat.session_cleanup.cleanup_inactive_sessions",
             "helpdesk.helpdesk.doctype.hd_ticket.escalation_scheduler.auto_escalate_tickets",
+            "helpdesk.helpdesk.doctype.hd_ticket.escalation_rule_engine.run_age_based_rules",
         ],
         # Chat response timeout: sends auto-message after 2 min with no agent reply (Story 3.4)
         "*/1 * * * *": [
@@ -55,6 +61,9 @@ scheduler_events = {
             "helpdesk.helpdesk.doctype.hd_csat_response.csat_scheduler.send_pending_surveys",
         ],
     },
+    "hourly": [
+        "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.escalate_ticket_priorities",
+    ],
     "daily": [
         "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days",
         "helpdesk.helpdesk.doctype.hd_automation_log.cleanup.purge_old_logs",
@@ -88,8 +97,14 @@ doc_events = {
     },
     "HD Ticket": {
         "before_insert": "helpdesk.overrides.hd_ticket_brand.assign_brand_from_email",
-        "after_insert": "helpdesk.helpdesk.automation.engine.on_ticket_created",
-        "on_update": "helpdesk.helpdesk.automation.engine.on_ticket_updated",
+        "after_insert": [
+            "helpdesk.helpdesk.automation.engine.on_ticket_created",
+            "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
+        ],
+        "on_update": [
+            "helpdesk.helpdesk.automation.engine.on_ticket_updated",
+            "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
+        ],
     },
     "HD Brand": {
         "on_update": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
@@ -114,6 +129,7 @@ permission_query_conditions = {
 override_doctype_class = {
     "Email Account": "helpdesk.overrides.email_account.CustomEmailAccount",
     "Email Queue": "helpdesk.email.email_queue_override.SesAwareEmailQueue",
+    "User": "helpdesk.overrides.user.HelpdeskUser",
 }
 
 # Email Override

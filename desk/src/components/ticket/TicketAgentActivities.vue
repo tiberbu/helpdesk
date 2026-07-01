@@ -25,8 +25,8 @@
               <Avatar
                 v-if="activity.type === 'email' || activity.type === 'feedback'"
                 size="lg"
-                :label="activity.sender?.full_name"
-                :image="getUser(activity.sender?.name).user_image"
+                :label="activity.sender?.full_name || ''"
+                :image="activity.sender?.name ? getUser(activity.sender.name)?.user_image : ''"
                 class="bg-white absolute left-[1px]"
               />
               <CommentIcon

@@ -163,7 +163,7 @@ def _fire_breached(ticket_name: str, assigned_to: str):
             message=frappe.get_traceback(),
         )
 
-    # 2. Publish sla_breached real-time event to the assigned agent
+    # 2. Publish sla_breached real-time event + in-app bell notification
     try:
         from helpdesk.helpdesk.automation.notifications import _extract_agent_email
         agent_email = _extract_agent_email(assigned_to)
@@ -173,6 +173,14 @@ def _fire_breached(ticket_name: str, assigned_to: str):
                 event="sla_breached",
                 message={"ticket": ticket_name, "subject": subject},
                 user=agent_email,
+            )
+            # In-app bell notification
+            from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+            create_notification(
+                user_to=agent_email,
+                notification_type="SLA Breach",
+                message=f"SLA Breached: Ticket #{ticket_name} has exceeded its SLA — {subject}",
+                reference_ticket=ticket_name,
             )
     except Exception:
         frappe.log_error(

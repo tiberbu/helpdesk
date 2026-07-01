@@ -11,15 +11,28 @@
         />
       </template>
       <template #right-header>
-        <RouterLink
-          :to="{ name: isCustomerPortal ? 'TicketNew' : 'TicketAgentNew' }"
-        >
-          <Button label="Create" theme="gray" variant="solid">
+        <div class="flex gap-2">
+          <Button
+            v-if="!isCustomerPortal"
+            :label="__('From Template')"
+            theme="gray"
+            variant="outline"
+            @click="showTemplateDialog = true"
+          >
             <template #prefix>
-              <LucidePlus class="h-4 w-4" />
+              <FeatherIcon name="file-text" class="h-4 w-4" />
             </template>
           </Button>
-        </RouterLink>
+          <RouterLink
+            :to="{ name: isCustomerPortal ? 'TicketNew' : 'TicketAgentNew' }"
+          >
+            <Button label="Create" theme="gray" variant="solid">
+              <template #prefix>
+                <LucidePlus class="h-4 w-4" />
+              </template>
+            </Button>
+          </RouterLink>
+        </div>
       </template>
     </LayoutHeader>
     <ListViewBuilder
@@ -51,6 +64,7 @@
       v-model="viewDialog"
       @update="(view, action) => handleView(view, action)"
     />
+    <TemplateSelectionDialog v-model="showTemplateDialog" />
   </div>
 </template>
 
@@ -64,6 +78,7 @@ import {
   UnpinIcon,
 } from "@/components/icons";
 import ExportModal from "@/components/ticket/ExportModal.vue";
+import TemplateSelectionDialog from "@/components/ticket/TemplateSelectionDialog.vue";
 import ViewBreadcrumbs from "@/components/ViewBreadcrumbs.vue";
 import ViewModal from "@/components/ViewModal.vue";
 import { currentView, useView } from "@/composables/useView";
@@ -97,6 +112,7 @@ const { isManager, userId } = useAuthStore();
 
 const listViewRef = ref(null);
 const showExportModal = ref(false);
+const showTemplateDialog = ref(false);
 
 const { getStatus } = useTicketStatusStore();
 

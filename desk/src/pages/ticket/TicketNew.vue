@@ -281,6 +281,15 @@ const template = createResource({
       applyFilters,
     });
     setupTemplateFields(data.fields);
+
+    // Apply default values from template
+    if (data.default_values) {
+      Object.entries(data.default_values).forEach(([key, value]) => {
+        if (value) {
+          templateFields[key] = value;
+        }
+      });
+    }
   },
 });
 

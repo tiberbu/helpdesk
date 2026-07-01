@@ -1,0 +1,60 @@
+<svg width="400" height="380" viewBox="0 0 400 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="headsetGradient" x1="0" y1="0" x2="300" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0891B2"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#0E7490"/>
+    </linearGradient>
+    <linearGradient id="circleGradient" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="rgba(8, 145, 178, 0.15)"/>
+      <stop offset="100%" stop-color="rgba(8, 145, 178, 0.05)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background gradient circles -->
+  <circle cx="200" cy="160" r="130" fill="url(#circleGradient)"/>
+  <circle cx="200" cy="160" r="105" fill="rgba(8, 145, 178, 0.12)"/>
+  <circle cx="200" cy="160" r="80" fill="rgba(8, 145, 178, 0.18)"/>
+
+  <!-- Sound waves - left side -->
+  <g opacity="0.4">
+    <path d="M 75 140 Q 60 160 75 180" stroke="#22D3EE" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M 60 130 Q 40 160 60 190" stroke="#22D3EE" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+  </g>
+
+  <!-- Sound waves - right side -->
+  <g opacity="0.4">
+    <path d="M 325 140 Q 340 160 325 180" stroke="#22D3EE" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M 340 130 Q 360 160 340 190" stroke="#22D3EE" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+  </g>
+
+  <!-- Main headset - perfectly centered -->
+  <g transform="translate(200, 160)">
+    <!-- Headset band (arc) -->
+    <path d="M -50 0 C -50 -35 50 -35 50 0" stroke="url(#headsetGradient)" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+    <!-- Left ear cup -->
+    <g transform="translate(-50, 0)">
+      <rect x="-10" y="-5" width="20" height="35" rx="10" fill="url(#headsetGradient)"/>
+      <rect x="-7" y="-2" width="14" height="29" rx="7" fill="rgba(255, 255, 255, 0.2)"/>
+    </g>
+
+    <!-- Right ear cup -->
+    <g transform="translate(50, 0)">
+      <rect x="-10" y="-5" width="20" height="35" rx="10" fill="url(#headsetGradient)"/>
+      <rect x="-7" y="-2" width="14" height="29" rx="7" fill="rgba(255, 255, 255, 0.2)"/>
+    </g>
+
+    <!-- Microphone arm from right ear cup -->
+    <path d="M 50 15 Q 48 40 25 45" stroke="url(#headsetGradient)" stroke-width="6" stroke-linecap="round" fill="none"/>
+
+    <!-- Microphone capsule -->
+    <circle cx="20" cy="47" r="6" fill="url(#headsetGradient)"/>
+    <circle cx="20" cy="47" r="3.5" fill="rgba(255, 255, 255, 0.4)"/>
+  </g>
+
+  <!-- ServiceDesk Text -->
+  <text x="200" y="320" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="42" font-weight="700" fill="#0891B2" text-anchor="middle" letter-spacing="-0.02em">
+    ServiceDesk
+  </text>
+</svg>

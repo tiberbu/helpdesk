@@ -67,8 +67,19 @@
               <span v-if="n.notification_type === 'Reaction'">
                 {{ n.message || "has reopened the ticket" }}
               </span>
+              <span v-if="n.notification_type === 'Escalation'">
+                {{ n.message || "Ticket escalated: #" + n.reference_ticket }}
+              </span>
+              <span v-if="n.notification_type === 'SLA Warning'">
+                {{ n.message || "SLA warning on ticket #" + n.reference_ticket }}
+              </span>
+              <span v-if="n.notification_type === 'SLA Breach'">
+                {{ n.message || "SLA breached on ticket #" + n.reference_ticket }}
+              </span>
             </span>
-            <span class="font-medium text-gray-900"
+            <span
+              class="font-medium text-gray-900"
+              v-if="['Mention', 'Assignment', 'Reaction'].includes(n.notification_type)"
               >&nbsp{{ n.reference_ticket }}
             </span>
           </div>
@@ -122,32 +133,17 @@ function handleNotificationClick(n: Notification) {
 }
 
 function getRoute(n: Notification) {
-  switch (n.notification_type) {
-    case "Mention":
-      return {
-        name: "TicketAgent",
-        params: {
-          ticketId: n.reference_ticket,
-        },
-        hash: "#comment-" + n.reference_comment,
-      };
-    case "Assignment":
-      return {
-        name: "TicketAgent",
-        params: {
-          ticketId: n.reference_ticket,
-        },
-      };
-    case "Reaction":
-      return {
-        name: "TicketAgent",
-        params: {
-          ticketId: n.reference_ticket,
-        },
-        hash: n.reference_comment
+  if (n.reference_ticket) {
+    return {
+      name: "TicketAgent",
+      params: { ticketId: n.reference_ticket },
+      hash:
+        (n.notification_type === "Mention" || n.notification_type === "Reaction") &&
+        n.reference_comment
           ? "#comment-" + n.reference_comment
           : undefined,
-      };
+    };
   }
+  return { name: "TicketAgentList" };
 }
 </script>

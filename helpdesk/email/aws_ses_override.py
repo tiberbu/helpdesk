@@ -68,34 +68,43 @@ def _send_via_ses(queue_doc, sender: str, recipient: str, message: bytes, config
     # Build SES client
     ses_client = _build_ses_client(config, message_size_mb)
 
-    # Process sender/reply-to
+    # Rewrite From header to the verified SES sender and strip Reply-To.
+    # AWS SES validates the MIME From header, not just the Source parameter.
+    # Reply-To is removed so recipients cannot reply to outgoing system emails.
     from_addr = config.default_sender_email
-    reply_to = None
-
-    # Parse original message to preserve reply-to
     try:
         from email import message_from_bytes
-        original_msg = message_from_bytes(message)
-        original_from = original_msg.get('From', '')
-        original_reply_to = original_msg.get('Reply-To', '')
+        from email.generator import BytesGenerator
+        import io
 
-        # If original From differs and no Reply-To, set Reply-To to original From
-        if original_from and original_from != from_addr and not original_reply_to:
-            reply_to = original_from
-        elif original_reply_to:
-            reply_to = original_reply_to
+        original_msg = message_from_bytes(message)
+
+        del original_msg['From']
+        original_msg['From'] = from_addr
+
+        del original_msg['Reply-To']
+
+        # Signal to mail servers and clients that this is an automated message
+        # and that replies should not be sent.
+        del original_msg['X-Auto-Submitted']
+        original_msg['X-Auto-Submitted'] = 'auto-generated'
+        del original_msg['Auto-Submitted']
+        original_msg['Auto-Submitted'] = 'auto-generated'
+
+        buf = io.BytesIO()
+        gen = BytesGenerator(buf)
+        gen.flatten(original_msg)
+        message = buf.getvalue()
 
     except Exception as e:
-        frappe.log_error(f"Error parsing message headers: {str(e)}", "SES Header Parse Error")
+        frappe.log_error(f"Error rewriting message headers: {str(e)}", "SES Header Rewrite Error")
 
     # Send based on message size
     if message_size_mb <= 10:
-        # Use SES v1 send_raw_email
-        message_id = _send_ses_v1(ses_client, config, from_addr, recipient, message, reply_to)
+        message_id = _send_ses_v1(ses_client, config, from_addr, recipient, message)
         transport = "sesv1"
     else:
-        # Use SES v2 send_email (raw)
-        message_id = _send_ses_v2(ses_client, config, from_addr, recipient, message, reply_to)
+        message_id = _send_ses_v2(ses_client, config, from_addr, recipient, message)
         transport = "sesv2"
 
     # Log success with masked recipient
@@ -107,7 +116,7 @@ def _send_via_ses(queue_doc, sender: str, recipient: str, message: bytes, config
     )
 
 
-def _send_ses_v1(ses_client, config, from_addr, recipient, message, reply_to):
+def _send_ses_v1(ses_client, config, from_addr, recipient, message):
     """Send via SES v1 send_raw_email (<=10MB)"""
     params = {
         'Source': from_addr,
@@ -122,7 +131,7 @@ def _send_ses_v1(ses_client, config, from_addr, recipient, message, reply_to):
     return response.get('MessageId', '')
 
 
-def _send_ses_v2(ses_client, config, from_addr, recipient, message, reply_to):
+def _send_ses_v2(ses_client, config, from_addr, recipient, message):
     """Send via SES v2 send_email (>10MB, <=40MB)"""
     # Note: SES v2 uses sesv2 client
     sesv2_client = _build_sesv2_client(config)

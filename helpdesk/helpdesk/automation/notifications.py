@@ -60,6 +60,16 @@ def notify_agent_sla_warning(
             user=agent_email,
         )
 
+        # In-app bell notification
+        from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+        minsLeft = round(minutes_remaining)
+        create_notification(
+            user_to=agent_email,
+            notification_type="SLA Warning",
+            message=f"SLA Warning: Ticket #{ticket_name} — {minsLeft} min until breach: {subject}",
+            reference_ticket=ticket_name,
+        )
+
     except Exception:
         # Non-critical: log but never raise — notification failure must not
         # interrupt the SLA monitor or automation engine pipeline (NFR-A-01).
@@ -117,6 +127,16 @@ def notify_manager_sla_warning(
             event="sla_warning",
             message=payload,
             user=manager_email,
+        )
+
+        # In-app bell notification for manager
+        from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+        minsLeft = round(minutes_remaining)
+        create_notification(
+            user_to=manager_email,
+            notification_type="SLA Warning",
+            message=f"SLA Alert (Manager): Ticket #{ticket_name} — {minsLeft} min until breach: {subject}",
+            reference_ticket=ticket_name,
         )
 
     except Exception:

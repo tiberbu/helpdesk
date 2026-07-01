@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-[382px] flex-col border-l gap-4">
+  <div v-if="ticket.data" class="flex w-[382px] flex-col border-l gap-4">
     <!-- Ticket ID -->
     <div class="flex items-center justify-between border-b px-5 py-3">
       <span class="cursor-copy text-lg font-semibold">Ticket details</span>
@@ -119,6 +119,8 @@ const emit = defineEmits(["open"]);
 const ticket = inject(ITicket);
 
 const slaData = computed(() => {
+  if (!ticket.data) return [];
+
   const firstResponse = firstResponseData();
   const resolution = resolutionData();
   return [
@@ -138,6 +140,8 @@ const slaData = computed(() => {
 });
 
 function firstResponseData() {
+  if (!ticket.data) return { label: "Loading...", color: "gray" };
+
   let firstResponse = null;
   if (
     !ticket.data.first_responded_on &&
@@ -173,6 +177,8 @@ function firstResponseData() {
 }
 
 function resolutionData() {
+  if (!ticket.data) return { label: "Loading...", color: "gray" };
+
   let resolution = null;
   if (
     !ticket.data.resolution_date &&
@@ -200,19 +206,25 @@ function resolutionData() {
   return resolution;
 }
 
-const ticketBasicInfo = computed(() => [
-  {
-    label: "Ticket ID",
-    value: ticket.data.name,
-  },
-  {
-    label: "Status",
-    value: ticket.data.status,
-    bold: true,
-  },
-]);
+const ticketBasicInfo = computed(() => {
+  if (!ticket.data) return [];
+
+  return [
+    {
+      label: "Ticket ID",
+      value: ticket.data.name,
+    },
+    {
+      label: "Status",
+      value: ticket.data.status,
+      bold: true,
+    },
+  ];
+});
 
 const ticketAdditionalInfo = computed(() => {
+  if (!ticket.data) return [];
+
   const fields = [
     {
       fieldname: "subject",
@@ -230,7 +242,7 @@ const ticketAdditionalInfo = computed(() => {
       value: ticket.data.priority,
     },
   ];
-  const custom_fields = ticket.data.template.fields
+  const custom_fields = (ticket.data?.template?.fields || [])
     .filter(
       (field: Field) =>
         !field.hide_from_customer &&
@@ -239,7 +251,7 @@ const ticketAdditionalInfo = computed(() => {
     .map((field: Field) => {
       const option = {
         label: field.label,
-        value: ticket.data[field.fieldname],
+        value: ticket.data?.[field.fieldname],
       };
       if (field.fieldtype === "Date") {
         option.value = dayjs(option.value).format(

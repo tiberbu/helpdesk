@@ -1,0 +1,58 @@
+[
+    {
+        "doctype": "Custom Field",
+        "name": "HD Settings-external_api_section",
+        "dt": "HD Settings",
+        "fieldname": "external_api_section",
+        "label": "External API Integration",
+        "fieldtype": "Section Break",
+        "insert_after": "enable_email_threads",
+        "collapsible": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Settings-enable_external_api",
+        "dt": "HD Settings",
+        "fieldname": "enable_external_api",
+        "label": "Enable External API",
+        "fieldtype": "Check",
+        "insert_after": "external_api_section",
+        "default": "0",
+        "description": "Enable API integration for external systems (HMIS, etc.)"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Settings-external_api_key",
+        "dt": "HD Settings",
+        "fieldname": "external_api_key",
+        "label": "API Key",
+        "fieldtype": "Data",
+        "insert_after": "enable_external_api",
+        "depends_on": "eval:doc.enable_external_api==1",
+        "mandatory_depends_on": "eval:doc.enable_external_api==1",
+        "description": "API Key for external systems to authenticate"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Settings-external_api_secret",
+        "dt": "HD Settings",
+        "fieldname": "external_api_secret",
+        "label": "API Secret",
+        "fieldtype": "Password",
+        "insert_after": "external_api_key",
+        "depends_on": "eval:doc.enable_external_api==1",
+        "mandatory_depends_on": "eval:doc.enable_external_api==1",
+        "description": "API Secret for external systems to authenticate (keep this secure)"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Settings-api_documentation",
+        "dt": "HD Settings",
+        "fieldname": "api_documentation",
+        "label": "API Documentation",
+        "fieldtype": "HTML",
+        "insert_after": "external_api_secret",
+        "depends_on": "eval:doc.enable_external_api==1",
+        "options": "<div class='alert alert-info'><strong>API Endpoint:</strong> <code>/api/method/helpdesk.api.external_integration.create_ticket_from_hmis</code><br><br>See the <a href='/api/method/helpdesk.api.external_integration.create_ticket_from_hmis' target='_blank'>API documentation</a> for usage details.</div>"
+    }
+]
