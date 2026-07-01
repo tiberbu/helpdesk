@@ -1,4 +1,11 @@
 import { useAuthStore } from "@/stores/auth";
+import {
+  handleIncomingNotification,
+  handleSlaWarning,
+  handleSlaBreached,
+  handleEscalationNotification,
+  requestNotificationPermission,
+} from "@/composables/useAssignmentNotification";
 import { ListResource, Notification } from "@/types";
 import { isCustomerPortal } from "@/utils";
 import { createListResource, createResource, toast } from "frappe-ui";
@@ -59,6 +66,8 @@ export const useNotificationStore = defineStore("notification", () => {
         user_to: ["=", authStore.userId],
       };
       resource.reload();
+      // Request browser notification permission when agent logs in
+      requestNotificationPermission();
     },
     { immediate: true }
   );
@@ -67,16 +76,20 @@ export const useNotificationStore = defineStore("notification", () => {
     resource.reload();
   });
 
-  // Reload notification list when a new @mention notification is delivered
-  // to this user via real-time, so the bell badge updates immediately.
-  $socket.on("helpdesk:new-notification", () => {
+  // Reload notification list and play sound/show browser notification when
+  // an assignment or mention arrives for this agent.
+  $socket.on("helpdesk:new-notification", (payload: {
+    notification_type?: string;
+    reference_ticket?: string;
+    ticket_subject?: string;
+    user_from?: string;
+  } = {}) => {
     if (isCustomerPortal.value) return;
     resource.reload();
+    handleIncomingNotification(payload);
   });
 
-  // SLA warning notifications delivered via frappe.publish_realtime(user=...).
-  // Show a toast so the agent is alerted immediately even if the notification
-  // panel is not open.  The message payload matches notify_agent_sla_warning().
+  // SLA warning — toast + ding + browser notification
   $socket.on(
     "sla_warning",
     (data: {
@@ -93,21 +106,33 @@ export const useNotificationStore = defineStore("notification", () => {
       toast.create({
         message: `${prefix}: Ticket #${data.ticket} — ${minsLeft} min until breach`,
       });
+      handleSlaWarning(data);
       resource.reload();
     }
   );
 
-  // SLA breached notifications: ticket has exceeded its resolution deadline.
+  // SLA breached — toast + ding x3 + browser notification
   $socket.on(
     "sla_breached",
-    (data: {
-      ticket: string;
-      subject: string;
-    }) => {
+    (data: { ticket: string; subject: string }) => {
       if (isCustomerPortal.value) return;
       toast.create({
         message: `SLA Breached: Ticket #${data.ticket} has exceeded its SLA`,
       });
+      handleSlaBreached(data);
+      resource.reload();
+    }
+  );
+
+  // Escalation — ding x2 + browser notification
+  $socket.on(
+    "escalation_notification",
+    (data: { ticket: string; team?: string; message?: string; url?: string }) => {
+      if (isCustomerPortal.value) return;
+      toast.create({
+        message: data.message || `Ticket #${data.ticket} escalated to your team`,
+      });
+      handleEscalationNotification(data);
       resource.reload();
     }
   );

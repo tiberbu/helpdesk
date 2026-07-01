@@ -148,14 +148,14 @@ def _enrich_brand(brand_doc):
 		"name": brand_doc.get("name", ""),
 		"display_name": brand_doc.get("display_name") or brand_doc.get("brand_name") or "Helpdesk",
 		"logo": brand_doc.get("logo") or "",
-		"primary_color": brand_doc.get("primary_color") or "#059669",
+		"primary_color": brand_doc.get("primary_color") or "#0891B2",
 		"accent_color": _derive_accent_color(brand_doc.get("primary_color")),
 		"bg_tint_color": _derive_bg_tint(brand_doc.get("primary_color")),
 		"support_email": brand_doc.get("support_email") or "",
 		"headline": _("Welcome back · Sign in to Helpdesk"),
 		"supporting_copy": _("Modern customer service software · Track tickets, browse the knowledge base, get answers fast."),
 		"perks": _get_default_perks(),
-		"trust_stats": _get_default_stats(),
+		"trust_stats": None,
 	}
 
 	return brand
@@ -169,14 +169,14 @@ def _get_fallback_brand():
 		"name": "_helpdesk",
 		"display_name": "Helpdesk",
 		"logo": "",
-		"primary_color": "#059669",
-		"accent_color": "#047857",
-		"bg_tint_color": "rgba(5, 150, 105, 0.08)",
+		"primary_color": "#0891B2",
+		"accent_color": "#0E7490",
+		"bg_tint_color": "rgba(8, 145, 178, 0.08)",
 		"support_email": "",
 		"headline": _("Welcome back · Sign in to Helpdesk"),
 		"supporting_copy": _("Modern customer service software · Track tickets, browse the knowledge base, get answers fast."),
 		"perks": _get_default_perks(),
-		"trust_stats": _get_default_stats(),
+		"trust_stats": None,
 	}
 
 
@@ -184,8 +184,8 @@ def _derive_accent_color(primary_color):
 	"""
 	Derive accent color from primary (simple darkening for now)
 	"""
-	if not primary_color or primary_color == "#059669":
-		return "#047857"
+	if not primary_color or primary_color == "#0891B2":
+		return "#0E7490"
 	# Simple fallback: return primary
 	return primary_color
 
@@ -195,7 +195,7 @@ def _derive_bg_tint(primary_color):
 	Derive background tint from primary color
 	"""
 	if not primary_color:
-		return "rgba(5, 150, 105, 0.08)"
+		return "rgba(8, 145, 178, 0.08)"
 
 	# Parse hex to RGB
 	try:
@@ -205,7 +205,7 @@ def _derive_bg_tint(primary_color):
 		b = int(hex_color[4:6], 16)
 		return f"rgba({r}, {g}, {b}, 0.08)"
 	except:
-		return "rgba(5, 150, 105, 0.08)"
+		return "rgba(8, 145, 178, 0.08)"
 
 
 def _get_default_perks():

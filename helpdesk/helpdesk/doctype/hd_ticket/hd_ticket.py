@@ -76,6 +76,7 @@ class HDTicket(Document):
     def before_insert(self):
         self.generate_key()
         self._apply_facility_routing()
+        self._set_priority_from_keywords()
 
     def after_insert(self):
         self._remember_contact_location()
@@ -299,6 +300,7 @@ class HDTicket(Document):
         self.apply_sla()
         if not self.is_new():
             self.handle_ticket_activity_update()
+            self._check_priority_escalation()
 
         self.handle_email_feedback()
 
@@ -458,11 +460,73 @@ class HDTicket(Document):
 
         if self.has_value_changed("status"):
             capture_event("ticket_status_updated")
+            self.notify_customer_of_status_change()
+            self._run_escalation_rules("status_change")
+
+        if self.has_value_changed("priority"):
+            self._run_escalation_rules("priority_match")
+
+        if (
+            self.has_value_changed("agreement_status")
+            and self.agreement_status == "Failed"
+        ):
+            self._run_escalation_rules("sla_breach")
+
         if (
             self.has_value_changed("status_category")
             and self.status_category == "Resolved"
         ):
             capture_event("ticket_resolved")
+
+    def _run_escalation_rules(self, trigger: str) -> None:
+        try:
+            from helpdesk.helpdesk.doctype.hd_ticket.escalation_rule_engine import evaluate_rules
+            evaluate_rules(self, trigger)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), f"Escalation rules failed [{trigger}]")
+
+    def notify_customer_of_status_change(self):
+        """Send email to the customer when an agent changes the ticket status."""
+        try:
+            skip_email_workflow = self.skip_email_workflow()
+            if skip_email_workflow:
+                return
+
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+
+            changer = frappe.session.user
+            if changer == customer_email:
+                return
+
+            old_status = (
+                self.get_doc_before_save().status
+                if self.get_doc_before_save()
+                else None
+            )
+            new_status = self.status
+            if old_status == new_status:
+                return
+
+            portal_link = frappe.utils.get_url(f"/helpdesk/my-tickets/{self.name}")
+
+            frappe.sendmail(
+                recipients=[customer_email],
+                subject=f"Ticket #{self.name} status updated to {new_status}",
+                template="ticket_status_change_notification",
+                args={
+                    "ticket_id": self.name,
+                    "ticket_subject": self.subject,
+                    "old_status": old_status or "N/A",
+                    "new_status": new_status,
+                    "portal_link": portal_link,
+                },
+                reference_doctype="HD Ticket",
+                reference_name=self.name,
+            )
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Status Change Notification Error")
 
     def set_ticket_type(self):
         if self.ticket_type:
@@ -1486,6 +1550,155 @@ class HDTicket(Document):
 # Check if `user` has access to this specific ticket (`doc`). This implements extra
 # permission checks which is not possible with standard permission system. This function
 # is being called from hooks. `doc` is the ticket to check against
+    def _set_priority_from_keywords(self):
+        """Auto-set priority based on keywords in subject/description.
+
+        Story: Priority Workflow - Set default priorities based on keywords.
+        Only applies if priority is not already set.
+        """
+        if self.priority:
+            # Priority already set, don't override
+            return
+
+        # Urgent keywords
+        urgent_keywords = [
+            'urgent', 'critical', 'emergency', 'asap', 'immediately',
+            'outage', 'down', 'broken', 'not working', 'crashed',
+            'production', 'security breach', 'data loss'
+        ]
+
+        # High priority keywords
+        high_keywords = [
+            'important', 'high priority', 'soon', 'blocking',
+            'severe', 'major', 'escalated', 'vip'
+        ]
+
+        # Low priority keywords
+        low_keywords = [
+            'minor', 'cosmetic', 'enhancement', 'feature request',
+            'question', 'inquiry', 'feedback', 'suggestion'
+        ]
+
+        # Combine subject and description for checking
+        text_to_check = (self.subject or '').lower()
+        if self.description:
+            # Extract text from HTML description
+            soup = BeautifulSoup(self.description, 'html.parser')
+            text_to_check += ' ' + soup.get_text().lower()
+
+        # Check for urgent keywords
+        if any(keyword in text_to_check for keyword in urgent_keywords):
+            # Get highest priority (lowest integer_value)
+            priorities = frappe.get_all(
+                'HD Ticket Priority',
+                fields=['name'],
+                order_by='integer_value asc',
+                limit=1
+            )
+            if priorities:
+                self.priority = priorities[0].name
+                return
+
+        # Check for high priority keywords
+        if any(keyword in text_to_check for keyword in high_keywords):
+            # Get second highest priority
+            priorities = frappe.get_all(
+                'HD Ticket Priority',
+                fields=['name'],
+                order_by='integer_value asc',
+                limit=2
+            )
+            if len(priorities) >= 2:
+                self.priority = priorities[1].name
+                return
+            elif priorities:
+                self.priority = priorities[0].name
+                return
+
+        # Check for low priority keywords
+        if any(keyword in text_to_check for keyword in low_keywords):
+            # Get lowest priority (highest integer_value)
+            priorities = frappe.get_all(
+                'HD Ticket Priority',
+                fields=['name'],
+                order_by='integer_value desc',
+                limit=1
+            )
+            if priorities:
+                self.priority = priorities[0].name
+                return
+
+        # Default to Medium or system default
+        self.priority = DEFAULT_TICKET_PRIORITY
+
+    def _check_priority_escalation(self):
+        """Escalate priority for aging tickets.
+
+        Story: Priority Workflow - Add priority escalation after X hours.
+        Escalates ticket priority if it's been open for too long without progress.
+        """
+        if self.status_category in ('Resolved', 'Closed'):
+            # Don't escalate resolved/closed tickets
+            return
+
+        # Get escalation settings
+        escalation_enabled = frappe.db.get_single_value(
+            'HD Settings',
+            'enable_priority_escalation'
+        )
+
+        if not escalation_enabled:
+            return
+
+        escalation_hours = frappe.db.get_single_value(
+            'HD Settings',
+            'priority_escalation_hours'
+        ) or 24
+
+        # Calculate ticket age in hours
+        ticket_age = now_datetime() - self.creation
+        ticket_age_hours = ticket_age.total_seconds() / 3600
+
+        if ticket_age_hours < escalation_hours:
+            # Not old enough to escalate
+            return
+
+        # Get current priority details
+        current_priority = frappe.get_cached_doc('HD Ticket Priority', self.priority)
+
+        # Find next higher priority (lower integer_value)
+        next_priority = frappe.db.get_value(
+            'HD Ticket Priority',
+            filters=[
+                ['integer_value', '<', current_priority.integer_value]
+            ],
+            fieldname='name',
+            order_by='integer_value desc',
+            limit=1
+        )
+
+        if next_priority and next_priority != self.priority:
+            old_priority = self.priority
+            self.priority = next_priority
+
+            # Log the escalation
+            comment = frappe.get_doc({
+                'doctype': 'Comment',
+                'comment_type': 'Info',
+                'reference_doctype': 'HD Ticket',
+                'reference_name': self.name,
+                'content': f'Priority auto-escalated from {old_priority} to {next_priority} after {int(ticket_age_hours)} hours'
+            })
+            comment.insert(ignore_permissions=True)
+
+            frappe.msgprint(
+                _('Ticket priority escalated from {0} to {1} due to age').format(
+                    old_priority, next_priority
+                ),
+                alert=True
+            )
+
+
 def has_permission(doc, user=None):
     if not user:
         user = frappe.session.user
@@ -1634,7 +1847,6 @@ def permission_query(user):
     )
     return query
 
-
 def set_guest_ticket_creation_permission():
     doctype = "HD Ticket"
     add_permission(doctype, "Guest", 0)
@@ -1744,6 +1956,139 @@ def _autoclose_savepoint(ticket):
                 )
             except Exception:  # noqa: BLE001
                 pass  # absolute last resort — nothing more we can do
+
+
+def escalate_ticket_priorities():
+    """Hourly scheduler: auto-escalate ticket priority after prolonged agent inactivity.
+
+    Checks HD Settings for:
+      enable_priority_escalation  — master toggle
+      priority_escalation_hours   — hours of no agent response before first escalation
+      priority_escalation_repeat_hours — re-escalate every N more hours (0 = once only)
+
+    Logic:
+      - Only open tickets (not Resolved/Closed) are considered.
+      - "Inactivity" is measured from last_agent_response (falls back to creation).
+      - Priority is bumped one level up (lower integer_value = higher priority).
+      - Already-at-top tickets are skipped.
+      - Redis dedup key per ticket prevents re-firing within the same inactivity window.
+      - An internal comment is added to the ticket for auditability.
+      - The assigned agent receives a realtime notification.
+    """
+    settings = frappe.db.get_value(
+        "HD Settings",
+        "HD Settings",
+        ["enable_priority_escalation", "priority_escalation_hours", "priority_escalation_repeat_hours"],
+        as_dict=True,
+    )
+    if not settings or not settings.get("enable_priority_escalation"):
+        return
+
+    inactivity_hours = int(settings.get("priority_escalation_hours") or 24)
+    repeat_hours = int(settings.get("priority_escalation_repeat_hours") or 0)
+
+    cutoff = add_to_date(now_datetime(), hours=-inactivity_hours)
+
+    open_tickets = frappe.get_all(
+        "HD Ticket",
+        filters={
+            "status": ["not in", ["Resolved", "Closed"]],
+        },
+        or_filters=[
+            ["last_agent_response", "<", cutoff],
+            ["last_agent_response", "is", "not set"],
+        ],
+        fields=["name", "priority", "assigned_to", "subject", "last_agent_response", "creation"],
+    )
+
+    escalated = 0
+    for t in open_tickets:
+        try:
+            _maybe_escalate_priority(t, inactivity_hours, repeat_hours, cutoff)
+            escalated += 1
+        except Exception:
+            frappe.log_error(
+                frappe.get_traceback(),
+                f"Auto-priority escalation failed for ticket {t.name}",
+            )
+
+    if escalated:
+        frappe.logger().info(f"Auto-priority escalation: {escalated} tickets processed")
+
+
+def _maybe_escalate_priority(ticket_data, inactivity_hours: int, repeat_hours: int, cutoff) -> None:
+    """Attempt to escalate a single ticket's priority. No-ops if already at top or recently fired."""
+    if not ticket_data.priority:
+        return
+
+    redis_key = f"helpdesk:auto_prio_esc:{ticket_data.name}"
+
+    # Check dedup: if already fired within this window, skip unless repeat is enabled
+    if frappe.cache().get(redis_key):
+        return
+
+    current_prio = frappe.db.get_value(
+        "HD Ticket Priority", ticket_data.priority, "integer_value"
+    )
+    if current_prio is None:
+        return
+
+    # Lower integer_value = higher priority. Find the next step up.
+    next_priority = frappe.db.get_value(
+        "HD Ticket Priority",
+        filters=[["integer_value", "<", current_prio]],
+        fieldname="name",
+        order_by="integer_value desc",
+    )
+
+    if not next_priority:
+        # Already at the highest priority — nothing to do
+        return
+
+    # Compute how long the ticket has been inactive
+    last_response = ticket_data.last_agent_response or ticket_data.creation
+    inactive_seconds = (now_datetime() - last_response).total_seconds()
+    inactive_hours = int(inactive_seconds / 3600)
+
+    old_priority = ticket_data.priority
+
+    # Apply the priority bump directly on the DB row (avoids triggering all hooks)
+    frappe.db.set_value("HD Ticket", ticket_data.name, "priority", next_priority)
+
+    # Internal audit comment
+    note_content = _(
+        "Priority auto-escalated from <strong>{0}</strong> to <strong>{1}</strong> "
+        "after {2} hours of inactivity (no agent response)."
+    ).format(old_priority, next_priority, inactive_hours)
+    frappe.get_doc({
+        "doctype": "HD Ticket Comment",
+        "reference_ticket": ticket_data.name,
+        "commented_by": "Administrator",
+        "content": note_content,
+        "is_internal": 1,
+        "is_pinned": 0,
+    }).insert(ignore_permissions=True)
+
+    # Realtime notification to assigned agent
+    if ticket_data.assigned_to:
+        frappe.publish_realtime(
+            "escalation_notification",
+            {
+                "ticket": ticket_data.name,
+                "message": _(
+                    "Ticket #{0} priority escalated: {1} → {2} (inactive {3}h)"
+                ).format(ticket_data.name, old_priority, next_priority, inactive_hours),
+                "team": None,
+            },
+            user=ticket_data.assigned_to,
+            after_commit=True,
+        )
+
+    frappe.db.commit()  # nosemgrep
+
+    # Mark dedup. TTL = repeat window (or inactivity window if no repeat)
+    ttl_hours = repeat_hours if repeat_hours > 0 else inactivity_hours
+    frappe.cache().set_value(redis_key, 1, expires_in_sec=ttl_hours * 3600)
 
 
 def close_tickets_after_n_days():

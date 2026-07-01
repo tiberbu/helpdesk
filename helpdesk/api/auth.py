@@ -24,15 +24,17 @@ def get_user():
         as_dict=True,
     )
 
+    roles = frappe.get_roles(current_user)
     is_agent = _is_agent()
-    is_admin = ("System Manager" or "Admistrator") in frappe.get_roles(current_user)
+    is_admin = ("System Manager" in roles or "Administrator" in roles)
+    is_manager = "Agent Manager" in roles
+    is_customer = "Helpdesk Customer" in roles and not is_agent
     has_desk_access = is_agent or is_admin
     user_image = user.user_image
     user_first_name = user.first_name
     user_name = user.full_name
     user_id = user.name
     username = user.username
-    is_manager = ("Agent Manager") in frappe.get_roles(current_user)
     user_team = get_agents_team()
     user_team_names = [team["team_name"] for team in user_team]
     language = user.language or frappe.db.get_single_value(
@@ -45,6 +47,7 @@ def get_user():
         "is_agent": is_agent,
         "user_id": user_id,
         "is_manager": is_manager,
+        "is_customer": is_customer,
         "user_image": user_image,
         "user_first_name": user_first_name,
         "user_name": user_name,

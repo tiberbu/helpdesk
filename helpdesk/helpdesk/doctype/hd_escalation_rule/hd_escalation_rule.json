@@ -7,99 +7,138 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "rule_name",
   "is_enabled",
-  "column_break_hdwh",
-  "criterion_section",
-  "priority",
-  "team",
-  "column_break_aabd",
-  "ticket_type",
-  "assign_to_section",
-  "to_agent",
-  "to_team",
-  "column_break_ogxx",
-  "to_priority",
-  "to_ticket_type"
+  "rule_order",
+  "column_break_top",
+  "trigger",
+  "section_break_conditions",
+  "match_priority",
+  "match_team",
+  "column_break_conditions",
+  "match_ticket_type",
+  "match_status",
+  "section_break_trigger_opts",
+  "age_hours",
+  "column_break_trigger_opts",
+  "target_status",
+  "section_break_actions",
+  "actions_table"
  ],
  "fields": [
   {
-   "fieldname": "priority",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Priority",
-   "options": "HD Ticket Priority"
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "label": "Rule Name",
+   "reqd": 1,
+   "in_list_view": 1
   },
   {
-   "fieldname": "team",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Team",
-   "options": "HD Team"
-  },
-  {
-   "fieldname": "criterion_section",
-   "fieldtype": "Section Break",
-   "label": "Criterion"
-  },
-  {
-   "fieldname": "assign_to_section",
-   "fieldtype": "Section Break",
-   "label": "Assign to"
-  },
-  {
-   "fieldname": "to_agent",
-   "fieldtype": "Link",
-   "label": "Agent",
-   "options": "HD Agent"
-  },
-  {
-   "fieldname": "column_break_ogxx",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "to_team",
-   "fieldtype": "Link",
-   "label": "Team",
-   "options": "HD Team"
-  },
-  {
-   "fieldname": "to_priority",
-   "fieldtype": "Link",
-   "label": "Priority",
-   "options": "HD Ticket Priority"
-  },
-  {
-   "default": "0",
+   "default": "1",
    "fieldname": "is_enabled",
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Enabled"
   },
   {
-   "fieldname": "column_break_hdwh",
+   "fieldname": "rule_order",
+   "fieldtype": "Int",
+   "label": "Order",
+   "default": "10",
+   "description": "Lower number runs first. Rules are evaluated in ascending order.",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_top",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_aabd",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "ticket_type",
-   "fieldtype": "Link",
+   "fieldname": "trigger",
+   "fieldtype": "Select",
+   "label": "Trigger",
+   "options": "\nticket_age\nsla_breach\npriority_match\nstatus_change",
+   "reqd": 1,
    "in_list_view": 1,
-   "label": "Ticket type",
-   "options": "HD Ticket Type"
+   "description": "ticket_age: fires on scheduler. sla_breach: fires on SLA breach event. priority_match: fires when ticket priority matches. status_change: fires when ticket status changes."
   },
   {
-   "fieldname": "to_ticket_type",
+   "fieldname": "section_break_conditions",
+   "fieldtype": "Section Break",
+   "label": "Conditions (leave blank to match all)"
+  },
+  {
+   "fieldname": "match_priority",
    "fieldtype": "Link",
-   "label": "Ticket type",
-   "options": "HD Ticket Type"
+   "label": "Priority",
+   "options": "HD Ticket Priority",
+   "description": "Only apply this rule if the ticket has this priority."
+  },
+  {
+   "fieldname": "match_team",
+   "fieldtype": "Link",
+   "label": "Team",
+   "options": "HD Team",
+   "description": "Only apply this rule if the ticket is assigned to this team."
+  },
+  {
+   "fieldname": "column_break_conditions",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "match_ticket_type",
+   "fieldtype": "Link",
+   "label": "Ticket Type",
+   "options": "HD Ticket Type",
+   "description": "Only apply this rule if the ticket has this type."
+  },
+  {
+   "fieldname": "match_status",
+   "fieldtype": "Link",
+   "label": "Status",
+   "options": "HD Ticket Status",
+   "description": "Only apply this rule if the ticket has this status."
+  },
+  {
+   "fieldname": "section_break_trigger_opts",
+   "fieldtype": "Section Break",
+   "label": "Trigger Options"
+  },
+  {
+   "fieldname": "age_hours",
+   "fieldtype": "Float",
+   "label": "Age (hours)",
+   "depends_on": "eval:doc.trigger=='ticket_age'",
+   "description": "Fire this rule when a ticket has been open for at least this many hours without resolution.",
+   "default": "24"
+  },
+  {
+   "fieldname": "column_break_trigger_opts",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "target_status",
+   "fieldtype": "Link",
+   "label": "Target Status",
+   "options": "HD Ticket Status",
+   "depends_on": "eval:doc.trigger=='status_change'",
+   "description": "Fire when the ticket changes to this specific status."
+  },
+  {
+   "fieldname": "section_break_actions",
+   "fieldtype": "Section Break",
+   "label": "Actions"
+  },
+  {
+   "fieldname": "actions_table",
+   "fieldtype": "Table",
+   "label": "Actions",
+   "options": "HD Escalation Action",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-06-19 23:09:37.945913",
+ "modified": "2026-06-26 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Escalation Rule",
@@ -116,9 +155,16 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "role": "Agent Manager"
   }
  ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+ "sort_field": "rule_order",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "rule_name"
 }

@@ -48,17 +48,40 @@ class HDNotification(Document):
                 "comment": self.parse_html(),
             }
 
+    def format_assignment_message(self):
+        user_from = self.get_from()
+        subject = ""
+        if self.reference_ticket:
+            subject = frappe.db.get_value("HD Ticket", self.reference_ticket, "subject") or ""
+        if subject:
+            return f"{user_from} assigned you ticket: {subject}"
+        return f"{user_from} assigned you a ticket"
+
     def after_insert(self):
-        if self.notification_type == "Mention":
-            # Emit real-time event so the mentioned agent's notification bell
-            # updates immediately without requiring a page refresh.
+        # Emit real-time event for all notification types so the bell updates
+        # and the frontend can play a sound / show a browser popup.
+        REALTIME_TYPES = ("Mention", "Assignment", "Reaction", "Escalation", "SLA Warning", "SLA Breach")
+        if self.notification_type in REALTIME_TYPES:
+            ticket_subject = ""
+            if self.reference_ticket:
+                ticket_subject = frappe.db.get_value(
+                    "HD Ticket", self.reference_ticket, "subject"
+                ) or ""
+
             frappe.publish_realtime(
                 "helpdesk:new-notification",
-                {"notification_type": self.notification_type},
+                {
+                    "notification_type": self.notification_type,
+                    "reference_ticket": self.reference_ticket,
+                    "ticket_subject": ticket_subject,
+                    "user_from": self.get_from(),
+                    "message": self.message,
+                },
                 user=self.user_to,
                 after_commit=True,
             )
 
+        if self.notification_type == "Mention":
             skip_email_workflow = frappe.db.get_single_value(
                 "HD Settings", "skip_email_workflow"
             )

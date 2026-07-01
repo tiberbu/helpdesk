@@ -261,8 +261,13 @@ router.beforeEach(async (to, _, next) => {
       LOGIN_PAGE +
       (redirectURL ? `?redirect-to=/helpdesk${redirectURL}` : "/helpdesk");
   } else if (!to.meta.public && !authStore.hasDeskAccess) {
+    // Non-agents trying to access agent pages -> redirect to customer portal
+    next({ name: "TicketsCustomer" });
+  } else if (to.name === "Home" && !authStore.isAgent) {
+    // Customers trying to access /home -> redirect to my-tickets
     next({ name: "TicketsCustomer" });
   } else if (to.name === "TicketAgent" && !authStore.isAgent) {
+    // Customers trying to access agent ticket view -> redirect to customer ticket view
     const ticketId = to.params.ticketId;
     next({
       name: "TicketCustomer",

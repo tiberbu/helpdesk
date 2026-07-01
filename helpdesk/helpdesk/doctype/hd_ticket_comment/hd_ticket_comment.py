@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 
 from helpdesk.mixins.mentions import HasMentions
-from helpdesk.utils import capture_event, get_doc_room, publish_event
+from helpdesk.utils import capture_event, get_doc_room, is_agent, publish_event
 
 PRESET_EMOJIS = ["👍", "👎", "❤️", "🎉", "👀", "✅"]
 
@@ -37,6 +37,48 @@ class HDTicketComment(HasMentions, Document):
         capture_event(telemetry_event)
         if self.is_internal:
             self.notify_mentions()
+        else:
+            self.notify_customer_of_comment()
+
+    def notify_customer_of_comment(self):
+        """Send email notification to the customer when an agent adds a public comment."""
+        try:
+            skip_email_workflow = frappe.db.get_single_value("HD Settings", "skip_email_workflow")
+            if skip_email_workflow:
+                return
+
+            ticket = frappe.get_doc("HD Ticket", self.reference_ticket)
+            customer_email = ticket.raised_by
+
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+
+            # Don't notify if the comment was made by the customer themselves
+            commenter = self.commented_by or frappe.session.user
+            if commenter == customer_email:
+                return
+
+            if not is_agent(commenter):
+                return
+
+            commenter_name = frappe.db.get_value("User", commenter, "full_name") or commenter
+            portal_link = frappe.utils.get_url(f"/helpdesk/my-tickets/{self.reference_ticket}")
+
+            frappe.sendmail(
+                recipients=[customer_email],
+                subject=f"New reply on Ticket #{self.reference_ticket}: {ticket.subject}",
+                template="new_reply_on_customer_portal_notification",
+                args={
+                    "ticket_id": self.reference_ticket,
+                    "message": self.content,
+                    "portal_link": portal_link,
+                    "agent_name": commenter_name,
+                },
+                reference_doctype="HD Ticket",
+                reference_name=self.reference_ticket,
+            )
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Comment Notification Error")
 
     def after_delete(self):
         event = "helpdesk:ticket-comment"

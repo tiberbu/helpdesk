@@ -16,18 +16,32 @@ DOCTYPE_TICKET = "HD Ticket"
 @frappe.whitelist()
 def get_one(name: str):
     check_permissions(DOCTYPE_TEMPLATE, None)
-    found, about, description_template = frappe.get_value(
-        DOCTYPE_TEMPLATE, name, ["name", "about", "description_template"]
-    ) or [None, None, None]
-    if not found:
-        return {"about": None, "fields": []}
+    result = frappe.get_value(
+        DOCTYPE_TEMPLATE, name, ["name", "about", "description_template", "priority", "ticket_type", "category", "agent_group"]
+    )
+
+    if not result:
+        return {"about": None, "fields": [], "default_values": {}}
+
+    found, about, description_template, priority, ticket_type, category, agent_group = result
 
     fields = get_fields_meta(name)
+
+    default_values = {}
+    if priority:
+        default_values["priority"] = priority
+    if ticket_type:
+        default_values["ticket_type"] = ticket_type
+    if category:
+        default_values["category"] = category
+    if agent_group:
+        default_values["agent_group"] = agent_group
 
     return {
         "about": about,
         "fields": fields,
         "description_template": description_template,
+        "default_values": default_values,
         "_form_script": get_form_script(
             "HD Ticket", apply_on_new_page=True, is_customer_portal=False
         ),

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache - Helpdesk</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .status {
+            margin: 2rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .info {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Clear Cache</h1>
+        <p>This will unregister the service worker and clear all cached data to fix any issues.</p>
+
+        <div id="status" class="status pending">
+            <div class="spinner"></div>
+            <div>Checking cache status...</div>
+        </div>
+
+        <button id="clearBtn" onclick="clearAllCache()" disabled>Clear Cache & Reload</button>
+
+        <div class="info">
+            This is safe and will not delete your tickets or data.
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const clearBtn = document.getElementById('clearBtn');
+
+        async function checkCacheStatus() {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                if (registrations.length > 0) {
+                    statusDiv.className = 'status pending';
+                    statusDiv.innerHTML = `
+                        <div>⚠️ Service worker detected</div>
+                        <div style="font-size: 0.875rem; margin-top: 0.5rem;">Click below to clear cache and fix mobile view error</div>
+                    `;
+                    clearBtn.disabled = false;
+                } else {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `
+                        <div>✅ Cache is clean</div>
+                        <div style="font-size: 0.875rem; margin-top: 0.5rem;">You can now use the app normally</div>
+                    `;
+                    clearBtn.textContent = 'Go to Helpdesk';
+                    clearBtn.onclick = () => window.location.href = '/helpdesk';
+                    clearBtn.disabled = false;
+                }
+            } else {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '✅ Service worker not supported - cache already clear';
+                clearBtn.disabled = false;
+                clearBtn.textContent = 'Go to Helpdesk';
+                clearBtn.onclick = () => window.location.href = '/helpdesk';
+            }
+        }
+
+        async function clearAllCache() {
+            clearBtn.disabled = true;
+            statusDiv.className = 'status pending';
+            statusDiv.innerHTML = '<div class="spinner"></div><div>Clearing cache...</div>';
+
+            try {
+                // Unregister all service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+
+                // Clear all caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '✅ Cache cleared! Reloading in 2 seconds...';
+
+                setTimeout(() => {
+                    window.location.href = '/helpdesk';
+                }, 2000);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ Error: ${error.message}<br><small>Try manually clearing browser data</small>`;
+                clearBtn.disabled = false;
+                clearBtn.textContent = 'Try Again';
+            }
+        }
+
+        // Check status on load
+        checkCacheStatus();
+    </script>
+</body>
+</html>

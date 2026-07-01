@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "integer_value",
+  "color",
   "column_break_fzcl",
   "description"
  ],
@@ -24,6 +25,14 @@
    "label": "Integer value",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Color",
+   "options": "Red\nOrange\nYellow\nGreen\nBlue\nGray",
+   "default": "Gray"
   },
   {
    "fieldname": "column_break_fzcl",

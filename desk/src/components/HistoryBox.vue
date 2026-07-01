@@ -70,7 +70,7 @@ const props = defineProps({
   },
 });
 
-const { user, content, creation, relatedActivities } = props.activity;
+const { user = "", content = "", creation = "", relatedActivities = [] } = props.activity || {};
 
 let show_others = ref(false);
 </script>
