@@ -123,6 +123,7 @@
           () => {
             showInternalNoteBox = false;
             emit('update');
+            emit('note:submitted');
           }
         "
         @discard="
@@ -151,7 +152,7 @@ import {
 import { ref, watch } from "vue";
 import { onClickOutside } from "@vueuse/core";
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update", "note:submitted"]);
 const content = defineModel("content");
 const { isMac } = useDevice();
 const { isMobileView } = useScreenSize();

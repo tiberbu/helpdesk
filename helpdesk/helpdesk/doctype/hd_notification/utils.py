@@ -1,5 +1,43 @@
 import frappe
 
+CUSTOMER_NOTIFICATION_TYPES = ["Ticket Reply", "Ticket Status Change"]
+
+
+@frappe.whitelist()
+def get_customer_notifications():
+    """Return notifications for the logged-in customer. Safe for any authenticated user."""
+    user = frappe.session.user
+    if user in ("Administrator", "Guest"):
+        return []
+    return frappe.get_all(
+        "HD Notification",
+        filters={
+            "user_to": user,
+            "notification_type": ["in", CUSTOMER_NOTIFICATION_TYPES],
+        },
+        fields=[
+            "name", "creation", "message", "notification_type",
+            "read", "reference_comment", "reference_ticket", "user_from",
+        ],
+        order_by="modified desc",
+        ignore_permissions=True,
+    )
+
+
+@frappe.whitelist()
+def clear_customer_notifications(ticket=None):
+    """Mark customer notifications as read. Always scoped to session user."""
+    user = frappe.session.user
+    filters = {
+        "user_to": user,
+        "read": 0,
+        "notification_type": ["in", CUSTOMER_NOTIFICATION_TYPES],
+    }
+    if ticket:
+        filters["reference_ticket"] = ticket
+    for name in frappe.get_all("HD Notification", filters=filters, pluck="name", ignore_permissions=True):
+        frappe.db.set_value("HD Notification", name, "read", 1, update_modified=False)
+
 
 def create_notification(
     user_to: str,

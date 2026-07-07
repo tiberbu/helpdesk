@@ -59,6 +59,12 @@ const routes = [
     component: () => import("@/pages/MobileNotifications.vue"),
   },
   {
+    path: "/my-notifications",
+    name: "CustomerNotifications",
+    component: () => import("@/pages/CustomerNotifications.vue"),
+    meta: { public: true, auth: true },
+  },
+  {
     path: "/kb",
     name: "AgentKnowledgeBase",
     component: () => import("@/pages/knowledge-base/KnowledgeBaseAgent.vue"),

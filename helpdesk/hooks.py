@@ -51,6 +51,7 @@ scheduler_events = {
             "helpdesk.helpdesk.chat.session_cleanup.cleanup_inactive_sessions",
             "helpdesk.helpdesk.doctype.hd_ticket.escalation_scheduler.auto_escalate_tickets",
             "helpdesk.helpdesk.doctype.hd_ticket.escalation_rule_engine.run_age_based_rules",
+            "helpdesk.helpdesk.doctype.hd_ticket.agent_rotation.run_agent_rotation",
         ],
         # Chat response timeout: sends auto-message after 2 min with no agent reply (Story 3.4)
         "*/1 * * * *": [
@@ -110,6 +111,9 @@ doc_events = {
         "on_update": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
         "after_insert": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
         "on_trash": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
+    },
+    "ToDo": {
+        "after_insert": "helpdesk.overrides.todo_assignment.notify_hd_ticket_assignment",
     },
 }
 

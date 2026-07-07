@@ -201,24 +201,13 @@ def _notify_specific_agent(agent_name: str, ticket_doc, rule_doc) -> None:
     message = _("Escalation rule <b>{0}</b> flagged ticket #{1}: {2}").format(
         rule_doc.rule_name, ticket_doc.name, ticket_doc.subject
     )
-    # In-app bell notification
+    # In-app bell notification only (no email for escalations)
     from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
     create_notification(
         user_to=agent_user,
         notification_type="Escalation",
         message=message,
         reference_ticket=ticket_doc.name,
-    )
-    # Email
-    ticket_url = frappe.utils.get_url(f"/helpdesk/tickets/{ticket_doc.name}")
-    frappe.sendmail(
-        recipients=[agent_user],
-        subject=_("Escalation alert: Ticket #{0}").format(ticket_doc.name),
-        message=_(
-            "Escalation rule <b>{0}</b> has flagged ticket <b>#{1}</b>: {2}.<br><br>"
-            "<a href='{3}'>View Ticket</a>"
-        ).format(rule_doc.rule_name, ticket_doc.name, ticket_doc.subject, ticket_url),
-        delayed=False,
     )
 
 
@@ -238,24 +227,13 @@ def _notify_team_manager(ticket_doc, rule_doc) -> None:
     message = _("Escalation rule <b>{0}</b> flagged ticket #{1}: {2}").format(
         rule_doc.rule_name, ticket_doc.name, ticket_doc.subject
     )
-    ticket_url = frappe.utils.get_url(f"/helpdesk/tickets/{ticket_doc.name}")
     for user_email in members:
-        # In-app bell notification
+        # In-app bell notification only (no email for escalations)
         create_notification(
             user_to=user_email,
             notification_type="Escalation",
             message=message,
             reference_ticket=ticket_doc.name,
-        )
-        # Email
-        frappe.sendmail(
-            recipients=[user_email],
-            subject=_("Escalation alert: Ticket #{0}").format(ticket_doc.name),
-            message=_(
-                "Escalation rule <b>{0}</b> has flagged ticket <b>#{1}</b>: {2}.<br><br>"
-                "<a href='{3}'>View Ticket</a>"
-            ).format(rule_doc.rule_name, ticket_doc.name, ticket_doc.subject, ticket_url),
-            delayed=False,
         )
 
 

@@ -23,6 +23,7 @@
   "log_retention_days",
   "sla_warning_thresholds",
   "sla_manager_notification_threshold",
+  "agent_rotation_minutes",
   "itil_matrix_section",
   "priority_matrix",
   "category_required_on_resolution",
@@ -221,6 +222,13 @@
    "fieldname": "sla_manager_notification_threshold",
    "fieldtype": "Int",
    "label": "Manager Notification Threshold (minutes)"
+  },
+  {
+   "default": "30",
+   "description": "Minutes of agent inactivity after SLA breach before the ticket is rotated to the next agent in the team. Default: 30",
+   "fieldname": "agent_rotation_minutes",
+   "fieldtype": "Int",
+   "label": "Agent Rotation Window (minutes after breach)"
   },
   {
    "depends_on": "eval:doc.itil_mode_enabled==1",

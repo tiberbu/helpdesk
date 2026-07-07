@@ -1,13 +1,14 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "autoincrement",
+ "autoname": "naming_series:",
  "creation": "2023-10-17 14:27:11.078679",
  "doctype": "DocType",
  "document_type": "Setup",
  "email_append_to": 1,
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
   "subject_section",
   "subject",
   "raised_by",
@@ -92,9 +93,22 @@
   "facility",
   "sub_county",
   "county",
-  "escalation_path"
+  "custom_phone",
+  "custom_section",
+  "escalation_path",
+  "agent_rotation_path",
+  "rotation_exhausted"
  ],
  "fields": [
+  {
+   "default": "TKT-.YY.-.MM.-.DD.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "TKT-.YY.-.MM.-.DD.-.#####",
+   "reqd": 1,
+   "set_only_once": 1
+  },
   {
    "fieldname": "subject_section",
    "fieldtype": "Section Break",
@@ -650,11 +664,38 @@
    "options": "HD County"
   },
   {
+   "fieldname": "custom_phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "custom_section",
+   "fieldtype": "Data",
+   "label": "Section"
+  },
+  {
    "description": "JSON audit trail of all escalations/de-escalations",
    "fieldname": "escalation_path",
    "fieldtype": "Long Text",
    "hidden": 1,
    "label": "Escalation Path",
+   "read_only": 1
+  },
+  {
+   "description": "JSON trail of agents tried during post-breach rotation",
+   "fieldname": "agent_rotation_path",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Agent Rotation Path",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rotation_exhausted",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Rotation Exhausted",
    "read_only": 1
   }
  ],
@@ -742,5 +783,6 @@
  "timeline_field": "contact",
  "title_field": "subject",
  "track_changes": 1,
- "track_seen": 1
+ "track_seen": 1,
+ "naming_series_options": "TKT-.YY.-.MM.-.DD.-.#####"
 }

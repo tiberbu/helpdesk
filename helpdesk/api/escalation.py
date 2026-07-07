@@ -364,10 +364,16 @@ def _notify_team(ticket: str, team: str, message: str) -> None:
 			room=f"user:{user_email}",
 		)
 
-		# Email notification
-		frappe.sendmail(
-			recipients=[user_email],
-			subject=_("Ticket #{0} assigned to your team").format(ticket),
-			message=f"{message}<br><a href='{ticket_url}'>View Ticket #{ticket}</a>",
-			delayed=False,
-		)
+		# Bell notification (HD Notification record) so the bell badge lights up
+		try:
+			from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+			create_notification(
+				user_to=user_email,
+				notification_type="Escalation",
+				message=message,
+				reference_ticket=ticket,
+			)
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), f"Escalation: bell notification failed for {user_email}")
+
+		# No escalation email — in-app bell notification is sufficient

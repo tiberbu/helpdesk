@@ -236,9 +236,9 @@ const send = createResource({
   makeParams: () => ({
     dt: "HD Ticket",
     dn: props.ticketId,
-    method: "create_communication_via_contact",
+    method: "new_comment",
     args: {
-      message: editorContent.value,
+      content: editorContent.value,
       attachments: attachments.value,
     },
   }),

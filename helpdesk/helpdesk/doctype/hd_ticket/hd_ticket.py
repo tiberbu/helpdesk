@@ -98,27 +98,42 @@ class HDTicket(Document):
         if not raised_by or raised_by == "Guest":
             return
 
-        # Step 1: get facility from user profile
+        # Step 1: get facility from user profile; form-supplied facility takes priority
         user_facility = frappe.db.get_value("User", raised_by, "facility")
+        effective_facility = self.facility or user_facility
 
         # Always stamp the facility on the ticket if we know it
-        if user_facility and not self.facility:
-            self.facility = user_facility
+        if effective_facility and not self.facility:
+            self.facility = effective_facility
+
+        # Auto-fill county + sub_county from the selected facility record
+        if effective_facility and (not self.county or not self.sub_county):
+            fac = frappe.db.get_value(
+                "HD Facility",
+                effective_facility,
+                ["county", "subcounty"],
+                as_dict=True,
+            )
+            if fac:
+                if fac.county and not self.county:
+                    self.county = fac.county
+                if fac.subcounty and not self.sub_county:
+                    self.sub_county = fac.subcounty
 
         mapping = None
 
-        if user_facility:
+        if effective_facility:
             # Step 2a: look up HD Facility Mapping by facility name
             mapping = frappe.db.get_value(
                 "HD Facility Mapping",
-                {"facility_name": user_facility},
+                {"facility_name": effective_facility},
                 ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
                 as_dict=True,
             )
 
         if not mapping and self.county and self.sub_county:
             # Step 2b: no facility mapping — try to match by county + sub_county
-            # (user explicitly chose them via the ticket creation form)
+            # (user explicitly chose them via the ticket creation form or facility picker)
             mapping = frappe.db.get_value(
                 "HD Facility Mapping",
                 {"county": self.county, "sub_county": self.sub_county},
@@ -528,6 +543,76 @@ class HDTicket(Document):
         except Exception:
             frappe.log_error(frappe.get_traceback(), "Status Change Notification Error")
 
+        self._create_customer_status_notification(old_status=None, new_status=self.status)
+
+    def _create_customer_reply_notification(self, message: str, communication_name: str):
+        """Create an in-app notification for the customer when an agent replies."""
+        try:
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+            agent = frappe.session.user
+            if agent == customer_email:
+                return
+            from bs4 import BeautifulSoup
+            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(" ", strip=True)[:300]
+            agent_name = frappe.db.get_value("User", agent, "full_name") or agent
+            frappe.get_doc({
+                "doctype": "HD Notification",
+                "user_from": agent,
+                "user_to": customer_email,
+                "notification_type": "Ticket Reply",
+                "reference_ticket": self.name,
+                "message": plain_preview,
+                "read": 0,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Customer reply notification error")
+
+    def _notify_agents_of_customer_reply(self, message: str):
+        """Create in-app bell notifications for assigned agents when customer replies."""
+        try:
+            assigned_agents = self.get_assigned_agents() or []
+            customer = frappe.session.user
+            customer_name = frappe.db.get_value("User", customer, "full_name") or customer
+            from bs4 import BeautifulSoup
+            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(" ", strip=True)[:300]
+            from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+            for agent in assigned_agents:
+                agent_email = agent.get("name")
+                if not agent_email or agent_email == customer:
+                    continue
+                create_notification(
+                    user_to=agent_email,
+                    notification_type="Reaction",
+                    message=f"{customer_name} replied on ticket #{self.name}: {plain_preview}",
+                    reference_ticket=self.name,
+                    user_from=customer,
+                )
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Agent reply notification error")
+
+    def _create_customer_status_notification(self, old_status, new_status):
+        """Create an in-app notification for the customer when ticket status changes."""
+        try:
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+            changer = frappe.session.user
+            if changer == customer_email:
+                return
+            frappe.get_doc({
+                "doctype": "HD Notification",
+                "user_from": changer,
+                "user_to": customer_email,
+                "notification_type": "Ticket Status Change",
+                "reference_ticket": self.name,
+                "message": f"Your ticket #{self.name} status changed to {new_status}",
+                "read": 0,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Customer status in-app notification error")
+
     def set_ticket_type(self):
         if self.ticket_type:
             return
@@ -723,10 +808,9 @@ class HDTicket(Document):
 
     @frappe.whitelist()
     def assign_agent(self, agent: str):
+        # ToDo.after_insert hook (overrides/todo_assignment.py) handles
+        # the HD Notification — no need to call notify_agent here.
         assign({"assign_to": [agent], "doctype": "HD Ticket", "name": self.name})
-
-        if frappe.session.user != agent:
-            self.notify_agent(agent, "Assignment")
 
     def get_assigned_agents(self):
         assignees = get_assignees({"doctype": "HD Ticket", "name": self.name})
@@ -828,21 +912,27 @@ class HDTicket(Document):
 
     @frappe.whitelist()
     def new_comment(self, content: str, attachments: list[str] = []):
-        if not is_agent():
+        # Allow the ticket owner (customer) to post public comments, not just agents
+        user = frappe.session.user
+        is_ticket_owner = self.raised_by == user
+        if not is_agent() and not is_ticket_owner:
             frappe.throw(
                 _("You are not permitted to add a comment"), frappe.PermissionError
             )
         c = frappe.new_doc("HD Ticket Comment")
-        c.commented_by = frappe.session.user
+        c.commented_by = user
         c.content = content
         c.is_pinned = False
         c.is_internal = False
         c.reference_ticket = self.name
-        c.save()
+        c.save(ignore_permissions=True)
         for attachment in attachments:
             self.attach_file_with_doc(
                 "HD Ticket Comment", c.name, attachment.get("file_url")
             )
+        # If a customer posted, notify the assigned agent(s) via the bell
+        if is_ticket_owner and not is_agent():
+            self._notify_agents_of_customer_reply(content)
 
     @frappe.whitelist()
     def new_internal_note(self, content: str, attachments: list[str] = []):
@@ -908,6 +998,9 @@ class HDTicket(Document):
 
         communication.insert(ignore_permissions=True)
         capture_event("agent_replied")
+
+        # In-app notification for the customer so the bell lights up
+        self._create_customer_reply_notification(message, communication.name)
 
         _attachments = []
 
@@ -990,6 +1083,10 @@ class HDTicket(Document):
         ):
             # send email to assigned agents
             self.send_reply_email_to_agent()
+
+        # In-app bell notification for assigned agents when customer replies
+        if not new_ticket:
+            self._notify_agents_of_customer_reply(message)
 
         # if self.status_category == "Paused" and not new_ticket:
         if not new_ticket:

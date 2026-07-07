@@ -22,6 +22,9 @@ def create_ticket_from_hmis(
     external_reference_id: Optional[str] = None,
     hmis_module: Optional[str] = None,
     hmis_url: Optional[str] = None,
+    facility: Optional[str] = None,
+    custom_phone: Optional[str] = None,
+    custom_section: Optional[str] = None,
     api_key: Optional[str] = None,
     api_secret: Optional[str] = None
 ):
@@ -120,6 +123,34 @@ def create_ticket_from_hmis(
 
     if hmis_module:
         ticket_data["custom_hmis_module"] = hmis_module
+
+    if facility:
+        # facility may be a facility_code (FID) or a full facility name — resolve either way
+        facility_doc = frappe.db.get_value(
+            "HD Facility",
+            {"facility_code": facility},
+            ["name", "county", "subcounty"],
+            as_dict=True
+        )
+        if not facility_doc:
+            facility_doc = frappe.db.get_value(
+                "HD Facility",
+                {"name": facility},
+                ["name", "county", "subcounty"],
+                as_dict=True
+            )
+        if facility_doc:
+            ticket_data["facility"] = facility_doc.name
+            if facility_doc.county:
+                ticket_data["county"] = facility_doc.county
+            if facility_doc.subcounty:
+                ticket_data["sub_county"] = facility_doc.subcounty
+
+    if custom_phone:
+        ticket_data["custom_phone"] = custom_phone
+
+    if custom_section:
+        ticket_data["custom_section"] = custom_section
 
     # Step 6: Create the ticket
     try:

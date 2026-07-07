@@ -235,7 +235,4 @@ function handleSaveNote() {
   );
 }
 
-onMounted(() => {
-  internalNoteRef.value.style.width = "0px";
-});
 </script>

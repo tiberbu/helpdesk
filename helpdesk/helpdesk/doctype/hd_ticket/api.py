@@ -200,8 +200,6 @@ def get_communications(ticket: str):
 
 
 def get_comments(ticket: str):
-    if not frappe.has_permission("HD Ticket Comment", "read"):
-        return []
     QBComment = frappe.qb.DocType("HD Ticket Comment")
     query = (
         frappe.qb.from_(QBComment)

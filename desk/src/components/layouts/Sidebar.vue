@@ -33,7 +33,7 @@
       :is-expanded="isExpanded"
       :dark="true"
     />
-    <div class="mb-4" v-if="!isCustomerPortal">
+    <div class="mb-4">
       <div
         v-if="notificationStore.unread"
         class="absolute size-1.5 translate-x-6 translate-y-1 rounded-full bg-[#0891B2] left-1"
@@ -41,6 +41,7 @@
         variant="solid"
       />
       <SidebarLink
+        id="notifications-btn"
         class="relative my-0.5"
         :label="__('Notifications')"
         :icon="LucideBell"

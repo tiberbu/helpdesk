@@ -18,7 +18,7 @@
             <UserMenu :options="profileSettings" />
           </div>
           <!-- notifications -->
-          <div class="overflow-y-auto px-2" v-if="!isCustomerPortal">
+          <div class="overflow-y-auto px-2">
             <div class="mb-3 flex flex-col gap-1">
               <SidebarLink
                 class="relative"
@@ -26,7 +26,7 @@
                 :icon="LucideBell"
                 :on-click="() => (sidebarOpened = false)"
                 :is-expanded="true"
-                to="Notifications"
+                :to="isCustomerPortal ? 'CustomerNotifications' : 'Notifications'"
                 :dark="true"
               >
                 <template #right>

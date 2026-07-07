@@ -53,27 +53,36 @@
           </template>
         </UniInput>
       </div>
-      <!-- county + sub-county picker -->
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-2">
-          <label class="block text-sm text-gray-700">{{ __("County") }}</label>
+      <!-- Facility picker (auto-fills county + sub-county) -->
+      <div class="flex flex-col gap-2">
+        <label class="block text-sm text-gray-700">{{ __("Facility") }} <span class="text-red-500">*</span></label>
+        <div class="relative">
           <FormControl
-            type="select"
-            :options="countyOptions"
-            v-model="county"
-            :placeholder="__('Select county')"
-            @change="onCountyChange"
+            type="text"
+            v-model="facilitySearch"
+            :placeholder="__('Search facility...')"
+            autocomplete="off"
+            @focus="showFacilityDropdown = true"
+            @input="showFacilityDropdown = true"
+            @blur="onFacilityBlur"
           />
+          <div
+            v-if="showFacilityDropdown && filteredFacilities.length"
+            class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          >
+            <div
+              v-for="fac in filteredFacilities"
+              :key="fac.name"
+              class="px-4 py-2 text-sm cursor-pointer hover:bg-gray-50"
+              @mousedown.prevent="selectFacility(fac)"
+            >
+              <div class="font-medium text-gray-900">{{ fac.facility_name }}</div>
+              <div class="text-xs text-gray-500">{{ fac.county }}<template v-if="fac.sub_county"> · {{ fac.sub_county }}</template></div>
+            </div>
+          </div>
         </div>
-        <div class="flex flex-col gap-2">
-          <label class="block text-sm text-gray-700">{{ __("Sub-County") }}</label>
-          <FormControl
-            type="select"
-            :options="subCountyOptions"
-            v-model="subCounty"
-            :placeholder="county ? __('Select sub-county') : __('Select a county first')"
-            :disabled="!county"
-          />
+        <div v-if="facility && county" class="text-xs text-gray-500 mt-0.5">
+          {{ county }}<template v-if="subCounty"> · {{ subCounty }}</template>
         </div>
       </div>
 
@@ -180,7 +189,7 @@ import {
 } from "frappe-ui";
 import { useOnboarding } from "frappe-ui/frappe";
 import sanitizeHtml from "sanitize-html";
-import { computed, defineAsyncComponent, onMounted, reactive, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchArticles from "../../components/SearchArticles.vue";
 
@@ -205,62 +214,39 @@ const subject = ref("");
 const description = ref("");
 const attachments = ref([]);
 const templateFields = reactive({});
+
+// ── Facility picker (auto-fills county + sub-county) ─────────────────────────
+
+const facility = ref("");
+const facilitySearch = ref("");
 const county = ref("");
 const subCounty = ref("");
+const showFacilityDropdown = ref(false);
 
-// ── County / Sub-County picker ──────────────────────────────────────────────
-
-const countiesResource = createResource({
-  url: "helpdesk.api.location.get_counties",
+const facilitiesResource = createResource({
+  url: "helpdesk.api.location.get_facilities",
   auto: true,
 });
 
-const subCountiesResource = createResource({
-  url: "helpdesk.api.location.get_sub_counties",
-  makeParams: () => ({ county: county.value }),
+const filteredFacilities = computed(() => {
+  const all: any[] = facilitiesResource.data || [];
+  const q = facilitySearch.value.toLowerCase().trim();
+  if (!q) return all.slice(0, 50);
+  return all.filter((f) => f.facility_name.toLowerCase().includes(q)).slice(0, 50);
 });
 
-const countyOptions = computed(() => {
-  const list: string[] = countiesResource.data || [];
-  return [{ label: __("-- None --"), value: "" }, ...list.map((c) => ({ label: c, value: c }))];
-});
-
-const subCountyOptions = computed(() => {
-  const list = subCountiesResource.data || [];
-  // API now returns [{label, value}] instead of strings
-  if (list.length > 0 && typeof list[0] === 'object' && 'label' in list[0]) {
-    return [{ label: __("-- None --"), value: "" }, ...list];
-  }
-  // Fallback for old format (just strings)
-  return [{ label: __("-- None --"), value: "" }, ...list.map((s: any) => ({ label: s, value: s }))];
-});
-
-function onCountyChange() {
-  subCounty.value = "";
-  if (county.value) {
-    subCountiesResource.fetch();
-  }
+function selectFacility(fac: any) {
+  facility.value = fac.name;
+  facilitySearch.value = fac.facility_name;
+  county.value = fac.county || "";
+  subCounty.value = fac.sub_county || "";
+  showFacilityDropdown.value = false;
 }
 
-watch(county, (val) => {
-  if (val) subCountiesResource.fetch();
-});
-
-// Pre-fill from saved contact location
-const contactLocationResource = createResource({
-  url: "helpdesk.api.location.get_contact_location",
-  auto: true,
-  onSuccess: (data: { county?: string; sub_county?: string }) => {
-    if (data?.county && !county.value) {
-      county.value = data.county;
-    }
-    if (data?.sub_county && !subCounty.value) {
-      subCounty.value = data.sub_county;
-      // load sub-county options for the pre-filled county
-      if (county.value) subCountiesResource.fetch();
-    }
-  },
-});
+// Close dropdown when clicking outside
+function onFacilityBlur() {
+  setTimeout(() => { showFacilityDropdown.value = false; }, 150);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -346,6 +332,7 @@ const ticket = createResource({
       description: description.value,
       subject: subject.value,
       template: props.templateId,
+      ...(facility.value ? { facility: facility.value } : {}),
       ...(county.value ? { county: county.value } : {}),
       ...(subCounty.value ? { sub_county: subCounty.value } : {}),
       ...templateFields,
@@ -353,6 +340,9 @@ const ticket = createResource({
     attachments: attachments.value,
   }),
   validate: (params) => {
+    if (isCustomerPortal.value && !params.doc.facility) {
+      return __("Facility is required");
+    }
     const fields = visibleFields.value?.filter((f) => f.required) || [];
     const toVerify = [...fields, "subject", "description"];
     for (const field of toVerify) {

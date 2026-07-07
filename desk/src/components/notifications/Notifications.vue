@@ -42,15 +42,11 @@
         :key="n.name"
         class="flex cursor-pointer items-start gap-3.5 px-5 py-2.5 hover:bg-gray-100"
         :to="getRoute(n)"
-        @click="
-          () => {
-            handleNotificationClick(n);
-          }
-        "
+        @click="() => handleNotificationClick(n)"
       >
         <UserAvatar :name="n.user_from" />
-        <span>
-          <div class="mb-2 leading-5">
+        <div class="flex-1 min-w-0">
+          <div class="mb-1 leading-5">
             <span class="space-x-1 text-gray-700">
               <span
                 class="font-medium text-gray-900"
@@ -58,12 +54,8 @@
               >
                 {{ n.user_from }}
               </span>
-              <span v-if="n.notification_type === 'Mention'"
-                >mentioned you in ticket</span
-              >
-              <span v-if="n.notification_type === 'Assignment'"
-                >assigned you a ticket</span
-              >
+              <span v-if="n.notification_type === 'Mention'">mentioned you in ticket</span>
+              <span v-if="n.notification_type === 'Assignment'">assigned you a ticket</span>
               <span v-if="n.notification_type === 'Reaction'">
                 {{ n.message || "has reopened the ticket" }}
               </span>
@@ -76,20 +68,32 @@
               <span v-if="n.notification_type === 'SLA Breach'">
                 {{ n.message || "SLA breached on ticket #" + n.reference_ticket }}
               </span>
+              <span v-if="n.notification_type === 'Ticket Reply'">
+                replied on ticket
+                <span class="font-medium text-gray-900">#{{ n.reference_ticket }}</span>
+              </span>
+              <span v-if="n.notification_type === 'Ticket Status Change'">
+                {{ n.message || "Your ticket #" + n.reference_ticket + " was updated" }}
+              </span>
             </span>
             <span
               class="font-medium text-gray-900"
               v-if="['Mention', 'Assignment', 'Reaction'].includes(n.notification_type)"
-              >&nbsp{{ n.reference_ticket }}
+            >&nbsp;{{ n.reference_ticket }}
             </span>
           </div>
+          <!-- Reply preview for customers -->
+          <p
+            v-if="n.notification_type === 'Ticket Reply' && n.message"
+            class="text-sm text-gray-500 line-clamp-2 mb-1"
+          >{{ n.message }}</p>
           <div class="flex items-center gap-2">
             <div class="text-sm text-gray-600">
               {{ dayjs.tz(n.creation).fromNow() }}
             </div>
             <div v-if="!n.read" class="h-1.5 w-1.5 rounded-full bg-blue-400" />
           </div>
-        </span>
+        </div>
       </RouterLink>
     </div>
     <div
@@ -108,6 +112,7 @@ import { dayjs } from "@/dayjs";
 import { useNotificationStore } from "@/stores/notification";
 import { useSidebarStore } from "@/stores/sidebar";
 import { Notification } from "@/types";
+import { isCustomerPortal } from "@/utils";
 import { onClickOutside } from "@vueuse/core";
 import { ref } from "vue";
 
@@ -134,6 +139,12 @@ function handleNotificationClick(n: Notification) {
 
 function getRoute(n: Notification) {
   if (n.reference_ticket) {
+    if (isCustomerPortal.value) {
+      return {
+        name: "TicketCustomer",
+        params: { ticketId: n.reference_ticket },
+      };
+    }
     return {
       name: "TicketAgent",
       params: { ticketId: n.reference_ticket },
@@ -144,6 +155,6 @@ function getRoute(n: Notification) {
           : undefined,
     };
   }
-  return { name: "TicketAgentList" };
+  return isCustomerPortal.value ? { name: "TicketsCustomer" } : { name: "TicketsAgent" };
 }
 </script>

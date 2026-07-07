@@ -46,6 +46,13 @@
         ticketAgentActivitiesRef.scrollToLatestActivity();
       }
     "
+    @note:submitted="
+      () => {
+        changeTabTo(tabs.findIndex((t) => t.name === 'internal_note'));
+        activities.reload();
+        ticketAgentActivitiesRef.scrollToLatestActivity();
+      }
+    "
   />
 </template>
 
