@@ -15,7 +15,7 @@ def create_ticket_from_hmis(
     description: str,
     raised_by_email: str,
     raised_by_name: Optional[str] = None,
-    priority: Optional[str] = "Medium",
+    priority: Optional[str] = None,
     ticket_type: Optional[str] = None,
     category: Optional[str] = None,
     custom_fields: Optional[dict] = None,
@@ -83,6 +83,13 @@ def create_ticket_from_hmis(
             frappe.MandatoryError
         )
 
+    valid_priorities = ["Low", "Medium", "High", "Urgent"]
+    if not priority or priority not in valid_priorities:
+        frappe.throw(
+            _("priority is required. Must be one of: Low, Medium, High, Urgent"),
+            frappe.MandatoryError
+        )
+
     # Step 3: Get or create contact for the user
     contact = _get_or_create_contact(raised_by_email, raised_by_name)
 
@@ -102,7 +109,7 @@ def create_ticket_from_hmis(
         "raised_by": raised_by_email,
         "contact": contact.name if contact else None,
         "status": "Open",
-        "priority": priority or "Medium",
+        "priority": priority,
         "via_customer_portal": False,  # Mark as external system
     }
 

@@ -287,7 +287,8 @@ function setupTemplateFields(fields) {
 
 const ticketPriorityResource = createListResource({
   doctype: "HD Ticket Priority",
-  fields: ["name", "description"],
+  fields: ["name", "description", "integer_value"],
+  orderBy: "integer_value desc",
   auto: true,
   cache: "ticketPriorities",
 });
