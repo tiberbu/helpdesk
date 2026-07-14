@@ -148,17 +148,27 @@ class HDTicket(Document):
             if not self.county:
                 self.county = mapping.county
 
-            # Step 4: assign to l0_team
-            if not self.agent_group and mapping.l0_team:
-                self.agent_group = mapping.l0_team
+            # Step 4: assign to l0_team, fall back to l1_team if l0 not set
+            assigned_team = mapping.l0_team or mapping.l1_team
+            if not self.agent_group and assigned_team:
+                self.agent_group = assigned_team
 
-            # Step 5: set support_level from l0_team
-            if not self.support_level and mapping.l0_team:
+            # Step 5: set support_level from assigned team
+            if not self.support_level and assigned_team:
                 self.support_level = frappe.db.get_value(
-                    "HD Team", mapping.l0_team, "support_level"
+                    "HD Team", assigned_team, "support_level"
                 )
         else:
-            # Step 6: no mapping — assign to default national team
+            # Step 6: no mapping — try to route by county to l1_team
+            if not self.agent_group and self.county:
+                county_team = _get_team_for_county(self.county)
+                if county_team:
+                    self.agent_group = county_team
+                    self.support_level = frappe.db.get_value(
+                        "HD Team", county_team, "support_level"
+                    )
+
+            # Step 7: final fallback — national team
             if not self.agent_group:
                 national_team = _get_default_national_team()
                 if national_team:
@@ -1764,15 +1774,14 @@ class HDTicket(Document):
         current_priority = frappe.get_cached_doc('HD Ticket Priority', self.priority)
 
         # Find next higher priority (lower integer_value)
-        next_priority = frappe.db.get_value(
+        results = frappe.db.get_list(
             'HD Ticket Priority',
-            filters=[
-                ['integer_value', '<', current_priority.integer_value]
-            ],
-            fieldname='name',
+            filters=[['integer_value', '<', current_priority.integer_value]],
+            fields=['name'],
             order_by='integer_value desc',
             limit=1
         )
+        next_priority = results[0].name if results else None
 
         if next_priority and next_priority != self.priority:
             old_priority = self.priority
@@ -2249,6 +2258,43 @@ def close_tickets_after_n_days():
             except Exception:  # noqa: BLE001
                 pass  # ignore rollback errors — connection may already be dead
             break  # dead connection — abort remaining tickets
+
+
+COUNTY_TEAM_MAP = {
+    # Coast Region
+    "Mombasa": "Coast Region", "Kwale": "Coast Region", "Kilifi": "Coast Region",
+    "Tana River": "Coast Region", "Lamu": "Coast Region", "Taita-Taveta": "Coast Region",
+    # Central Region
+    "Nyandarua": "Central Region", "Nyeri": "Central Region", "Kirinyaga": "Central Region",
+    "Murang'a": "Central Region", "Kiambu": "Central Region",
+    # Nairobi
+    "Nairobi": "Nairobi Metropolitan",
+    # Eastern Region
+    "Meru": "Eastern Region", "Tharaka-Nithi": "Eastern Region", "Embu": "Eastern Region",
+    "Kitui": "Eastern Region", "Machakos": "Eastern Region", "Makueni": "Eastern Region",
+    "Garissa": "Eastern Region", "Wajir": "Eastern Region", "Mandera": "Eastern Region",
+    "Marsabit": "Eastern Region", "Isiolo": "Eastern Region",
+    # Western Region
+    "Kakamega": "Western Region", "Vihiga": "Western Region",
+    "Bungoma": "Western Region", "Busia": "Western Region",
+    # Nyanza Region
+    "Siaya": "Nyanza Region", "Kisumu": "Nyanza Region", "Homa Bay": "Nyanza Region",
+    "Migori": "Nyanza Region", "Kisii": "Nyanza Region", "Nyamira": "Nyanza Region",
+    # Rift Valley North
+    "Turkana": "Rift Valley North", "West Pokot": "Rift Valley North",
+    "Samburu": "Rift Valley North", "Trans-Nzoia": "Rift Valley North",
+    "Uasin Gishu": "Rift Valley North", "Elgeyo-Marakwet": "Rift Valley North",
+    "Baringo": "Rift Valley North",
+    # Rift Valley South
+    "Nandi": "Rift Valley South", "Laikipia": "Rift Valley South", "Nakuru": "Rift Valley South",
+    "Narok": "Rift Valley South", "Kajiado": "Rift Valley South",
+    "Kericho": "Rift Valley South", "Bomet": "Rift Valley South",
+}
+
+
+def _get_team_for_county(county):
+    """Return the L1 regional team for a given county name."""
+    return COUNTY_TEAM_MAP.get(county)
 
 
 def _get_default_national_team():
