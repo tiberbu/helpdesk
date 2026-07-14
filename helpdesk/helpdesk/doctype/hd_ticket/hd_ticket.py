@@ -148,19 +148,20 @@ class HDTicket(Document):
             if not self.county:
                 self.county = mapping.county
 
-            # Step 4: assign to l0_team, fall back to l1_team if l0 not set
+            # Step 4: assign to l0_team, fall back to l1_team if l0 not set.
+            # Always override agent_group when a mapping gives us a specific team
+            # so that template defaults (e.g. "Nairobi") don't win over geography.
             assigned_team = mapping.l0_team or mapping.l1_team
-            if not self.agent_group and assigned_team:
+            if assigned_team:
                 self.agent_group = assigned_team
-
-            # Step 5: set support_level from assigned team
-            if not self.support_level and assigned_team:
                 self.support_level = frappe.db.get_value(
                     "HD Team", assigned_team, "support_level"
                 )
         else:
-            # Step 6: no mapping — try to route by county to l1_team
-            if not self.agent_group and self.county:
+            # Step 6: no mapping — try to route by county to l1_team.
+            # Always override agent_group from county lookup so template
+            # defaults don't persist when we know the correct regional team.
+            if self.county:
                 county_team = _get_team_for_county(self.county)
                 if county_team:
                     self.agent_group = county_team
@@ -168,7 +169,7 @@ class HDTicket(Document):
                         "HD Team", county_team, "support_level"
                     )
 
-            # Step 7: final fallback — national team
+            # Step 7: final fallback — national team only if still unassigned
             if not self.agent_group:
                 national_team = _get_default_national_team()
                 if national_team:
