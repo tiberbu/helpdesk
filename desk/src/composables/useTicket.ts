@@ -18,6 +18,10 @@ interface MapValue {
 }
 
 const ticketMap: Record<string, MapValue> = reactive({});
+const ticketNotFound: Record<string, boolean> = reactive({});
+
+export const useTicketNotFound = (ticketId: string) =>
+  ticketNotFound[ticketId] ?? false;
 
 export const useTicket = (ticketId: string): MapValue => {
   let err = false;
@@ -28,6 +32,9 @@ export const useTicket = (ticketId: string): MapValue => {
         name: ticketId,
         whitelistedMethods: {
           markSeen: "mark_seen",
+        },
+        onError: () => {
+          ticketNotFound[ticketId] = true;
         },
         setValue: {
           onSuccess: () => {
