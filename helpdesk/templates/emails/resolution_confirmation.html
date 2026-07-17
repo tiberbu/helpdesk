@@ -1,0 +1,28 @@
+<div>
+  <h2><strong>Ticket #{{ ticket_id }} — Has your issue been resolved?</strong></h2>
+  <p>Hi,</p>
+  <p>
+    Your support ticket <strong>{{ ticket_subject }}</strong> has been marked as
+    <strong style="color: #38a169;">Resolved</strong> by our support team.
+  </p>
+  <p>Please let us know whether your issue was resolved:</p>
+  <div style="margin: 24px 0; display: flex; gap: 12px;">
+    <a
+      class="btn btn-primary"
+      href="{{ yes_link }}"
+      rel="noopener noreferrer"
+      target="_blank"
+      style="background-color: #38a169; color: #fff; padding: 10px 24px; text-decoration: none; border-radius: 4px; margin-right: 12px;"
+    >Yes, my issue is resolved ✓</a>
+    <a
+      class="btn btn-secondary"
+      href="{{ no_link }}"
+      rel="noopener noreferrer"
+      target="_blank"
+      style="background-color: #e53e3e; color: #fff; padding: 10px 24px; text-decoration: none; border-radius: 4px;"
+    >No, I still need help ✗</a>
+  </div>
+  <p style="color: #888; font-size: 13px;">
+    Clicking "Yes" will close the ticket. Clicking "No" will reopen it and our team will follow up.
+  </p>
+</div>

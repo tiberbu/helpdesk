@@ -488,6 +488,8 @@ class HDTicket(Document):
             capture_event("ticket_status_updated")
             self.notify_customer_of_status_change()
             self._run_escalation_rules("status_change")
+            if self.status_category == "Resolved":
+                self._send_resolution_confirmation_email()
 
         if self.has_value_changed("priority"):
             self._run_escalation_rules("priority_match")
@@ -555,6 +557,36 @@ class HDTicket(Document):
             frappe.log_error(frappe.get_traceback(), "Status Change Notification Error")
 
         self._create_customer_status_notification(old_status=None, new_status=self.status)
+
+    def _send_resolution_confirmation_email(self):
+        """Send a Yes/No confirmation email to the customer when ticket is Resolved."""
+        try:
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+
+            if not self.key:
+                return
+
+            base_url = frappe.utils.get_url()
+            yes_link = f"{base_url}/api/method/helpdesk.api.resolution_confirm.confirm?key={self.key}&answer=yes"
+            no_link = f"{base_url}/api/method/helpdesk.api.resolution_confirm.confirm?key={self.key}&answer=no"
+
+            frappe.sendmail(
+                recipients=[customer_email],
+                subject=f"Has your issue been resolved? — Ticket #{self.name}",
+                template="resolution_confirmation",
+                args={
+                    "ticket_id": self.name,
+                    "ticket_subject": self.subject,
+                    "yes_link": yes_link,
+                    "no_link": no_link,
+                },
+                reference_doctype="HD Ticket",
+                reference_name=self.name,
+            )
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Resolution Confirmation Email Error")
 
     def _create_customer_reply_notification(self, message: str, communication_name: str):
         """Create an in-app notification for the customer when an agent replies."""

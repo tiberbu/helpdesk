@@ -100,6 +100,7 @@ import { getIcon } from "@/utils";
 import { Breadcrumbs, call, Dropdown, toast } from "frappe-ui";
 import { __ } from "@/translation";
 import { useConfigStore } from "@/stores/config";
+import { useAuthStore } from "@/stores/auth";
 import { storeToRefs } from "pinia";
 import {
   computed,
@@ -140,11 +141,19 @@ const showMajorIncidentDialog = inject<Ref<boolean>>("showMajorIncidentDialog", 
 
 const showSubjectDialog = ref(false);
 const { itilModeEnabled } = storeToRefs(useConfigStore());
+const { isAdmin } = storeToRefs(useAuthStore());
+
+// Statuses that only System Managers (admins) can set
+const ADMIN_ONLY_STATUSES = ["Closed"];
 
 const { notifyTicketUpdate } = useNotifyTicketUpdate(ticket.value?.name);
 const statusDropdown = computed(() => {
   const statuses =
-    ticketStatusStore.statuses.data?.filter((s) => s.enabled) || [];
+    ticketStatusStore.statuses.data?.filter((s) => {
+      if (!s.enabled) return false;
+      if (!isAdmin.value && ADMIN_ONLY_STATUSES.includes(s.label_agent)) return false;
+      return true;
+    }) || [];
   return statuses.map((o: HDTicketStatus) => ({
     label: o.label_agent,
     value: o.label_agent,

@@ -108,7 +108,7 @@ import {
   provide,
   ref,
 } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ITicket } from "./symbols";
 import TicketConversation from "./TicketConversation.vue";
 import TicketCustomerTemplateFields from "./TicketCustomerTemplateFields.vue";
@@ -121,6 +121,7 @@ interface P {
   ticketId: string;
 }
 const router = useRouter();
+const route = useRoute();
 const props = defineProps<P>();
 
 const { getStatus } = useTicketStatusStore();
@@ -353,6 +354,12 @@ const { startViewing, stopViewing } = useActiveViewers(props.ticketId);
 onMounted(() => {
   startViewing(props.ticketId);
   document.title = props.ticketId;
+
+  const resolutionMsg = route.query.resolution_msg as string;
+  if (resolutionMsg) {
+    toast.success(resolutionMsg);
+    router.replace({ query: { ...route.query, resolution_msg: undefined } });
+  }
 
   $socket.on("helpdesk:ticket-update", ({ ticket_id }) => {
     if (ticket_id == props.ticketId) {
