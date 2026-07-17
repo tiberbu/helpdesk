@@ -1871,8 +1871,24 @@ def has_permission(doc, user=None):
             if user in assignees:
                 return True
         except:
-            return False
+            pass
 
+    # Use the same hierarchical scope logic as permission_query
+    from .team_hierarchy import get_scoped_teams_for_agent, _LEGACY_FALLBACK
+
+    scoped = get_scoped_teams_for_agent(user)
+
+    if scoped is True:
+        # L2 National: sees all tickets
+        return True
+
+    if scoped is not _LEGACY_FALLBACK:
+        # Hierarchical mode: ticket must belong to one of the agent's scoped teams
+        if not scoped:
+            return False
+        return doc.get("agent_group") in scoped
+
+    # Legacy flat-team fallback
     teams = get_agents_team()
     if any([team.get("ignore_restrictions") for team in teams]):
         return True
