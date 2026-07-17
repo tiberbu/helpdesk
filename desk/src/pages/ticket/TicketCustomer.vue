@@ -366,11 +366,48 @@ onMounted(() => {
       ticket.reload();
     }
   });
+
+  $socket.on("helpdesk:resolution-confirm", ({ ticket_id, ticket_subject, key }) => {
+    if (ticket_id !== props.ticketId) return;
+    $dialog({
+      title: __("Has your issue been resolved?"),
+      message: __('Your ticket "{0}" has been marked as Resolved. Was your issue resolved?', [ticket_subject]),
+      actions: [
+        {
+          label: __("Yes, close the ticket"),
+          variant: "solid",
+          theme: "green",
+          onClick({ close }) {
+            call("helpdesk.api.resolution_confirm.confirm", { key, answer: "yes" })
+              .then(() => {
+                ticket.reload();
+                toast.success(__("Ticket closed. Thank you!"));
+              });
+            close();
+          },
+        },
+        {
+          label: __("No, I still need help"),
+          variant: "subtle",
+          theme: "red",
+          onClick({ close }) {
+            call("helpdesk.api.resolution_confirm.confirm", { key, answer: "no" })
+              .then(() => {
+                ticket.reload();
+                toast.info(__("Ticket reopened. Our team will follow up."));
+              });
+            close();
+          },
+        },
+      ],
+    });
+  });
 });
 
 onUnmounted(() => {
   stopViewing(props.ticketId);
   document.title = "ServiceDesk";
   $socket.off("helpdesk:ticket-update");
+  $socket.off("helpdesk:resolution-confirm");
 });
 </script>

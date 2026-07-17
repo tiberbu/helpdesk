@@ -559,7 +559,11 @@ class HDTicket(Document):
         self._create_customer_status_notification(old_status=None, new_status=self.status)
 
     def _send_resolution_confirmation_email(self):
-        """Send a Yes/No confirmation email to the customer when ticket is Resolved."""
+        """
+        Notify the customer that their ticket was resolved.
+        If they are online (portal), fire a realtime event so a dialog appears immediately.
+        Always also send an email as a fallback for users who are offline.
+        """
         try:
             customer_email = self.raised_by
             if not customer_email or customer_email in ("Administrator", "Guest", ""):
@@ -568,6 +572,19 @@ class HDTicket(Document):
             if not self.key:
                 return
 
+            # Realtime popup for users currently on the portal
+            frappe.publish_realtime(
+                "helpdesk:resolution-confirm",
+                {
+                    "ticket_id": self.name,
+                    "ticket_subject": self.subject,
+                    "key": str(self.key),
+                },
+                user=customer_email,
+                after_commit=True,
+            )
+
+            # Email fallback for offline users
             base_url = frappe.utils.get_url()
             yes_link = f"{base_url}/api/method/helpdesk.api.resolution_confirm.confirm?key={self.key}&answer=yes"
             no_link = f"{base_url}/api/method/helpdesk.api.resolution_confirm.confirm?key={self.key}&answer=no"
