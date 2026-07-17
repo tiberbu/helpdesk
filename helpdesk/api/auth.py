@@ -1,5 +1,9 @@
 import frappe
 
+from helpdesk.helpdesk.doctype.hd_ticket.team_hierarchy import (
+    get_scoped_teams_for_agent,
+    _LEGACY_FALLBACK,
+)
 from helpdesk.utils import get_agents_team
 from helpdesk.utils import is_agent as _is_agent
 
@@ -30,6 +34,10 @@ def get_user():
     is_manager = "Agent Manager" in roles
     is_customer = "Helpdesk Customer" in roles and not is_agent
     has_desk_access = is_agent or is_admin
+
+    # True only for L2-National agents (can set Closed status)
+    scoped = get_scoped_teams_for_agent(current_user)
+    is_national_agent = scoped is True
     user_image = user.user_image
     user_first_name = user.first_name
     user_name = user.full_name
@@ -55,4 +63,5 @@ def get_user():
         "time_zone": user.time_zone,
         "user_teams": user_team_names,
         "language": language,
+        "is_national_agent": is_national_agent,
     }

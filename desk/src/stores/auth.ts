@@ -46,6 +46,9 @@ export const useAuthStore = defineStore("auth", () => {
     () => user__.value.user_teams
   );
   const language: ComputedRef<string> = computed(() => user__.value.language);
+  const isNationalAgent: ComputedRef<boolean> = computed(
+    () => user__.value.is_national_agent ?? false
+  );
 
   function sessionUser() {
     const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));
@@ -93,6 +96,7 @@ export const useAuthStore = defineStore("auth", () => {
     timezone,
     userTeams,
     language,
+    isNationalAgent,
     user,
     logout,
   };
