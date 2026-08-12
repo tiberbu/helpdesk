@@ -101,10 +101,16 @@ doc_events = {
         "after_insert": [
             "helpdesk.helpdesk.automation.engine.on_ticket_created",
             "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
+            "helpdesk.search.build_index_in_background", # <-- ADD THIS
         ],
         "on_update": [
             "helpdesk.helpdesk.automation.engine.on_ticket_updated",
             "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
+            "helpdesk.search.build_index_in_background", # <-- ADD THIS
+        ],
+
+        "on_trash": [
+        "helpdesk.search.build_index_in_background", # <-- ADD THIS
         ],
     },
     "HD Brand": {

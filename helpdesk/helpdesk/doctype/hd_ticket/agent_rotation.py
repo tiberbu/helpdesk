@@ -402,10 +402,20 @@ def _reassign_ticket(doc, new_agent_email: str) -> None:
 
 
 def _get_team_members(team_name: str) -> list:
-    """Return list of user emails for all members of the given HD Team."""
+    """
+    Return list of user emails eligible for rotation for the given HD Team.
+
+    Uses the team's Assignment Rule user list (not raw HD Team Member) so
+    that rotation-on-breach respects the same restricted rotation roster as
+    normal round-robin assignment, rather than every team member who merely
+    has visibility into the team's tickets.
+    """
+    assignment_rule = frappe.db.get_value("HD Team", team_name, "assignment_rule")
+    if not assignment_rule:
+        return []
     return frappe.get_all(
-        "HD Team Member",
-        filters={"parent": team_name, "parenttype": "HD Team"},
+        "Assignment Rule User",
+        filters={"parent": assignment_rule},
         pluck="user",
     )
 

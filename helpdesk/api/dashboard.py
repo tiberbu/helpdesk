@@ -77,6 +77,8 @@ class HelpdeskDashboard:
         self.to_date = filters.get("to_date")
         self.team = filters.get("team")
         self.agent = filters.get("agent")
+        self.county = filters.get("county")
+        self.support_level = filters.get("support_level")
 
         self.ticket = DocType("HD Ticket")
         self.qb_conds = self._get_conditions()
@@ -112,6 +114,10 @@ class HelpdeskDashboard:
                     "JSON_SEARCH", self.ticket._assign, "one", self.agent
                 ).isnotnull()
             )
+        if self.county:
+            conds.append(self.ticket.county == self.county)
+        if self.support_level:
+            conds.append(self.ticket.support_level == self.support_level)
         return conds
 
     def _get_case(self, start, end, value, func, extra_cond=None):
@@ -593,3 +599,157 @@ def get_bar_chart_config(
         "series": series,
         **kwargs,
     }
+
+
+# ------------------------------------------------------------------ #
+# County / Tier Dashboard                                              #
+# ------------------------------------------------------------------ #
+
+
+@frappe.whitelist()
+@agent_only
+def get_county_dashboard_data(
+    from_date: str = None,
+    to_date: str = None,
+    county: str = None,
+    support_level: str = None,
+) -> dict[str, any]:
+    """
+    Get all data needed for the County / Tier dashboard in one call.
+    """
+    if not from_date:
+        from_date = frappe.utils.add_days(frappe.utils.nowdate(), -30)
+    if not to_date:
+        to_date = frappe.utils.nowdate()
+
+    filters = {
+        "creation": ["between", [from_date, to_date]],
+    }
+    if county:
+        filters["county"] = county
+    if support_level:
+        filters["support_level"] = support_level
+
+    _filters = frappe._dict(
+        from_date=from_date,
+        to_date=to_date,
+        team=None,
+        agent=None,
+        county=county,
+        support_level=support_level,
+    )
+    dashboard = HelpdeskDashboard(_filters)
+
+    return {
+        "number_cards": dashboard.get_number_card_data(),
+        "county_chart": get_county_chart_data(filters),
+        "support_level_chart": get_support_level_chart_data(filters),
+        "priority_chart": get_ticket_priority_chart_data(from_date, to_date, filters),
+        "type_chart": get_ticket_type_chart_data(from_date, to_date, filters),
+        "channel_chart": get_ticket_channel_chart_data(from_date, to_date, filters),
+        "implementers": get_county_implementers(county),
+    }
+
+
+def get_county_chart_data(filters: dict[str, any] = None) -> dict[str, any]:
+    """Tickets grouped by county."""
+    result = frappe.get_all(
+        HD_TICKET,
+        fields=["county", COUNT_NAME],
+        filters=filters,
+        group_by="county",
+        order_by=COUNT_DESC,
+    )
+    for r in result:
+        if not r.county:
+            r.county = _("No County")
+
+    if len(result) < 7:
+        return get_pie_chart_config(
+            result,
+            _("Tickets by County"),
+            _("Percentage of Total Tickets by County"),
+            "county",
+            "count",
+        )
+    else:
+        return get_bar_chart_config(
+            result,
+            _("Tickets by County"),
+            _("Total Tickets by County"),
+            {"key": "county", "type": "category", "title": "County", "timeGrain": "day"},
+            "Tickets",
+            [{"name": "count", "type": "bar"}],
+        )
+
+
+def get_support_level_chart_data(filters: dict[str, any] = None) -> dict[str, any]:
+    """Tickets grouped by support level / tier (L0/L1/L2/L3)."""
+    result = frappe.get_all(
+        HD_TICKET,
+        fields=["support_level", COUNT_NAME],
+        filters=filters,
+        group_by="support_level",
+        order_by=COUNT_DESC,
+    )
+    for r in result:
+        if not r.support_level:
+            r.support_level = _("Unassigned")
+
+    return get_pie_chart_config(
+        result,
+        _("Tickets by Support Level"),
+        _("Percentage of Total Tickets by Tier"),
+        "support_level",
+        "count",
+    )
+
+
+def get_county_implementers(county: str = None) -> list[dict[str, any]]:
+    """
+    Derive, for each county, which teams and agents are actually assigned
+    to tickets in that county (based on real ticket data), since a static
+    county -> team mapping doesn't reliably exist across all counties.
+    """
+    filters = {"county": ["is", "set"]}
+    if county:
+        filters["county"] = county
+
+    tickets = frappe.get_all(
+        "HD Ticket",
+        filters=filters,
+        fields=["county", "agent_group", "_assign"],
+    )
+
+    county_data: dict[str, dict] = {}
+    for t in tickets:
+        c = t.county
+        entry = county_data.setdefault(c, {"teams": set(), "agents": set()})
+        if t.agent_group:
+            entry["teams"].add(t.agent_group)
+        if t._assign:
+            import json
+            try:
+                assigned = json.loads(t._assign)
+                for user in assigned:
+                    entry["agents"].add(user)
+            except (ValueError, TypeError):
+                pass
+
+    result = []
+    for c, entry in county_data.items():
+        agent_details = []
+        if entry["agents"]:
+            agent_details = frappe.get_all(
+                "HD Agent",
+                filters={"user": ["in", list(entry["agents"])]},
+                fields=["user", "agent_name", "is_active"],
+            )
+        result.append({
+            "county": c,
+            "teams": sorted(entry["teams"]),
+            "implementers": agent_details,
+        })
+
+    result.sort(key=lambda r: r["county"])
+    return result
