@@ -20,6 +20,7 @@ def get_user():
         "username",
         "time_zone",
         "language",
+        "mobile_no",
     ]
     user = frappe.get_value(
         doctype="User",
@@ -49,6 +50,10 @@ def get_user():
         "System Settings", "language"
     )
 
+    force_password_change = bool(
+        frappe.db.get_value("User", current_user, "force_password_change")
+    )
+
     return {
         "has_desk_access": has_desk_access,
         "is_admin": is_admin,
@@ -64,4 +69,21 @@ def get_user():
         "user_teams": user_team_names,
         "language": language,
         "is_national_agent": is_national_agent,
+        "force_password_change": force_password_change,
+        "mobile_no": user.mobile_no,
     }
+
+
+@frappe.whitelist()
+def complete_forced_password_change():
+    """
+    Called by the frontend immediately after a user successfully sets a new
+    password following a forced password change. Clears the flag so they
+    aren't redirected back to /update-password on their next request.
+    """
+    user = frappe.session.user
+    if user in ("Administrator", "Guest"):
+        return
+    frappe.db.set_value("User", user, "force_password_change", 0)
+    frappe.db.commit()
+    return {"success": True}

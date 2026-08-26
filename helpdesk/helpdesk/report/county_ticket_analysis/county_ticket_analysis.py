@@ -50,9 +50,9 @@ def get_columns():
             "width": 80
         },
         {
-            "label": _("Resolution Rate %"),
+            "label": _("Resolved Tickets"),
             "fieldname": "resolution_rate",
-            "fieldtype": "Percent",
+            "fieldtype": "Int",
             "width": 130
         },
         {
@@ -88,10 +88,7 @@ def get_data(filters):
             SUM(CASE WHEN t.status = 'Replied' THEN 1 ELSE 0 END) as replied,
             SUM(CASE WHEN t.status = 'Resolved' THEN 1 ELSE 0 END) as resolved,
             SUM(CASE WHEN t.status = 'Closed' THEN 1 ELSE 0 END) as closed,
-            ROUND(
-                (SUM(CASE WHEN t.status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) / COUNT(*)) * 100,
-                2
-            ) as resolution_rate,
+            SUM(CASE WHEN t.status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolution_rate,
             ROUND(
                 AVG(
                     CASE
@@ -102,11 +99,11 @@ def get_data(filters):
                 ),
                 2
             ) as avg_response_time,
-            GROUP_CONCAT(DISTINCT team.team_name SEPARATOR ', ') as assigned_team
+            -- team.territory is not populated in this deployment, so the
+            -- assigned team is derived from actual ticket agent_group data
+            -- instead (same approach used by the County Dashboard).
+            GROUP_CONCAT(DISTINCT t.agent_group SEPARATOR ', ') as assigned_team
         FROM `tabHD Ticket` t
-        LEFT JOIN `tabHD Team` team ON team.territory IN (
-            SELECT name FROM `tabHD Subcounty` WHERE county = t.county
-        )
         WHERE t.county IS NOT NULL AND t.county != '' {conditions}
         GROUP BY t.county
         ORDER BY total_tickets DESC

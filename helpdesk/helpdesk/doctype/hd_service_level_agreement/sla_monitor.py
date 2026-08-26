@@ -188,19 +188,11 @@ def _fire_breached(ticket_name: str, assigned_to: str):
             message=frappe.get_traceback(),
         )
 
-    # 3. Enqueue breach notification email (short queue = high priority)
-    try:
-        frappe.enqueue(
-            "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.send_breach_email",
-            queue="short",
-            ticket_name=ticket_name,
-            assigned_to=assigned_to,
-        )
-    except Exception:
-        frappe.log_error(
-            title=f"SLA Monitor: failed to enqueue breach email for {ticket_name}",
-            message=frappe.get_traceback(),
-        )
+    # 3. Breach email intentionally disabled — too high volume, drowning out
+    # other urgent email. In-app bell notification (step 2 above) still fires.
+    # send_breach_email() is left in place below in case email delivery is
+    # wanted again later; just re-enable the enqueue call to restore it.
+    pass
 
     # 4. Invoke automation engine
     try:

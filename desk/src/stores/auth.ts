@@ -49,6 +49,12 @@ export const useAuthStore = defineStore("auth", () => {
   const isNationalAgent: ComputedRef<boolean> = computed(
     () => user__.value.is_national_agent ?? false
   );
+  const forcePasswordChange: ComputedRef<boolean> = computed(
+    () => user__.value.force_password_change ?? false
+  );
+  const mobileNo: ComputedRef<string> = computed(
+    () => user__.value.mobile_no ?? ""
+  );
 
   function sessionUser() {
     const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));
@@ -97,6 +103,8 @@ export const useAuthStore = defineStore("auth", () => {
     userTeams,
     language,
     isNationalAgent,
+    forcePasswordChange,
+    mobileNo,
     user,
     logout,
   };

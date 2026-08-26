@@ -98,10 +98,12 @@ doc_events = {
     },
     "HD Ticket": {
         "before_insert": "helpdesk.overrides.hd_ticket_brand.assign_brand_from_email",
+        "validate": "helpdesk.overrides.hd_ticket_phone.validate_phone_format",
         "after_insert": [
             "helpdesk.helpdesk.automation.engine.on_ticket_created",
             "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
             "helpdesk.search.build_index_in_background", # <-- ADD THIS
+            "helpdesk.overrides.hd_ticket_phone.sync_owner_mobile_no",
         ],
         "on_update": [
             "helpdesk.helpdesk.automation.engine.on_ticket_updated",

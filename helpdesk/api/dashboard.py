@@ -147,6 +147,8 @@ class HelpdeskDashboard:
         return [
             self.get_ticket_count(),
             self.get_sla_fulfilled_count(),
+            self.get_sla_breach_count(),
+            self.get_sla_breach_percent(),
             self.get_avg_first_response_time(),
             self.get_avg_resolution_time(),
             self.get_avg_feedback_score(),
@@ -181,15 +183,59 @@ class HelpdeskDashboard:
         )
 
         current_pct = (current_fulfilled / current_total * 100) if current_total else 0
-        prev_pct = (prev_fulfilled / prev_total * 100) if prev_total else 0
+
+        target_pct = frappe.db.get_single_value("HD Settings", "sla_target_percentage") or 90
 
         return {
             "title": _("% SLA Fulfilled"),
             "value": current_pct,
             "suffix": "%",
+            "delta": current_pct - target_pct,
+            "deltaSuffix": "% vs {0}% target".format(target_pct),
+            "tooltip": _("% of tickets created that were resolved within SLA. Target: {0}%").format(target_pct),
+        }
+
+    def get_sla_breach_count(self):
+        """
+        SLA breach across ALL tickets in the period (not just resolved ones),
+        since a ticket is breached the moment agreement_status flips to
+        'Failed', regardless of whether it has since been closed out.
+        """
+        extra_cond = self.ticket.agreement_status == "Failed"
+        current_breached, prev_breached = self.get_metric_data(
+            self.ticket.name, Count, extra_cond
+        )
+        current_total, prev_total = self.get_metric_data(self.ticket.name, Count)
+
+        current_pct = (current_breached / current_total * 100) if current_total else 0
+        prev_pct = (prev_breached / prev_total * 100) if prev_total else 0
+
+        return {
+            "title": _("Tickets Breached"),
+            "value": current_breached,
+            "delta": current_breached - prev_breached,
+            "negativeIsBetter": True,
+            "tooltip": _("Number of tickets that have breached SLA (agreement_status = Failed), regardless of current status"),
+        }
+
+    def get_sla_breach_percent(self):
+        extra_cond = self.ticket.agreement_status == "Failed"
+        current_breached, prev_breached = self.get_metric_data(
+            self.ticket.name, Count, extra_cond
+        )
+        current_total, prev_total = self.get_metric_data(self.ticket.name, Count)
+
+        current_pct = (current_breached / current_total * 100) if current_total else 0
+        prev_pct = (prev_breached / prev_total * 100) if prev_total else 0
+
+        return {
+            "title": _("SLA Breach %"),
+            "value": current_pct,
+            "suffix": "%",
             "delta": current_pct - prev_pct,
             "deltaSuffix": "%",
-            "tooltip": _("% of tickets created that were resolved within SLA"),
+            "negativeIsBetter": True,
+            "tooltip": _("% of all tickets in this period that have breached SLA"),
         }
 
     def get_avg_first_response_time(self):
@@ -198,14 +244,16 @@ class HelpdeskDashboard:
             self.ticket.first_response_time / 3600, Avg, extra_cond
         )
 
+        target_hours = frappe.db.get_single_value("HD Settings", "first_response_target_hours") or 4
+
         return {
             "title": _("Avg. First Response"),
             "value": current,
             "suffix": " " + _("hrs"),
-            "delta": current - prev,
-            "deltaSuffix": " " + _("hrs"),
+            "delta": current - target_hours,
+            "deltaSuffix": " {0} {1}".format(_("hrs vs"), _("{0} hrs target").format(target_hours)),
             "negativeIsBetter": True,
-            "tooltip": _("Avg. time taken to first respond to a ticket"),
+            "tooltip": _("Avg. time taken to first respond to a ticket. Target: {0} hrs").format(target_hours),
         }
 
     def get_avg_resolution_time(self):
@@ -217,14 +265,16 @@ class HelpdeskDashboard:
         value_expr = Function("CEIL", self.ticket.resolution_time / 86400)
         current, prev = self.get_metric_data(value_expr, Avg, extra_cond)
 
+        target_days = frappe.db.get_single_value("HD Settings", "resolution_target_days") or 3
+
         return {
             "title": _("Avg. Resolution"),
             "value": current,
             "suffix": " " + _("days"),
-            "delta": current - prev,
-            "deltaSuffix": " " + _("days"),
+            "delta": current - target_days,
+            "deltaSuffix": " {0}".format(_("days vs {0} days target").format(target_days)),
             "negativeIsBetter": True,
-            "tooltip": _("Avg. time taken to resolve a ticket"),
+            "tooltip": _("Avg. time taken to resolve a ticket. Target: {0} days").format(target_days),
         }
 
     def get_avg_feedback_score(self):

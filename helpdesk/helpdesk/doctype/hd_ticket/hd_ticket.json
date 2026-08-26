@@ -668,6 +668,7 @@
   {
    "fieldname": "custom_phone",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Phone",
    "options": "Phone"
   },

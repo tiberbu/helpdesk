@@ -23,6 +23,9 @@
   "log_retention_days",
   "sla_warning_thresholds",
   "sla_manager_notification_threshold",
+  "sla_target_percentage",
+  "first_response_target_hours",
+  "resolution_target_days",
   "agent_rotation_minutes",
   "itil_matrix_section",
   "priority_matrix",
@@ -222,6 +225,27 @@
    "fieldname": "sla_manager_notification_threshold",
    "fieldtype": "Int",
    "label": "Manager Notification Threshold (minutes)"
+  },
+  {
+   "default": "90",
+   "description": "Target % SLA Fulfilled to measure actual performance against on the dashboard. Default: 90",
+   "fieldname": "sla_target_percentage",
+   "fieldtype": "Percent",
+   "label": "SLA Target (%)"
+  },
+  {
+   "default": "4",
+   "description": "Target average first response time, in hours, to measure actual performance against on the dashboard. Default: 4",
+   "fieldname": "first_response_target_hours",
+   "fieldtype": "Float",
+   "label": "Avg. First Response Target (hours)"
+  },
+  {
+   "default": "3",
+   "description": "Target average resolution time, in days, to measure actual performance against on the dashboard. Default: 3",
+   "fieldname": "resolution_target_days",
+   "fieldtype": "Float",
+   "label": "Avg. Resolution Target (days)"
   },
   {
    "default": "30",

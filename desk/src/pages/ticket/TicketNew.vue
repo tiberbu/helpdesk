@@ -209,7 +209,7 @@ const route = useRoute();
 const router = useRouter();
 const { $dialog } = globalStore();
 const { updateOnboardingStep } = useOnboarding("helpdesk");
-const { isManager, userId: userID } = useAuthStore();
+const { isManager, userId: userID, mobileNo } = useAuthStore();
 const subject = ref("");
 const description = ref("");
 const attachments = ref([]);
@@ -267,6 +267,11 @@ const template = createResource({
       applyFilters,
     });
     setupTemplateFields(data.fields);
+    // Pre-fill phone from the agent's own saved number, so they do not
+    // have to retype it every ticket. Still fully editable, never mandatory.
+    if ("custom_phone" in templateFields && !templateFields.custom_phone && mobileNo) {
+      templateFields.custom_phone = mobileNo;
+    }
 
     // Apply default values from template
     if (data.default_values) {
@@ -343,6 +348,22 @@ const ticket = createResource({
   validate: (params) => {
     if (isCustomerPortal.value && !params.doc.facility) {
       return __("Facility is required");
+    }
+    if (!params.doc.custom_phone) {
+      if (!mobileNo) {
+        return __(
+          "Phone number is required the first time \u2014 it will be saved and auto-filled for you on future tickets."
+        );
+      }
+    } else {
+      const normalized = params.doc.custom_phone.replace(/[\s-]/g, "");
+      const kePhoneRegex = /^(0[17]\d{8}|\+254[17]\d{8})$/;
+      if (!kePhoneRegex.test(normalized)) {
+        return __(
+          "Phone number must be a valid Kenyan number: 10 digits starting with 07 or 01 (e.g. 0712345678), or international format starting with +254 (e.g. +254712345678)."
+        );
+      }
+      params.doc.custom_phone = normalized;
     }
     const fields = visibleFields.value?.filter((f) => f.required) || [];
     const toVerify = [...fields, "subject", "description"];
