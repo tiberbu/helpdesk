@@ -993,6 +993,7 @@ class HDTicket(Document):
         # If a customer posted, notify the assigned agent(s) via the bell
         if is_ticket_owner and not is_agent():
             self._notify_agents_of_customer_reply(content)
+        return c.name
 
     @frappe.whitelist()
     def new_internal_note(self, content: str, attachments: list[str] = []):

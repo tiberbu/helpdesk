@@ -34,6 +34,8 @@ def _unique_object(pairs):
 def signed_arguments(request):
     try:
         raw = request.get_data(cache=True)
+        if len(raw) > 9 * 1024 * 1024:
+            raise ValueError()
         if request.method == "GET":
             if raw:
                 raise ValueError()

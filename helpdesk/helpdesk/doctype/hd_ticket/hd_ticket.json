@@ -104,7 +104,9 @@
   "external_reference_id",
   "plugin_reporter_name",
   "plugin_reporter_email",
-  "plugin_reporter_facility"
+  "plugin_reporter_facility",
+  "plugin_attachments",
+  "plugin_attachment_fingerprint"
  ],
  "fields": [
   {
@@ -757,6 +759,22 @@
    "fieldtype": "Data",
    "label": "Reporter Facility",
    "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_attachments",
+   "fieldtype": "Long Text",
+   "label": "Initial Plugin Attachments",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_attachment_fingerprint",
+   "fieldtype": "Data",
+   "label": "Plugin Attachment Fingerprint",
+   "read_only": 1,
+   "hidden": 1,
    "no_copy": 1
   }
  ],
