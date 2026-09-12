@@ -1,6 +1,6 @@
-# HMIS and Mobile plugin ticketing API contract v1.1
+# HMIS and Mobile plugin ticketing API contract v1.2
 
-Updated: 2026-09-12. Attachment extension: v1.1; wire `api_version` remains `1` (additive fields). Apps: `careverse_hq` and `helpdesk`.
+Updated: 2026-09-12. Multipart and list-filter extension: v1.2; wire `api_version` remains `1` (additive fields). Apps: `careverse_hq` and `helpdesk`.
 
 ```text
 HMIS / Mobile -> authenticated CareVerse API -> Ed25519-signed Helpdesk plugin API
@@ -9,6 +9,20 @@ Helpdesk -> configured CareVerse public-key API -> verify Ed25519 signature
 ```
 
 **Consumer applications call CareVerse.** CareVerse supplies identity and signs the request; the private key never belongs in a browser or mobile application. The algorithm is **Ed25519** (not “ED2215”).
+
+## Primary consumer operations
+
+All operations use the authenticated CareVerse RPC URLs below. The “all-tickets” and “1-ticket” operations are exposed as `list_tickets` and `get_ticket` in the established RPC namespace; there are no separate root `/all-tickets` or `/1-ticket` routes.
+
+| Operation | Method and consumer path |
+|---|---|
+| Create ticket with files | `POST /api/method/careverse_hq.api.helpdesk.create_ticket` — multipart/form-data or JSON |
+| All authorized tickets | `GET /api/method/careverse_hq.api.helpdesk.list_tickets?facility=<facility>&user=<CareVerse-user>&offset=0&limit=20` |
+| Comment/chat on a ticket | `POST /api/method/careverse_hq.api.helpdesk.send_message` — ticket_id plus content and/or files |
+| Read ticket chat | `GET /api/method/careverse_hq.api.helpdesk.get_thread?ticket_id=<ID>` |
+| One ticket | `GET /api/method/careverse_hq.api.helpdesk.get_ticket?ticket_id=<ID>` |
+
+The list is paginated and ordered by creation descending, then ticket ID descending. Optional facility/user filters narrow the authenticated user's tickets within their configured instance; they do not grant access to another reporter. Facility-wide staff access is not enabled by this contract.
 
 ## 1. URLs and endpoint map
 
@@ -24,7 +38,7 @@ Append the same RPC name on each side:
 |---|---|---|---|
 | POST | `create_ticket` | `source`, `external_reference_id`, `reporter`, `category`, `priority`, `description`, optional `attachments` | `ticket_id`, `status`, `assigned_to`, `assigned_team`, `reused`, `attachments` |
 | GET | `get_ticket` | `ticket_id` | Ticket detail, including status and assignments |
-| GET | `list_tickets` | `email` optional, `status` optional, `offset=0`, `limit=20` | `items`, `has_more`, `next_offset` |
+| GET | `list_tickets` | `facility` optional, `user` optional, `email` optional (compatibility), `status` optional, `offset=0`, `limit=20` | `items`, `has_more`, `next_offset` |
 | GET | `get_bootstrap` | none | Reporter identity, categories, priorities, statuses, capabilities |
 | GET | `get_counties` | none | `items` |
 | GET | `get_subcounties` | `county` | `items` |
@@ -34,7 +48,7 @@ Append the same RPC name on each side:
 | GET | `list_attachments` | `ticket_id`, `offset=0`, `limit=50` | `items`, `has_more`, `next_offset` |
 | GET | `download_attachment` | `ticket_id`, `attachment_id` | Attachment metadata, `event_id`, `content_base64`, `sha256` |
 
-All POST bodies are JSON objects. GET arguments use URL query parameters. IDs are opaque strings, never integers. URL-encode email addresses and IDs. Pagination accepts integer offset >= 0 and limit 1–100.
+Consumer create/comment POSTs accept `multipart/form-data` or JSON objects. Internal CareVerse → HD POSTs remain signed JSON objects. GET arguments use URL query parameters. IDs are opaque strings, never integers. URL-encode email addresses and IDs. Pagination accepts integer offset >= 0 and limit 1–100.
 
 `helpdesk.api.hmis_integration.*` is not the namespace of this implementation. The earlier `helpdesk.api.mobile.*` functions are internal services and are no longer whitelisted endpoints. Use `helpdesk.api.plugin.*` for server integration.
 
@@ -96,7 +110,7 @@ CareVerse forwards this to `POST /api/method/helpdesk.api.plugin.create_ticket` 
 |---|---|
 | source | Nonblank string, max 40 characters. Use a stable value such as `HMIS` or `Mobile`; case-sensitive. |
 | external_reference_id | Nonblank string, max 140 characters. Generate once when the issue is created locally; retain across retries. |
-| reporter | JSON object with exactly `name`, `email`, `facility`; not a JSON-encoded string. |
+| reporter | Exactly `name`, `email`, `facility`. An object in a JSON request; one JSON-encoded text field in multipart. |
 | reporter.name | Nonblank display name, max 140 characters; metadata, not authorization. |
 | reporter.email | Must exactly match the signed CareVerse user ID returned as `reporter_email` by bootstrap. No reporting as another email. |
 | reporter.facility | Nonblank facility ID or display name, max 140 characters. |
@@ -125,7 +139,41 @@ Result:
 
 `assigned_to` is always an array of HD user IDs. The existing native assignment rules run during insertion, including round robin when configured. The API returns the actual persisted assignment; it does not invent an agent. With no eligible agent or enabled rule it returns `[]`; the UI should display “Awaiting assignment”. `assigned_team` can be null. Priority and status in subsequent detail responses reflect native rules, which may override requested defaults.
 
-The user fills in the report, selects files and presses **Submit once**. The app submits this one JSON request. HD validates every attachment before inserting the ticket; ticket, private File records and initial attachment manifest commit in the same request transaction. File persistence failure rolls back the ticket and new files through the native File rollback lifecycle. The app does not need a separate upload request or a second user action. Success means the full submission was saved; no partial-success payload exists.
+The user fills in the report, selects files and presses **Submit once**. The app submits one multipart or JSON request. CareVerse converts multipart files to the internal Base64 JSON representation before signing. HD validates every attachment before inserting the ticket; ticket, private File records and initial attachment manifest commit in the same request transaction. File persistence failure rolls back the ticket and new files through the native File rollback lifecycle. The app does not need a separate upload request or a second user action. Success means the full submission was saved; no partial-success payload exists.
+
+### Multipart creation
+
+Use the same create endpoint with ordinary text fields and repeated binary **`files`** parts:
+
+| Part | Encoding |
+|---|---|
+| source | Text, e.g. `HMIS` |
+| external_reference_id | Text, stable across retries |
+| reporter | JSON text, e.g. `{"name":"Jane Doe","email":"jane@x.org","facility":"Clinic A"}` |
+| category | Text, e.g. `System Error` |
+| priority | Text, e.g. `Medium` |
+| description | Plain text |
+| files | Optional repeated binary file parts, each with filename and correct MIME type |
+
+```bash
+curl --fail-with-body \
+  -H 'Authorization: token <CV_USER_KEY>:<CV_USER_SECRET>' \
+  -F 'source=HMIS' \
+  -F 'external_reference_id=your-issue-id' \
+  -F 'reporter={"name":"Jane Doe","email":"jane@x.org","facility":"Clinic A"}' \
+  -F 'category=System Error' \
+  -F 'priority=Medium' \
+  -F 'description=Patient registration fails when saving.' \
+  -F 'files=@registration.png;type=image/png' \
+  -F 'files=@issue.pdf;type=application/pdf' \
+  'https://desk.tiberbu.app/api/method/careverse_hq.api.helpdesk.create_ticket'
+```
+
+Let the HTTP client generate `Content-Type: multipart/form-data; boundary=...`; do not set it manually without a boundary. Send raw file bytes, not Base64, in `files`. Use exactly `files`, not `files[]`, `file`, or `attachments`. Do not combine multipart files with the JSON `attachments` field. Unknown parts, duplicate text fields, duplicate reporter JSON keys, and multipart query parameters are rejected. Cookie clients must supply CSRF in `X-Frappe-CSRF-Token`, not as an additional form field.
+
+The file-count, MIME, decoded-byte, filename and privacy limits in section 6A apply to both formats. Multipart with no files becomes `attachments:[]`. To retry a multipart ticket originally submitted with files, resend the same files in the same order. Responses, transaction guarantees and business retry keys are identical to JSON submission.
+
+CareVerse reads each binary stream with a size bound and Base64-encodes it for the internal request. HD receives the existing signed JSON contract, not the client's multipart boundary or raw multipart body. No client signing changes or HD multipart endpoint are needed.
 
 ### Retry guarantee
 
@@ -137,7 +185,7 @@ Persist the reference before the first POST. On network timeout, retry the same 
 
 ```http
 GET /api/method/careverse_hq.api.helpdesk.get_ticket?ticket_id=TKT-XX-XX-XX-XXXXX
-GET /api/method/careverse_hq.api.helpdesk.list_tickets?email=jane%40x.org&offset=0&limit=20
+GET /api/method/careverse_hq.api.helpdesk.list_tickets?facility=Clinic%20A&user=jane%40x.org&offset=0&limit=20
 ```
 
 Internal counterparts are `helpdesk.api.plugin.get_ticket` and `helpdesk.api.plugin.list_tickets` with the same business arguments and signed identity fields.
@@ -178,7 +226,9 @@ List result:
 {"items":[{"ticket_id":"TKT-XX-XX-XX-XXXXX","status":"Open","assigned_to":[]}],"has_more":false,"next_offset":null}
 ```
 
-Each actual list item has the full detail shape above; the example abbreviates it. Order: creation descending, then name descending. Follow `next_offset` until `has_more:false`. Omitting email means the current reporter; another email is denied, including for agents using these consumer RPCs. Optional status is an exact live status name.
+Each actual list item has the full detail shape above; the example abbreviates it. Order: creation descending, then name descending. Follow `next_offset` until `has_more:false`. Omitting user/email means the current reporter. `user` identifies the external CareVerse user, not the mapped HD user. `email` remains a compatibility filter for that same identity. If either is supplied, it must equal the authenticated CareVerse user; a mismatch is denied, even for agents. If both are supplied, both must match. Optional status is an exact live status name.
+
+`facility` matches either the resolved HD Facility ID or the stored original `reporter.facility` value by database equality (no substring search). Use the catalogue ID when available, otherwise the exact submitted facility text. Database collation controls case sensitivity. Facility conditions are combined with instance/user permissions and status; they never replace them. A valid filter with no matches returns `items:[]`, `has_more:false`, `next_offset:null`. All filters apply before pagination. Offset-based pages can shift when newer tickets arrive; refresh from offset 0 to reload the latest list.
 
 Every ticket read/write is scoped to the verified instance, external reporter and mapped HD owner, plus native ticket permissions. This is an own-ticket API, not an agent inbox or cross-reporter search. Historic/demo tickets lacking plugin attribution are not silently claimed; they will not appear in this list. No bulk historical attribution was performed.
 
@@ -230,6 +280,19 @@ Send body:
 {"ticket_id":"<ID>","content":"The workstation opens now, but registration still fails."}
 ```
 
+Comments also accept multipart:
+
+```bash
+curl --fail-with-body \
+  -H 'Authorization: token <CV_USER_KEY>:<CV_USER_SECRET>' \
+  -F 'ticket_id=<ID>' \
+  -F 'content=The error is still occurring.' \
+  -F 'files=@registration.png;type=image/png' \
+  'https://desk.tiberbu.app/api/method/careverse_hq.api.helpdesk.send_message'
+```
+
+The only multipart text fields are `ticket_id` and optional `content`; files use the repeated `files` part. Text-only comments can use the JSON body above. Retrieve comments/replies/activity using `get_thread?ticket_id=<ID>`.
+
 Content is plain text, max 10,000 characters. Either nonblank content or one or more valid attachments is required. For an attachment-only message, omit content or send `""`; its display text is “Attachments”. Use the same `attachments` objects as create.
 
 Result:
@@ -274,7 +337,7 @@ Not implemented: video/audio, typing, read receipts, unread counts, push deliver
 
 ### Upload shape and limits
 
-There is no standalone upload RPC in this version. Files travel inside `create_ticket` or `send_message` over the same signed JSON transport. Use `attachments:[]` or omit it when no files are selected. A screenshot is a normal image attachment.
+There is no standalone upload RPC in this version. Consumer files travel inside multipart `files` parts or JSON `attachments` on `create_ticket`/`send_message`. CareVerse always forwards the same signed JSON transport to HD. Use `attachments:[]` or omit it when no files are selected. A screenshot is a normal image attachment.
 
 Each object contains exactly these three fields:
 
@@ -331,39 +394,34 @@ Download `data`:
 
 The API returns JSON through the normal CareVerse envelope, not a redirect, streaming response or permanent download link. HD performs a bounded local read and validates content before returning it, including native agent-uploaded files. Decode Base64 to bytes, optionally verify SHA-256, then preview the image or save/open the PDF using an appropriate viewer. Do not render file contents as HTML. Browser clients can use a Blob/object URL and revoke it when finished. No range requests, resumable/chunk uploads, thumbnail service, or deletion RPC is promised.
 
-### Browser submission example
+### Browser multipart submission example
 
-The UI validates bootstrap limits, collects details and files, then invokes a single RPC. This example uses an already authenticated CareVerse session; supply its current CSRF token.
+The UI validates bootstrap limits, collects details and files, then invokes a single RPC. This example uses an already authenticated CareVerse session; supply its current CSRF token. Native mobile HTTP clients can construct the same multipart fields.
 
 ```javascript
-async function encodeAttachment(file) {
-  const content_base64 = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(reader.error);
-    reader.onload = () => resolve(String(reader.result).split(",", 2)[1]);
-    reader.readAsDataURL(file);
-  });
-  return { file_name: file.name, content_type: file.type, content_base64 };
-}
-
 async function submitIssue(details, selectedFiles, csrfToken) {
   // details.external_reference_id was persisted before the first attempt.
-  const attachments = await Promise.all(selectedFiles.map(encodeAttachment));
+  const form = new FormData();
+  for (const field of ["source", "external_reference_id", "category", "priority", "description"]) {
+    form.append(field, details[field]);
+  }
+  form.append("reporter", JSON.stringify(details.reporter));
+  for (const file of selectedFiles) form.append("files", file, file.name);
   const response = await fetch("/api/method/careverse_hq.api.helpdesk.create_ticket", {
     method: "POST",
     credentials: "include",
-    headers: { "Content-Type": "application/json", "X-Frappe-CSRF-Token": csrfToken },
-    body: JSON.stringify({ ...details, attachments })
+    headers: { "X-Frappe-CSRF-Token": csrfToken },
+    body: form // Browser supplies the Content-Type and boundary.
   });
   const body = await response.json();
   if (!response.ok || body.message?.status !== "success") {
     throw new Error(body.message?.message || "Ticket submission failed");
   }
-  return body.message.data; // ticket_id and persisted attachments together
+  return body.message.data;
 }
 ```
 
-Retain the draft and selected files until success. A timeout is uncertain, not proof of failure: retry the same business reference. A retry without the attachment array can recover a committed result; if no ticket was committed it would create a text-only ticket, so **retry the full original payload until its outcome is known**. Once a successful ticket ID is known, send genuinely new files as a follow-up message. Message sending remains non-idempotent; reconcile using the thread before retrying an uncertain message.
+Retain the draft and selected files until success. A timeout is uncertain, not proof of failure: retry the same business reference. A JSON retry without the attachment array can recover a committed result; if no ticket was committed it would create a text-only ticket, so **retry the full original payload until its outcome is known**. Once a successful ticket ID is known, send genuinely new files as a follow-up message. Message sending remains non-idempotent; reconcile using the thread before retrying an uncertain message.
 
 ## 7. Errors and client handling
 
@@ -480,8 +538,8 @@ Consumer flow:
 
 1. Authenticate to CareVerse; GET bootstrap and populate category/priority choices.
 2. Optionally load location/facility GETs; obtain reporter email from bootstrap.
-3. Persist a stable external reference locally; collect the selected files and POST the exact create payload including optional attachments in one submission.
-4. Navigate with `data.ticket_id`; GET detail, own-ticket list and public thread.
+3. Persist a stable external reference locally; collect selected files and POST one multipart form or JSON create payload.
+4. Navigate with `data.ticket_id`; GET detail, facility/user-filtered ticket pages ordered newest first, and the public thread.
 5. Send public text/attachment messages, reconcile/poll the thread, and retrieve private files through the download RPC.
 6. Retry uncertain creates with the same reference; distinguish login errors from downstream failures.
 
@@ -497,3 +555,7 @@ The development script is pinned to hd-dev. Attachment checks cover combined ima
 CareVerse unit tests cover fixed destination, signed identity injection, exact create payload forwarding, reporter email forwarding, disabled integration, malformed responses and upstream-auth error handling. Two discovery unit tests cover the cold-cache waiter and rejection of a different published key. Live CareVerse-to-HD tests exercise actual HTTPS signing and key discovery across all eleven RPCs; they do not replace consumer login testing.
 
 Sources: `careverse_hq/api/helpdesk.py`, existing `careverse_hq/api/hmis_transport.py` and `hmis_signing.py`; `helpdesk/api/plugin.py`, `plugin_media.py`, internal `mobile.py`, `mobile_signing.py`, both configuration DocTypes and HD Ticket schema. This contract is maintained identically at `docs/api/HMIS_MOBILE_TICKETING_V1.md` in both repositories.
+
+### Multipart and filter validation
+
+A live HTTPS check used temporary authenticated CareVerse/HD users and real API credentials (removed afterwards). It verified multipart creation with two binary files, retry stability, exact private screenshot download, facility/user filtering, newest-first pages, denial of another user filter, multipart comments, chat retrieval and single-ticket detail. The temporary tickets, files, mapping and accounts were removed. Unit tests additionally cover multipart normalization, repeated files, duplicate/unknown field rejection and duplicate reporter JSON keys. Own-ticket authorization remains unchanged.

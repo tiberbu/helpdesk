@@ -198,15 +198,21 @@ def get_ticket(ticket_id):
 
 @frappe.whitelist(allow_guest=True, methods=["GET"])
 @signed_rpc
-def list_tickets(email=None, status=None, offset=0, limit=20):
+def list_tickets(email=None, status=None, offset=0, limit=20, facility=None, user=None):
     _email(email)
+    _email(user)
     offset, limit = mobile._page(offset, limit)
     filters = _filters()
     if status:
         filters["status"] = status
+    facility_filters = None
+    if facility is not None:
+        facility = mobile._text(facility, "facility", 140)
+        facility_filters = {"facility": facility, "plugin_reporter_facility": facility}
     rows = frappe.get_list(
         "HD Ticket",
         filters=filters,
+        or_filters=facility_filters,
         fields=["name"],
         order_by="creation desc, name desc",
         limit_start=offset,

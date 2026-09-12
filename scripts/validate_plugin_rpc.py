@@ -188,6 +188,15 @@ try:
     assert other_source['assigned_to']==[agents[0]], other_source
     print('PASS native round robin rotates and retry does not reassign')
     print('PASS instance isolation and source-scoped reference IDs')
+    first_page=call(mobile.list_tickets,user=user,facility=payload['reporter']['facility'],limit=1)['data']
+    assert first_page['items'][0]['ticket_id']==other_source['ticket_id'] and first_page['has_more']
+    second_page=call(mobile.list_tickets,user=user,offset=first_page['next_offset'],limit=1)['data']
+    assert second_page['items'][0]['ticket_id']==tid and not second_page['has_more']
+    assert call(mobile.list_tickets,facility='No matching facility')['data']['items']==[]
+    try:call(mobile.list_tickets,user='another@example.test');raise AssertionError('Other user filter')
+    except frappe.PermissionError:pass
+    print('PASS facility/user filters preserve scope and latest-first pagination')
+
     from helpdesk.api import plugin_media
     from pathlib import Path
     import os
