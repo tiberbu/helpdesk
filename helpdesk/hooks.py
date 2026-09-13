@@ -21,7 +21,10 @@ add_to_apps_screen = [
 
 get_site_info = "helpdesk.activation.get_site_info"
 
-after_install = "helpdesk.setup.install.after_install"
+after_install = [
+    "helpdesk.patches.add_user_force_password_change.execute",
+    "helpdesk.setup.install.after_install",
+]
 after_migrate = [
     "helpdesk.search.build_index_in_background",
     "helpdesk.search.download_corpus",
