@@ -1,6 +1,6 @@
 # HMIS and Mobile plugin ticketing API contract v1.2
 
-Updated: 2026-09-12. Multipart and list-filter extension: v1.2; wire `api_version` remains `1` (additive fields). Apps: `careverse_hq` and `helpdesk`.
+Updated: 2026-09-13. Server trust is configured on Helpdesk; mobile paths and payloads are unchanged. Multipart and list-filter extension: v1.2; wire `api_version` remains `1` (additive fields). Apps: `careverse_hq` and `helpdesk`.
 
 ```text
 HMIS / Mobile -> authenticated CareVerse API -> Ed25519-signed Helpdesk plugin API
@@ -177,7 +177,7 @@ CareVerse reads each binary stream with a size bound and Base64-encodes it for t
 
 ### Retry guarantee
 
-The persistent uniqueness key is `(CareVerse instance ID, source, external_reference_id)`, protected by a database unique index. A retry returns the original `ticket_id`, current status/assignments, and `reused:true`. It neither changes the original description nor reruns routing/assignment. Returned `attachments` contain the original persisted files. When attachments are included on retry, their order, names, declared types and content hashes must match the original submission; changed attachments are rejected. Omitting `attachments` on retry retrieves the original result without requiring a re-upload. Sending `[]` is an explicit empty attachment set and conflicts with an originally nonempty set. Add later files using `send_message`. Concurrent creates are resolved by the unique index; the losing request reads the committed winner. Reuse is allowed only for the original mapped reporter; another reporter cannot claim or read that reference.
+The persistent uniqueness key is `(Helpdesk-local ownership scope, source, external_reference_id)`, protected by a database unique index. A retry returns the original `ticket_id`, current status/assignments, and `reused:true`. It neither changes the original description nor reruns routing/assignment. Returned `attachments` contain the original persisted files. When attachments are included on retry, their order, names, declared types and content hashes must match the original submission; changed attachments are rejected. Omitting `attachments` on retry retrieves the original result without requiring a re-upload. Sending `[]` is an explicit empty attachment set and conflicts with an originally nonempty set. Add later files using `send_message`. Concurrent creates are resolved by the unique index; the losing request reads the committed winner. Reuse is allowed only for the original mapped reporter; another reporter cannot claim or read that reference.
 
 Persist the reference before the first POST. On network timeout, retry the same source/reference. Each CareVerse attempt receives a fresh signature/request ID automatically. A transport `request_id` is not the business retry key. Different sources or CareVerse instances may independently use the same reference. Do not reuse a reference for a genuinely different issue. After ticket deletion, this implementation does not retain a permanent idempotency tombstone.
 
@@ -450,18 +450,17 @@ Pre-dispatch Frappe errors may use framework `exc_type`/`exception` instead of t
 
 All eleven HD plugin methods are `@frappe.whitelist(allow_guest=True, methods=[...])` with mandatory signature verification. `allow_guest=True` permits sessionless server transport, not anonymous ticket access. An HD cookie cannot bypass verification.
 
-CareVerse adds these fields to business arguments:
+No instance ID or originating site URL is sent in headers, query parameters or JSON. Helpdesk trusts exactly one CareVerse origin configured locally. Requests containing legacy `instance_id`, `origin` or `careverse_url` arguments are rejected. CareVerse adds only these fields to business arguments:
 
 | Field | Origin |
 |---|---|
-| instance_id | Configured CareVerse instance ID |
 | user_id | Authenticated CareVerse session user; cannot be selected by the app |
 | request_id | Fresh UUID hex for each outbound attempt |
 
 Internal create body:
 
 ```json
-{"source":"HMIS","external_reference_id":"your-issue-id","reporter":{"name":"Jane Doe","email":"jane@x.org","facility":"Facility Name"},"category":"System Error","priority":"Medium","description":"issue text here","instance_id":"desk.tiberbu.app","user_id":"jane@x.org","request_id":"550e8400e29b41d4a716446655440000"}
+{"source":"HMIS","external_reference_id":"your-issue-id","reporter":{"name":"Jane Doe","email":"jane@x.org","facility":"Facility Name"},"category":"System Error","priority":"Medium","description":"issue text here","user_id":"jane@x.org","request_id":"550e8400e29b41d4a716446655440000"}
 ```
 
 GET includes these fields in its query and has an empty body. POST includes them in JSON, with no query string. Duplicate query parameters/JSON keys and missing/unexpected arguments are rejected. Dispatch uses verified raw bytes, never unsigned alternate kwargs.
@@ -490,7 +489,7 @@ Timestamp tolerance is ±30 seconds. Synchronize server clocks. `request_id` len
 Helpdesk fetches only the administrator-configured origin:
 
 ```http
-GET <HD CareVerse Instance.base_url>/api/method/careverse_hq.api.hmis_signing.get_public_key
+GET <Helpdesk site_config.careverse_url>/api/method/careverse_hq.api.hmis_signing.get_public_key
 ```
 
 ```json
@@ -509,28 +508,28 @@ Keys cache for 300 seconds per instance/origin. Simultaneous first requests wait
 |---|---|
 | enabled | 1 |
 | helpdesk_url | `https://hd-dev.tiberbu.app` |
-| careverse_instance_id | `desk.tiberbu.app` |
 
 The existing **HMIS Auth Settings** keypair signs outbound requests through `hmis_transport`. One HD destination per CareVerse site is supported. Existing HIMS Profile route-test buttons and QR-login flows are separate.
 
-**Helpdesk — HD CareVerse Instance** (`/app/hd-careverse-instance`):
+**Helpdesk site config:** set `careverse_url` to `https://desk.tiberbu.app`. This is the sole public-key discovery origin; there is no URL field in the mapping form.
+
+**Helpdesk — local user mappings in HD CareVerse Instance** (`/app/hd-careverse-instance`):
 
 | Field | Current connection |
 |---|---|
 | instance_id | `desk.tiberbu.app` |
 | enabled | 1 |
-| base_url | `https://desk.tiberbu.app` |
 | users | Explicit `careverse_user` → `helpdesk_user` child mappings, each with enabled flag |
 
-Each CareVerse instance needs its own record and mappings. Origins must use HTTPS without credentials/path/query. Mapped HD users must already exist and be enabled; use Helpdesk Customer for ordinary consumers. Guest and Administrator mappings are forbidden. Bootstrap's reporter_email is the external CareVerse ID; an HD username may differ. No wildcard trust, automatic user provisioning or arbitrary reporter impersonation exists.
+The local mapping record defaults to the hostname of `careverse_url` (`desk.tiberbu.app` here). Its name is never transported. An optional server-only `careverse_trust_record` setting preserves a differently named historic record; do not change existing ownership scope during migration. Only this locally selected record is active, not arbitrary caller-selected records. Origins must use HTTPS without credentials/path/query. Mapped HD users must already exist and be enabled; use Helpdesk Customer for ordinary consumers. Guest and Administrator mappings are forbidden. Bootstrap's reporter_email is the external CareVerse ID; an HD username may differ. No wildcard trust, automatic user provisioning or arbitrary reporter impersonation exists.
 
 Disabling an instance or mapping stops subsequent requests even while its key is cached. HD executes as the mapped user and restores the previous identity afterwards. Configuration records remain System Manager managed.
 
-Deploy both apps together: synchronize new DocTypes/HD Ticket fields on their respective sites using the normal site migration, run the Helpdesk category patch, and restart the bench after Python changes. The persistent `plugin_key` unique field, reporter/instance/source fields, `plugin_attachments` and `plugin_attachment_fingerprint` fields must exist before serving plugin creates. Back up before production migration using normal operational procedures.
+Deploy both apps together (the internal wire change is coordinated; old requests carrying instance_id are rejected). CareVerse migration removes the obsolete setting; existing Helpdesk ticket scope values and mappings are retained: synchronize new DocTypes/HD Ticket fields on their respective sites using the normal site migration, run the Helpdesk category patch, and restart the bench after Python changes. The persistent `plugin_key` unique field, reporter/instance/source fields, `plugin_attachments` and `plugin_attachment_fingerprint` fields must exist before serving plugin creates. Back up before production migration using normal operational procedures.
 
 Existing Helpdesk portal, SLA, routing, assignment, public comments and activity controllers are reused. The older guest live-chat widget and shared-credential `external_integration` APIs are separate flows. This feature does not migrate their tickets into plugin ownership or change their authentication.
 
-**Current hd-dev operational limits:** no HD Agent records are configured, so real tickets can be created and routed to teams but `assigned_to` remains empty until administrators add agents and enable/populate the applicable rules. The facility catalogue is empty. One existing shared identity is mapped; additional consumer users require mappings. The `System Error` category is available. These configuration gaps must not be presented as successful agent assignment.
+**Last verified hd-dev operational limits:** seeded tickets routed to Billing with empty `assigned_to`; configure eligible agents and applicable assignment rules for real assignment. The facility catalogue is empty. One existing shared identity is mapped; additional consumer users require mappings. The `System Error` category is available. These configuration gaps must not be presented as successful agent assignment.
 
 ## 10. Implementation sequence and validation
 

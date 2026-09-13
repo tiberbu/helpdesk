@@ -30,7 +30,7 @@ instance_id = 'validation-' + uuid.uuid4().hex
 trust = {key_id: {'public_key_pem': pem, 'allowed_users': [user]}}
 
 def request(endpoint, method='GET', values=None, age=0):
-    values = {**(values or {}), 'user_id': user, 'instance_id': instance_id, 'request_id': uuid.uuid4().hex}
+    values = {**(values or {}), 'user_id': user, 'request_id': uuid.uuid4().hex}
     path = '/api/method/helpdesk.api.plugin.' + endpoint
     query = urlencode(values) if method == 'GET' else ''
     body = b'' if method == 'GET' else json.dumps(values, separators=(',', ':')).encode()
@@ -41,6 +41,8 @@ def request(endpoint, method='GET', values=None, age=0):
     return Request(EnvironBuilder(path=path,query_string=query,method=method,data=body,content_type='application/json',headers=headers).get_environ())
 
 def call(fn, method='GET', **values):
+    frappe.conf.careverse_url = 'https://careverse.example.test'
+    frappe.conf.careverse_trust_record = instance_id
     frappe.local.request = request(fn.__name__, method, values)
     return fn(**values)
 

@@ -7,7 +7,8 @@ import json
 import time
 from datetime import datetime, timezone
 from functools import wraps
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlsplit
+from types import SimpleNamespace
 
 import frappe
 import requests
@@ -51,15 +52,17 @@ def signed_arguments(request):
             raise ValueError()
         if not isinstance(args, dict):
             raise ValueError()
-        for key in ("user_id", "instance_id", "request_id"):
+        for key in ("user_id", "request_id"):
             if not isinstance(args.get(key), str) or not args[key]:
                 raise ValueError()
+        if "instance_id" in args or "origin" in args or "careverse_url" in args:
+            raise ValueError()
         if not 16 <= len(args["request_id"]) <= 128:
             raise ValueError()
         return args
     except (ValueError, TypeError, UnicodeError):
         _deny(
-            "Unique signed instance_id, user_id and request_id are required. GET uses query parameters; POST uses JSON only."
+            "Unique signed user_id and request_id are required. GET uses query parameters; POST uses JSON only."
         )
 
 
@@ -133,7 +136,7 @@ def _fetch_public_key(instance, key_id):
     return payload
 
 
-def verify_request(request, trusted_keys, endpoint, namespace="helpdesk.api.plugin"):
+def verify_request(request, trusted_keys, endpoint, namespace="helpdesk.api.plugin", scope="configured-site"):
     """Verify canonical bytes and signed identity; return external user and replay key."""
     if request.path != "/api/method/" + namespace + "." + endpoint:
         _deny("Use the canonical signed RPC URL.")
@@ -165,10 +168,31 @@ def verify_request(request, trusted_keys, endpoint, namespace="helpdesk.api.plug
     replay_key = (
         "helpdesk:mobile:replay:"
         + hashlib.sha256(
-            (args["instance_id"] + ":" + args["request_id"]).encode()
+            (scope + ":" + args["request_id"]).encode()
         ).hexdigest()
     )
     return user, replay_key
+
+
+def configured_instance():
+    """Trust origin comes exclusively from Helpdesk site config, never request input.
+
+    The local trust record retains user mappings and historic ticket ownership.
+    Its legacy base_url is not used for key discovery.
+    """
+    origin = (frappe.conf.get("careverse_url") or "").strip().rstrip("/")
+    url = urlsplit(origin)
+    if (url.scheme != "https" or not url.netloc or url.username or url.password
+            or url.path or url.query or url.fragment):
+        _deny("Configure careverse_url as a trusted HTTPS origin in Helpdesk site config.")
+    # Optional server-only compatibility setting for previously named trust records.
+    scope = frappe.conf.get("careverse_trust_record") or url.hostname
+    try:
+        record = frappe.get_doc("HD CareVerse Instance", scope)
+    except frappe.DoesNotExistError:
+        _deny("Configure the local CareVerse user-mapping record.")
+    return SimpleNamespace(name=record.name, enabled=record.enabled,
+                           users=record.users, base_url=origin)
 
 
 def signed_rpc(fn):
@@ -177,10 +201,7 @@ def signed_rpc(fn):
         request = frappe.request
         _check_timestamp(request)
         values = signed_arguments(request)
-        try:
-            instance = frappe.get_doc("HD CareVerse Instance", values["instance_id"])
-        except frappe.DoesNotExistError:
-            _deny("Unknown CareVerse instance.")
+        instance = configured_instance()
         if not instance.enabled:
             _deny("CareVerse instance is disabled.")
         mappings = {
@@ -197,6 +218,7 @@ def signed_rpc(fn):
             {key_id: {**public, "allowed_users": list(mappings)}},
             fn.__name__,
             fn.__module__,
+            scope=instance.name,
         )
         target_user = mappings[user]
         if target_user in ("Guest", "Administrator") or not frappe.db.get_value(
@@ -207,7 +229,7 @@ def signed_rpc(fn):
         business = {
             key: value
             for key, value in values.items()
-            if key not in ("instance_id", "user_id", "request_id")
+            if key not in ("user_id", "request_id")
         }
         try:
             inspect.signature(fn).bind(**business)

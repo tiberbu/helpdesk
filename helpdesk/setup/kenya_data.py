@@ -340,6 +340,7 @@ def _create_team(
     doc.insert(ignore_permissions=True)
 
 
+
 def seed_kenya_teams() -> None:
     """
     Create HD Team entries for the full Kenya administrative hierarchy.
@@ -352,16 +353,23 @@ def seed_kenya_teams() -> None:
 
     Idempotent — safe to call multiple times.
     """
+    for code, (county, sub_counties) in enumerate(KENYA_DATA, start=1):
+        if not frappe.db.exists("HD County", county):
+            frappe.get_doc({"doctype": "HD County", "county_name": county, "county_code": code}).insert(ignore_permissions=True)
+        for sub_county in sub_counties:
+            if not frappe.db.exists("HD Subcounty", {"county": county, "subcounty_name": sub_county}):
+                frappe.get_doc({"doctype": "HD Subcounty", "county": county, "subcounty_name": sub_county}).insert(ignore_permissions=True)
+
     # 1. Top-level support teams
     _create_team(
         team_name="National Support Team",
         support_level="L2 - National",
-        territory="Kenya",
+        territory=None,
     )
     _create_team(
         team_name="Engineering Team",
         support_level="L3 - Engineering",
-        territory="Kenya",
+        territory=None,
     )
 
     # 2. County teams (L1)
@@ -370,7 +378,7 @@ def seed_kenya_teams() -> None:
         _create_team(
             team_name=county_team,
             support_level="L1 - County",
-            territory=county,
+            territory=None,
             parent_team="National Support Team",
         )
 
@@ -379,7 +387,7 @@ def seed_kenya_teams() -> None:
             _create_team(
                 team_name=_team_name(county, sc),
                 support_level="L0 - Sub-County",
-                territory=sc,
+                territory=frappe.db.get_value("HD Subcounty", {"county": county, "subcounty_name": sc}, "name"),
                 parent_team=county_team,
             )
 
