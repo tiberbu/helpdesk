@@ -7,7 +7,6 @@
   "field_order": [
     "instance_id",
     "enabled",
-    "base_url",
     "users"
   ],
   "fields": [
@@ -23,13 +22,6 @@
       "fieldtype": "Check",
       "label": "Enabled",
       "default": "0"
-    },
-    {
-      "fieldname": "base_url",
-      "fieldtype": "Data",
-      "label": "CareVerse URL",
-      "reqd": 1,
-      "description": "HTTPS origin. Public keys are fetched from /api/method/careverse_hq.api.hmis_signing.get_public_key."
     },
     {
       "fieldname": "users",
