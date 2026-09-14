@@ -234,6 +234,11 @@ def signed_rpc(fn):
         try:
             inspect.signature(fn).bind(**business)
         except TypeError:
+            frappe.logger("helpdesk_plugin", allow_site=True).error(json.dumps({
+                "request_id": values["request_id"], "endpoint": fn.__name__,
+                "error_type": "ValidationError", "stage": "argument_binding",
+                "argument_names": sorted(business),
+            }))
             frappe.throw("Missing or unexpected RPC arguments.")
         if not frappe.cache().set(replay_key, "1", nx=True, ex=90):
             _deny("Request already received. Use a new request_id.")
@@ -245,7 +250,17 @@ def signed_rpc(fn):
                 "instance_id": instance.name,
                 "user_id": user,
             }
-            return fn(**business)
+            result = fn(**business)
+            frappe.logger("helpdesk_plugin", allow_site=True).info(json.dumps({
+                "request_id": values["request_id"], "endpoint": fn.__name__, "outcome": "success",
+            }))
+            return result
+        except Exception as exc:
+            frappe.logger("helpdesk_plugin", allow_site=True).error(json.dumps({
+                "request_id": values["request_id"], "endpoint": fn.__name__,
+                "error_type": type(exc).__name__, "stage": "business_operation",
+            }))
+            raise
         finally:
             frappe.set_user(previous)
             frappe.local.careverse_identity = previous_context
