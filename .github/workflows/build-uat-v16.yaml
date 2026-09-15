@@ -89,3 +89,4 @@ jobs:
       platforms: linux/amd64
       aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
       aws_region: ${{ vars.AWS_REGION }}
+      builder_repository: tiberbu/frappe_docker
