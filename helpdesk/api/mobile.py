@@ -37,7 +37,13 @@ def _result(data):
 
 def _ticket(ticket_id):
     user = _user()
-    doc = frappe.get_doc("HD Ticket", ticket_id)
+    try:
+        doc = frappe.get_doc("HD Ticket", ticket_id)
+        doc.load_from_db()
+    except frappe.DoesNotExistError:
+        # The signed wrapper restores Guest before framework error rendering.
+        # A doctype-bearing exception would then be rewritten as Guest's 403.
+        raise frappe.DoesNotExistError("Ticket not found.") from None
     doc.check_permission("read")
     if not is_agent() and doc.raised_by != user:
         frappe.throw("You can only access tickets you raised.", frappe.PermissionError)

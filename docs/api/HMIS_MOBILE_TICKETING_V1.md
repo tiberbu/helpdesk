@@ -558,3 +558,9 @@ Sources: `careverse_hq/api/helpdesk.py`, existing `careverse_hq/api/hmis_transpo
 ### Multipart and filter validation
 
 A live HTTPS check used temporary authenticated CareVerse/HD users and real API credentials (removed afterwards). It verified multipart creation with two binary files, retry stability, exact private screenshot download, facility/user filtering, newest-first pages, denial of another user filter, multipart comments, chat retrieval and single-ticket detail. The temporary tickets, files, mapping and accounts were removed. Unit tests additionally cover multipart normalization, repeated files, duplicate/unknown field rejection and duplicate reporter JSON keys. Own-ticket authorization remains unchanged.
+
+## Local bench acceptance — 2026-09-15
+
+The unchanged CareVerse consumer paths/payloads passed 67 contract checks and 34 real login-session/CSRF checks on desk.tiberbu.app → hd-dev.tiberbu.app. Eight live signature/diagnostic checks and 29 unit tests also passed. The consumer rejects duplicate query/JSON keys with 417; missing ticket reads now preserve 404 through the signed Guest wrapper. Existing forbidden-ticket access remains 403. Both CareVerse reporters in the isolation test shared one mapped HD customer, with no new HD user accounts. Mappings remain required.
+
+Evidence and scope limits are recorded in CareVerse's `docs/api/HELPDESK_API_JOURNEY_RESULTS_2026-09-15.md` and JSON, with repeat commands in `HELPDESK_API_JOURNEY_TEST_PLAN.md`. This is local bench evidence, not Kubernetes UAT or native mobile build certification.
