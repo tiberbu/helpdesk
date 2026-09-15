@@ -28,7 +28,9 @@
       "fieldtype": "Table",
       "label": "User mappings",
       "options": "HD CareVerse User",
-      "description": "Only explicitly mapped users may access the mobile ticket APIs."
+      "description": "Legacy rows retained for historical reference; not used for authentication or reporter access.",
+      "hidden": 1,
+      "read_only": 1
     }
   ],
   "permissions": [
