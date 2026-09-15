@@ -70,7 +70,7 @@ jobs:
           APPS_B64: ${{ steps.apps-json.outputs.apps_json_base64 }}
         run: |
           echo "apps-json step output length: ${#APPS_B64}"
-    
+  
   build-image:
     needs: prepare
     permissions:
