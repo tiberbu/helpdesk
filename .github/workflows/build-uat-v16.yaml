@@ -46,11 +46,26 @@ jobs:
         run: |
           cat > apps.json <<EOF
           [
-            {"url": "https://github.com/frappe/erpnext", "branch": "version-16"},
-            {"url": "https://github.com/frappe/payments", "branch": "version-16"},
-            {"url": "https://github.com/frappe/hrms", "branch": "version-16"},
-            {"url": "https://github.com/frappe/telephony", "branch": "develop"},
-            {"url": "https://mwogi:${GIT_TOKEN}@github.com/tiberbu/helpdesk.git", "branch": "develop"}
+            {
+              "url": "https://github.com/frappe/erpnext",
+              "branch": "version-15"
+            },
+            {
+              "url": "https://github.com/frappe/payments",
+              "branch": "version-15"
+            },
+            {
+              "url": "https://github.com/frappe/hrms",
+              "branch": "version-15"
+            },
+            {
+              "url": "https://github.com/frappe/telephony",
+              "branch": "develop"
+            },
+            {
+              "url": "https://mwogi:${GIT_TOKEN}@github.com/tiberbu/helpdesk.git",
+              "branch": "develop"
+            }
           ]
           EOF
           echo "apps_json_base64=$(base64 -w 0 apps.json)" >> $GITHUB_OUTPUT
