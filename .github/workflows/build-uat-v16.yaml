@@ -1,0 +1,73 @@
+name: Build Frappe Image (develop)
+
+on:
+  push:
+    branches: [develop]
+  repository_dispatch:
+    types: [trigger_build]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      apps_json_base64: ${{ steps.apps-json.outputs.apps_json_base64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Generate version
+        id: version
+        run: |
+          PREV_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.11")
+          PREV_VERSION=${PREV_VERSION#v}
+          MAJOR=$(echo $PREV_VERSION | cut -d. -f1)
+          MINOR=$(echo $PREV_VERSION | cut -d. -f2)
+          PATCH=$(echo $PREV_VERSION | cut -d. -f3)
+          NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+          while git rev-parse "refs/tags/v$NEW_VERSION" >/dev/null 2>&1; do
+            PATCH=$((PATCH + 1))
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          done
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate apps.json
+        id: apps-json
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        run: |
+          cat > apps.json <<EOF
+          [
+            {"url": "https://github.com/frappe/erpnext", "branch": "version-16"},
+            {"url": "https://github.com/frappe/payments", "branch": "version-16"},
+            {"url": "https://github.com/frappe/hrms", "branch": "version-16"},
+            {"url": "https://github.com/frappe/telephony", "branch": "develop"},
+            {"url": "https://mwogi:${GIT_TOKEN}@github.com/tiberbu/helpdesk.git", "branch": "develop"}
+          ]
+          EOF
+          echo "apps_json_base64=$(base64 -w 0 apps.json)" >> $GITHUB_OUTPUT
+
+  build-image:
+    needs: prepare
+    permissions:
+      contents: read
+      id-token: write
+    uses: tiberbu/frappe_docker/.github/workflows/app-build-image-custom.yaml@main
+    with:
+      apps_json_base64: ${{ needs.prepare.outputs.apps_json_base64 }}
+      frappe_ref: version-16
+      frappe_image_prefix: frappe
+      image_name: ${{ vars.ECR_REGISTRY }}/support-uat
+      image_tag: ${{ needs.prepare.outputs.version }}
+      registry: ecr
+      push: true
+      platforms: linux/amd64
+      aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
+      aws_region: ${{ vars.AWS_REGION }}
