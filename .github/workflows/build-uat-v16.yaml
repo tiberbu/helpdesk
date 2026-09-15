@@ -60,6 +60,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      packages: write
     uses: tiberbu/frappe_docker/.github/workflows/app-build-image-custom.yaml@main
     with:
       apps_json_base64: ${{ needs.prepare.outputs.apps_json_base64 }}
