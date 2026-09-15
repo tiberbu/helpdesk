@@ -451,11 +451,11 @@ Example CareVerse rejection:
 {"message":{"status":"error","message":"Helpdesk rejected the request.","details":{"error_type":"PermissionError","upstream_status":403,"request_id":"<trace-id>"}}}
 ```
 
-Pre-dispatch Frappe errors may use framework `exc_type`/`exception` instead of the application envelope. Internal HD signature rejection is HTTP 401; other HD errors use native Frappe error responses. Do not expose stack traces to end users. Connection/time-out errors may omit details. A duplicate reference from its original reporter is success, not an error.
+Pre-dispatch Frappe errors may use framework `exc_type`/`exception` instead of the application envelope. Helpdesk requires the service API token before the whitelisted method is entered; missing service credentials are therefore rejected by Frappe (typically HTTP 403). With valid service credentials, signature, replay and trust failures are HTTP 401; other HD errors use native Frappe error responses. Do not expose stack traces to end users. Connection/time-out errors may omit details. A duplicate reference from its original reporter is success, not an error.
 
 ## 8. CareVerse → Helpdesk Ed25519 protocol
 
-All twelve HD plugin methods require native API-token authentication as an enabled non-Administrator Helpdesk service user, plus mandatory Ed25519 verification. The `allow_guest=True` declarations only permit entry into the guard; it rejects missing service credentials. An HD cookie alone cannot authenticate this transport. The signed CareVerse reporter may be any non-Guest identity, including Administrator for bench testing, and needs no HD account or mapping.
+All twelve HD plugin methods require native API-token authentication as an enabled non-Administrator Helpdesk service user, plus mandatory Ed25519 verification. The methods are not guest endpoints: `allow_guest` is not enabled. Frappe rejects requests without the configured service token before method execution; with the token present, the signed CareVerse reporter may be any non-Guest identity, including Administrator for bench testing, and needs no HD account or mapping. An HD cookie alone cannot authenticate this transport.
 
 No instance ID or originating site URL is sent in headers, query parameters or JSON. Helpdesk trusts exactly one CareVerse origin configured locally. Requests containing legacy `instance_id`, `origin` or `careverse_url` arguments are rejected. CareVerse adds only these fields to business arguments:
 

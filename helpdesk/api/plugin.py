@@ -107,7 +107,7 @@ def _check_attachment_retry(doc, attachments, fingerprint):
         )
 
 
-@frappe.whitelist(allow_guest=True, methods=["POST"])
+@frappe.whitelist(methods=["POST"])
 @signed_rpc
 def create_ticket(
     source,
@@ -205,14 +205,14 @@ def create_ticket(
     return mobile._result({**_summary(doc), "reused": False})
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def get_ticket(ticket_id):
     doc = _ticket(ticket_id)
     return mobile._result(_detail(doc))
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def list_tickets(
     email=None,
@@ -268,7 +268,7 @@ def list_tickets(
     )
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def get_bootstrap():
     result = mobile.get_bootstrap()
@@ -279,25 +279,25 @@ def get_bootstrap():
     return result
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def get_counties():
     return mobile.get_counties()
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def get_subcounties(county):
     return mobile.get_subcounties(county)
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def get_facilities(county=None, sub_county=None, offset=0, limit=50):
     return mobile.get_facilities(county, sub_county, offset, limit)
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def get_thread(ticket_id, offset=0, limit=50):
     doc = _ticket(ticket_id)
@@ -311,7 +311,7 @@ def get_thread(ticket_id, offset=0, limit=50):
     return result
 
 
-@frappe.whitelist(allow_guest=True, methods=["POST"])
+@frappe.whitelist(methods=["POST"])
 @signed_rpc
 def send_message(ticket_id, content="", attachments=None):
     doc = _ticket(ticket_id)
@@ -341,7 +341,7 @@ def send_message(ticket_id, content="", attachments=None):
     )
 
 
-@frappe.whitelist(allow_guest=True, methods=["POST"])
+@frappe.whitelist(methods=["POST"])
 @signed_rpc
 def close_ticket(ticket_id):
     doc = _ticket(ticket_id)
@@ -354,7 +354,7 @@ def close_ticket(ticket_id):
     )
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def list_attachments(ticket_id, offset=0, limit=50):
     doc = _ticket(ticket_id)
@@ -372,7 +372,7 @@ def list_attachments(ticket_id, offset=0, limit=50):
     )
 
 
-@frappe.whitelist(allow_guest=True, methods=["GET"])
+@frappe.whitelist(methods=["GET"])
 @signed_rpc
 def download_attachment(ticket_id, attachment_id):
     return mobile._result(plugin_media.download(_ticket(ticket_id), attachment_id))
