@@ -44,32 +44,28 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          cat > apps.json <<EOF
-          [
-            {
-              "url": "https://github.com/frappe/erpnext",
-              "branch": "version-15"
-            },
-            {
-              "url": "https://github.com/frappe/payments",
-              "branch": "version-15"
-            },
-            {
-              "url": "https://github.com/frappe/hrms",
-              "branch": "version-15"
-            },
-            {
-              "url": "https://github.com/frappe/telephony",
-              "branch": "develop"
-            },
-            {
-              "url": "https://mwogi:${GIT_TOKEN}@github.com/tiberbu/helpdesk.git",
-              "branch": "develop"
-            }
+          python3 - <<'PY' > apps.json
+          import json, os
+          token = os.environ["GIT_TOKEN"]
+          apps = [
+              {"url": "https://github.com/frappe/erpnext", "branch": "version-16"},
+              {"url": "https://github.com/frappe/payments", "branch": "version-16"},
+              {"url": "https://github.com/frappe/hrms", "branch": "version-16"},
+              {"url": "https://github.com/frappe/telephony", "branch": "develop"},
+              {"url": f"https://mwogi:{token}@github.com/tiberbu/helpdesk.git", "branch": "develop"},
           ]
-          EOF
-          echo "apps_json_base64=$(base64 -w 0 apps.json)" >> $GITHUB_OUTPUT
+          print(json.dumps(apps, indent=2))
+          PY
+      
+          echo "--- apps.json ---"
+          cat apps.json
+          echo "-----------------"
+      
+          APPS_B64=$(base64 -w 0 apps.json)
+          echo "DEBUG: base64 length = ${#APPS_B64}"
+          echo "apps_json_base64=$APPS_B64" >> $GITHUB_OUTPUT
 
+    
   build-image:
     needs: prepare
     permissions:
