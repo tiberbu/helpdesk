@@ -52,7 +52,7 @@ jobs:
               {"url": "https://github.com/frappe/payments", "branch": "version-16"},
               {"url": "https://github.com/frappe/hrms", "branch": "version-16"},
               {"url": "https://github.com/frappe/telephony", "branch": "develop"},
-              {"url": f"https://mwogi:{token}@github.com/tiberbu/helpdesk.git", "branch": "develop"},
+              {"url": f"https://mwogi:{token}@github.com/tiberbu/helpdesk.git", "branch": "develop"}
           ]
           print(json.dumps(apps, indent=2))
           PY
