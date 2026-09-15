@@ -29,12 +29,14 @@ def _email(email=None):
     return expected
 
 
-def _filters():
-    return {
+def _filters(include_reporter=True):
+    filters = {
         "plugin_instance": _identity()["instance_id"],
-        "plugin_reporter_email": _email(),
         "raised_by": frappe.session.user,
     }
+    if include_reporter:
+        filters["plugin_reporter_email"] = _email()
+    return filters
 
 
 def _ticket(ticket_id):
@@ -42,6 +44,20 @@ def _ticket(ticket_id):
     if any(doc.get(key) != value for key, value in _filters().items()):
         frappe.throw(
             "Ticket does not belong to this instance and reporter.",
+            frappe.PermissionError,
+        )
+    return doc
+
+
+def _ticket_for_scope(ticket_id):
+    """Load a ticket for a facility-wide list without weakening instance scope."""
+    doc = mobile._ticket(ticket_id)
+    if any(
+        doc.get(key) != value
+        for key, value in _filters(include_reporter=False).items()
+    ):
+        frappe.throw(
+            "Ticket does not belong to this CareVerse instance.",
             frappe.PermissionError,
         )
     return doc
@@ -198,17 +214,42 @@ def get_ticket(ticket_id):
 
 @frappe.whitelist(allow_guest=True, methods=["GET"])
 @signed_rpc
-def list_tickets(email=None, status=None, offset=0, limit=20, facility=None, user=None):
-    _email(email)
-    _email(user)
+def list_tickets(
+    email=None,
+    status=None,
+    offset=0,
+    limit=20,
+    facility=None,
+    user=None,
+    subject=None,
+    ticket_type=None,
+):
+    if not isinstance(facility, str) or not facility.strip():
+        frappe.throw("facility is required when listing tickets.")
+    facility = mobile._text(facility, "facility", 140)
+    reporter_filter = None
+    for value in (email, user):
+        if value is None or value == "":
+            continue
+        candidate = _email(value)
+        if reporter_filter and reporter_filter != candidate:
+            frappe.throw(
+                "email and user must identify the same CareVerse user.",
+                frappe.PermissionError,
+            )
+        reporter_filter = candidate
     offset, limit = mobile._page(offset, limit)
-    filters = _filters()
+    filters = _filters(include_reporter=reporter_filter is not None)
     if status:
-        filters["status"] = status
-    facility_filters = None
-    if facility is not None:
-        facility = mobile._text(facility, "facility", 140)
-        facility_filters = {"facility": facility, "plugin_reporter_facility": facility}
+        filters["status"] = mobile._text(status, "status", 140)
+    if subject:
+        filters["subject"] = [
+            "like",
+            "%" + mobile._text(subject, "subject", 140) + "%",
+        ]
+    if ticket_type:
+        filters["ticket_type"] = mobile._text(ticket_type, "ticket_type", 140)
+    facility_filters = {"facility": facility, "plugin_reporter_facility": facility}
     rows = frappe.get_list(
         "HD Ticket",
         filters=filters,
@@ -220,7 +261,7 @@ def list_tickets(email=None, status=None, offset=0, limit=20, facility=None, use
     )
     return mobile._result(
         {
-            "items": [_detail(_ticket(row.name)) for row in rows[:limit]],
+            "items": [_detail(_ticket_for_scope(row.name)) for row in rows[:limit]],
             "has_more": len(rows) > limit,
             "next_offset": offset + limit if len(rows) > limit else None,
         }
@@ -281,6 +322,10 @@ def send_message(ticket_id, content="", attachments=None):
         or (not content.strip() and not files)
     ):
         frappe.throw("Provide a message of at most 10000 characters or an attachment.")
+    if doc.status_category == "Resolved" or doc.status in ("Resolved", "Closed"):
+        doc.flags.allow_plugin_status_change = True
+        doc.status = doc.ticket_reopen_status or "Open"
+        doc.save(ignore_permissions=True)
     comment_id = doc.new_comment(
         escape(content.strip()).replace("\n", "<br>") or "Attachments"
     )
@@ -290,8 +335,22 @@ def send_message(ticket_id, content="", attachments=None):
             "ticket_id": doc.name,
             "accepted": True,
             "message_id": "comment:" + comment_id,
+            "status": doc.status,
             "attachments": saved,
         }
+    )
+
+
+@frappe.whitelist(allow_guest=True, methods=["POST"])
+@signed_rpc
+def close_ticket(ticket_id):
+    doc = _ticket(ticket_id)
+    if doc.status != "Closed":
+        doc.flags.allow_plugin_status_change = True
+        doc.status = "Closed"
+        doc.save(ignore_permissions=True)
+    return mobile._result(
+        {"ticket_id": doc.name, "closed": True, "status": doc.status}
     )
 
 

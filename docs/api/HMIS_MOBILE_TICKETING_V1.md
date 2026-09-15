@@ -1,4 +1,4 @@
-# HMIS and Mobile plugin ticketing API contract v1.4
+# HMIS and Mobile plugin ticketing API contract v1.5
 
 Updated: 2026-09-15. Server trust is configured on Helpdesk; mobile paths and payloads are unchanged. Multipart and list-filter extension: v1.2; wire `api_version` remains `1` (additive fields). Apps: `careverse_hq` and `helpdesk`.
 
@@ -17,12 +17,13 @@ All operations use the authenticated CareVerse RPC URLs below. The “all-ticket
 | Operation | Method and consumer path |
 |---|---|
 | Create ticket with files | `POST /api/method/careverse_hq.api.helpdesk.create_ticket` — multipart/form-data or JSON |
-| All authorized tickets | `GET /api/method/careverse_hq.api.helpdesk.list_tickets?facility=<facility>&user=<CareVerse-user>&offset=0&limit=20` |
+| Facility tickets | `GET /api/method/careverse_hq.api.helpdesk.list_tickets?facility=<facility>&email=<CareVerse-user>&subject=<search>&ticket_type=<type>&offset=0&limit=20` |
+| Close ticket | `POST /api/method/careverse_hq.api.helpdesk.close_ticket` — ticket_id |
 | Comment/chat on a ticket | `POST /api/method/careverse_hq.api.helpdesk.send_message` — ticket_id plus content and/or files |
 | Read ticket chat | `GET /api/method/careverse_hq.api.helpdesk.get_thread?ticket_id=<ID>` |
 | One ticket | `GET /api/method/careverse_hq.api.helpdesk.get_ticket?ticket_id=<ID>` |
 
-The list is paginated and ordered by creation descending, then ticket ID descending. Optional facility/user filters narrow the authenticated user's tickets within their configured instance; they do not grant access to another reporter. Facility-wide staff access is not enabled by this contract.
+The list is paginated and ordered by creation descending, then ticket ID descending. `facility` is mandatory. Mobile sends `email` by default for the reporter's tickets; omitting `email` returns all CareVerse integration tickets for the required facility. Optional `subject` is a case-insensitive contains search, `ticket_type` is an exact ticket-type filter, and `status` is an exact live status. Facility-wide results remain limited to the verified CareVerse instance.
 
 ## 1. URLs and endpoint map
 
@@ -38,13 +39,14 @@ Append the same RPC name on each side:
 |---|---|---|---|
 | POST | `create_ticket` | `source`, `external_reference_id`, `reporter`, `category`, `priority`, `description`, optional `attachments` | `ticket_id`, `status`, `assigned_to`, `assigned_team`, `reused`, `attachments` |
 | GET | `get_ticket` | `ticket_id` | Ticket detail, including status and assignments |
-| GET | `list_tickets` | `facility` optional, `user` optional, `email` optional (compatibility), `status` optional, `offset=0`, `limit=20` | `items`, `has_more`, `next_offset` |
+| GET | `list_tickets` | `facility` required, `email` optional, `user` optional (compatibility), `subject` optional, `ticket_type` optional, `status` optional, `offset=0`, `limit=20` | `items`, `has_more`, `next_offset` |
 | GET | `get_bootstrap` | none | Reporter identity, categories, priorities, statuses, capabilities |
 | GET | `get_counties` | none | `items` |
 | GET | `get_subcounties` | `county` | `items` |
 | GET | `get_facilities` | `county` optional, `sub_county` optional, `offset=0`, `limit=50` | `items`, `has_more`, `next_offset` |
 | GET | `get_thread` | `ticket_id`, `offset=0`, `limit=50` | Public messages, replies and activities in `items`, plus pagination |
-| POST | `send_message` | `ticket_id`, optional `content`, optional `attachments` (at least one nonempty) | `ticket_id`, `accepted`, `message_id`, `attachments` |
+| POST | `send_message` | `ticket_id`, optional `content`, optional `attachments` (at least one nonempty) | `ticket_id`, `accepted`, `message_id`, `status`, `attachments` |
+| POST | `close_ticket` | `ticket_id` | `ticket_id`, `closed`, `status` |
 | GET | `list_attachments` | `ticket_id`, `offset=0`, `limit=50` | `items`, `has_more`, `next_offset` |
 | GET | `download_attachment` | `ticket_id`, `attachment_id` | Attachment metadata, `event_id`, `content_base64`, `sha256` |
 
@@ -181,11 +183,11 @@ The persistent uniqueness key is `(Helpdesk-local ownership scope, source, exter
 
 Persist the reference before the first POST. On network timeout, retry the same source/reference. Each CareVerse attempt receives a fresh signature/request ID automatically. A transport `request_id` is not the business retry key. Different sources or CareVerse instances may independently use the same reference. Do not reuse a reference for a genuinely different issue. After ticket deletion, this implementation does not retain a permanent idempotency tombstone.
 
-## 4. Check status and list reporter tickets
+## 4. Check status and list facility tickets
 
 ```http
 GET /api/method/careverse_hq.api.helpdesk.get_ticket?ticket_id=TKT-XX-XX-XX-XXXXX
-GET /api/method/careverse_hq.api.helpdesk.list_tickets?facility=Clinic%20A&user=jane%40x.org&offset=0&limit=20
+GET /api/method/careverse_hq.api.helpdesk.list_tickets?facility=Clinic%20A&email=jane%40x.org&subject=registration&ticket_type=System%20Error&offset=0&limit=20
 ```
 
 Internal counterparts are `helpdesk.api.plugin.get_ticket` and `helpdesk.api.plugin.list_tickets` with the same business arguments and signed identity fields.
@@ -226,11 +228,15 @@ List result:
 {"items":[{"ticket_id":"TKT-XX-XX-XX-XXXXX","status":"Open","assigned_to":[]}],"has_more":false,"next_offset":null}
 ```
 
-Each actual list item has the full detail shape above; the example abbreviates it. Order: creation descending, then name descending. Follow `next_offset` until `has_more:false`. Omitting user/email means the current reporter. `user` identifies the external CareVerse user, not the HD service user. `email` remains a compatibility filter for that same identity. If either is supplied, it must equal the authenticated CareVerse user; a mismatch is denied, even for agents. If both are supplied, both must match. Optional status is an exact live status name.
+Each actual list item has the full detail shape above; the example abbreviates it. Order: creation descending, then name descending. `facility` is required; missing or blank values return a validation error. Mobile sends `email` by default for the logged-in CareVerse reporter. Omitting `email` deliberately returns all CareVerse integration tickets for that facility. `user` remains a compatibility filter for the same identity. If either is supplied, it must equal the authenticated CareVerse user; a mismatch is denied. If both are supplied, both must match. `subject` is a case-insensitive contains search. `ticket_type` is an exact `HD Ticket.ticket_type` match. Optional status is an exact live status name.
 
 `facility` matches either the resolved HD Facility ID or the stored original `reporter.facility` value by database equality (no substring search). Use the catalogue ID when available, otherwise the exact submitted facility text. Database collation controls case sensitivity. Facility conditions are combined with instance/user permissions and status; they never replace them. A valid filter with no matches returns `items:[]`, `has_more:false`, `next_offset:null`. All filters apply before pagination. Offset-based pages can shift when newer tickets arrive; refresh from offset 0 to reload the latest list.
 
-Every ticket read/write is scoped to the verified instance, external reporter and HD service owner, plus native ticket permissions. This is an own-ticket API, not an agent inbox or cross-reporter search. Historic/demo tickets lacking plugin attribution are not silently claimed; they will not appear in this list. No bulk historical attribution was performed.
+Every ticket read/write is scoped to the verified instance and HD service owner, plus native ticket permissions. When `email` is supplied, the signed reporter is also required; when it is omitted, the required facility is the cross-reporter boundary. Historic/demo tickets lacking plugin attribution are not silently claimed; they will not appear in this list. No bulk historical attribution was performed.
+
+### Close and reopen
+
+`POST /api/method/careverse_hq.api.helpdesk.close_ticket` accepts `{"ticket_id":"..."}`. The authenticated reporter may close their ticket from any current status; repeating the call is safe and returns `{"ticket_id":"...","closed":true,"status":"Closed"}`. A later `send_message` on a resolved or closed ticket adds the public comment and reopens the ticket to the configured Helpdesk reopen status (normally `Open`) in the same transaction. The response includes the resulting `status`. Internal notes and agent-only operations remain unavailable.
 
 ## 5. Critical dependency GETs
 
@@ -329,9 +335,9 @@ Every event additionally contains `attachments:[]` or an array of attachment met
 
 Order is ascending `(created_at,id)`. Merge/deduplicate using stable prefixed event IDs. Prefer `content_text` for native rendering; sanitize rich HTML. Fetch detail and all thread pages on opening; poll from offset 0 every 10 seconds while foregrounded and after sending/reconnecting. Pause in the background and back off on failure. Offset pagination is not a durable incremental cursor and currently aggregates the full thread before slicing.
 
-**Message sending is not retry-idempotent.** After an uncertain send, reconcile the thread before resending. Ticket creation's external reference does not deduplicate chat messages. Public comments reuse native notifications/realtime hooks but do not guarantee an email or automatically reopen a resolved ticket.
+**Message sending is not retry-idempotent.** After an uncertain send, reconcile the thread before resending. Ticket creation's external reference does not deduplicate chat messages. Public comments reuse native notifications/realtime hooks. A comment on a resolved or closed ticket reopens it to the configured reopen status; it does not guarantee email delivery.
 
-Not implemented: video/audio, typing, read receipts, unread counts, push delivery, message editing/deletion, customer close/reopen, or a consumer WebSocket subscription. Respect bootstrap capability flags.
+Not implemented: video/audio, typing, read receipts, unread counts, push delivery, message editing/deletion, or a consumer WebSocket subscription. Customer close and comment-based reopen are supported. Respect bootstrap capability flags.
 
 ## 6A. Screenshots, images and PDFs
 
@@ -433,6 +439,7 @@ Retain the draft and selected files until success. A timeout is uncertain, not p
 | HD timeout | HTTP 504; creation can retry with the same business reference; reconcile messages |
 | Invalid attachment/type/size or changed retry attachment set | HTTP 417 validation failure; keep the draft and correct input. Oversized proxy requests can instead return HTTP 413 before JSON handling. |
 | Invalid fields/category/priority | Usually HTTP 417 with `details.error_type = ValidationError`; refresh dependencies and correct payload |
+| Missing or blank list facility | HTTP 400 from CareVerse with `message.message = "facility is required when listing tickets."` and `details.field = "facility"`; send the facility selected in the current CareVerse session |
 | Wrong reporter or inaccessible ticket | HTTP 403; do not retry as another identity |
 | Missing ticket | HTTP 404 |
 | Downstream service authentication/signature/trust failure | HTTP 502; do not log out the CareVerse user; administrator fixes service credentials/trust |
@@ -448,7 +455,7 @@ Pre-dispatch Frappe errors may use framework `exc_type`/`exception` instead of t
 
 ## 8. CareVerse → Helpdesk Ed25519 protocol
 
-All eleven HD plugin methods require native API-token authentication as an enabled non-Administrator Helpdesk service user, plus mandatory Ed25519 verification. The `allow_guest=True` declarations only permit entry into the guard; it rejects missing service credentials. An HD cookie alone cannot authenticate this transport. The signed CareVerse reporter may be any non-Guest identity, including Administrator for bench testing, and needs no HD account or mapping.
+All twelve HD plugin methods require native API-token authentication as an enabled non-Administrator Helpdesk service user, plus mandatory Ed25519 verification. The `allow_guest=True` declarations only permit entry into the guard; it rejects missing service credentials. An HD cookie alone cannot authenticate this transport. The signed CareVerse reporter may be any non-Guest identity, including Administrator for bench testing, and needs no HD account or mapping.
 
 No instance ID or originating site URL is sent in headers, query parameters or JSON. Helpdesk trusts exactly one CareVerse origin configured locally. Requests containing legacy `instance_id`, `origin` or `careverse_url` arguments are rejected. CareVerse adds only these fields to business arguments:
 
@@ -533,7 +540,7 @@ Repeatable checks, from `/home/ubuntu/frappe-bench/sites`:
 
 The development script is pinned to hd-dev. Attachment checks cover combined image/PDF creation, stable retries, private download bytes/checksums, attachment-only messages, invalid type/Base64/path/size rejection, cross-ticket/instance denial, and full rollback after a simulated failure following file persistence. Three media unit tests cover supported image formats, native video disguised as PNG, and a bounded read despite stale size metadata. A live HTTPS test verified combined screenshot/PDF creation, concurrent retries retaining the same file IDs, exact downloaded bytes/checksums and screenshot messages through CareVerse to HD; its temporary ticket was deleted afterwards. Direct unauthenticated access to the private HD file was denied; the fixture also verifies that agent public files are accessible while internal-note files are hidden and denied. It rolls back temporary users, agents, assignment rules and tickets, mutes email, and uses real Ed25519 signing with mocked public-key HTTP discovery. It verifies exact creation payload, original-ticket retry, reporter spoofing denial, instance/source separation, public chat/activity and hidden notes, native round-robin rotation with two temporary agents, unchanged assignment on retry, timestamps, tampering, replay, and public-key discovery/cache behavior. The unique schema provides concurrent arbitration; this fixture harness does not simulate a concurrent HTTP race. A separate live test cleared the instance public-key cache, sent two simultaneous CareVerse creates over HTTP, and verified one ticket with one `reused:false` and one `reused:true` response. It also verified live detail/list, message persistence/thread retrieval, and all dependency GETs. Only that run's temporary ticket was deleted afterwards.
 
-CareVerse unit tests cover fixed destination, signed identity injection, exact create payload forwarding, reporter email forwarding, disabled integration, malformed responses and upstream-auth error handling. Two discovery unit tests cover the cold-cache waiter and rejection of a different published key. Live CareVerse-to-HD tests exercise actual HTTPS signing and key discovery across all eleven RPCs; they do not replace consumer login testing.
+CareVerse unit tests cover fixed destination, signed identity injection, exact create payload forwarding, reporter email forwarding, disabled integration, malformed responses and upstream-auth error handling. Two discovery unit tests cover the cold-cache waiter and rejection of a different published key. Live CareVerse-to-HD tests exercise actual HTTPS signing and key discovery across all twelve RPCs; they do not replace consumer login testing.
 
 Sources: `careverse_hq/api/helpdesk.py`, existing `careverse_hq/api/hmis_transport.py` and `hmis_signing.py`; `helpdesk/api/plugin.py`, `plugin_media.py`, internal `mobile.py`, `mobile_signing.py`, both configuration DocTypes and HD Ticket schema. This contract is maintained identically at `docs/api/HMIS_MOBILE_TICKETING_V1.md` in both repositories.
 
