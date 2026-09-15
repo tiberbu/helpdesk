@@ -163,8 +163,8 @@ def verify_request(request, trusted_keys, endpoint, namespace="helpdesk.api.plug
     except (ValueError, KeyError, TypeError, InvalidSignature):
         _deny("Invalid request signature.")
     user = args["user_id"]
-    if user in ("Guest", "Administrator") or user not in trust.get("allowed_users", []):
-        _deny("CareVerse instance is not authorized for this user.")
+    if user == "Guest" or len(user) > 140:
+        _deny("A non-Guest CareVerse reporter identity is required.")
     replay_key = (
         "helpdesk:mobile:replay:"
         + hashlib.sha256(
@@ -177,7 +177,7 @@ def verify_request(request, trusted_keys, endpoint, namespace="helpdesk.api.plug
 def configured_instance():
     """Trust origin comes exclusively from Helpdesk site config, never request input.
 
-    The local trust record retains user mappings and historic ticket ownership.
+    The local trust record retains its enabled flag and historic ticket scope.
     Its legacy base_url is not used for key discovery.
     """
     origin = (frappe.conf.get("careverse_url") or "").strip().rstrip("/")
@@ -190,41 +190,44 @@ def configured_instance():
     try:
         record = frappe.get_doc("HD CareVerse Instance", scope)
     except frappe.DoesNotExistError:
-        _deny("Configure the local CareVerse user-mapping record.")
+        _deny("Configure the local CareVerse trust record.")
     return SimpleNamespace(name=record.name, enabled=record.enabled,
-                           users=record.users, base_url=origin)
+                           base_url=origin)
+
+
+def _service_user(request):
+    """Frappe validates the token before dispatch; bind it to this request's user."""
+    header = request.headers.get("Authorization", "")
+    if not header.lower().startswith("token ") or ":" not in header[6:]:
+        _deny("Helpdesk service API key and API secret are required.")
+    user = frappe.session.user
+    api_key = header[6:].split(":", 1)[0]
+    if user in ("Guest", "Administrator") or not frappe.db.exists(
+        "User", {"name": user, "api_key": api_key, "enabled": 1}
+    ):
+        _deny("Helpdesk service account is unavailable or does not match the API key.")
+    return user
 
 
 def signed_rpc(fn):
     @wraps(fn)
     def wrapped(*args, **kwargs):
         request = frappe.request
+        target_user = _service_user(request)
         _check_timestamp(request)
         values = signed_arguments(request)
         instance = configured_instance()
         if not instance.enabled:
             _deny("CareVerse instance is disabled.")
-        mappings = {
-            row.careverse_user: row.helpdesk_user
-            for row in instance.users
-            if row.enabled
-        }
-        if values["user_id"] not in mappings:
-            _deny("No enabled user mapping for this CareVerse instance.")
         key_id = request.headers.get("X-AC-Key-Id", "")
         public = _fetch_public_key(instance, key_id)
         user, replay_key = verify_request(
             request,
-            {key_id: {**public, "allowed_users": list(mappings)}},
+            {key_id: public},
             fn.__name__,
             fn.__module__,
             scope=instance.name,
         )
-        target_user = mappings[user]
-        if target_user in ("Guest", "Administrator") or not frappe.db.get_value(
-            "User", target_user, "enabled"
-        ):
-            _deny("Mapped Helpdesk user is unavailable or disabled.")
         # Dispatch only the verified bytes, never an unsigned form/keyword override.
         business = {
             key: value

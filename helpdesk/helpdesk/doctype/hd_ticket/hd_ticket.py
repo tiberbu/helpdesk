@@ -237,6 +237,8 @@ class HDTicket(Document):
         tickets) to allow actions like re-applying an incident model without
         blocking the save with newly-added incomplete items.
         """
+        if getattr(self.flags, "allow_plugin_status_change", False):
+            return
         if self.status_category not in ("Resolved", "Closed"):
             return
 
@@ -299,6 +301,8 @@ class HDTicket(Document):
         AC #7: category required when resolving if setting is enabled.
         AC #8: sub_category must belong to selected category.
         """
+        if getattr(self.flags, "allow_plugin_status_change", False):
+            return
         is_resolving = self.status_category == "Resolved"
 
         if is_resolving and frappe.db.get_single_value(
@@ -753,6 +757,8 @@ class HDTicket(Document):
         )
 
     def validate_feedback(self):
+        if getattr(self.flags, "allow_plugin_status_change", False):
+            return
         is_feedback_mandatory = frappe.get_cached_value(
             "HD Settings", "HD Settings", "is_feedback_mandatory"
         )
@@ -770,7 +776,12 @@ class HDTicket(Document):
         )
 
     def check_update_perms(self):
-        if self.is_new() or is_agent() or not self.via_customer_portal:
+        if (
+            self.is_new()
+            or is_agent()
+            or not self.via_customer_portal
+            or getattr(self.flags, "allow_plugin_status_change", False)
+        ):
             return
         old_doc = self.get_doc_before_save()
         is_closed = old_doc.status == "Closed"
