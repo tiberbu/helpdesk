@@ -97,7 +97,16 @@
   "custom_section",
   "escalation_path",
   "agent_rotation_path",
-  "rotation_exhausted"
+  "rotation_exhausted",
+  "plugin_key",
+  "plugin_instance",
+  "plugin_source",
+  "external_reference_id",
+  "plugin_reporter_name",
+  "plugin_reporter_email",
+  "plugin_reporter_facility",
+  "plugin_attachments",
+  "plugin_attachment_fingerprint"
  ],
  "fields": [
   {
@@ -709,6 +718,73 @@
    "hidden": 1,
    "label": "Rotation Exhausted",
    "read_only": 1
+  },
+  {
+   "fieldname": "plugin_key",
+   "fieldtype": "Data",
+   "label": "Plugin Retry Key",
+   "read_only": 1,
+   "no_copy": 1,
+   "unique": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "plugin_instance",
+   "fieldtype": "Data",
+   "label": "CareVerse Instance",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_source",
+   "fieldtype": "Data",
+   "label": "Plugin Source",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "external_reference_id",
+   "fieldtype": "Data",
+   "label": "External Reference ID",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_reporter_name",
+   "fieldtype": "Data",
+   "label": "Reporter Name",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_reporter_email",
+   "fieldtype": "Data",
+   "label": "Reporter Email",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_reporter_facility",
+   "fieldtype": "Data",
+   "label": "Reporter Facility",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_attachments",
+   "fieldtype": "Long Text",
+   "label": "Initial Plugin Attachments",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_attachment_fingerprint",
+   "fieldtype": "Data",
+   "label": "Plugin Attachment Fingerprint",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
   }
  ],
  "grid_page_length": 50,

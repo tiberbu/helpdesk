@@ -21,7 +21,10 @@ add_to_apps_screen = [
 
 get_site_info = "helpdesk.activation.get_site_info"
 
-after_install = "helpdesk.setup.install.after_install"
+after_install = [
+    "helpdesk.patches.add_user_force_password_change.execute",
+    "helpdesk.setup.install.after_install",
+]
 after_migrate = [
     "helpdesk.search.build_index_in_background",
     "helpdesk.search.download_corpus",
@@ -127,11 +130,13 @@ doc_events = {
 }
 
 has_permission = {
+    "HD Ticket Activity": "helpdesk.helpdesk.doctype.hd_ticket_activity.hd_ticket_activity.has_permission",
     "HD Ticket": "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.has_permission",
     "HD Saved Reply": "helpdesk.helpdesk.doctype.hd_saved_reply.hd_saved_reply.has_permission",
 }
 
 permission_query_conditions = {
+    "HD Ticket Activity": "helpdesk.helpdesk.doctype.hd_ticket_activity.hd_ticket_activity.permission_query",
     "HD Ticket": "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.permission_query",
     "HD Saved Reply": "helpdesk.helpdesk.doctype.hd_saved_reply.hd_saved_reply.permission_query",
 }
