@@ -44,6 +44,7 @@ ALLOWED_PATHS = [
     "/api/method/helpdesk.api.auth.complete_forced_password_change",
     "/api/method/helpdesk.api.report_export.get_management_report_excel",
     "/api/method/helpdesk.api.report_export.get_management_report_pdf",
+    "/api/method/helpdesk.api.duplicate_check.check_similar_tickets",
     "/api/method/frappe.utils.telemetry.pulse.client.is_enabled",
     "/api/method/frappe.client.get_value",
     "/api/method/frappe.client.get_count",

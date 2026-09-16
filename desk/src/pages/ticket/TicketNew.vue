@@ -101,6 +101,27 @@
             type="text"
             :placeholder="__('A short description')"
           />
+          <div
+            v-if="similarTickets.length"
+            class="mt-2 rounded border border-amber-300 bg-amber-50 p-3"
+          >
+            <div class="text-sm font-medium text-amber-800 mb-1">
+              {{ __("Similar tickets already reported:") }}
+            </div>
+            <div
+              v-for="t in similarTickets"
+              :key="t.name"
+              class="text-sm text-amber-900 flex items-center gap-2 py-0.5"
+            >
+              <span class="font-medium">{{ t.name }}</span>
+              <span>&mdash;</span>
+              <span class="truncate">{{ t.title }}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded bg-amber-200">{{ t.status }}</span>
+            </div>
+            <div class="text-xs text-amber-700 mt-1">
+              {{ __("You can still raise this ticket if it's a separate issue.") }}
+            </div>
+          </div>
         </div>
         <SearchArticles
           v-if="isCustomerPortal"
@@ -189,7 +210,7 @@ import {
 } from "frappe-ui";
 import { useOnboarding } from "frappe-ui/frappe";
 import sanitizeHtml from "sanitize-html";
-import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
+import { computed, defineAsyncComponent, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchArticles from "../../components/SearchArticles.vue";
 
@@ -211,6 +232,27 @@ const { $dialog } = globalStore();
 const { updateOnboardingStep } = useOnboarding("helpdesk");
 const { isManager, userId: userID, mobileNo } = useAuthStore();
 const subject = ref("");
+
+const similarTickets = ref([]);
+let similarCheckTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(subject, (value) => {
+  if (similarCheckTimeout) clearTimeout(similarCheckTimeout);
+  similarCheckTimeout = setTimeout(async () => {
+    if (!value || value.trim().length < 8) {
+      similarTickets.value = [];
+      return;
+    }
+    try {
+      const res = await call("helpdesk.api.duplicate_check.check_similar_tickets", {
+        subject: value,
+      });
+      similarTickets.value = res?.matches || [];
+    } catch (e) {
+      similarTickets.value = [];
+    }
+  }, 600);
+});
 const description = ref("");
 const attachments = ref([]);
 const templateFields = reactive({});
@@ -346,7 +388,7 @@ const ticket = createResource({
     attachments: attachments.value,
   }),
   validate: (params) => {
-    if (isCustomerPortal.value && !params.doc.facility) {
+    if (!params.doc.facility) {
       return __("Facility is required");
     }
     if (!params.doc.custom_phone) {
