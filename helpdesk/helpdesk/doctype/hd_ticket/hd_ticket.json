@@ -440,14 +440,6 @@
    "search_index": 1
   },
   {
-   "fieldname": "external_reference_id",
-   "fieldtype": "Data",
-   "label": "External Reference ID",
-   "description": "ID of this ticket in the originating external system (e.g. HMIS issue ID), used to prevent duplicate ticket creation on retries.",
-   "in_standard_filter": 1,
-   "search_index": 1
-  },
-  {
    "fieldname": "attachment",
    "fieldtype": "Attach",
    "hidden": 1,
