@@ -1,6 +1,16 @@
 <template>
   <div class="flex flex-col">
-    <LayoutHeader v-if="ticket.data">
+    <!-- Loading State - v2 -->
+    <div v-if="ticket.loading" class="flex items-center justify-center h-screen">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <p class="mt-4 text-gray-600">{{ __("Loading ticket...") }}</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <template v-else-if="ticket.data">
+    <LayoutHeader>
       <template #left-header>
         <Breadcrumbs :items="breadcrumbs" />
       </template>
@@ -119,11 +129,12 @@
             </template>
           </Tabs>
           <CommunicationArea
+            v-if="ticket.data"
             class="sticky bottom-0 z-50 bg-white"
             ref="communicationAreaRef"
             v-model="ticket.data"
             :ticketId="ticket.data?.name"
-            :to-emails="[ticket.data.raised_by]"
+            :to-emails="[ticket.data?.raised_by || '']"
             :cc-emails="[]"
             :bcc-emails="[]"
             :key="ticket.data?.name"
@@ -185,10 +196,12 @@
       </template>
     </Dialog>
     <SetContactPhoneModal
+      v-if="ticket.data"
       v-model="showPhoneModal"
       :name="ticket.data?.contact?.name"
       @onUpdate="ticket.reload"
     />
+    </template>
   </div>
 </template>
 
@@ -304,7 +317,7 @@ const ticket = createResource({
     }
   },
   onSuccess: (data) => {
-    subjectInput.value = ticket.subject;
+    subjectInput.value = data.subject || ticket.data?.subject || "";
     setupCustomizations(ticket, {
       doc: data,
       call,
@@ -326,16 +339,20 @@ function updateField(name: string, value: string, callback = () => {}) {
 }
 
 const breadcrumbs = computed(() => {
+  if (!ticket.data) {
+    return [{ label: __("Tickets"), route: { name: "TicketsAgent" } }];
+  }
   let items = [{ label: __("Tickets"), route: { name: "TicketsAgent" } }];
   items.push({
-    label: ticket.data?.subject,
+    label: ticket.data.subject || __("Loading..."),
     route: { name: "TicketAgent" },
   });
   return items;
 });
 
-const dropdownOptions = computed(() =>
-  ticketStatusStore.statuses.data?.map((o: HDTicketStatus) => ({
+const dropdownOptions = computed(() => {
+  if (!ticket.data || !ticketStatusStore.statuses.data) return [];
+  return ticketStatusStore.statuses.data.map((o: HDTicketStatus) => ({
     label: o.label_agent,
     value: o.label_agent,
     onClick: () => updateTicket("status", o.label_agent),
@@ -343,8 +360,8 @@ const dropdownOptions = computed(() =>
       h(IndicatorIcon, {
         class: o.parsed_color,
       }),
-  }))
-);
+  }));
+});
 
 const tabs: ComputedRef<TabObject[]> = computed(() => {
   const _tabs = [
@@ -384,81 +401,95 @@ const tabs: ComputedRef<TabObject[]> = computed(() => {
 const { tabIndex, changeTabTo } = useActiveTabManager(tabs);
 
 const activities = computed(() => {
-  const emailProps = ticket.data.communications.map((email, idx: number) => {
+  if (!ticket.data) return [];
+
+  const emailProps = (ticket.data.communications || []).map((email, idx: number) => {
+    if (!email) return null;
     return {
-      subject: email.subject,
-      content: email.content,
-      sender: { name: email.user.email, full_name: email.user.name },
-      to: email.recipients,
+      subject: email.subject || "",
+      content: email.content || "",
+      sender: { name: email.user?.email || "", full_name: email.user?.name || "" },
+      to: email.recipients || "",
       type: "email",
-      key: email.creation,
-      cc: email.cc,
-      bcc: email.bcc,
-      creation: email.communication_date || email.creation,
-      attachments: email.attachments,
-      name: email.name,
-      deliveryStatus: email.delivery_status,
+      key: email.creation || "",
+      cc: email.cc || "",
+      bcc: email.bcc || "",
+      creation: email.communication_date || email.creation || "",
+      attachments: email.attachments || [],
+      name: email.name || "",
+      deliveryStatus: email.delivery_status || "",
       isFirstEmail: idx === 0,
     };
-  });
+  }).filter(Boolean);
 
-  const commentProps = ticket.data.comments.map((comment) => {
+  const commentProps = (ticket.data.comments || []).map((comment) => {
+    if (!comment) return null;
     return {
-      name: comment.name,
+      name: comment.name || "",
       type: "comment",
-      key: comment.creation,
-      commentedBy: comment.commented_by,
-      commenter: comment.user.name,
-      creation: comment.creation,
-      content: comment.content,
-      attachments: comment.attachments,
+      key: comment.creation || "",
+      commentedBy: comment.commented_by || "",
+      commenter: comment.user?.name || "",
+      creation: comment.creation || "",
+      content: comment.content || "",
+      attachments: comment.attachments || [],
     };
-  });
+  }).filter(Boolean);
 
-  const historyProps = [...ticket.data.history, ...ticket.data.views].map(
+  const historyProps = [...(ticket.data.history || []), ...(ticket.data.views || [])].map(
     (h) => {
+      if (!h) return null;
       return {
         type: "history",
-        key: h.creation,
+        key: h.creation || "",
         content: h.action ? h.action : __("viewed this"),
-        creation: h.creation,
-        user: h.user.name + " ",
+        creation: h.creation || "",
+        user: (h.user?.name || "") + " ",
       };
     }
-  );
+  ).filter(Boolean);
 
-  const callProps = ticket.data.calls.map((call) => {
+  const callProps = (ticket.data.calls || []).map((call) => {
+    if (!call) return null;
     return {
       ...call,
       type: "call",
-      name: call.name,
-      key: call.creation,
-      call_type: call.type,
+      name: call.name || "",
+      key: call.creation || "",
+      call_type: call.type || "",
       content: `${call.caller || "Unknown"} made a call to ${
         call.receiver || "Unknown"
       }`,
       duration: call.duration ? call.duration + "s" : "0s",
     };
-  });
+  }).filter(Boolean);
 
   const sorted = [
     ...emailProps,
     ...commentProps,
     ...historyProps,
     ...callProps,
-  ].sort((a, b) => new Date(a.creation) - new Date(b.creation));
+  ].filter(Boolean).sort((a, b) => {
+    const dateA = a?.creation ? new Date(a.creation) : new Date(0);
+    const dateB = b?.creation ? new Date(b.creation) : new Date(0);
+    return dateA - dateB;
+  });
 
   const data = [];
   let i = 0;
 
   while (i < sorted.length) {
     const currentActivity = sorted[i];
+    if (!currentActivity) {
+      i++;
+      continue;
+    }
     if (currentActivity.type === "history") {
       currentActivity.relatedActivities = [currentActivity];
       for (let j = i + 1; j < sorted.length + 1; j++) {
         const nextActivity = sorted[j];
 
-        if (nextActivity && nextActivity.user === currentActivity.user) {
+        if (nextActivity && nextActivity.type === "history" && nextActivity.user === currentActivity.user) {
           currentActivity.relatedActivities.push(nextActivity);
         } else {
           data.push(currentActivity);
@@ -471,7 +502,7 @@ const activities = computed(() => {
     }
     i++;
   }
-  return data;
+  return data.filter(Boolean);
 });
 
 function filterActivities(eventType: TicketTab) {

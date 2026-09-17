@@ -61,6 +61,26 @@
       </div>
     </div>
 
+    <!-- Location Info (county / sub-county / facility) — read-only, agents only -->
+    <div
+      v-if="ticket?.doc?.county || ticket?.doc?.sub_county || ticket?.doc?.facility"
+      class="border-t px-5 py-3 flex flex-col gap-2"
+    >
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Location</p>
+      <div v-if="ticket.doc.county" class="flex justify-between text-sm">
+        <span class="text-gray-500">County</span>
+        <span class="font-medium text-gray-800">{{ ticket.doc.county }}</span>
+      </div>
+      <div v-if="ticket.doc.sub_county" class="flex justify-between text-sm">
+        <span class="text-gray-500">Sub-County</span>
+        <span class="font-medium text-gray-800">{{ ticket.doc.sub_county }}</span>
+      </div>
+      <div v-if="ticket.doc.facility" class="flex flex-col gap-0.5 text-sm">
+        <span class="text-gray-500">Facility</span>
+        <span class="font-medium text-gray-800">{{ ticket.doc.facility }}</span>
+      </div>
+    </div>
+
     <!-- Additional Fields -->
     <div class="border-t flex flex-col pb-3">
       <div>
@@ -157,7 +177,6 @@ const coreFields = computed(() => {
   const _coreFields = [
     { group: true, fields: [getField("ticket_type"), getField("priority")] },
     { group: false, fields: [getField("customer")] },
-    { group: true, fields: [getField("agent_group")] },
   ];
 
   _coreFields.forEach((section) => {
@@ -188,7 +207,6 @@ const customFields = computed(() => {
     "ticket_type",
     "priority",
     "customer",
-    "agent_group",
     "subject",
     "status",
   ];

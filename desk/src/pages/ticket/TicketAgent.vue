@@ -1,5 +1,23 @@
 <template>
-  <div v-if="ticket.doc?.name" class="flex-1">
+  <div
+    v-if="ticketNotFound"
+    class="flex flex-col items-center justify-center h-full gap-3 text-ink-gray-6"
+  >
+    <LucideTicketX class="w-10 h-10 text-ink-gray-4" />
+    <p class="text-lg font-medium">
+      {{ __("Ticket #{0} not found", [props.ticketId]) }}
+    </p>
+    <p class="text-sm text-ink-gray-5">
+      {{ __("This ticket may have been deleted or you may not have access to it.") }}
+    </p>
+    <router-link
+      :to="{ name: 'TicketsAgent' }"
+      class="mt-2 text-sm text-primary hover:underline"
+    >
+      {{ __("Back to tickets") }}
+    </router-link>
+  </div>
+  <div v-else-if="ticket.doc?.name" class="flex-1">
     <TicketHeader :viewers="viewers" />
 
     <!-- Major Incident Banner -->
@@ -79,7 +97,7 @@ import TicketSidebar from "@/components/ticket-agent/TicketSidebar.vue";
 import MajorIncidentBanner from "@/components/ticket/MajorIncidentBanner.vue";
 import SetContactPhoneModal from "@/components/ticket/SetContactPhoneModal.vue";
 import { useActiveViewers } from "@/composables/realtime";
-import { reloadTicket, useTicket } from "@/composables/useTicket";
+import { reloadTicket, useTicket, useTicketNotFound } from "@/composables/useTicket";
 import { ticketsToNavigate } from "@/composables/useTicketNavigation";
 import { globalStore } from "@/stores/globalStore";
 import { useTelephonyStore } from "@/stores/telephony";
@@ -112,6 +130,7 @@ const showPhoneModal = ref(false);
 
 const ticketComposable = computed(() => useTicket(props.ticketId));
 const ticket = computed(() => ticketComposable.value.ticket);
+const ticketNotFound = computed(() => useTicketNotFound(props.ticketId));
 const customizations: Resource<Customizations> = createResource({
   url: "helpdesk.helpdesk.doctype.hd_ticket.api.get_ticket_customizations",
   cache: ["HD Ticket", "customizations"],

@@ -53,27 +53,36 @@
           </template>
         </UniInput>
       </div>
-      <!-- county + sub-county picker -->
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="flex flex-col gap-2">
-          <label class="block text-sm text-gray-700">{{ __("County") }}</label>
+      <!-- Facility picker (auto-fills county + sub-county) -->
+      <div class="flex flex-col gap-2">
+        <label class="block text-sm text-gray-700">{{ __("Facility") }} <span class="text-red-500">*</span></label>
+        <div class="relative">
           <FormControl
-            type="select"
-            :options="countyOptions"
-            v-model="county"
-            :placeholder="__('Select county')"
-            @change="onCountyChange"
+            type="text"
+            v-model="facilitySearch"
+            :placeholder="__('Search facility...')"
+            autocomplete="off"
+            @focus="showFacilityDropdown = true"
+            @input="showFacilityDropdown = true"
+            @blur="onFacilityBlur"
           />
+          <div
+            v-if="showFacilityDropdown && filteredFacilities.length"
+            class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          >
+            <div
+              v-for="fac in filteredFacilities"
+              :key="fac.name"
+              class="px-4 py-2 text-sm cursor-pointer hover:bg-gray-50"
+              @mousedown.prevent="selectFacility(fac)"
+            >
+              <div class="font-medium text-gray-900">{{ fac.facility_name }}</div>
+              <div class="text-xs text-gray-500">{{ fac.county }}<template v-if="fac.sub_county"> · {{ fac.sub_county }}</template></div>
+            </div>
+          </div>
         </div>
-        <div class="flex flex-col gap-2">
-          <label class="block text-sm text-gray-700">{{ __("Sub-County") }}</label>
-          <FormControl
-            type="select"
-            :options="subCountyOptions"
-            v-model="subCounty"
-            :placeholder="county ? __('Select sub-county') : __('Select a county first')"
-            :disabled="!county"
-          />
+        <div v-if="facility && county" class="text-xs text-gray-500 mt-0.5">
+          {{ county }}<template v-if="subCounty"> · {{ subCounty }}</template>
         </div>
       </div>
 
@@ -92,6 +101,27 @@
             type="text"
             :placeholder="__('A short description')"
           />
+          <div
+            v-if="similarTickets.length"
+            class="mt-2 rounded border border-amber-300 bg-amber-50 p-3"
+          >
+            <div class="text-sm font-medium text-amber-800 mb-1">
+              {{ __("Similar tickets already reported:") }}
+            </div>
+            <div
+              v-for="t in similarTickets"
+              :key="t.name"
+              class="text-sm text-amber-900 flex items-center gap-2 py-0.5"
+            >
+              <span class="font-medium">{{ t.name }}</span>
+              <span>&mdash;</span>
+              <span class="truncate">{{ t.title }}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded bg-amber-200">{{ t.status }}</span>
+            </div>
+            <div class="text-xs text-amber-700 mt-1">
+              {{ __("You can still raise this ticket if it's a separate issue.") }}
+            </div>
+          </div>
         </div>
         <SearchArticles
           v-if="isCustomerPortal"
@@ -200,67 +230,65 @@ const route = useRoute();
 const router = useRouter();
 const { $dialog } = globalStore();
 const { updateOnboardingStep } = useOnboarding("helpdesk");
-const { isManager, userId: userID } = useAuthStore();
+const { isManager, userId: userID, mobileNo } = useAuthStore();
 const subject = ref("");
+
+const similarTickets = ref([]);
+let similarCheckTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(subject, (value) => {
+  if (similarCheckTimeout) clearTimeout(similarCheckTimeout);
+  similarCheckTimeout = setTimeout(async () => {
+    if (!value || value.trim().length < 8) {
+      similarTickets.value = [];
+      return;
+    }
+    try {
+      const res = await call("helpdesk.api.duplicate_check.check_similar_tickets", {
+        subject: value,
+      });
+      similarTickets.value = res?.matches || [];
+    } catch (e) {
+      similarTickets.value = [];
+    }
+  }, 600);
+});
 const description = ref("");
 const attachments = ref([]);
 const templateFields = reactive({});
+
+// ── Facility picker (auto-fills county + sub-county) ─────────────────────────
+
+const facility = ref("");
+const facilitySearch = ref("");
 const county = ref("");
 const subCounty = ref("");
+const showFacilityDropdown = ref(false);
 
-// ── County / Sub-County picker ──────────────────────────────────────────────
-
-const countiesResource = createResource({
-  url: "helpdesk.api.location.get_counties",
+const facilitiesResource = createResource({
+  url: "helpdesk.api.location.get_facilities",
   auto: true,
 });
 
-const subCountiesResource = createResource({
-  url: "helpdesk.api.location.get_sub_counties",
-  makeParams: () => ({ county: county.value }),
+const filteredFacilities = computed(() => {
+  const all: any[] = facilitiesResource.data || [];
+  const q = facilitySearch.value.toLowerCase().trim();
+  if (!q) return all.slice(0, 50);
+  return all.filter((f) => f.facility_name.toLowerCase().includes(q)).slice(0, 50);
 });
 
-const countyOptions = computed(() => {
-  const list: string[] = countiesResource.data || [];
-  return [{ label: __("-- None --"), value: "" }, ...list.map((c) => ({ label: c, value: c }))];
-});
-
-const subCountyOptions = computed(() => {
-  const list = subCountiesResource.data || [];
-  // API now returns [{label, value}] instead of strings
-  if (list.length > 0 && typeof list[0] === 'object' && 'label' in list[0]) {
-    return [{ label: __("-- None --"), value: "" }, ...list];
-  }
-  // Fallback for old format (just strings)
-  return [{ label: __("-- None --"), value: "" }, ...list.map((s: any) => ({ label: s, value: s }))];
-});
-
-function onCountyChange() {
-  subCounty.value = "";
-  if (county.value) {
-    subCountiesResource.fetch();
-  }
+function selectFacility(fac: any) {
+  facility.value = fac.name;
+  facilitySearch.value = fac.facility_name;
+  county.value = fac.county || "";
+  subCounty.value = fac.sub_county || "";
+  showFacilityDropdown.value = false;
 }
 
-watch(county, (val) => {
-  if (val) subCountiesResource.fetch();
-});
-
-// Pre-fill from saved contact location
-const contactLocationResource = createResource({
-  url: "helpdesk.api.location.get_contact_location",
-  auto: true,
-  onSuccess: (data: { county?: string; sub_county?: string }) => {
-    if (data?.county && !county.value) {
-      county.value = data.county;
-    }
-    if (data?.sub_county && !subCounty.value) {
-      subCounty.value = data.sub_county;
-      // load sub-county options for the pre-filled county
-      if (county.value) subCountiesResource.fetch();
-    }
-  },
-});
+// Close dropdown when clicking outside
+function onFacilityBlur() {
+  setTimeout(() => { showFacilityDropdown.value = false; }, 150);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -281,6 +309,20 @@ const template = createResource({
       applyFilters,
     });
     setupTemplateFields(data.fields);
+    // Pre-fill phone from the agent's own saved number, so they do not
+    // have to retype it every ticket. Still fully editable, never mandatory.
+    if ("custom_phone" in templateFields && !templateFields.custom_phone && mobileNo) {
+      templateFields.custom_phone = mobileNo;
+    }
+
+    // Apply default values from template
+    if (data.default_values) {
+      Object.entries(data.default_values).forEach(([key, value]) => {
+        if (value) {
+          templateFields[key] = value;
+        }
+      });
+    }
   },
 });
 
@@ -292,7 +334,8 @@ function setupTemplateFields(fields) {
 
 const ticketPriorityResource = createListResource({
   doctype: "HD Ticket Priority",
-  fields: ["name", "description"],
+  fields: ["name", "description", "integer_value"],
+  orderBy: "integer_value desc",
   auto: true,
   cache: "ticketPriorities",
 });
@@ -337,6 +380,7 @@ const ticket = createResource({
       description: description.value,
       subject: subject.value,
       template: props.templateId,
+      ...(facility.value ? { facility: facility.value } : {}),
       ...(county.value ? { county: county.value } : {}),
       ...(subCounty.value ? { sub_county: subCounty.value } : {}),
       ...templateFields,
@@ -344,6 +388,25 @@ const ticket = createResource({
     attachments: attachments.value,
   }),
   validate: (params) => {
+    if (!params.doc.facility) {
+      return __("Facility is required");
+    }
+    if (!params.doc.custom_phone) {
+      if (!mobileNo) {
+        return __(
+          "Phone number is required the first time \u2014 it will be saved and auto-filled for you on future tickets."
+        );
+      }
+    } else {
+      const normalized = params.doc.custom_phone.replace(/[\s-]/g, "");
+      const kePhoneRegex = /^(0[17]\d{8}|\+254[17]\d{8})$/;
+      if (!kePhoneRegex.test(normalized)) {
+        return __(
+          "Phone number must be a valid Kenyan number: 10 digits starting with 07 or 01 (e.g. 0712345678), or international format starting with +254 (e.g. +254712345678)."
+        );
+      }
+      params.doc.custom_phone = normalized;
+    }
     const fields = visibleFields.value?.filter((f) => f.required) || [];
     const toVerify = [...fields, "subject", "description"];
     for (const field of toVerify) {

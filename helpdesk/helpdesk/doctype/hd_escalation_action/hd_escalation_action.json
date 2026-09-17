@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "creation": "2026-06-26 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "action_type",
+  "column_break_1",
+  "notify_agent",
+  "assign_to_agent",
+  "assign_to_team",
+  "set_priority",
+  "note_content"
+ ],
+ "fields": [
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "label": "Action",
+   "options": "notify_agent\nnotify_manager\nreassign_agent\nreassign_team\nchange_priority\nadd_note",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notify_agent",
+   "fieldtype": "Link",
+   "label": "Agent to Notify",
+   "options": "HD Agent",
+   "depends_on": "eval:doc.action_type=='notify_agent'",
+   "description": "Send an email notification to this agent."
+  },
+  {
+   "fieldname": "assign_to_agent",
+   "fieldtype": "Link",
+   "label": "Assign to Agent",
+   "options": "HD Agent",
+   "depends_on": "eval:doc.action_type=='reassign_agent'",
+   "description": "Reassign the ticket to this agent."
+  },
+  {
+   "fieldname": "assign_to_team",
+   "fieldtype": "Link",
+   "label": "Assign to Team",
+   "options": "HD Team",
+   "depends_on": "eval:doc.action_type=='reassign_team'",
+   "description": "Reassign the ticket to this team."
+  },
+  {
+   "fieldname": "set_priority",
+   "fieldtype": "Link",
+   "label": "Set Priority",
+   "options": "HD Ticket Priority",
+   "depends_on": "eval:doc.action_type=='change_priority'",
+   "description": "Change the ticket priority to this value."
+  },
+  {
+   "fieldname": "note_content",
+   "fieldtype": "Small Text",
+   "label": "Note Content",
+   "depends_on": "eval:doc.action_type=='add_note'",
+   "description": "Text to add as an internal note on the ticket."
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Helpdesk",
+ "name": "HD Escalation Action",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

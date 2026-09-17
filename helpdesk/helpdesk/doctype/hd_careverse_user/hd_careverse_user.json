@@ -1,0 +1,37 @@
+{
+  "doctype": "DocType",
+  "name": "HD CareVerse User",
+  "module": "Helpdesk",
+  "custom": 0,
+  "engine": "InnoDB",
+  "field_order": [
+    "careverse_user",
+    "helpdesk_user",
+    "enabled"
+  ],
+  "fields": [
+    {
+      "fieldname": "careverse_user",
+      "fieldtype": "Data",
+      "label": "CareVerse User ID",
+      "reqd": 1
+    },
+    {
+      "fieldname": "helpdesk_user",
+      "fieldtype": "Link",
+      "label": "Helpdesk User",
+      "options": "User",
+      "reqd": 1
+    },
+    {
+      "fieldname": "enabled",
+      "fieldtype": "Check",
+      "label": "Enabled",
+      "default": "1"
+    }
+  ],
+  "permissions": [],
+  "issingle": 0,
+  "istable": 1,
+  "track_changes": 1
+}

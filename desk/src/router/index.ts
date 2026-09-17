@@ -59,6 +59,12 @@ const routes = [
     component: () => import("@/pages/MobileNotifications.vue"),
   },
   {
+    path: "/my-notifications",
+    name: "CustomerNotifications",
+    component: () => import("@/pages/CustomerNotifications.vue"),
+    meta: { public: true, auth: true },
+  },
+  {
     path: "/kb",
     name: "AgentKnowledgeBase",
     component: () => import("@/pages/knowledge-base/KnowledgeBaseAgent.vue"),
@@ -229,8 +235,15 @@ const routes = [
       auth: true,
     },
   },
-
   // Additonal routes
+  {
+    path: "/set-password",
+    name: "SetPassword",
+    component: () => import("@/pages/auth/SetPassword.vue"),
+    meta: {
+      public: true,
+    },
+  },
   {
     path: "/:pathMatch(.*)*",
     name: "Invalid Page",
@@ -247,30 +260,41 @@ export const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, _, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
   isCustomerPortal.value = to.meta.public || false;
   if (authStore.isLoggedIn) {
     await authStore.init();
+    await authStore.reloadUser();
   }
 
   if (!authStore.isLoggedIn) {
     const redirectURL = to.fullPath !== "/" ? to.fullPath : "";
-
     window.location.href =
       LOGIN_PAGE +
       (redirectURL ? `?redirect-to=/helpdesk${redirectURL}` : "/helpdesk");
-  } else if (!to.meta.public && !authStore.hasDeskAccess) {
-    next({ name: "TicketsCustomer" });
-  } else if (to.name === "TicketAgent" && !authStore.isAgent) {
-    const ticketId = to.params.ticketId;
-    next({
-      name: "TicketCustomer",
-      params: { ticketId },
-    });
-  } else {
-    next();
+    return false;
   }
+
+  if (authStore.forcePasswordChange && to.name !== "SetPassword") {
+    return { name: "SetPassword" };
+  }
+  if (to.name === "SetPassword" && !authStore.forcePasswordChange) {
+    return { name: "Home" };
+  }
+  if (!to.meta.public && !authStore.hasDeskAccess) {
+    return { name: "TicketsCustomer" };
+  }
+  if (to.name === "Home" && !authStore.isAgent) {
+    return { name: "TicketsCustomer" };
+  }
+  if (to.name === "TicketAgent" && !authStore.isAgent) {
+    return {
+      name: "TicketCustomer",
+      params: { ticketId: to.params.ticketId },
+    };
+  }
+  return true;
 });
 
 router.afterEach(async (to) => {

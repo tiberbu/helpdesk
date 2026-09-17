@@ -21,12 +21,20 @@ add_to_apps_screen = [
 
 get_site_info = "helpdesk.activation.get_site_info"
 
-after_install = "helpdesk.setup.install.after_install"
+after_install = [
+    "helpdesk.patches.add_user_force_password_change.execute",
+    "helpdesk.setup.install.after_install",
+]
 after_migrate = [
     "helpdesk.search.build_index_in_background",
     "helpdesk.search.download_corpus",
 ]
 
+# Session hooks for role-based redirects (commented out - using frontend router instead)
+# on_session_creation = "helpdesk.overrides.session.on_session_creation"
+
+# Request middleware to block customer desk access
+before_request = ["helpdesk.overrides.desk_middleware.block_customer_desk_access"]
 
 # Full Text Search
 # ------------------
@@ -45,6 +53,8 @@ scheduler_events = {
             "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.check_sla_breaches",
             "helpdesk.helpdesk.chat.session_cleanup.cleanup_inactive_sessions",
             "helpdesk.helpdesk.doctype.hd_ticket.escalation_scheduler.auto_escalate_tickets",
+            "helpdesk.helpdesk.doctype.hd_ticket.escalation_rule_engine.run_age_based_rules",
+            "helpdesk.helpdesk.doctype.hd_ticket.agent_rotation.run_agent_rotation",
         ],
         # Chat response timeout: sends auto-message after 2 min with no agent reply (Story 3.4)
         "*/1 * * * *": [
@@ -55,6 +65,9 @@ scheduler_events = {
             "helpdesk.helpdesk.doctype.hd_csat_response.csat_scheduler.send_pending_surveys",
         ],
     },
+    "hourly": [
+        "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.escalate_ticket_priorities",
+    ],
     "daily": [
         "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.close_tickets_after_n_days",
         "helpdesk.helpdesk.doctype.hd_automation_log.cleanup.purge_old_logs",
@@ -88,22 +101,42 @@ doc_events = {
     },
     "HD Ticket": {
         "before_insert": "helpdesk.overrides.hd_ticket_brand.assign_brand_from_email",
-        "after_insert": "helpdesk.helpdesk.automation.engine.on_ticket_created",
-        "on_update": "helpdesk.helpdesk.automation.engine.on_ticket_updated",
+        "validate": "helpdesk.overrides.hd_ticket_phone.validate_phone_format",
+        "after_insert": [
+            "helpdesk.helpdesk.automation.engine.on_ticket_created",
+            "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
+            "helpdesk.overrides.report_registration_routing.route_report_registration_tickets",
+            "helpdesk.search.build_index_in_background", # <-- ADD THIS
+            "helpdesk.overrides.hd_ticket_phone.sync_owner_mobile_no",
+        ],
+        "on_update": [
+            "helpdesk.helpdesk.automation.engine.on_ticket_updated",
+            "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
+            "helpdesk.search.build_index_in_background", # <-- ADD THIS
+        ],
+
+        "on_trash": [
+        "helpdesk.search.build_index_in_background", # <-- ADD THIS
+        ],
     },
     "HD Brand": {
         "on_update": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
         "after_insert": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
         "on_trash": "helpdesk.overrides.hd_ticket_brand.invalidate_brand_cache",
     },
+    "ToDo": {
+        "after_insert": "helpdesk.overrides.todo_assignment.notify_hd_ticket_assignment",
+    },
 }
 
 has_permission = {
+    "HD Ticket Activity": "helpdesk.helpdesk.doctype.hd_ticket_activity.hd_ticket_activity.has_permission",
     "HD Ticket": "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.has_permission",
     "HD Saved Reply": "helpdesk.helpdesk.doctype.hd_saved_reply.hd_saved_reply.has_permission",
 }
 
 permission_query_conditions = {
+    "HD Ticket Activity": "helpdesk.helpdesk.doctype.hd_ticket_activity.hd_ticket_activity.permission_query",
     "HD Ticket": "helpdesk.helpdesk.doctype.hd_ticket.hd_ticket.permission_query",
     "HD Saved Reply": "helpdesk.helpdesk.doctype.hd_saved_reply.hd_saved_reply.permission_query",
 }
@@ -114,6 +147,7 @@ permission_query_conditions = {
 override_doctype_class = {
     "Email Account": "helpdesk.overrides.email_account.CustomEmailAccount",
     "Email Queue": "helpdesk.email.email_queue_override.SesAwareEmailQueue",
+    "User": "helpdesk.overrides.user.HelpdeskUser",
 }
 
 # Email Override

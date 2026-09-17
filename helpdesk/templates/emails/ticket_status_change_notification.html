@@ -1,0 +1,22 @@
+<div>
+  <h2><strong>Ticket #{{ ticket_id }}</strong></h2>
+  <h3>Your ticket status has been updated</h3>
+  <br />
+  <div style="margin-bottom: 10px">
+    <p><strong>Subject:</strong> {{ ticket_subject }}</p>
+    <p>
+      <strong>Status changed:</strong>
+      <span style="color: #888;">{{ old_status }}</span>
+      &nbsp;→&nbsp;
+      <strong style="color: #2490ef;">{{ new_status }}</strong>
+    </p>
+  </div>
+  <p>Please visit the customer portal to view your ticket.</p>
+  <a
+    class="btn btn-primary"
+    href="{{ portal_link }}"
+    rel="noopener noreferrer"
+    target="_blank"
+    >View Ticket</a
+  ><br />
+</div>

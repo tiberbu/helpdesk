@@ -10,6 +10,13 @@
  "field_order": [
   "template_name",
   "about",
+  "section_break_default_values",
+  "priority",
+  "ticket_type",
+  "column_break_1",
+  "category",
+  "agent_group",
+  "section_break_fields",
   "fields",
   "description_template"
  ],
@@ -25,6 +32,44 @@
    "fieldtype": "Code",
    "label": "Additional Information",
    "options": "HTML"
+  },
+  {
+   "fieldname": "section_break_default_values",
+   "fieldtype": "Section Break",
+   "label": "Default Values"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Link",
+   "label": "Default Priority",
+   "options": "HD Ticket Priority"
+  },
+  {
+   "fieldname": "ticket_type",
+   "fieldtype": "Link",
+   "label": "Default Ticket Type",
+   "options": "HD Ticket Type"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "label": "Default Category",
+   "options": "HD Ticket Category"
+  },
+  {
+   "fieldname": "agent_group",
+   "fieldtype": "Link",
+   "label": "Default Team",
+   "options": "HD Team"
+  },
+  {
+   "fieldname": "section_break_fields",
+   "fieldtype": "Section Break",
+   "label": "Custom Fields"
   },
   {
    "fieldname": "fields",

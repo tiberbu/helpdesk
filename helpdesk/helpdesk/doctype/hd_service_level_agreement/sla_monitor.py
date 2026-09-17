@@ -163,7 +163,7 @@ def _fire_breached(ticket_name: str, assigned_to: str):
             message=frappe.get_traceback(),
         )
 
-    # 2. Publish sla_breached real-time event to the assigned agent
+    # 2. Publish sla_breached real-time event + in-app bell notification
     try:
         from helpdesk.helpdesk.automation.notifications import _extract_agent_email
         agent_email = _extract_agent_email(assigned_to)
@@ -174,25 +174,25 @@ def _fire_breached(ticket_name: str, assigned_to: str):
                 message={"ticket": ticket_name, "subject": subject},
                 user=agent_email,
             )
+            # In-app bell notification
+            from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+            create_notification(
+                user_to=agent_email,
+                notification_type="SLA Breach",
+                message=f"SLA Breached: Ticket #{ticket_name} has exceeded its SLA — {subject}",
+                reference_ticket=ticket_name,
+            )
     except Exception:
         frappe.log_error(
             title=f"SLA Monitor: failed to publish sla_breached event for {ticket_name}",
             message=frappe.get_traceback(),
         )
 
-    # 3. Enqueue breach notification email (short queue = high priority)
-    try:
-        frappe.enqueue(
-            "helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor.send_breach_email",
-            queue="short",
-            ticket_name=ticket_name,
-            assigned_to=assigned_to,
-        )
-    except Exception:
-        frappe.log_error(
-            title=f"SLA Monitor: failed to enqueue breach email for {ticket_name}",
-            message=frappe.get_traceback(),
-        )
+    # 3. Breach email intentionally disabled — too high volume, drowning out
+    # other urgent email. In-app bell notification (step 2 above) still fires.
+    # send_breach_email() is left in place below in case email delivery is
+    # wanted again later; just re-enable the enqueue call to restore it.
+    pass
 
     # 4. Invoke automation engine
     try:

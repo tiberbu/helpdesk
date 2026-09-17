@@ -1,0 +1,55 @@
+[
+    {
+        "doctype": "Custom Field",
+        "name": "HD Ticket-external_integration_section",
+        "dt": "HD Ticket",
+        "fieldname": "external_integration_section",
+        "label": "External System Integration",
+        "fieldtype": "Section Break",
+        "insert_after": "via_customer_portal",
+        "collapsible": 1,
+        "collapsible_depends_on": "custom_external_reference"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Ticket-custom_external_reference",
+        "dt": "HD Ticket",
+        "fieldname": "custom_external_reference",
+        "label": "External Reference ID",
+        "fieldtype": "Data",
+        "insert_after": "external_integration_section",
+        "read_only": 1,
+        "description": "Reference ID from external system (e.g., HMIS issue ID)"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Ticket-custom_hmis_module",
+        "dt": "HD Ticket",
+        "fieldname": "custom_hmis_module",
+        "label": "HMIS Module",
+        "fieldtype": "Data",
+        "insert_after": "custom_external_reference",
+        "read_only": 1,
+        "description": "HMIS module that raised this ticket"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Ticket-column_break_external",
+        "dt": "HD Ticket",
+        "fieldname": "column_break_external",
+        "fieldtype": "Column Break",
+        "insert_after": "custom_hmis_module"
+    },
+    {
+        "doctype": "Custom Field",
+        "name": "HD Ticket-custom_external_system",
+        "dt": "HD Ticket",
+        "fieldname": "custom_external_system",
+        "label": "External System",
+        "fieldtype": "Select",
+        "insert_after": "column_break_external",
+        "options": "\nHMIS\nCRM\nOther",
+        "default": "HMIS",
+        "read_only": 1
+    }
+]

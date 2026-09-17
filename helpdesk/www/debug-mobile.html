@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Debug - Helpdesk</title>
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>
+        // Initialize Eruda (Mobile DevTools)
+        eruda.init();
+
+        // Capture all console errors
+        window.addEventListener('error', function(e) {
+            console.error('=== CAUGHT ERROR ===');
+            console.error('Message:', e.message);
+            console.error('Filename:', e.filename);
+            console.error('Line:', e.lineno, 'Column:', e.colno);
+            console.error('Error object:', e.error);
+            console.error('Stack:', e.error?.stack);
+        });
+
+        // Capture unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('=== UNHANDLED PROMISE REJECTION ===');
+            console.error('Reason:', e.reason);
+        });
+
+        console.log('Debug mode initialized - check the console icon in bottom right');
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .link-btn {
+            display: block;
+            background: #2490ef;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <h1>🔍 Mobile Debug Console</h1>
+        <p><strong>Look for a floating icon in the bottom right corner</strong> - click it to open the console.</p>
+    </div>
+
+    <div class="instructions">
+        <h3>How to use:</h3>
+        <ol>
+            <li>Click the console icon (bottom right)</li>
+            <li>Go to the "Console" tab</li>
+            <li>Click "Go to Helpdesk App" below</li>
+            <li>Try to create a ticket</li>
+            <li>Any errors will appear in the console</li>
+        </ol>
+    </div>
+
+    <a href="/helpdesk" class="link-btn">📱 Go to Helpdesk App</a>
+
+    <div class="debug-info">
+        <h3>What to look for:</h3>
+        <ul>
+            <li><strong>Red error messages</strong> - Copy the full text</li>
+            <li><strong>File names and line numbers</strong> - e.g., "TicketCustomerSidebar.vue:123"</li>
+            <li><strong>Stack trace</strong> - Shows the sequence of function calls</li>
+        </ul>
+    </div>
+
+    <script>
+        // Log device info
+        console.log('=== DEVICE INFO ===');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Screen Size:', window.screen.width, 'x', window.screen.height);
+        console.log('Viewport:', window.innerWidth, 'x', window.innerHeight);
+        console.log('Touch Support:', 'ontouchstart' in window);
+    </script>
+</body>
+</html>

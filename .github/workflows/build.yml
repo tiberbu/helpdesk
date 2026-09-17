@@ -1,15 +1,19 @@
 name: Build Container Image
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    tags:
-      - "*"
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - "*"
 
 jobs:
   build:
     name: Build
+
+    permissions:
+      contents: read
+      packages: write
 
     runs-on: ubuntu-latest
 

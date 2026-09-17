@@ -77,6 +77,8 @@ class HelpdeskDashboard:
         self.to_date = filters.get("to_date")
         self.team = filters.get("team")
         self.agent = filters.get("agent")
+        self.county = filters.get("county")
+        self.support_level = filters.get("support_level")
 
         self.ticket = DocType("HD Ticket")
         self.qb_conds = self._get_conditions()
@@ -112,6 +114,10 @@ class HelpdeskDashboard:
                     "JSON_SEARCH", self.ticket._assign, "one", self.agent
                 ).isnotnull()
             )
+        if self.county:
+            conds.append(self.ticket.county == self.county)
+        if self.support_level:
+            conds.append(self.ticket.support_level == self.support_level)
         return conds
 
     def _get_case(self, start, end, value, func, extra_cond=None):
@@ -141,6 +147,8 @@ class HelpdeskDashboard:
         return [
             self.get_ticket_count(),
             self.get_sla_fulfilled_count(),
+            self.get_sla_breach_count(),
+            self.get_sla_breach_percent(),
             self.get_avg_first_response_time(),
             self.get_avg_resolution_time(),
             self.get_avg_feedback_score(),
@@ -175,15 +183,59 @@ class HelpdeskDashboard:
         )
 
         current_pct = (current_fulfilled / current_total * 100) if current_total else 0
-        prev_pct = (prev_fulfilled / prev_total * 100) if prev_total else 0
+
+        target_pct = frappe.db.get_single_value("HD Settings", "sla_target_percentage") or 90
 
         return {
             "title": _("% SLA Fulfilled"),
             "value": current_pct,
             "suffix": "%",
+            "delta": current_pct - target_pct,
+            "deltaSuffix": "% vs {0}% target".format(target_pct),
+            "tooltip": _("% of tickets created that were resolved within SLA. Target: {0}%").format(target_pct),
+        }
+
+    def get_sla_breach_count(self):
+        """
+        SLA breach across ALL tickets in the period (not just resolved ones),
+        since a ticket is breached the moment agreement_status flips to
+        'Failed', regardless of whether it has since been closed out.
+        """
+        extra_cond = self.ticket.agreement_status == "Failed"
+        current_breached, prev_breached = self.get_metric_data(
+            self.ticket.name, Count, extra_cond
+        )
+        current_total, prev_total = self.get_metric_data(self.ticket.name, Count)
+
+        current_pct = (current_breached / current_total * 100) if current_total else 0
+        prev_pct = (prev_breached / prev_total * 100) if prev_total else 0
+
+        return {
+            "title": _("Tickets Breached"),
+            "value": current_breached,
+            "delta": current_breached - prev_breached,
+            "negativeIsBetter": True,
+            "tooltip": _("Number of tickets that have breached SLA (agreement_status = Failed), regardless of current status"),
+        }
+
+    def get_sla_breach_percent(self):
+        extra_cond = self.ticket.agreement_status == "Failed"
+        current_breached, prev_breached = self.get_metric_data(
+            self.ticket.name, Count, extra_cond
+        )
+        current_total, prev_total = self.get_metric_data(self.ticket.name, Count)
+
+        current_pct = (current_breached / current_total * 100) if current_total else 0
+        prev_pct = (prev_breached / prev_total * 100) if prev_total else 0
+
+        return {
+            "title": _("SLA Breach %"),
+            "value": current_pct,
+            "suffix": "%",
             "delta": current_pct - prev_pct,
             "deltaSuffix": "%",
-            "tooltip": _("% of tickets created that were resolved within SLA"),
+            "negativeIsBetter": True,
+            "tooltip": _("% of all tickets in this period that have breached SLA"),
         }
 
     def get_avg_first_response_time(self):
@@ -192,14 +244,16 @@ class HelpdeskDashboard:
             self.ticket.first_response_time / 3600, Avg, extra_cond
         )
 
+        target_hours = frappe.db.get_single_value("HD Settings", "first_response_target_hours") or 4
+
         return {
             "title": _("Avg. First Response"),
             "value": current,
             "suffix": " " + _("hrs"),
-            "delta": current - prev,
-            "deltaSuffix": " " + _("hrs"),
+            "delta": current - target_hours,
+            "deltaSuffix": " {0} {1}".format(_("hrs vs"), _("{0} hrs target").format(target_hours)),
             "negativeIsBetter": True,
-            "tooltip": _("Avg. time taken to first respond to a ticket"),
+            "tooltip": _("Avg. time taken to first respond to a ticket. Target: {0} hrs").format(target_hours),
         }
 
     def get_avg_resolution_time(self):
@@ -211,14 +265,16 @@ class HelpdeskDashboard:
         value_expr = Function("CEIL", self.ticket.resolution_time / 86400)
         current, prev = self.get_metric_data(value_expr, Avg, extra_cond)
 
+        target_days = frappe.db.get_single_value("HD Settings", "resolution_target_days") or 3
+
         return {
             "title": _("Avg. Resolution"),
             "value": current,
             "suffix": " " + _("days"),
-            "delta": current - prev,
-            "deltaSuffix": " " + _("days"),
+            "delta": current - target_days,
+            "deltaSuffix": " {0}".format(_("days vs {0} days target").format(target_days)),
             "negativeIsBetter": True,
-            "tooltip": _("Avg. time taken to resolve a ticket"),
+            "tooltip": _("Avg. time taken to resolve a ticket. Target: {0} days").format(target_days),
         }
 
     def get_avg_feedback_score(self):
@@ -593,3 +649,157 @@ def get_bar_chart_config(
         "series": series,
         **kwargs,
     }
+
+
+# ------------------------------------------------------------------ #
+# County / Tier Dashboard                                              #
+# ------------------------------------------------------------------ #
+
+
+@frappe.whitelist()
+@agent_only
+def get_county_dashboard_data(
+    from_date: str = None,
+    to_date: str = None,
+    county: str = None,
+    support_level: str = None,
+) -> dict[str, any]:
+    """
+    Get all data needed for the County / Tier dashboard in one call.
+    """
+    if not from_date:
+        from_date = frappe.utils.add_days(frappe.utils.nowdate(), -30)
+    if not to_date:
+        to_date = frappe.utils.nowdate()
+
+    filters = {
+        "creation": ["between", [from_date, to_date]],
+    }
+    if county:
+        filters["county"] = county
+    if support_level:
+        filters["support_level"] = support_level
+
+    _filters = frappe._dict(
+        from_date=from_date,
+        to_date=to_date,
+        team=None,
+        agent=None,
+        county=county,
+        support_level=support_level,
+    )
+    dashboard = HelpdeskDashboard(_filters)
+
+    return {
+        "number_cards": dashboard.get_number_card_data(),
+        "county_chart": get_county_chart_data(filters),
+        "support_level_chart": get_support_level_chart_data(filters),
+        "priority_chart": get_ticket_priority_chart_data(from_date, to_date, filters),
+        "type_chart": get_ticket_type_chart_data(from_date, to_date, filters),
+        "channel_chart": get_ticket_channel_chart_data(from_date, to_date, filters),
+        "implementers": get_county_implementers(county),
+    }
+
+
+def get_county_chart_data(filters: dict[str, any] = None) -> dict[str, any]:
+    """Tickets grouped by county."""
+    result = frappe.get_all(
+        HD_TICKET,
+        fields=["county", COUNT_NAME],
+        filters=filters,
+        group_by="county",
+        order_by=COUNT_DESC,
+    )
+    for r in result:
+        if not r.county:
+            r.county = _("No County")
+
+    if len(result) < 7:
+        return get_pie_chart_config(
+            result,
+            _("Tickets by County"),
+            _("Percentage of Total Tickets by County"),
+            "county",
+            "count",
+        )
+    else:
+        return get_bar_chart_config(
+            result,
+            _("Tickets by County"),
+            _("Total Tickets by County"),
+            {"key": "county", "type": "category", "title": "County", "timeGrain": "day"},
+            "Tickets",
+            [{"name": "count", "type": "bar"}],
+        )
+
+
+def get_support_level_chart_data(filters: dict[str, any] = None) -> dict[str, any]:
+    """Tickets grouped by support level / tier (L0/L1/L2/L3)."""
+    result = frappe.get_all(
+        HD_TICKET,
+        fields=["support_level", COUNT_NAME],
+        filters=filters,
+        group_by="support_level",
+        order_by=COUNT_DESC,
+    )
+    for r in result:
+        if not r.support_level:
+            r.support_level = _("Unassigned")
+
+    return get_pie_chart_config(
+        result,
+        _("Tickets by Support Level"),
+        _("Percentage of Total Tickets by Tier"),
+        "support_level",
+        "count",
+    )
+
+
+def get_county_implementers(county: str = None) -> list[dict[str, any]]:
+    """
+    Derive, for each county, which teams and agents are actually assigned
+    to tickets in that county (based on real ticket data), since a static
+    county -> team mapping doesn't reliably exist across all counties.
+    """
+    filters = {"county": ["is", "set"]}
+    if county:
+        filters["county"] = county
+
+    tickets = frappe.get_all(
+        "HD Ticket",
+        filters=filters,
+        fields=["county", "agent_group", "_assign"],
+    )
+
+    county_data: dict[str, dict] = {}
+    for t in tickets:
+        c = t.county
+        entry = county_data.setdefault(c, {"teams": set(), "agents": set()})
+        if t.agent_group:
+            entry["teams"].add(t.agent_group)
+        if t._assign:
+            import json
+            try:
+                assigned = json.loads(t._assign)
+                for user in assigned:
+                    entry["agents"].add(user)
+            except (ValueError, TypeError):
+                pass
+
+    result = []
+    for c, entry in county_data.items():
+        agent_details = []
+        if entry["agents"]:
+            agent_details = frappe.get_all(
+                "HD Agent",
+                filters={"user": ["in", list(entry["agents"])]},
+                fields=["user", "agent_name", "is_active"],
+            )
+        result.append({
+            "county": c,
+            "teams": sorted(entry["teams"]),
+            "implementers": agent_details,
+        })
+
+    result.sort(key=lambda r: r["county"])
+    return result

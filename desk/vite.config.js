@@ -40,12 +40,15 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        skipWaiting: true, // Force immediate activation for bug fixes
+        clientsClaim: true,
       },
       manifest: {
         display: "standalone",
         name: "Frappe Helpdesk",
         short_name: "Helpdesk",
         start_url: "/helpdesk",
+        version: "1.0.4",
         description:
           "Modern, Streamlined, Free and Open Source Customer Service Software",
         icons: [

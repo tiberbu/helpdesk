@@ -22,9 +22,12 @@ class HDNotification(Document):
         return "Visit"
 
     def get_url(self):
-        res = "/helpdesk"
+        if self.notification_type in ("Ticket Reply", "Ticket Status Change"):
+            res = "/helpdesk/my-tickets"
+        else:
+            res = "/helpdesk"
         if self.reference_ticket:
-            res += "/tickets/" + str(self.reference_ticket)
+            res += "/" + str(self.reference_ticket)
         if self.reference_comment:
             res += "#" + self.reference_comment
         return frappe.utils.get_url(res)
@@ -48,17 +51,40 @@ class HDNotification(Document):
                 "comment": self.parse_html(),
             }
 
+    def format_assignment_message(self):
+        user_from = self.get_from()
+        subject = ""
+        if self.reference_ticket:
+            subject = frappe.db.get_value("HD Ticket", self.reference_ticket, "subject") or ""
+        if subject:
+            return f"{user_from} assigned you ticket: {subject}"
+        return f"{user_from} assigned you a ticket"
+
     def after_insert(self):
-        if self.notification_type == "Mention":
-            # Emit real-time event so the mentioned agent's notification bell
-            # updates immediately without requiring a page refresh.
+        # Emit real-time event for all notification types so the bell updates
+        # and the frontend can play a sound / show a browser popup.
+        REALTIME_TYPES = ("Mention", "Assignment", "Reaction", "Escalation", "SLA Warning", "SLA Breach", "Ticket Reply", "Ticket Status Change")
+        if self.notification_type in REALTIME_TYPES:
+            ticket_subject = ""
+            if self.reference_ticket:
+                ticket_subject = frappe.db.get_value(
+                    "HD Ticket", self.reference_ticket, "subject"
+                ) or ""
+
             frappe.publish_realtime(
                 "helpdesk:new-notification",
-                {"notification_type": self.notification_type},
+                {
+                    "notification_type": self.notification_type,
+                    "reference_ticket": self.reference_ticket,
+                    "ticket_subject": ticket_subject,
+                    "user_from": self.get_from(),
+                    "message": self.message,
+                },
                 user=self.user_to,
                 after_commit=True,
             )
 
+        if self.notification_type == "Assignment":
             skip_email_workflow = frappe.db.get_single_value(
                 "HD Settings", "skip_email_workflow"
             )
@@ -66,10 +92,17 @@ class HDNotification(Document):
             if skip_email_workflow:
                 return
 
+            # Deduplicate: only send one assignment email per agent per ticket
+            dedup_key = f"hd:assign_email:{self.reference_ticket}:{self.user_to}"
+            if frappe.cache.get_value(dedup_key):
+                return
+            frappe.cache.set_value(dedup_key, 1, expires_in_sec=86400)
+
+            msg = self.format_assignment_message()
+            ticket_url = self.get_url()
             frappe.sendmail(
                 recipients=self.user_to,
-                subject="New notification",
-                message=self.format_message(),
-                template="notification",
-                args=self.get_args(),
+                subject=msg,
+                message=f"{msg}<br><a href='{ticket_url}'>View Ticket</a>",
+                now=True,
             )

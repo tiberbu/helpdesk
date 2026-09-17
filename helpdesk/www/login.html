@@ -7,12 +7,12 @@
 	<meta name="csrf-token" content="{{ csrf_token }}">
 	<title>{{ _("Sign in") }} · {{ brand.display_name or "Helpdesk" }}</title>
 	<link rel="shortcut icon" href="{{ favicon or "/assets/frappe/images/frappe-favicon.svg" }}" type="image/x-icon">
-	<link rel="stylesheet" href="/assets/helpdesk/css/login.css?v=1780937250">
+	<link rel="stylesheet" href="/assets/helpdesk/css/login.css?v=2026062305">
 	<style>
 	.hd-login {
-		--hd-primary: {{ brand.primary_color or "#DC2626" }};
-		--hd-accent: {{ brand.accent_color or "#991B1B" }};
-		--hd-bg-tint: {{ brand.bg_tint_color or "rgba(220, 38, 38, 0.05)" }};
+		--hd-primary: {{ brand.primary_color or "#0891B2" }};
+		--hd-accent: {{ brand.accent_color or "#0E7490" }};
+		--hd-bg-tint: {{ brand.bg_tint_color or "rgba(8, 145, 178, 0.05)" }};
 	}
 	</style>
 </head>
@@ -33,7 +33,7 @@
 
 		<!-- Professional Service Desk Illustration -->
 		<div class="hd-login__hero-image">
-			<img src="/assets/helpdesk/images/servicedesk-hero.svg" alt="Service Desk" width="400" height="300" loading="eager">
+			<img src="/assets/helpdesk/images/servicedesk-icon-hero.svg?v=3" alt="ServiceDesk Support" width="400" height="380" loading="eager">
 		</div>
 
 		{% if brand.perks %}

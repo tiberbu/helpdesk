@@ -17,11 +17,15 @@ import { useFavicon } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { __ } from "./translation";
 import { isCustomerPortal, getBrowserTimezone } from "./utils";
+import { useServiceWorkerUpdate } from "@/composables/useServiceWorkerUpdate";
 
 const configStore = useConfigStore();
 const { favicon } = storeToRefs(configStore);
 
 useFavicon(favicon);
+
+// Enable auto-update detection
+useServiceWorkerUpdate();
 
 onMounted(() => {
   window.addEventListener("online", () => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-3 md:grid-cols-1 gap-4 border-b px-5 py-2.5">
+  <div v-if="ticket.data" class="grid grid-cols-3 md:grid-cols-1 gap-4 border-b px-5 py-2.5">
     <div class="space-y-1.5">
       <span class="block text-sm text-gray-700"> Status </span>
       <span class="block break-words text-base font-medium text-gray-900">
@@ -55,6 +55,8 @@ import { ITicket } from "./symbols";
 const ticket = inject(ITicket);
 
 const slaData = computed(() => {
+  if (!ticket.data) return [];
+
   const responseSla =
     ticket.data.first_responded_on &&
     dayjs(ticket.data.first_responded_on).isBefore(ticket.data.response_by)
@@ -99,7 +101,7 @@ const slaData = computed(() => {
 });
 
 const customFields = computed(() => {
-  const _custom_fields = ticket.data.template.fields
+  const _custom_fields = (ticket.data?.template?.fields || [])
     .filter((field: Field) => !field.hide_from_customer)
     .filter(
       (f: Field) => ["subject", "team", "priority"].indexOf(f.fieldname) === -1

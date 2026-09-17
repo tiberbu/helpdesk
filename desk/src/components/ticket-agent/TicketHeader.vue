@@ -100,7 +100,9 @@ import { getIcon } from "@/utils";
 import { Breadcrumbs, call, Dropdown, toast } from "frappe-ui";
 import { __ } from "@/translation";
 import { useConfigStore } from "@/stores/config";
+import { useAuthStore } from "@/stores/auth";
 import { storeToRefs } from "pinia";
+
 import {
   computed,
   ComputedRef,
@@ -140,11 +142,17 @@ const showMajorIncidentDialog = inject<Ref<boolean>>("showMajorIncidentDialog", 
 
 const showSubjectDialog = ref(false);
 const { itilModeEnabled } = storeToRefs(useConfigStore());
+const { isNationalAgent } = storeToRefs(useAuthStore());
 
 const { notifyTicketUpdate } = useNotifyTicketUpdate(ticket.value?.name);
 const statusDropdown = computed(() => {
   const statuses =
-    ticketStatusStore.statuses.data?.filter((s) => s.enabled) || [];
+    ticketStatusStore.statuses.data?.filter((s) => {
+      if (!s.enabled) return false;
+      // Only L2 National agents can manually set Closed
+      if (s.label_agent === "Closed" && !isNationalAgent.value) return false;
+      return true;
+    }) || [];
   return statuses.map((o: HDTicketStatus) => ({
     label: o.label_agent,
     value: o.label_agent,

@@ -3,11 +3,11 @@
 
 import frappe
 from frappe.search.sqlite_search import SQLiteSearch, SQLiteSearchIndexMissingError
+import re
 
 
 class HelpdeskSearchIndexMissingError(SQLiteSearchIndexMissingError):
     pass
-
 
 class HelpdeskSearch(SQLiteSearch):
     INDEX_NAME = "helpdesk_search.db"
@@ -64,14 +64,51 @@ class HelpdeskSearch(SQLiteSearch):
         },
     }
 
+    TICKET_ID_PATTERN = re.compile(r"^[A-Za-z]+-[\w-]+$|^\d+$")
+    
+    def search(self, query, title_only=False, filters=None):
+        result = super().search(query, title_only=title_only, filters=filters)
+
+        # Fallback: if the query looks like a ticket ID (e.g. TKT-26-07-15-00008)
+        # and full-text search found nothing, do a direct lookup on the name column,
+        # since `name` is UNINDEXED in FTS5 and never matches via MATCH.
+        if result["summary"]["total_matches"] == 0 and self.TICKET_ID_PATTERN.match(query.strip()):
+            accessible_tickets = self._get_accessible_tickets()
+            if accessible_tickets:
+                rows = self.sql(
+                    "SELECT doctype, name, title, content, agent_group, customer, status, "
+                    "priority, owner, reference_doctype, reference_name, reference_ticket, modified "
+                    "FROM search_fts WHERE doctype = 'HD Ticket' AND name LIKE ? "
+                    "AND name IN ({placeholders}) LIMIT 20".format(
+                        placeholders=",".join(["?" for _ in accessible_tickets])
+                    ),
+                    (f"%{query.strip()}%", *accessible_tickets),
+                    read_only=True,
+                )
+                fallback_results = [dict(r) for r in rows]
+                if fallback_results:
+                    result["results"] = fallback_results
+                    result["summary"]["total_matches"] = len(fallback_results)
+                    result["summary"]["returned_matches"] = len(fallback_results)
+                    result["summary"]["filtered_matches"] = len(fallback_results)
+
+        return result
+
+
     def get_search_filters(self):
         """Return permission filters based on accessible tickets."""
         accessible_tickets = self._get_accessible_tickets()
         return {"reference_ticket": accessible_tickets}
 
     def _get_accessible_tickets(self):
-        """Get tickets accessible to current user based on helpdesk permissions."""
-        return frappe.get_list("HD Ticket", pluck="name")
+        """Get list of ticket names accessible to the current user."""
+        if frappe.has_permission("HD Ticket", "read"):
+            return frappe.get_all(
+                "HD Ticket", filters={"docstatus": 0}, pluck="name"
+            )  # All open tickets
+
+        # If user has no read permission, return empty list
+        return []
 
     def prepare_document(self, doc):
         """Prepare a document for indexing with helpdesk-specific handling."""
@@ -79,12 +116,8 @@ class HelpdeskSearch(SQLiteSearch):
         if not document:
             return None
 
-        if (
-            doc.doctype == "HD Ticket Comment"
-            and doc.reference_ticket
-            and type(doc.reference_ticket) is str
-        ):
-            document["reference_ticket"] = int(doc.reference_ticket)
+        if doc.doctype == "HD Ticket Comment" and doc.reference_ticket:
+            document["reference_ticket"] = str(doc.reference_ticket)
 
         if doc.doctype == "Communication":
             # For communications, ensure reference fields are set for ticket doctype
@@ -94,10 +127,14 @@ class HelpdeskSearch(SQLiteSearch):
                 and doc.reference_name
                 and type(doc.reference_name) is str
             ):
-                document["reference_name"] = int(doc.reference_name)
+                document["reference_name"] = str(doc.reference_name)
 
         if doc.doctype == "HD Ticket":
-            document["reference_ticket"] = int(doc.name)
+            document["agent_group"] = doc.agent_group
+            document["status"] = doc.status
+            document["priority"] = doc.priority
+            document["customer"] = doc.customer
+            document["reference_ticket"] = str(doc.name)
 
         # Map commented_by to owner for HD Ticket Comment
         if doc.doctype == "HD Ticket Comment":
