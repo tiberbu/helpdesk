@@ -1,11 +1,7 @@
-name: Build Frappe Image (master)
+name: Build Frappe Image (master, v15 - disabled)
+# Automatic triggers disabled: prod images are now built on Frappe v16 by build-prod-v16.yaml.
+# Kept for manual v15 rebuilds only.
 on:
-  push:
-    branches:
-      - master
-
-  repository_dispatch:
-    types: [trigger_build]
   workflow_dispatch:
 
 env:
