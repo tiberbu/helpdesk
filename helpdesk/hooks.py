@@ -186,3 +186,12 @@ fixtures = [
 # Custom bench commands for helpdesk app
 # Temporarily disabled to avoid pickle issues during migration
 # from helpdesk.commands.brand_fixtures import commands
+
+# SSO — Microsoft Entra ID
+# ------------------------
+# Replaces core's login_via_office365 with a hardened version that validates
+# the ID token (signature, issuer, audience, tenant), enforces a domain
+# allowlist, and pins each user to one Entra identity.
+override_whitelisted_methods = {
+    "frappe.integrations.oauth2_logins.login_via_office365": "helpdesk.sso.entra.login_via_entra",
+}
