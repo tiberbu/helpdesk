@@ -1,10 +1,8 @@
-name: Build Frappe Image (develop)
+name: Build Frappe Image (master, v16)
 
 on:
   push:
-    branches: [develop]
-  repository_dispatch:
-    types: [trigger_build]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -52,7 +50,7 @@ jobs:
               {"url": "https://github.com/frappe/payments", "branch": "version-16"},
               {"url": "https://github.com/frappe/hrms", "branch": "version-16"},
               {"url": "https://github.com/frappe/telephony", "branch": "develop"},
-              {"url": "https://github.com/tiberbu/helpdesk.git", "branch": "develop"}
+              {"url": "https://github.com/tiberbu/helpdesk.git", "branch": "master"}
           ]
           print(json.dumps(apps, indent=2))
           PY
@@ -87,9 +85,10 @@ jobs:
     uses: tiberbu/frappe_docker/.github/workflows/app-build-image-custom.yaml@main
     with:
       apps_json_base64: ${{ needs.prepare.outputs.apps_json_base64 }}
+      app_name: helpdesk
       frappe_ref: version-16
       frappe_image_prefix: frappe
-      image_name: ${{ vars.ECR_REGISTRY }}/support-uat
+      image_name: ${{ vars.ECR_REGISTRY }}/support
       image_tag: ${{ needs.prepare.outputs.version }}
       registry: ecr
       push: true
