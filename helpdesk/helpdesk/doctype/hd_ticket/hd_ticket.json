@@ -440,6 +440,13 @@
    "search_index": 1
   },
   {
+   "fieldname": "sprint",
+   "fieldtype": "Link",
+   "label": "Sprint",
+   "options": "HD Sprint",
+   "in_standard_filter": 1
+  },
+  {
    "fieldname": "attachment",
    "fieldtype": "Attach",
    "hidden": 1,

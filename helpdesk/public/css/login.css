@@ -694,6 +694,8 @@ body {
 	justify-content: center;
 	gap: var(--hd-space-2);
 	animation: subtlePulse 3s ease-in-out infinite;
+	text-decoration: none;
+	box-sizing: border-box;
 }
 
 @keyframes subtlePulse {

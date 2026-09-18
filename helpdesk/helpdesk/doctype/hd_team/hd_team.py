@@ -147,19 +147,23 @@ class HDTeam(Document):
                 assignment_rule_doc.disabled = False
             assignment_rule_doc.save()
 
-            # remove the user from the base assignment rule
+            # remove the user from the base assignment rule, if one is
+            # actually configured — HD Settings.base_support_rotation is
+            # optional, and this step is skipped entirely when it's blank
+            # rather than crashing the whole save (previously it did).
             base_assignment_rule = frappe.get_value(
                 "HD Settings", "HD Settings", "base_support_rotation"
             )
-            base_assignment_rule = frappe.get_doc(
-                "Assignment Rule", base_assignment_rule
-            )
-            user_id = frappe.get_value(
-                "Assignment Rule User",
-                {"user": _user, "parent": base_assignment_rule.name},
-            )
-            if user_id:
-                frappe.delete_doc("Assignment Rule User", user_id)
+            if base_assignment_rule and frappe.db.exists("Assignment Rule", base_assignment_rule):
+                base_assignment_rule = frappe.get_doc(
+                    "Assignment Rule", base_assignment_rule
+                )
+                user_id = frappe.get_value(
+                    "Assignment Rule User",
+                    {"user": _user, "parent": base_assignment_rule.name},
+                )
+                if user_id:
+                    frappe.delete_doc("Assignment Rule User", user_id)
         else:
             user_id = frappe.get_value(
                 "Assignment Rule User",

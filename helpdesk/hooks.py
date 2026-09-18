@@ -106,6 +106,7 @@ doc_events = {
             "helpdesk.helpdesk.automation.engine.on_ticket_created",
             "frappe.automation.doctype.assignment_rule.assignment_rule.apply",
             "helpdesk.overrides.report_registration_routing.route_report_registration_tickets",
+            "helpdesk.overrides.feature_request_routing.route_feature_requests",
             "helpdesk.search.build_index_in_background", # <-- ADD THIS
             "helpdesk.overrides.hd_ticket_phone.sync_owner_mobile_no",
         ],

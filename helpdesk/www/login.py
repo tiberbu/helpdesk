@@ -29,6 +29,9 @@ def get_context(context):
 		# Get telemetry settings
 		telemetry_config = get_telemetry_config()
 
+		# Resolve social login providers (currently just Entra ID / Office 365)
+		social_login = get_social_login_context()
+
 		# Get host for portal detection
 		host = frappe.local.request.host.lower() if frappe.local.request.host else ""
 
@@ -42,6 +45,7 @@ def get_context(context):
 			"telemetry": telemetry_config,
 			"is_dha": "dha" in host,
 			"host": host,
+			"social_login": social_login,
 		})
 
 		return context
@@ -49,6 +53,42 @@ def get_context(context):
 		import traceback
 		frappe.log_error(f"Login page error: {str(e)}\n{traceback.format_exc()}", "Login Page Error")
 		raise
+
+
+
+def get_social_login_context():
+	"""
+	Resolve enabled Social Login Key providers for rendering as
+	"Sign in with ..." links on the login page. Only shows a provider
+	once its client_secret is actually stored (encrypted) on the key,
+	matching core Frappe's own login page convention.
+	"""
+	providers = []
+	try:
+		keys = frappe.get_all(
+			"Social Login Key",
+			filters={"enable_social_login": 1},
+			fields=["name", "provider_name"],
+		)
+		for key in keys:
+			secret = frappe.utils.password.get_decrypted_password(
+				"Social Login Key", key.name, fieldname="client_secret", raise_exception=False
+			)
+			if not secret:
+				continue
+			from frappe.utils.oauth import get_oauth2_authorize_url
+			redirect_to = frappe.form_dict.get("redirect-to") or "/helpdesk"
+			auth_url = get_oauth2_authorize_url(key.name, redirect_to)
+			providers.append({
+				"name": key.name,
+				"provider_name": key.provider_name,
+				"auth_url": auth_url,
+			})
+	except Exception:
+		frappe.log_error(title="Login page: social login resolution failed")
+		providers = []
+
+	return {"enabled": bool(providers), "providers": providers}
 
 
 def resolve_brand():

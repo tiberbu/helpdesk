@@ -7,7 +7,7 @@
 	<meta name="csrf-token" content="{{ csrf_token }}">
 	<title>{{ _("Sign in") }} · {{ brand.display_name or "Helpdesk" }}</title>
 	<link rel="shortcut icon" href="{{ favicon or "/assets/frappe/images/frappe-favicon.svg" }}" type="image/x-icon">
-	<link rel="stylesheet" href="/assets/helpdesk/css/login.css?v=2026062305">
+	<link rel="stylesheet" href="/assets/helpdesk/css/login.css?v=2026091702">
 	<style>
 	.hd-login {
 		--hd-primary: {{ brand.primary_color or "#0891B2" }};
@@ -142,6 +142,21 @@
 						<a href="#forgot" class="hd-login__link" id="forgot-link">{{ _("Forgot password?") }}</a>
 					</div>
 				</form>
+					{% if social_login.enabled %}
+					<div class="hd-login__field" style="margin-top: 8px;">
+						{% for provider in social_login.providers %}
+							<a href="{{ provider.auth_url }}" class="hd-login__btn hd-login__btn--secondary">
+								<svg width="18" height="18" viewBox="0 0 21 21" aria-hidden="true" style="margin-right: 8px;">
+									<rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+									<rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+									<rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+									<rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+								</svg>
+								<span class="hd-login__btn-text">{{ _("Sign in with Microsoft") }}</span>
+							</a>
+						{% endfor %}
+					</div>
+					{% endif %}
 			</div>
 
 			<!-- MFA OTP View -->
