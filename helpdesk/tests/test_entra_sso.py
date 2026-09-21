@@ -501,6 +501,23 @@ class TestEndToEndFlow(unittest.TestCase):
 		self.assertNotIn(entra.STATE_COOKIE, " ".join(first.headers.getlist("Set-Cookie")))
 		self.assertTrue(second.headers["Location"].startswith(entra.authorize_endpoint(TENANT_ID)))
 
+	def test_site_config_office_365_login_is_ignored(self):
+		override = {"client_id": "stale-id", "client_secret": "stale-secret", "redirect_uri": "https://stale.example/cb"}
+		with patch.dict(frappe.local.conf, {"office_365_login": override}):
+			conf = entra._conf()
+			self.assertEqual((conf["client_id"], conf["client_secret"]), (CLIENT_ID, "e2e-secret"))
+			self.assertNotIn("stale.example", entra.get_redirect_uri())
+			self.assertTrue(entra.get_redirect_uri().endswith(entra.CORE_CALLBACK))
+
+			client = get_test_client()
+			params = self._start(client)
+			self.assertEqual(params["client_id"], CLIENT_ID)
+			self.assertNotIn("stale.example", params["redirect_uri"])
+			response, post = self._callback(client, params)
+		self.assertEqual(response.status_code, 302, response.get_data(as_text=True)[:2000])
+		sent = post.call_args.kwargs["data"]
+		self.assertEqual((sent["client_id"], sent["client_secret"]), (CLIENT_ID, "e2e-secret"))
+
 	def test_callback_without_state_cookie_rejected(self):
 		params = self._start(get_test_client())
 		response, post = self._callback(get_test_client(), params)  # different browser

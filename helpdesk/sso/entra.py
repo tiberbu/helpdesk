@@ -20,8 +20,8 @@ import frappe
 import jwt
 import requests
 from frappe import _
-from frappe.utils import cint
-from frappe.utils.oauth import get_oauth_keys, get_redirect_uri, login_oauth_user
+from frappe.utils import cint, get_url
+from frappe.utils.oauth import login_oauth_user
 
 PROVIDER = "office_365"  # frappe.scrub("Office 365"); fixed by core callback name
 AUTHORITY = "https://login.microsoftonline.com"
@@ -101,8 +101,9 @@ def _allowed_email_domains() -> list[str]:
 def _conf() -> dict:
 	"""Read live SSO config from the Office 365 Social Login Key + HD Settings.
 
-	client_id/client_secret come from ``get_oauth_keys`` so they match whatever
-	core would use (it prefers ``office_365_login`` in site_config over the key).
+	Credentials come only from the Social Login Key. Core's ``office_365_login``
+	site_config override is deliberately ignored so the key edited in Desk is the
+	single source of truth and a stale site_config entry cannot silently win.
 	"""
 	if not frappe.db.exists("Social Login Key", PROVIDER):
 		raise SSOError("not configured", 503, "Social Login Key 'office_365' does not exist.")
@@ -113,16 +114,17 @@ def _conf() -> dict:
 
 	tenant_id = _tenant_from_key(key)
 
-	creds = get_oauth_keys(PROVIDER)
-	if not creds.get("client_id"):
+	client_id = (key.client_id or "").strip()
+	client_secret = (key.get_password("client_secret", raise_exception=False) or "").strip()
+	if not client_id:
 		raise SSOError("not configured", 503, "Client ID is not set on Social Login Key 'office_365'.")
-	if not creds.get("client_secret"):
+	if not client_secret:
 		raise SSOError("not configured", 503, "Client Secret is not set on Social Login Key 'office_365'.")
 
 	return {
 		"tenant_id": tenant_id,
-		"client_id": creds["client_id"].strip(),
-		"client_secret": creds["client_secret"].strip(),
+		"client_id": client_id,
+		"client_secret": client_secret,
 		"allowed_email_domains": _allowed_email_domains(),
 		"allow_guests": 0,
 	}
@@ -145,6 +147,15 @@ def is_configured() -> bool:
 		return False
 
 
+def get_redirect_uri() -> str:
+	"""Absolute callback URL from the key's Redirect URL (core default if blank).
+
+	Unlike core's helper, never reads ``office_365_login.redirect_uri`` from site_config.
+	"""
+	path = frappe.db.get_value("Social Login Key", PROVIDER, "redirect_url") or CORE_CALLBACK
+	return path if path.startswith(("http://", "https://")) else get_url(path)
+
+
 def _encode_state(token: str, redirect_to: str | None) -> str:
 	payload = {"token": token, "redirect_to": redirect_to}
 	return base64.urlsafe_b64encode(json.dumps(payload).encode("utf-8")).decode("utf-8")
@@ -156,7 +167,7 @@ def build_authorize_url(redirect_to: str | None, token: str, conf: dict | None =
 		"client_id": conf["client_id"],
 		"response_type": "code",
 		"response_mode": "query",
-		"redirect_uri": get_redirect_uri(PROVIDER),
+		"redirect_uri": get_redirect_uri(),
 		"scope": SCOPE,
 		"state": _encode_state(token, redirect_to),
 		"nonce": token,
@@ -185,7 +196,7 @@ def login(redirect_to: str | None = None, hop: int = 0):
 	# follows host_name in site_config and can differ from the host serving /login.
 	# Cookies ignore scheme and port, and request.scheme is unreliable behind a TLS
 	# proxy, so compare hostnames only; ``hop`` stops a loop if a proxy rewrites Host.
-	callback = urlparse(get_redirect_uri(PROVIDER))
+	callback = urlparse(get_redirect_uri())
 	request_hostname = (frappe.local.request.host or "").split(":")[0].lower()
 	if not cint(hop) and callback.hostname and callback.hostname.lower() != request_hostname:
 		frappe.local.response["type"] = "redirect"
@@ -256,7 +267,7 @@ def configure_entra_sso():
 	else:
 		frappe.get_doc({"doctype": "Social Login Key", **values}).insert(ignore_permissions=True)
 	frappe.db.commit()
-	return {"provider": PROVIDER, "redirect_uri": get_redirect_uri(PROVIDER)}
+	return {"provider": PROVIDER, "redirect_uri": get_redirect_uri()}
 
 
 def _jwks_client(tenant_id: str):
@@ -268,7 +279,7 @@ def _jwks_client(tenant_id: str):
 
 
 def _exchange_code_for_id_token(code: str, conf: dict) -> str:
-	redirect_uri = get_redirect_uri(PROVIDER)
+	redirect_uri = get_redirect_uri()
 	try:
 		response = requests.post(
 			token_endpoint(conf["tenant_id"]),
