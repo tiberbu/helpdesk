@@ -17,7 +17,9 @@ def get_context(context):
 	try:
 		# Redirect logged-in users to desk
 		if frappe.session.user != "Guest":
-			frappe.local.flags.redirect_location = "/app"
+			redirect_to = frappe.form_dict.get("redirect-to") or "/helpdesk"
+			frame = frappe.local
+			frame.flags.redirect_location = redirect_to
 			raise frappe.Redirect
 
 		# Set Content Security Policy headers
@@ -76,9 +78,16 @@ def get_social_login_context():
 			)
 			if not secret:
 				continue
-			from frappe.utils.oauth import get_oauth2_authorize_url
 			redirect_to = frappe.form_dict.get("redirect-to") or "/helpdesk"
-			auth_url = get_oauth2_authorize_url(key.name, redirect_to)
+			if key.name == "office_365":
+				from helpdesk.sso.entra import build_authorize_url
+				try:
+					auth_url = build_authorize_url(redirect_to)
+				except Exception:
+					continue
+			else:
+				from frappe.utils.oauth import get_oauth2_authorize_url
+				auth_url = get_oauth2_authorize_url(key.name, redirect_to)
 			providers.append({
 				"name": key.name,
 				"provider_name": key.provider_name,

@@ -9,7 +9,8 @@ each Frappe user to one Entra subject, and blocks open redirects.
 import base64
 import json
 import re
-from urllib.parse import urlparse
+import secrets
+from urllib.parse import urlencode, urlparse
 
 import frappe
 import jwt
@@ -65,6 +66,26 @@ def _conf() -> dict:
 		"allowed_email_domains": allowed_email_domains,
 		"allow_guests": 0,
 	}
+
+
+def build_authorize_url(redirect_to: str) -> str:
+	"""Build the Microsoft authorize URL ourselves, with an explicit state
+	format sanitize_state() is guaranteed to understand. Avoids depending on
+	however core Frappe's get_oauth2_authorize_url() happens to format
+	``state`` on a given Frappe version -- that varied between environments
+	and broke UAT while production (a different Frappe build) worked.
+	"""
+	conf = _conf()
+	state_payload = {"token": secrets.token_hex(16), "redirect_to": redirect_to}
+	state = base64.b64encode(json.dumps(state_payload).encode("utf-8")).decode("utf-8")
+	params = {
+		"client_id": conf["client_id"],
+		"response_type": "code",
+		"redirect_uri": get_redirect_uri(PROVIDER),
+		"scope": "openid email profile",
+		"state": state,
+	}
+	return f"{AUTHORITY}/{conf['tenant_id']}/oauth2/v2.0/authorize?{urlencode(params)}"
 
 
 def configure_entra_sso():
