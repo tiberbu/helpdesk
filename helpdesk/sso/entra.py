@@ -127,9 +127,8 @@ def configure_entra_sso():
 		"client_secret": conf["client_secret"],
 	}
 	if frappe.db.exists("Social Login Key", PROVIDER):
-		doc = frappe.get_doc("Social Login Key", PROVIDER)
-		doc.update(values)
-		doc.save(ignore_permissions=True)
+		frappe.db.set_value("Social Login Key", PROVIDER, values)
+		frappe.clear_cache(doctype="Social Login Key")
 	else:
 		frappe.get_doc({"doctype": "Social Login Key", **values}).insert(ignore_permissions=True)
 	frappe.db.commit()
