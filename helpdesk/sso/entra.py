@@ -150,11 +150,17 @@ def _exchange_code_for_id_token(code: str):
 	flow = get_oauth2_flow(PROVIDER)
 	try:
 		session = flow.get_auth_session(
-			data={"code": code, "redirect_uri": get_redirect_uri(PROVIDER), "grant_type": "authorization_code"},
+			data={
+				"code": code,
+				"redirect_uri": get_redirect_uri(PROVIDER),
+				"grant_type": "authorization_code",
+				"scope": "openid email profile",
+			},
 			decoder=_decoder,
 		)
 		return json.loads(session.access_token_response.text)["id_token"], flow.client_id
 	except Exception:
+		frappe.log_error(title="Entra SSO: token exchange failed", message=frappe.get_traceback())
 		raise SSOError("token exchange failed")
 
 
