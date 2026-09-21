@@ -80,11 +80,11 @@ def get_social_login_context():
 				continue
 			redirect_to = frappe.form_dict.get("redirect-to") or "/helpdesk"
 			if key.name == "office_365":
-				from helpdesk.sso.entra import build_authorize_url
-				try:
-					auth_url = build_authorize_url(redirect_to)
-				except Exception:
+				from helpdesk.sso import entra
+
+				if not entra.is_configured():
 					continue
+				auth_url = entra.login_url(redirect_to)
 			else:
 				from frappe.utils.oauth import get_oauth2_authorize_url
 				auth_url = get_oauth2_authorize_url(key.name, redirect_to)
