@@ -518,6 +518,35 @@ class TestEndToEndFlow(unittest.TestCase):
 		sent = post.call_args.kwargs["data"]
 		self.assertEqual((sent["client_id"], sent["client_secret"]), (CLIENT_ID, "e2e-secret"))
 
+	def test_full_login_on_frappe_with_single_use_oauth_state(self):
+		"""Newer Frappe v15 (e.g. 15.121) accepts only a state registered via
+		create_oauth_state and answers anything else with 417. Emulate that core."""
+		import frappe.utils.oauth as core
+
+		def create_oauth_state(redirect_to):
+			state = frappe.generate_hash(length=32)
+			frappe.cache.set_value(f"test_oauth_login:{state}", redirect_to or "", expires_in_sec=600)
+			return state
+
+		def login_oauth_user(data, *, provider=None, state):
+			key = f"test_oauth_login:{state}" if isinstance(state, str) else None
+			redirect_to = frappe.cache.get_value(key) if key else None
+			if key:
+				frappe.cache.delete_value(key)
+			if redirect_to is None:
+				return frappe.respond_as_web_page("Invalid Request", "expired", http_status_code=417)
+			return core.login_oauth_user(data, provider=provider, state={"token": "t", "redirect_to": redirect_to})
+
+		client = get_test_client()
+		params = self._start(client)
+		with (
+			patch.object(core, "create_oauth_state", create_oauth_state, create=True),
+			patch("helpdesk.sso.entra.login_oauth_user", login_oauth_user),
+		):
+			response, _ = self._callback(client, params)
+		self.assertEqual(response.status_code, 302, response.get_data(as_text=True)[:2000])
+		self.assertTrue(response.headers["Location"].endswith("/helpdesk/tickets"))
+
 	def test_callback_without_state_cookie_rejected(self):
 		params = self._start(get_test_client())
 		response, post = self._callback(get_test_client(), params)  # different browser

@@ -409,6 +409,22 @@ def _check_state_cookie(token: str):
 		raise SSOError("invalid state", 400, "State does not match the cookie set for this browser.")
 
 
+def _core_login_state(redirect_to: str | None):
+	"""State in the form this Frappe build's ``login_oauth_user`` accepts.
+
+	Our own state was already verified against the browser cookie; this only
+	satisfies core's check. Frappe v15 builds from mid-2026 (e.g. 15.121) take an
+	opaque single-use token registered via ``create_oauth_state`` and reject
+	anything else with "Your login attempt is invalid or has expired" (417);
+	older builds take a dict with a truthy ``token`` and read ``redirect_to`` from it.
+	"""
+	try:
+		from frappe.utils.oauth import create_oauth_state
+	except ImportError:
+		return {"token": secrets.token_urlsafe(16), "redirect_to": redirect_to}
+	return create_oauth_state(redirect_to)
+
+
 def _fail(err: SSOError):
 	frappe.log_error(
 		title=f"Entra SSO: {err.reason}",
@@ -459,4 +475,4 @@ def login_via_entra(
 		"family_name": claims.get("family_name"),
 		"name": claims.get("name"),
 	}
-	login_oauth_user(data, provider=PROVIDER, state=safe_state)
+	login_oauth_user(data, provider=PROVIDER, state=_core_login_state(safe_state["redirect_to"]))
