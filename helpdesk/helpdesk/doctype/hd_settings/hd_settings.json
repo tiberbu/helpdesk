@@ -75,6 +75,8 @@
   "default_ticket_status",
   "column_break_yfbu",
   "ticket_reopen_status",
+  "sso_section",
+  "sso_allowed_email_domains",
   "workflow_tab",
   "skip_email_workflow",
   "instantly_send_email",
@@ -370,6 +372,17 @@
   {
    "fieldname": "column_break_zxek",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sso_section",
+   "fieldtype": "Section Break",
+   "label": "Single Sign-On (Microsoft Entra ID)"
+  },
+  {
+   "description": "Comma-separated email domains allowed to sign in with Microsoft (e.g. tiberbu.com,tiberbu.app). Leave blank to allow any member of the configured Entra tenant. Guest (#EXT#) accounts are always rejected.",
+   "fieldname": "sso_allowed_email_domains",
+   "fieldtype": "Small Text",
+   "label": "SSO Allowed Email Domains"
   },
   {
    "fieldname": "workflow_tab",
@@ -763,7 +776,7 @@
  "grid_page_length": 50,
  "issingle": 1,
  "links": [],
- "modified": "2026-03-23 00:00:00.000000",
+ "modified": "2026-09-21 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Helpdesk",
  "name": "HD Settings",
