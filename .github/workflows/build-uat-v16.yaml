@@ -23,6 +23,7 @@ jobs:
         with:
           token: ${{ secrets.GIT_TOKEN }}
           fetch-depth: 0
+          
 
       - name: Generate version
         id: version
