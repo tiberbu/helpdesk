@@ -2,7 +2,7 @@ name: Build Frappe Image (master, v16)
 
 on:
   push:
-    branches: [master]
+    branches: [master-v16]
   workflow_dispatch:
 
 permissions:
@@ -50,7 +50,7 @@ jobs:
               {"url": "https://github.com/frappe/payments", "branch": "version-16"},
               {"url": "https://github.com/frappe/hrms", "branch": "version-16"},
               {"url": "https://github.com/frappe/telephony", "branch": "develop"},
-              {"url": "https://github.com/tiberbu/helpdesk.git", "branch": "master"}
+              {"url": "https://github.com/tiberbu/helpdesk.git", "branch": "master-v16"}
           ]
           print(json.dumps(apps, indent=2))
           PY
