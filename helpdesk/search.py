@@ -265,6 +265,7 @@ class HelpdeskSearch(Search):
                 "doctype": doc.doctype,
                 "name": doc.name,
                 "subject": doc.subject,
+                "description": strip_html_tags(doc.description or ""),
                 "team": doc.agent_group,
                 "modified": doc.modified,
             }
@@ -361,7 +362,7 @@ def search(
         if part in get_stopwords():
             continue
         if len(part) > 3:
-            query += f"{sep}%{part}%"
+            query += f"{sep}{part}*"
         else:
             query += f"{sep}{part}*"
 
@@ -396,7 +397,7 @@ def build_index():
     frappe.cache().set_value("helpdesk_search_indexing_in_progress", False)
 
 
-def build_index_in_background():
+def build_index_in_background(doc=None, method=None):
     if not frappe.cache().get_value("helpdesk_search_indexing_in_progress"):
         frappe.enqueue(build_index, queue="long")
 

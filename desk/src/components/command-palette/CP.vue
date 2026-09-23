@@ -16,6 +16,7 @@
               class="pl-11.5 pr-4.5 w-full border-none bg-transparent py-3 text-base text-gray-800 placeholder:text-gray-500 focus:ring-0"
               autocomplete="off"
               @input="onInput"
+              @keydown.enter="onEnter"
             />
           </div>
           <ComboboxOptions
@@ -72,6 +73,7 @@ import { computed, h, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import LucideBookOpen from "~icons/lucide/book-open";
+import LucideFileSearch from "~icons/lucide/file-search";
 import LucideTicket from "~icons/lucide/ticket";
 import CPGroup from "./CPGroup.vue";
 const router = useRouter();
@@ -144,6 +146,17 @@ const groupedSearchResults = computed(() => {
 // Methods
 const onInput = (e) => {
   query.value = e.target.value;
+};
+
+const onEnter = (e) => {
+  // When there's a text query (not a #ticket shortcut), Enter should go to
+  // the search page — not auto-select the first navigation item (Tickets).
+  if (query.value && !query.value.startsWith("#") && !isCustomerPortal.value) {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push({ name: "SearchAgent", query: { q: query.value } });
+    hideCommandPalette();
+  }
 };
 
 const onSelection = (value) => {

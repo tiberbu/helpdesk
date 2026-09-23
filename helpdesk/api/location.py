@@ -8,6 +8,46 @@ from frappe import _
 
 
 @frappe.whitelist(allow_guest=True)
+def get_facilities() -> list[dict]:
+    """Return all active HD Facility records for the facility picker.
+
+    Returns a list of dicts: {name, facility_name, county, sub_county}
+    so the frontend can display the facility name and auto-fill county/sub_county.
+    HD Facility stores sub_county in the 'subcounty' field (Link → HD Subcounty).
+    """
+    rows = frappe.db.get_all(
+        "HD Facility",
+        fields=["name", "facility_name", "county", "subcounty"],
+        order_by="facility_name asc",
+    )
+    return [
+        {
+            "name": r.name,
+            "facility_name": r.facility_name or r.name,
+            "county": r.county or "",
+            "sub_county": r.subcounty or "",
+        }
+        for r in rows
+    ]
+
+
+@frappe.whitelist(allow_guest=True)
+def get_facility(name: str) -> dict:
+    """Return county and sub_county for a single HD Facility."""
+    if not name:
+        return {}
+    row = frappe.db.get_value(
+        "HD Facility",
+        name,
+        ["county", "subcounty"],
+        as_dict=True,
+    )
+    if not row:
+        return {}
+    return {"county": row.county or "", "sub_county": row.subcounty or ""}
+
+
+@frappe.whitelist(allow_guest=True)
 def get_counties() -> list[str]:
     """Return a sorted list of all Kenya counties from HD County."""
     rows = frappe.db.get_all(

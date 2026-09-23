@@ -98,27 +98,42 @@ class HDTicket(Document):
         if not raised_by or raised_by == "Guest":
             return
 
-        # Step 1: get facility from user profile
+        # Step 1: get facility from user profile; form-supplied facility takes priority
         user_facility = frappe.db.get_value("User", raised_by, "facility")
+        effective_facility = self.facility or user_facility
 
         # Always stamp the facility on the ticket if we know it
-        if user_facility and not self.facility:
-            self.facility = user_facility
+        if effective_facility and not self.facility:
+            self.facility = effective_facility
+
+        # Auto-fill county + sub_county from the selected facility record
+        if effective_facility and (not self.county or not self.sub_county):
+            fac = frappe.db.get_value(
+                "HD Facility",
+                effective_facility,
+                ["county", "subcounty"],
+                as_dict=True,
+            )
+            if fac:
+                if fac.county and not self.county:
+                    self.county = fac.county
+                if fac.subcounty and not self.sub_county:
+                    self.sub_county = fac.subcounty
 
         mapping = None
 
-        if user_facility:
+        if effective_facility:
             # Step 2a: look up HD Facility Mapping by facility name
             mapping = frappe.db.get_value(
                 "HD Facility Mapping",
-                {"facility_name": user_facility},
+                {"facility_name": effective_facility},
                 ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
                 as_dict=True,
             )
 
         if not mapping and self.county and self.sub_county:
             # Step 2b: no facility mapping — try to match by county + sub_county
-            # (user explicitly chose them via the ticket creation form)
+            # (user explicitly chose them via the ticket creation form or facility picker)
             mapping = frappe.db.get_value(
                 "HD Facility Mapping",
                 {"county": self.county, "sub_county": self.sub_county},
@@ -133,17 +148,28 @@ class HDTicket(Document):
             if not self.county:
                 self.county = mapping.county
 
-            # Step 4: assign to l0_team
-            if not self.agent_group and mapping.l0_team:
-                self.agent_group = mapping.l0_team
-
-            # Step 5: set support_level from l0_team
-            if not self.support_level and mapping.l0_team:
+            # Step 4: assign to l0_team, fall back to l1_team if l0 not set.
+            # Always override agent_group when a mapping gives us a specific team
+            # so that template defaults (e.g. "Nairobi") don't win over geography.
+            assigned_team = mapping.l0_team or mapping.l1_team
+            if assigned_team:
+                self.agent_group = assigned_team
                 self.support_level = frappe.db.get_value(
-                    "HD Team", mapping.l0_team, "support_level"
+                    "HD Team", assigned_team, "support_level"
                 )
         else:
-            # Step 6: no mapping — assign to default national team
+            # Step 6: no mapping — try to route by county to l1_team.
+            # Always override agent_group from county lookup so template
+            # defaults don't persist when we know the correct regional team.
+            if self.county:
+                county_team = _get_team_for_county(self.county)
+                if county_team:
+                    self.agent_group = county_team
+                    self.support_level = frappe.db.get_value(
+                        "HD Team", county_team, "support_level"
+                    )
+
+            # Step 7: final fallback — national team only if still unassigned
             if not self.agent_group:
                 national_team = _get_default_national_team()
                 if national_team:
@@ -211,6 +237,8 @@ class HDTicket(Document):
         tickets) to allow actions like re-applying an incident model without
         blocking the save with newly-added incomplete items.
         """
+        if getattr(self.flags, "allow_plugin_status_change", False):
+            return
         if self.status_category not in ("Resolved", "Closed"):
             return
 
@@ -273,6 +301,8 @@ class HDTicket(Document):
         AC #7: category required when resolving if setting is enabled.
         AC #8: sub_category must belong to selected category.
         """
+        if getattr(self.flags, "allow_plugin_status_change", False):
+            return
         is_resolving = self.status_category == "Resolved"
 
         if is_resolving and frappe.db.get_single_value(
@@ -462,6 +492,8 @@ class HDTicket(Document):
             capture_event("ticket_status_updated")
             self.notify_customer_of_status_change()
             self._run_escalation_rules("status_change")
+            if self.status_category == "Resolved":
+                self._send_resolution_confirmation_email()
 
         if self.has_value_changed("priority"):
             self._run_escalation_rules("priority_match")
@@ -527,6 +559,123 @@ class HDTicket(Document):
             )
         except Exception:
             frappe.log_error(frappe.get_traceback(), "Status Change Notification Error")
+
+        self._create_customer_status_notification(old_status=None, new_status=self.status)
+
+    def _send_resolution_confirmation_email(self):
+        """
+        Notify the customer that their ticket was resolved.
+        If they are online (portal), fire a realtime event so a dialog appears immediately.
+        Always also send an email as a fallback for users who are offline.
+        """
+        try:
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+
+            if not self.key:
+                return
+
+            # Realtime popup for users currently on the portal
+            frappe.publish_realtime(
+                "helpdesk:resolution-confirm",
+                {
+                    "ticket_id": self.name,
+                    "ticket_subject": self.subject,
+                    "key": str(self.key),
+                },
+                user=customer_email,
+                after_commit=True,
+            )
+
+            # Email fallback for offline users
+            base_url = frappe.utils.get_url()
+            yes_link = f"{base_url}/api/method/helpdesk.api.resolution_confirm.confirm?key={self.key}&answer=yes"
+            no_link = f"{base_url}/api/method/helpdesk.api.resolution_confirm.confirm?key={self.key}&answer=no"
+
+            frappe.sendmail(
+                recipients=[customer_email],
+                subject=f"Has your issue been resolved? — Ticket #{self.name}",
+                template="resolution_confirmation",
+                args={
+                    "ticket_id": self.name,
+                    "ticket_subject": self.subject,
+                    "yes_link": yes_link,
+                    "no_link": no_link,
+                },
+                reference_doctype="HD Ticket",
+                reference_name=self.name,
+            )
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Resolution Confirmation Email Error")
+
+    def _create_customer_reply_notification(self, message: str, communication_name: str):
+        """Create an in-app notification for the customer when an agent replies."""
+        try:
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+            agent = frappe.session.user
+            if agent == customer_email:
+                return
+            from bs4 import BeautifulSoup
+            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(" ", strip=True)[:300]
+            agent_name = frappe.db.get_value("User", agent, "full_name") or agent
+            frappe.get_doc({
+                "doctype": "HD Notification",
+                "user_from": agent,
+                "user_to": customer_email,
+                "notification_type": "Ticket Reply",
+                "reference_ticket": self.name,
+                "message": plain_preview,
+                "read": 0,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Customer reply notification error")
+
+    def _notify_agents_of_customer_reply(self, message: str):
+        """Create in-app bell notifications for assigned agents when customer replies."""
+        try:
+            assigned_agents = self.get_assigned_agents() or []
+            customer = frappe.session.user
+            customer_name = frappe.db.get_value("User", customer, "full_name") or customer
+            from bs4 import BeautifulSoup
+            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(" ", strip=True)[:300]
+            from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+            for agent in assigned_agents:
+                agent_email = agent.get("name")
+                if not agent_email or agent_email == customer:
+                    continue
+                create_notification(
+                    user_to=agent_email,
+                    notification_type="Reaction",
+                    message=f"{customer_name} replied on ticket #{self.name}: {plain_preview}",
+                    reference_ticket=self.name,
+                    user_from=customer,
+                )
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Agent reply notification error")
+
+    def _create_customer_status_notification(self, old_status, new_status):
+        """Create an in-app notification for the customer when ticket status changes."""
+        try:
+            customer_email = self.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+            changer = frappe.session.user
+            if changer == customer_email:
+                return
+            frappe.get_doc({
+                "doctype": "HD Notification",
+                "user_from": changer,
+                "user_to": customer_email,
+                "notification_type": "Ticket Status Change",
+                "reference_ticket": self.name,
+                "message": f"Your ticket #{self.name} status changed to {new_status}",
+                "read": 0,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Customer status in-app notification error")
 
     def set_ticket_type(self):
         if self.ticket_type:
@@ -608,6 +757,8 @@ class HDTicket(Document):
         )
 
     def validate_feedback(self):
+        if getattr(self.flags, "allow_plugin_status_change", False):
+            return
         is_feedback_mandatory = frappe.get_cached_value(
             "HD Settings", "HD Settings", "is_feedback_mandatory"
         )
@@ -625,7 +776,12 @@ class HDTicket(Document):
         )
 
     def check_update_perms(self):
-        if self.is_new() or is_agent() or not self.via_customer_portal:
+        if (
+            self.is_new()
+            or is_agent()
+            or not self.via_customer_portal
+            or getattr(self.flags, "allow_plugin_status_change", False)
+        ):
             return
         old_doc = self.get_doc_before_save()
         is_closed = old_doc.status == "Closed"
@@ -723,10 +879,9 @@ class HDTicket(Document):
 
     @frappe.whitelist()
     def assign_agent(self, agent: str):
+        # ToDo.after_insert hook (overrides/todo_assignment.py) handles
+        # the HD Notification — no need to call notify_agent here.
         assign({"assign_to": [agent], "doctype": "HD Ticket", "name": self.name})
-
-        if frappe.session.user != agent:
-            self.notify_agent(agent, "Assignment")
 
     def get_assigned_agents(self):
         assignees = get_assignees({"doctype": "HD Ticket", "name": self.name})
@@ -828,21 +983,28 @@ class HDTicket(Document):
 
     @frappe.whitelist()
     def new_comment(self, content: str, attachments: list[str] = []):
-        if not is_agent():
+        # Allow the ticket owner (customer) to post public comments, not just agents
+        user = frappe.session.user
+        is_ticket_owner = self.raised_by == user
+        if not is_agent() and not is_ticket_owner:
             frappe.throw(
                 _("You are not permitted to add a comment"), frappe.PermissionError
             )
         c = frappe.new_doc("HD Ticket Comment")
-        c.commented_by = frappe.session.user
+        c.commented_by = user
         c.content = content
         c.is_pinned = False
         c.is_internal = False
         c.reference_ticket = self.name
-        c.save()
+        c.save(ignore_permissions=True)
         for attachment in attachments:
             self.attach_file_with_doc(
                 "HD Ticket Comment", c.name, attachment.get("file_url")
             )
+        # If a customer posted, notify the assigned agent(s) via the bell
+        if is_ticket_owner and not is_agent():
+            self._notify_agents_of_customer_reply(content)
+        return c.name
 
     @frappe.whitelist()
     def new_internal_note(self, content: str, attachments: list[str] = []):
@@ -908,6 +1070,9 @@ class HDTicket(Document):
 
         communication.insert(ignore_permissions=True)
         capture_event("agent_replied")
+
+        # In-app notification for the customer so the bell lights up
+        self._create_customer_reply_notification(message, communication.name)
 
         _attachments = []
 
@@ -990,6 +1155,10 @@ class HDTicket(Document):
         ):
             # send email to assigned agents
             self.send_reply_email_to_agent()
+
+        # In-app bell notification for assigned agents when customer replies
+        if not new_ticket:
+            self._notify_agents_of_customer_reply(message)
 
         # if self.status_category == "Paused" and not new_ticket:
         if not new_ticket:
@@ -1667,15 +1836,14 @@ class HDTicket(Document):
         current_priority = frappe.get_cached_doc('HD Ticket Priority', self.priority)
 
         # Find next higher priority (lower integer_value)
-        next_priority = frappe.db.get_value(
+        results = frappe.db.get_list(
             'HD Ticket Priority',
-            filters=[
-                ['integer_value', '<', current_priority.integer_value]
-            ],
-            fieldname='name',
+            filters=[['integer_value', '<', current_priority.integer_value]],
+            fields=['name'],
             order_by='integer_value desc',
             limit=1
         )
+        next_priority = results[0].name if results else None
 
         if next_priority and next_priority != self.priority:
             old_priority = self.priority
@@ -1732,8 +1900,24 @@ def has_permission(doc, user=None):
             if user in assignees:
                 return True
         except:
-            return False
+            pass
 
+    # Use the same hierarchical scope logic as permission_query
+    from .team_hierarchy import get_scoped_teams_for_agent, _LEGACY_FALLBACK
+
+    scoped = get_scoped_teams_for_agent(user)
+
+    if scoped is True:
+        # L2 National: sees all tickets
+        return True
+
+    if scoped is not _LEGACY_FALLBACK:
+        # Hierarchical mode: ticket must belong to one of the agent's scoped teams
+        if not scoped:
+            return False
+        return doc.get("agent_group") in scoped
+
+    # Legacy flat-team fallback
     teams = get_agents_team()
     if any([team.get("ignore_restrictions") for team in teams]):
         return True
@@ -2152,6 +2336,43 @@ def close_tickets_after_n_days():
             except Exception:  # noqa: BLE001
                 pass  # ignore rollback errors — connection may already be dead
             break  # dead connection — abort remaining tickets
+
+
+COUNTY_TEAM_MAP = {
+    # Coast Region
+    "Mombasa": "Coast Region", "Kwale": "Coast Region", "Kilifi": "Coast Region",
+    "Tana River": "Coast Region", "Lamu": "Coast Region", "Taita-Taveta": "Coast Region",
+    # Central Region
+    "Nyandarua": "Central Region", "Nyeri": "Central Region", "Kirinyaga": "Central Region",
+    "Murang'a": "Central Region", "Kiambu": "Central Region",
+    # Nairobi
+    "Nairobi": "Nairobi Metropolitan",
+    # Eastern Region
+    "Meru": "Eastern Region", "Tharaka-Nithi": "Eastern Region", "Embu": "Eastern Region",
+    "Kitui": "Eastern Region", "Machakos": "Eastern Region", "Makueni": "Eastern Region",
+    "Garissa": "Eastern Region", "Wajir": "Eastern Region", "Mandera": "Eastern Region",
+    "Marsabit": "Eastern Region", "Isiolo": "Eastern Region",
+    # Western Region
+    "Kakamega": "Western Region", "Vihiga": "Western Region",
+    "Bungoma": "Western Region", "Busia": "Western Region",
+    # Nyanza Region
+    "Siaya": "Nyanza Region", "Kisumu": "Nyanza Region", "Homa Bay": "Nyanza Region",
+    "Migori": "Nyanza Region", "Kisii": "Nyanza Region", "Nyamira": "Nyanza Region",
+    # Rift Valley North
+    "Turkana": "Rift Valley North", "West Pokot": "Rift Valley North",
+    "Samburu": "Rift Valley North", "Trans-Nzoia": "Rift Valley North",
+    "Uasin Gishu": "Rift Valley North", "Elgeyo-Marakwet": "Rift Valley North",
+    "Baringo": "Rift Valley North",
+    # Rift Valley South
+    "Nandi": "Rift Valley South", "Laikipia": "Rift Valley South", "Nakuru": "Rift Valley South",
+    "Narok": "Rift Valley South", "Kajiado": "Rift Valley South",
+    "Kericho": "Rift Valley South", "Bomet": "Rift Valley South",
+}
+
+
+def _get_team_for_county(county):
+    """Return the L1 regional team for a given county name."""
+    return COUNTY_TEAM_MAP.get(county)
 
 
 def _get_default_national_team():

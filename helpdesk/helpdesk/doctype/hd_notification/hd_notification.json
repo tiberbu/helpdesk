@@ -39,7 +39,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Assignment\nMention\nReaction\nEscalation\nSLA Warning\nSLA Breach",
+   "options": "Assignment\nMention\nReaction\nEscalation\nSLA Warning\nSLA Breach\nTicket Reply\nTicket Status Change",
    "reqd": 1
   },
   {

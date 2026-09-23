@@ -8,6 +8,18 @@ from frappe.core.doctype.user.user import User
 
 
 class HelpdeskUser(User):
+    def validate(self):
+        # If someone other than this user is setting/resetting their password
+        # (i.e. an admin), force them to set their own password on next login.
+        # If the user is setting their own new_password (e.g. via the forced
+        # password-change screen or a normal voluntary change), clear the flag.
+        if self.get("new_password"):
+            if frappe.session.user != self.name:
+                self.force_password_change = 1
+            else:
+                self.force_password_change = 0
+        super().validate()
+
     def password_reset_mail(self, link):
         from helpdesk.email.aws_ses_config import get_ses_config
 

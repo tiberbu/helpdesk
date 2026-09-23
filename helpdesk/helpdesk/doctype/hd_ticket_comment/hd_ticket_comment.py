@@ -39,6 +39,34 @@ class HDTicketComment(HasMentions, Document):
             self.notify_mentions()
         else:
             self.notify_customer_of_comment()
+            self._notify_customer_in_app()
+
+    def _notify_customer_in_app(self):
+        """In-app bell notification for the customer when an agent posts a public comment."""
+        try:
+            ticket = frappe.get_doc("HD Ticket", self.reference_ticket)
+            customer_email = ticket.raised_by
+            if not customer_email or customer_email in ("Administrator", "Guest", ""):
+                return
+            commenter = self.commented_by or frappe.session.user
+            if commenter == customer_email:
+                return
+            if not is_agent(commenter):
+                return
+            from bs4 import BeautifulSoup
+            plain_preview = BeautifulSoup(self.content or "", "html.parser").get_text(" ", strip=True)[:300]
+            frappe.get_doc({
+                "doctype": "HD Notification",
+                "user_from": commenter,
+                "user_to": customer_email,
+                "notification_type": "Ticket Reply",
+                "reference_ticket": self.reference_ticket,
+                "reference_comment": self.name,
+                "message": plain_preview,
+                "read": 0,
+            }).insert(ignore_permissions=True)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Customer in-app notification error")
 
     def notify_customer_of_comment(self):
         """Send email notification to the customer when an agent adds a public comment."""

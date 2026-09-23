@@ -108,7 +108,7 @@ import {
   provide,
   ref,
 } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ITicket } from "./symbols";
 import TicketConversation from "./TicketConversation.vue";
 import TicketCustomerTemplateFields from "./TicketCustomerTemplateFields.vue";
@@ -121,6 +121,7 @@ interface P {
   ticketId: string;
 }
 const router = useRouter();
+const route = useRoute();
 const props = defineProps<P>();
 
 const { getStatus } = useTicketStatusStore();
@@ -236,9 +237,9 @@ const send = createResource({
   makeParams: () => ({
     dt: "HD Ticket",
     dn: props.ticketId,
-    method: "create_communication_via_contact",
+    method: "new_comment",
     args: {
-      message: editorContent.value,
+      content: editorContent.value,
       attachments: attachments.value,
     },
   }),
@@ -354,10 +355,52 @@ onMounted(() => {
   startViewing(props.ticketId);
   document.title = props.ticketId;
 
+  const resolutionMsg = route.query.resolution_msg as string;
+  if (resolutionMsg) {
+    toast.success(resolutionMsg);
+    router.replace({ query: { ...route.query, resolution_msg: undefined } });
+  }
+
   $socket.on("helpdesk:ticket-update", ({ ticket_id }) => {
     if (ticket_id == props.ticketId) {
       ticket.reload();
     }
+  });
+
+  $socket.on("helpdesk:resolution-confirm", ({ ticket_id, ticket_subject, key }) => {
+    if (ticket_id !== props.ticketId) return;
+    $dialog({
+      title: __("Has your issue been resolved?"),
+      message: __('Your ticket "{0}" has been marked as Resolved. Was your issue resolved?', [ticket_subject]),
+      actions: [
+        {
+          label: __("Yes, close the ticket"),
+          variant: "solid",
+          theme: "green",
+          onClick({ close }) {
+            call("helpdesk.api.resolution_confirm.confirm", { key, answer: "yes" })
+              .then(() => {
+                ticket.reload();
+                toast.success(__("Ticket closed. Thank you!"));
+              });
+            close();
+          },
+        },
+        {
+          label: __("No, I still need help"),
+          variant: "subtle",
+          theme: "red",
+          onClick({ close }) {
+            call("helpdesk.api.resolution_confirm.confirm", { key, answer: "no" })
+              .then(() => {
+                ticket.reload();
+                toast.info(__("Ticket reopened. Our team will follow up."));
+              });
+            close();
+          },
+        },
+      ],
+    });
   });
 });
 
@@ -365,5 +408,6 @@ onUnmounted(() => {
   stopViewing(props.ticketId);
   document.title = "ServiceDesk";
   $socket.off("helpdesk:ticket-update");
+  $socket.off("helpdesk:resolution-confirm");
 });
 </script>

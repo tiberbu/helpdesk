@@ -6,7 +6,16 @@
           {{ __("Dashboard") }}
         </div>
       </template>
-      <template #right-header> </template>
+      <template #right-header>
+        <Dropdown
+          :options="reportDownloadOptions"
+          placement="right"
+        >
+          <template #default>
+            <Button :label="__('Generate Report')" icon-left="download" />
+          </template>
+        </Dropdown>
+      </template>
     </LayoutHeader>
 
     <div class="p-5 w-full overflow-y-scroll">
@@ -163,6 +172,30 @@ const filters = reactive({
   agent: null,
   team: null,
 });
+
+function downloadReport(format: "excel" | "pdf") {
+  const [from_date, to_date] = (filters.period || "").split(",");
+  if (!from_date || !to_date) {
+    return;
+  }
+  const endpoint =
+    format === "excel"
+      ? "helpdesk.api.report_export.get_management_report_excel"
+      : "helpdesk.api.report_export.get_management_report_pdf";
+  const params = new URLSearchParams({ from_date, to_date });
+  window.open(`/api/method/${endpoint}?${params.toString()}`, "_blank");
+}
+
+const reportDownloadOptions = [
+  {
+    label: __("Download as Excel"),
+    onClick: () => downloadReport("excel"),
+  },
+  {
+    label: __("Download as PDF"),
+    onClick: () => downloadReport("pdf"),
+  },
+];
 
 const colors = [
   "#318AD8",

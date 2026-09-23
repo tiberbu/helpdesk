@@ -15,13 +15,16 @@ def create_ticket_from_hmis(
     description: str,
     raised_by_email: str,
     raised_by_name: Optional[str] = None,
-    priority: Optional[str] = "Medium",
+    priority: Optional[str] = None,
     ticket_type: Optional[str] = None,
     category: Optional[str] = None,
     custom_fields: Optional[dict] = None,
     external_reference_id: Optional[str] = None,
     hmis_module: Optional[str] = None,
     hmis_url: Optional[str] = None,
+    facility: Optional[str] = None,
+    custom_phone: Optional[str] = None,
+    custom_section: Optional[str] = None,
     api_key: Optional[str] = None,
     api_secret: Optional[str] = None
 ):
@@ -80,6 +83,13 @@ def create_ticket_from_hmis(
             frappe.MandatoryError
         )
 
+    valid_priorities = ["Low", "Medium", "High", "Urgent"]
+    if not priority or priority not in valid_priorities:
+        frappe.throw(
+            _("priority is required. Must be one of: Low, Medium, High, Urgent"),
+            frappe.MandatoryError
+        )
+
     # Step 3: Get or create contact for the user
     contact = _get_or_create_contact(raised_by_email, raised_by_name)
 
@@ -99,7 +109,7 @@ def create_ticket_from_hmis(
         "raised_by": raised_by_email,
         "contact": contact.name if contact else None,
         "status": "Open",
-        "priority": priority or "Medium",
+        "priority": priority,
         "via_customer_portal": False,  # Mark as external system
     }
 
@@ -120,6 +130,34 @@ def create_ticket_from_hmis(
 
     if hmis_module:
         ticket_data["custom_hmis_module"] = hmis_module
+
+    if facility:
+        # facility may be a facility_code (FID) or a full facility name — resolve either way
+        facility_doc = frappe.db.get_value(
+            "HD Facility",
+            {"facility_code": facility},
+            ["name", "county", "subcounty"],
+            as_dict=True
+        )
+        if not facility_doc:
+            facility_doc = frappe.db.get_value(
+                "HD Facility",
+                {"name": facility},
+                ["name", "county", "subcounty"],
+                as_dict=True
+            )
+        if facility_doc:
+            ticket_data["facility"] = facility_doc.name
+            if facility_doc.county:
+                ticket_data["county"] = facility_doc.county
+            if facility_doc.subcounty:
+                ticket_data["sub_county"] = facility_doc.subcounty
+
+    if custom_phone:
+        ticket_data["custom_phone"] = custom_phone
+
+    if custom_section:
+        ticket_data["custom_section"] = custom_section
 
     # Step 6: Create the ticket
     try:

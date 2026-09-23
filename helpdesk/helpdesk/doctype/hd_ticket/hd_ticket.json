@@ -1,13 +1,14 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "autoincrement",
+ "autoname": "naming_series:",
  "creation": "2023-10-17 14:27:11.078679",
  "doctype": "DocType",
  "document_type": "Setup",
  "email_append_to": 1,
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
   "subject_section",
   "subject",
   "raised_by",
@@ -92,9 +93,31 @@
   "facility",
   "sub_county",
   "county",
-  "escalation_path"
+  "custom_phone",
+  "custom_section",
+  "escalation_path",
+  "agent_rotation_path",
+  "rotation_exhausted",
+  "plugin_key",
+  "plugin_instance",
+  "plugin_source",
+  "external_reference_id",
+  "plugin_reporter_name",
+  "plugin_reporter_email",
+  "plugin_reporter_facility",
+  "plugin_attachments",
+  "plugin_attachment_fingerprint"
  ],
  "fields": [
+  {
+   "default": "TKT-.YY.-.MM.-.DD.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "TKT-.YY.-.MM.-.DD.-.#####",
+   "reqd": 1,
+   "set_only_once": 1
+  },
   {
    "fieldname": "subject_section",
    "fieldtype": "Section Break",
@@ -136,7 +159,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Priority",
-   "options": "HD Ticket Priority"
+   "options": "HD Ticket Priority",
+   "reqd": 1
   },
   {
    "fieldname": "impact",
@@ -161,7 +185,8 @@
    "fieldtype": "Link",
    "label": "Ticket Type",
    "link_filters": "[[\"HD Ticket Type\",\"disabled\",\"=\",0]]",
-   "options": "HD Ticket Type"
+   "options": "HD Ticket Type",
+   "reqd": 1
   },
   {
    "fieldname": "agent_group",
@@ -411,7 +436,7 @@
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Source",
-   "options": "\nEmail\nChat\nPortal",
+   "options": "\nEmail\nChat\nPortal\nHMIS",
    "search_index": 1
   },
   {
@@ -633,7 +658,8 @@
    "fieldname": "facility",
    "fieldtype": "Link",
    "label": "Facility",
-   "options": "HD Facility"
+   "options": "HD Facility",
+   "reqd": 1
   },
   {
    "depends_on": "eval:doc.county",
@@ -650,12 +676,107 @@
    "options": "HD County"
   },
   {
+   "fieldname": "custom_phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "custom_section",
+   "fieldtype": "Data",
+   "label": "Section"
+  },
+  {
    "description": "JSON audit trail of all escalations/de-escalations",
    "fieldname": "escalation_path",
    "fieldtype": "Long Text",
    "hidden": 1,
    "label": "Escalation Path",
    "read_only": 1
+  },
+  {
+   "description": "JSON trail of agents tried during post-breach rotation",
+   "fieldname": "agent_rotation_path",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Agent Rotation Path",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rotation_exhausted",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Rotation Exhausted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "plugin_key",
+   "fieldtype": "Data",
+   "label": "Plugin Retry Key",
+   "read_only": 1,
+   "no_copy": 1,
+   "unique": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "plugin_instance",
+   "fieldtype": "Data",
+   "label": "CareVerse Instance",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_source",
+   "fieldtype": "Data",
+   "label": "Plugin Source",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "external_reference_id",
+   "fieldtype": "Data",
+   "label": "External Reference ID",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_reporter_name",
+   "fieldtype": "Data",
+   "label": "Reporter Name",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_reporter_email",
+   "fieldtype": "Data",
+   "label": "Reporter Email",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_reporter_facility",
+   "fieldtype": "Data",
+   "label": "Reporter Facility",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_attachments",
+   "fieldtype": "Long Text",
+   "label": "Initial Plugin Attachments",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "plugin_attachment_fingerprint",
+   "fieldtype": "Data",
+   "label": "Plugin Attachment Fingerprint",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
   }
  ],
  "grid_page_length": 50,
@@ -742,5 +863,6 @@
  "timeline_field": "contact",
  "title_field": "subject",
  "track_changes": 1,
- "track_seen": 1
+ "track_seen": 1,
+ "naming_series_options": "TKT-.YY.-.MM.-.DD.-.#####"
 }

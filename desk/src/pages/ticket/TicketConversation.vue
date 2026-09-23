@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { isElementInViewport } from "@/utils";
+import { isCustomerPortal, isElementInViewport } from "@/utils";
 import { Avatar } from "frappe-ui";
 import { computed, inject, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -60,9 +60,36 @@ const props = withDefaults(defineProps<P>(), {
 const route = useRoute();
 const ticket = inject(ITicket);
 const communications = computed(() => {
-  const _communications = ticket.data.communications || [];
-  return _communications.sort(
-    (a, b) => new Date(a.creation) - new Date(b.creation)
+  const comms = (ticket.data.communications || []).map((c) => ({
+    ...c,
+    _source: "communication",
+    _date: c.creation,
+  }));
+
+  // In the customer portal, also show public (non-internal) agent comments
+  // so customers can see replies the agent wrote via the comment box.
+  if (isCustomerPortal.value) {
+    const publicComments = (ticket.data.comments || [])
+      .filter((c) => !c.is_internal)
+      .map((c) => ({
+        name: c.name,
+        content: c.content,
+        creation: c.creation,
+        attachments: c.attachments || [],
+        user: c.user,
+        sender: c.commented_by,
+        cc: "",
+        bcc: "",
+        _source: "comment",
+        _date: c.creation,
+      }));
+    return [...comms, ...publicComments].sort(
+      (a, b) => new Date(a._date).getTime() - new Date(b._date).getTime()
+    );
+  }
+
+  return comms.sort(
+    (a, b) => new Date(a._date).getTime() - new Date(b._date).getTime()
   );
 });
 

@@ -96,8 +96,8 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "sort_field": "modified",
- "sort_order": "ASC",
+ "sort_field": "integer_value",
+ "sort_order": "DESC",
  "states": [],
  "track_changes": 1
 }

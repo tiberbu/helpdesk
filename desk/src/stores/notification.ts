@@ -18,124 +18,148 @@ export const useNotificationStore = defineStore("notification", () => {
   const { $socket } = globalStore();
 
   const visible = ref(false);
-  const resource: ListResource<Notification> = createListResource({
+
+  // Agent bell: uses createListResource directly on the doctype (agents have permission)
+  const agentResource: ListResource<Notification> = createListResource({
     doctype: "HD Notification",
-    cache: "Notifications",
+    cache: "AgentNotifications",
     fields: [
-      "creation",
-      "message",
-      "name",
-      "notification_type",
-      "read",
-      "reference_comment",
-      "reference_ticket",
-      "user_from",
-      "user_to",
+      "creation", "message", "name", "notification_type",
+      "read", "reference_comment", "reference_ticket", "user_from", "user_to",
     ],
     orderBy: "modified desc",
   });
-  const clear = createResource({
-    url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear",
+
+  // Customer bell: uses a whitelisted API that bypasses doctype permissions
+  const customerResource = createResource({
+    url: "helpdesk.helpdesk.doctype.hd_notification.utils.get_customer_notifications",
     auto: false,
-    onSuccess: () => resource.reload(),
   });
 
-  const read = (ticket: string) => {
-    createResource({
-      url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear",
-      auto: true,
-      params: {
-        ticket,
-      },
-      onSuccess: () => resource.reload(),
-    });
+  const customerClear = createResource({
+    url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear_customer_notifications",
+    auto: false,
+    onSuccess: () => customerResource.fetch(),
+  });
+
+  const agentClear = createResource({
+    url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear",
+    auto: false,
+    onSuccess: () => agentResource.reload(),
+  });
+
+  // Unified clear — object with .submit() that calls the right backend
+  const clear = {
+    get loading() {
+      return isCustomerPortal.value ? customerClear.loading : agentClear.loading;
+    },
+    submit() {
+      if (isCustomerPortal.value) {
+        customerClear.submit();
+      } else {
+        agentClear.submit();
+      }
+    },
   };
 
-  const data = computed(() => resource.data || []);
+  const read = (ticket: string) => {
+    if (isCustomerPortal.value) {
+      createResource({
+        url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear_customer_notifications",
+        auto: true,
+        params: { ticket },
+        onSuccess: () => customerResource.fetch(),
+      });
+    } else {
+      createResource({
+        url: "helpdesk.helpdesk.doctype.hd_notification.utils.clear",
+        auto: true,
+        params: { ticket },
+        onSuccess: () => agentResource.reload(),
+      });
+    }
+  };
+
+  const data = computed<Notification[]>(() => {
+    if (isCustomerPortal.value) {
+      return (customerResource.data as Notification[]) || [];
+    }
+    return agentResource.data || [];
+  });
+
   const unread = computed(() => data.value.filter((d) => !d.read).length);
 
   function toggle() {
     visible.value = !visible.value;
   }
 
+  function reloadCurrent() {
+    if (isCustomerPortal.value) {
+      customerResource.fetch();
+    } else {
+      agentResource.reload();
+    }
+  }
+
   watch(
-    () => authStore.hasDeskAccess,
+    () => authStore.userId,
     (newVal) => {
       if (!newVal) return;
-      resource.filters = {
-        user_to: ["=", authStore.userId],
-      };
-      resource.reload();
-      // Request browser notification permission when agent logs in
-      requestNotificationPermission();
+      if (isCustomerPortal.value) {
+        customerResource.fetch();
+      } else {
+        agentResource.filters = { user_to: ["=", authStore.userId] };
+        agentResource.reload();
+        requestNotificationPermission();
+      }
     },
     { immediate: true }
   );
+
   $socket.on("helpdesk:comment-reaction-update", () => {
     if (isCustomerPortal.value) return;
-    resource.reload();
+    agentResource.reload();
   });
 
-  // Reload notification list and play sound/show browser notification when
-  // an assignment or mention arrives for this agent.
   $socket.on("helpdesk:new-notification", (payload: {
     notification_type?: string;
     reference_ticket?: string;
     ticket_subject?: string;
     user_from?: string;
   } = {}) => {
-    if (isCustomerPortal.value) return;
-    resource.reload();
-    handleIncomingNotification(payload);
+    reloadCurrent();
+    if (!isCustomerPortal.value) {
+      handleIncomingNotification(payload);
+    }
   });
 
-  // SLA warning — toast + ding + browser notification
-  $socket.on(
-    "sla_warning",
-    (data: {
-      ticket: string;
-      subject: string;
-      threshold_minutes: number;
-      minutes_remaining: number;
-      sla_deadline: string;
-      is_manager_notification?: boolean;
-    }) => {
-      if (isCustomerPortal.value) return;
-      const minsLeft = Math.round(data.minutes_remaining);
-      const prefix = data.is_manager_notification ? "SLA Alert (Manager)" : "SLA Warning";
-      toast.create({
-        message: `${prefix}: Ticket #${data.ticket} — ${minsLeft} min until breach`,
-      });
-      handleSlaWarning(data);
-      resource.reload();
-    }
-  );
+  $socket.on("sla_warning", (data: {
+    ticket: string; subject: string; threshold_minutes: number;
+    minutes_remaining: number; sla_deadline: string; is_manager_notification?: boolean;
+  }) => {
+    if (isCustomerPortal.value) return;
+    const minsLeft = Math.round(data.minutes_remaining);
+    const prefix = data.is_manager_notification ? "SLA Alert (Manager)" : "SLA Warning";
+    toast.create({ message: `${prefix}: Ticket #${data.ticket} — ${minsLeft} min until breach` });
+    handleSlaWarning(data);
+    agentResource.reload();
+  });
 
-  // SLA breached — toast + ding x3 + browser notification
-  $socket.on(
-    "sla_breached",
-    (data: { ticket: string; subject: string }) => {
-      if (isCustomerPortal.value) return;
-      toast.create({
-        message: `SLA Breached: Ticket #${data.ticket} has exceeded its SLA`,
-      });
-      handleSlaBreached(data);
-      resource.reload();
-    }
-  );
+  $socket.on("sla_breached", (data: { ticket: string; subject: string }) => {
+    if (isCustomerPortal.value) return;
+    toast.create({ message: `SLA Breached: Ticket #${data.ticket} has exceeded its SLA` });
+    handleSlaBreached(data);
+    agentResource.reload();
+  });
 
-  // Escalation — ding x2 + browser notification
-  $socket.on(
-    "escalation_notification",
-    (data: { ticket: string; team?: string; message?: string; url?: string }) => {
-      if (isCustomerPortal.value) return;
-      toast.create({
-        message: data.message || `Ticket #${data.ticket} escalated to your team`,
-      });
-      handleEscalationNotification(data);
-      resource.reload();
-    }
-  );
+  $socket.on("escalation_notification", (data: {
+    ticket: string; team?: string; message?: string; url?: string;
+  }) => {
+    if (isCustomerPortal.value) return;
+    toast.create({ message: data.message || `Ticket #${data.ticket} escalated to your team` });
+    handleEscalationNotification(data);
+    agentResource.reload();
+  });
 
   return {
     clear,
@@ -144,6 +168,6 @@ export const useNotificationStore = defineStore("notification", () => {
     read,
     unread,
     visible,
-    resource,
+    resource: agentResource,
   };
 });
