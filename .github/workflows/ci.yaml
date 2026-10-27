@@ -64,7 +64,7 @@ jobs:
           #aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           #aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: arn:aws:iam::813389018368:role/GitHubActionsRole
-          aws-region: me-central-1
+          aws-region: us-west-2
 
       # ── Trivy: filesystem vulnerability scan ───────────────────────────
       - name: Trivy Filesystem Scan
