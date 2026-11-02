@@ -138,7 +138,10 @@ const ticketStatusStore = useTicketStatusStore();
 const ticket = inject(TicketSymbol);
 const customizations = inject(CustomizationSymbol);
 const activities = inject(ActivitiesSymbol);
-const showMajorIncidentDialog = inject<Ref<boolean>>("showMajorIncidentDialog", ref(false));
+const showMajorIncidentDialog = inject<Ref<boolean>>(
+  "showMajorIncidentDialog",
+  ref(false)
+);
 
 const showSubjectDialog = ref(false);
 const { itilModeEnabled } = storeToRefs(useConfigStore());
@@ -149,8 +152,6 @@ const statusDropdown = computed(() => {
   const statuses =
     ticketStatusStore.statuses.data?.filter((s) => {
       if (!s.enabled) return false;
-      // Only L2 National agents can manually set Closed
-      if (s.label_agent === "Closed" && !isNationalAgent.value) return false;
       return true;
     }) || [];
   return statuses.map((o: HDTicketStatus) => ({

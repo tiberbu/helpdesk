@@ -20,6 +20,20 @@ COUNT_NAME = (
 COUNT_DESC = "count desc"
 
 
+CAREVERSE_BRAND = "Careverse"
+CAREVERSE_CARE_TEAM = "Careverse Care Team"
+
+
+def _locked_brand(user=None):
+    """Brand this user's dashboards are locked to, or None.
+    Members of Careverse Care Team who are in no other team only see Careverse."""
+    user = user or frappe.session.user
+    teams = frappe.get_all("HD Team Member", filters={"user": user}, pluck="parent")
+    if teams and set(teams) == {CAREVERSE_CARE_TEAM}:
+        return CAREVERSE_BRAND
+    return None
+
+
 @frappe.whitelist()
 @agent_only
 def get_dashboard_data(
@@ -29,7 +43,7 @@ def get_dashboard_data(
     Get dashboard data based on the type and date range.
     """
     user = frappe.session.user
-    is_manager = "Agent Manager" in frappe.get_roles(user)
+    is_manager = "Agent Manager" in frappe.get_roles(user) or bool(_locked_brand(user))
 
     if not is_manager and (filters.get("agent") != user or filters.get("team")):
         frappe.throw(
@@ -45,6 +59,9 @@ def get_dashboard_data(
 
     if agent == "@me":
         agent = frappe.session.user
+    if _locked_brand(user):
+        agent = None
+        team = None
 
     if not from_date:
         from_date = frappe.utils.add_days(frappe.utils.nowdate(), -30)
@@ -105,6 +122,9 @@ class HelpdeskDashboard:
 
     def _get_conditions(self):
         conds = []
+        _brand = _locked_brand()
+        if _brand:
+            conds.append(self.ticket.brand == _brand)
         if self.team:
             conds.append(self.ticket.agent_group == self.team)
         if self.agent:
@@ -184,7 +204,9 @@ class HelpdeskDashboard:
 
         current_pct = (current_fulfilled / current_total * 100) if current_total else 0
 
-        target_pct = frappe.db.get_single_value("HD Settings", "sla_target_percentage") or 90
+        target_pct = (
+            frappe.db.get_single_value("HD Settings", "sla_target_percentage") or 90
+        )
 
         return {
             "title": _("% SLA Fulfilled"),
@@ -192,7 +214,9 @@ class HelpdeskDashboard:
             "suffix": "%",
             "delta": current_pct - target_pct,
             "deltaSuffix": "% vs {0}% target".format(target_pct),
-            "tooltip": _("% of tickets created that were resolved within SLA. Target: {0}%").format(target_pct),
+            "tooltip": _(
+                "% of tickets created that were resolved within SLA. Target: {0}%"
+            ).format(target_pct),
         }
 
     def get_sla_breach_count(self):
@@ -215,7 +239,9 @@ class HelpdeskDashboard:
             "value": current_breached,
             "delta": current_breached - prev_breached,
             "negativeIsBetter": True,
-            "tooltip": _("Number of tickets that have breached SLA (agreement_status = Failed), regardless of current status"),
+            "tooltip": _(
+                "Number of tickets that have breached SLA (agreement_status = Failed), regardless of current status"
+            ),
         }
 
     def get_sla_breach_percent(self):
@@ -244,16 +270,23 @@ class HelpdeskDashboard:
             self.ticket.first_response_time / 3600, Avg, extra_cond
         )
 
-        target_hours = frappe.db.get_single_value("HD Settings", "first_response_target_hours") or 4
+        target_hours = (
+            frappe.db.get_single_value("HD Settings", "first_response_target_hours")
+            or 4
+        )
 
         return {
             "title": _("Avg. First Response"),
             "value": current,
             "suffix": " " + _("hrs"),
             "delta": current - target_hours,
-            "deltaSuffix": " {0} {1}".format(_("hrs vs"), _("{0} hrs target").format(target_hours)),
+            "deltaSuffix": " {0} {1}".format(
+                _("hrs vs"), _("{0} hrs target").format(target_hours)
+            ),
             "negativeIsBetter": True,
-            "tooltip": _("Avg. time taken to first respond to a ticket. Target: {0} hrs").format(target_hours),
+            "tooltip": _(
+                "Avg. time taken to first respond to a ticket. Target: {0} hrs"
+            ).format(target_hours),
         }
 
     def get_avg_resolution_time(self):
@@ -265,16 +298,22 @@ class HelpdeskDashboard:
         value_expr = Function("CEIL", self.ticket.resolution_time / 86400)
         current, prev = self.get_metric_data(value_expr, Avg, extra_cond)
 
-        target_days = frappe.db.get_single_value("HD Settings", "resolution_target_days") or 3
+        target_days = (
+            frappe.db.get_single_value("HD Settings", "resolution_target_days") or 3
+        )
 
         return {
             "title": _("Avg. Resolution"),
             "value": current,
             "suffix": " " + _("days"),
             "delta": current - target_days,
-            "deltaSuffix": " {0}".format(_("days vs {0} days target").format(target_days)),
+            "deltaSuffix": " {0}".format(
+                _("days vs {0} days target").format(target_days)
+            ),
             "negativeIsBetter": True,
-            "tooltip": _("Avg. time taken to resolve a ticket. Target: {0} days").format(target_days),
+            "tooltip": _(
+                "Avg. time taken to resolve a ticket. Target: {0} days"
+            ).format(target_days),
         }
 
     def get_avg_feedback_score(self):
@@ -468,6 +507,8 @@ def get_master_dashboard_data(
     filters = {
         "creation": ["between", [from_date, to_date]],
     }
+    if _locked_brand():
+        filters["brand"] = _locked_brand()
     if team:
         filters["agent_group"] = team
     if agent:
@@ -679,6 +720,8 @@ def get_county_dashboard_data(
         filters["county"] = county
     if support_level:
         filters["support_level"] = support_level
+    if _locked_brand():
+        filters["brand"] = _locked_brand()
 
     _filters = frappe._dict(
         from_date=from_date,
@@ -697,7 +740,7 @@ def get_county_dashboard_data(
         "priority_chart": get_ticket_priority_chart_data(from_date, to_date, filters),
         "type_chart": get_ticket_type_chart_data(from_date, to_date, filters),
         "channel_chart": get_ticket_channel_chart_data(from_date, to_date, filters),
-        "implementers": get_county_implementers(county),
+        "implementers": [] if _locked_brand() else get_county_implementers(county),
     }
 
 
@@ -727,7 +770,12 @@ def get_county_chart_data(filters: dict[str, any] = None) -> dict[str, any]:
             result,
             _("Tickets by County"),
             _("Total Tickets by County"),
-            {"key": "county", "type": "category", "title": "County", "timeGrain": "day"},
+            {
+                "key": "county",
+                "type": "category",
+                "title": "County",
+                "timeGrain": "day",
+            },
             "Tickets",
             [{"name": "count", "type": "bar"}],
         )
@@ -779,6 +827,7 @@ def get_county_implementers(county: str = None) -> list[dict[str, any]]:
             entry["teams"].add(t.agent_group)
         if t._assign:
             import json
+
             try:
                 assigned = json.loads(t._assign)
                 for user in assigned:
@@ -795,11 +844,13 @@ def get_county_implementers(county: str = None) -> list[dict[str, any]]:
                 filters={"user": ["in", list(entry["agents"])]},
                 fields=["user", "agent_name", "is_active"],
             )
-        result.append({
-            "county": c,
-            "teams": sorted(entry["teams"]),
-            "implementers": agent_details,
-        })
+        result.append(
+            {
+                "county": c,
+                "teams": sorted(entry["teams"]),
+                "implementers": agent_details,
+            }
+        )
 
     result.sort(key=lambda r: r["county"])
     return result

@@ -23,13 +23,10 @@ _KEYWORD_RE = re.compile(r"\b(report|regist\w*)\b", re.IGNORECASE)
 
 
 def route_report_registration_tickets(doc, method=None):
-    if doc.get("ticket_type") in DEDICATED_TYPES:
-        matched = True
-    else:
-        text = f"{doc.get('subject') or ''} {doc.get('description') or ''}"
-        matched = bool(_KEYWORD_RE.search(text))
-
-    if not matched:
+    # Exact ticket_type match only -- the keyword fallback matched "report"/
+    # "regist..." anywhere in subject/description and was sweeping up Bug
+    # Report, Complaint, Technical Support and other unrelated tickets.
+    if doc.get("ticket_type") not in DEDICATED_TYPES:
         return
 
     ticket_name = str(doc.name)
@@ -43,11 +40,13 @@ def route_report_registration_tickets(doc, method=None):
         )
 
     try:
-        assign_to_add({
-            "assign_to": [DEDICATED_AGENT],
-            "doctype": "HD Ticket",
-            "name": ticket_name,
-        })
+        assign_to_add(
+            {
+                "assign_to": [DEDICATED_AGENT],
+                "doctype": "HD Ticket",
+                "name": ticket_name,
+            }
+        )
     except Exception:
         frappe.log_error(
             title=f"Report/Registration routing: assign failed for {ticket_name}",

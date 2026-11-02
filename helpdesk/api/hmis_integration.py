@@ -18,7 +18,6 @@ Status mapping (internal HD Ticket Status -> external contract):
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime
 
 # Maps our internal HD Ticket Status names to the external contract's
 # status vocabulary (New, Replied, In Progress, Resolved, Closed).
@@ -31,6 +30,14 @@ _STATUS_MAP = {
 }
 
 
+SOURCE_BRANDS = {
+    "HMIS": None,
+    "F360": "F360",
+    "P360": "P360",
+    "Admin Central": "Admin Central",
+}
+
+
 def _map_status(internal_status: str) -> str:
     return _STATUS_MAP.get(internal_status, internal_status)
 
@@ -39,9 +46,7 @@ def _resolve_facility(facility_name: str):
     """Look up HD Facility by exact name match, case-insensitive."""
     if not facility_name:
         return None
-    match = frappe.db.get_value(
-        "HD Facility", {"facility_name": facility_name}, "name"
-    )
+    match = frappe.db.get_value("HD Facility", {"facility_name": facility_name}, "name")
     if match:
         return match
     # Fallback: case-insensitive match
@@ -70,11 +75,16 @@ def _serialize_ticket(ticket, external_reference_id=None):
     assigned_to = None
     if ticket.get("_assign"):
         import json
+
         try:
             assignees = json.loads(ticket._assign)
             if assignees:
-                agent_name = frappe.db.get_value("HD Agent", {"user": assignees[0]}, "agent_name")
-                assigned_to = f"Implementer: {agent_name}" if agent_name else assignees[0]
+                agent_name = frappe.db.get_value(
+                    "HD Agent", {"user": assignees[0]}, "agent_name"
+                )
+                assigned_to = (
+                    f"Implementer: {agent_name}" if agent_name else assignees[0]
+                )
         except (ValueError, TypeError):
             pass
 
@@ -87,7 +97,8 @@ def _serialize_ticket(ticket, external_reference_id=None):
 
     return {
         "ticket_id": ticket.name,
-        "external_reference_id": external_reference_id or ticket.get("external_reference_id"),
+        "external_reference_id": external_reference_id
+        or ticket.get("external_reference_id"),
         "status": _map_status(ticket.status),
         "assigned_to": assigned_to,
         "last_update": str(ticket.modified),
@@ -108,8 +119,10 @@ def create_ticket(
 ):
     """POST /api/tickets equivalent. See module docstring for contract."""
 
-    if source != "HMIS":
-        frappe.throw(_("Unsupported source: {0}").format(source), frappe.ValidationError)
+    if source not in SOURCE_BRANDS:
+        frappe.throw(
+            _("Unsupported source: {0}").format(source), frappe.ValidationError
+        )
 
     if not reporter or not reporter.get("email"):
         frappe.throw(_("reporter.email is required"), frappe.ValidationError)
@@ -132,29 +145,48 @@ def create_ticket(
     facility_name = _resolve_facility((reporter or {}).get("facility"))
     if (reporter or {}).get("facility") and not facility_name:
         frappe.throw(
-            _("Facility '{0}' was not found in the system.").format(reporter.get("facility")),
+            _("Facility '{0}' was not found in the system.").format(
+                reporter.get("facility")
+            ),
             frappe.ValidationError,
         )
 
     ticket_type = _resolve_ticket_type(category)
 
-    priority_value = priority if priority in ("Low", "Medium", "High", "Urgent") else "Medium"
+    priority_value = (
+        priority if priority in ("Low", "Medium", "High", "Urgent") else "Medium"
+    )
 
     subject = (description or "").strip().splitlines()[0][:140] or _("HMIS Issue")
     if category:
         subject = f"{category}: {subject}"
 
-    doc = frappe.get_doc({
-        "doctype": "HD Ticket",
-        "subject": subject,
-        "description": description,
-        "raised_by": reporter.get("email"),
-        "facility": facility_name,
-        "ticket_type": ticket_type,
-        "priority": priority_value,
-        "source": "HMIS",
-        "external_reference_id": external_reference_id,
-    })
+    doc = frappe.get_doc(
+        {
+            "doctype": "HD Ticket",
+            "subject": subject,
+            "description": description,
+            "raised_by": reporter.get("email"),
+            "facility": facility_name,
+            "ticket_type": ticket_type,
+            "priority": priority_value,
+            "source": source,
+            "external_reference_id": external_reference_id,
+        }
+    )
+    _brand = SOURCE_BRANDS.get(source)
+    if _brand:
+        _b = (
+            frappe.db.get_value(
+                "HD Brand", _brand, ["default_team", "default_sla"], as_dict=True
+            )
+            or {}
+        )
+        doc.brand = _brand
+        if _b.get("default_team"):
+            doc.agent_group = _b["default_team"]
+        if _b.get("default_sla"):
+            doc.sla = _b["default_sla"]
     doc.insert(ignore_permissions=True)
     frappe.db.commit()
 
@@ -178,7 +210,9 @@ def get_ticket(ticket_id: str):
 def list_tickets(email: str = None, phone: str = None):
     """List all tickets raised by a given reporter, identified by email or phone."""
     if not email and not phone:
-        frappe.throw(_("Provide email or phone to list tickets"), frappe.ValidationError)
+        frappe.throw(
+            _("Provide email or phone to list tickets"), frappe.ValidationError
+        )
 
     filters = []
     if email:
@@ -193,10 +227,15 @@ def list_tickets(email: str = None, phone: str = None):
         "HD Ticket",
         filters=[single_filter] if single_filter else [],
         or_filters=or_filters if or_filters else [],
-        fields=["name", "status", "creation", "modified", "external_reference_id", "_assign"],
+        fields=[
+            "name",
+            "status",
+            "creation",
+            "modified",
+            "external_reference_id",
+            "_assign",
+        ],
         order_by="creation desc",
     )
 
-    return {
-        "tickets": [_serialize_ticket(frappe._dict(t)) for t in tickets]
-    }
+    return {"tickets": [_serialize_ticket(frappe._dict(t)) for t in tickets]}
