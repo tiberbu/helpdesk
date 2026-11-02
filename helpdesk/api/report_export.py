@@ -13,7 +13,8 @@ from frappe.desk.query_report import build_xlsx_data
 from frappe.utils.pdf import get_pdf
 from frappe.utils.xlsxutils import make_xlsx
 
-from helpdesk.api.dashboard import HelpdeskDashboard
+from helpdesk.api.dashboard import HelpdeskDashboard, _locked_brand
+from helpdesk.utils import agent_only
 
 
 def _get_summary_metrics(from_date, to_date, county=None):
@@ -36,7 +37,11 @@ def _get_summary_metrics(from_date, to_date, county=None):
         delta_suffix = card.get("deltaSuffix", "")
         delta = card.get("delta")
         value_str = f"{round(value, 2) if isinstance(value, float) else value}{suffix}"
-        delta_str = f"{round(delta, 2) if isinstance(delta, float) else delta}{delta_suffix}" if delta is not None else ""
+        delta_str = (
+            f"{round(delta, 2) if isinstance(delta, float) else delta}{delta_suffix}"
+            if delta is not None
+            else ""
+        )
         rows.append([card.get("title"), value_str, delta_str])
     return rows
 
@@ -67,8 +72,71 @@ def _add_report_sheet(wb, sheet_name, columns, data, report_name=""):
     make_xlsx(xlsx_data, sheet_name, wb=wb, column_widths=column_widths, styles=styles)
 
 
+def _careverse_report_excel(from_date, to_date):
+    """Scoped workbook for care-team users: Careverse tickets only."""
+    xlsx_file = BytesIO()
+    wb = xlsxwriter.Workbook(xlsx_file, {"constant_memory": True})
+    make_xlsx(_get_summary_metrics(from_date, to_date, None), "Summary", wb=wb)
+
+    fields = [
+        "name",
+        "subject",
+        "status",
+        "priority",
+        "ticket_type",
+        "agent_group",
+        "raised_by",
+        "facility",
+        "county",
+        "creation",
+        "resolution_date",
+        "agreement_status",
+    ]
+    tickets = frappe.get_list(
+        "HD Ticket",
+        filters=[
+            ["brand", "=", "Careverse"],
+            ["creation", ">=", from_date],
+            ["creation", "<", frappe.utils.add_days(to_date, 1)],
+        ],
+        fields=fields,
+        order_by="creation desc",
+        limit_page_length=0,
+    )
+    rows = [
+        [
+            "Ticket",
+            "Subject",
+            "Status",
+            "Priority",
+            "Type",
+            "Team",
+            "Raised By",
+            "Facility",
+            "County",
+            "Created",
+            "Resolved",
+            "SLA",
+        ]
+    ]
+    for t in tickets:
+        rows.append([str(t.get(f) or "") for f in fields])
+    make_xlsx(rows, "Tickets", wb=wb)
+    wb.close()
+
+    frappe.response["filename"] = f"Careverse_Report_{from_date}_to_{to_date}.xlsx"
+    frappe.response["filecontent"] = xlsx_file.getvalue()
+    frappe.response["content_type"] = (
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    frappe.response["type"] = "download"
+
+
 @frappe.whitelist()
+@agent_only
 def get_management_report_excel(from_date: str, to_date: str, county: str = None):
+    if _locked_brand():
+        return _careverse_report_excel(from_date, to_date)
     """Build and download a multi-sheet Excel management report."""
     xlsx_file = BytesIO()
     wb = xlsxwriter.Workbook(xlsx_file, {"constant_memory": True})
@@ -88,7 +156,11 @@ def get_management_report_excel(from_date: str, to_date: str, county: str = None
     _add_report_sheet(wb, "County Breakdown", columns, data)
 
     # 3. Ticket summary by type
-    summary_filters = {"from_date": from_date, "to_date": to_date, "based_on": "Ticket Type"}
+    summary_filters = {
+        "from_date": from_date,
+        "to_date": to_date,
+        "based_on": "Ticket Type",
+    }
     columns, data = _run_existing_report(
         "helpdesk.helpdesk.report.ticket_summary.ticket_summary",
         summary_filters,
@@ -112,12 +184,19 @@ def get_management_report_excel(from_date: str, to_date: str, county: str = None
 
     frappe.response["filename"] = f"Support_Report_{from_date}_to_{to_date}.xlsx"
     frappe.response["filecontent"] = xlsx_file.getvalue()
-    frappe.response["content_type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    frappe.response["content_type"] = (
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     frappe.response["type"] = "download"
 
 
 @frappe.whitelist()
+@agent_only
 def get_management_report_pdf(from_date: str, to_date: str, county: str = None):
+    if _locked_brand():
+        from helpdesk.api.careverse_report import careverse_report_pdf
+
+        return careverse_report_pdf(from_date, to_date)
     """Build and download a one-page PDF executive summary."""
     summary_rows = _get_summary_metrics(from_date, to_date, county)
 

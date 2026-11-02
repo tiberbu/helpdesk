@@ -98,6 +98,21 @@ class HDTicket(Document):
         if not raised_by or raised_by == "Guest":
             return
 
+        # Skip entirely for tickets raised by an L2 agent -- l2_raised_routing.py
+        # (before_insert) has already forced this ticket to National Support, and
+        # facility/county geography should not override that business rule.
+        if (
+            frappe.db.exists("HD Agent", raised_by)
+            and self.get("brand") not in self.PRODUCT_BRANDS
+        ):
+            agent_teams = frappe.get_all(
+                "HD Team Member", filters={"user": raised_by}, pluck="parent"
+            )
+            if any(
+                t not in ("National Support", "Engineering Team") for t in agent_teams
+            ):
+                return
+
         # Step 1: get facility from user profile; form-supplied facility takes priority
         user_facility = frappe.db.get_value("User", raised_by, "facility")
         effective_facility = self.facility or user_facility
@@ -120,13 +135,24 @@ class HDTicket(Document):
                 if fac.subcounty and not self.sub_county:
                     self.sub_county = fac.subcounty
 
+        # Careverse tickets keep Careverse Team regardless of facility geography.
+        # (County/sub-county were already filled in above, for reporting.)
+        if self._is_careverse_ticket():
+            team = frappe.db.get_value("HD Brand", "Careverse", "default_team")
+            if team:
+                self.agent_group = team
+                self.support_level = frappe.db.get_value(
+                    "HD Team", team, "support_level"
+                )
+            return
+
         mapping = None
 
         if effective_facility:
             # Step 2a: look up HD Facility Mapping by facility name
             mapping = frappe.db.get_value(
                 "HD Facility Mapping",
-                {"facility_name": effective_facility},
+                self._mapping_filters({"facility_name": effective_facility}),
                 ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
                 as_dict=True,
             )
@@ -136,10 +162,21 @@ class HDTicket(Document):
             # (user explicitly chose them via the ticket creation form or facility picker)
             mapping = frappe.db.get_value(
                 "HD Facility Mapping",
-                {"county": self.county, "sub_county": self.sub_county},
+                self._mapping_filters(
+                    {"county": self.county, "sub_county": self.sub_county}
+                ),
                 ["sub_county", "county", "l0_team", "l1_team", "l2_team"],
                 as_dict=True,
             )
+
+        if not mapping and self.get("brand") in self.PRODUCT_BRANDS:
+            team = frappe.db.get_value("HD Brand", self.brand, "default_team")
+            if team:
+                self.agent_group = team
+                self.support_level = frappe.db.get_value(
+                    "HD Team", team, "support_level"
+                )
+            return
 
         if mapping:
             # Step 3: populate geography — don't overwrite user-supplied values
@@ -174,6 +211,35 @@ class HDTicket(Document):
                 national_team = _get_default_national_team()
                 if national_team:
                     self.agent_group = national_team
+
+    PRODUCT_BRANDS = ("Admin Central", "F360", "P360")
+
+    def _mapping_filters(self, base):
+        """Facility Mapping lookups are per product: product brands only see their own
+        mappings; everything else only sees mappings with no product."""
+        flt = [[k, "=", v] for k, v in base.items()]
+        if self.get("brand") in self.PRODUCT_BRANDS:
+            flt.append(["product", "=", self.brand])
+        else:
+            flt.append(["product", "is", "not set"])
+        return flt
+
+    def _is_careverse_ticket(self):
+        """True if this ticket belongs to the Careverse workflow: brand set, or
+        received on the Careverse brand's support mailbox. Works whether or not
+        the brand hook has already run."""
+        if self.get("brand") == "Careverse":
+            return True
+        if self.get("email_account"):
+            addr = frappe.db.get_value("Email Account", self.email_account, "email_id")
+            if addr:
+                return (
+                    frappe.db.get_value(
+                        "HD Brand", {"support_email": addr, "is_active": 1}, "name"
+                    )
+                    == "Careverse"
+                )
+        return False
 
     def _remember_contact_location(self):
         """Persist county + sub_county to HD Customer after ticket insert.
@@ -252,9 +318,7 @@ class HDTicket(Document):
             return
 
         incomplete_mandatory = [
-            row.item
-            for row in checklist
-            if row.is_mandatory and not row.is_completed
+            row.item for row in checklist if row.is_mandatory and not row.is_completed
         ]
 
         if incomplete_mandatory:
@@ -320,9 +384,9 @@ class HDTicket(Document):
             )
             if parent != self.category:
                 frappe.throw(
-                    _(
-                        "Sub Category '{0}' does not belong to Category '{1}'."
-                    ).format(self.sub_category, self.category),
+                    _("Sub Category '{0}' does not belong to Category '{1}'.").format(
+                        self.sub_category, self.category
+                    ),
                     frappe.ValidationError,
                 )
 
@@ -463,6 +527,7 @@ class HDTicket(Document):
                 from helpdesk.helpdesk.doctype.hd_service_level_agreement.sla_monitor import (
                     clear_warning_dedup,
                 )
+
                 clear_warning_dedup(str(self.name))
             except Exception:
                 frappe.log_error(
@@ -512,10 +577,15 @@ class HDTicket(Document):
 
     def _run_escalation_rules(self, trigger: str) -> None:
         try:
-            from helpdesk.helpdesk.doctype.hd_ticket.escalation_rule_engine import evaluate_rules
+            from helpdesk.helpdesk.doctype.hd_ticket.escalation_rule_engine import (
+                evaluate_rules,
+            )
+
             evaluate_rules(self, trigger)
         except Exception:
-            frappe.log_error(frappe.get_traceback(), f"Escalation rules failed [{trigger}]")
+            frappe.log_error(
+                frappe.get_traceback(), f"Escalation rules failed [{trigger}]"
+            )
 
     def notify_customer_of_status_change(self):
         """Send email to the customer when an agent changes the ticket status."""
@@ -560,7 +630,9 @@ class HDTicket(Document):
         except Exception:
             frappe.log_error(frappe.get_traceback(), "Status Change Notification Error")
 
-        self._create_customer_status_notification(old_status=None, new_status=self.status)
+        self._create_customer_status_notification(
+            old_status=None, new_status=self.status
+        )
 
     def _send_resolution_confirmation_email(self):
         """
@@ -607,9 +679,13 @@ class HDTicket(Document):
                 reference_name=self.name,
             )
         except Exception:
-            frappe.log_error(frappe.get_traceback(), "Resolution Confirmation Email Error")
+            frappe.log_error(
+                frappe.get_traceback(), "Resolution Confirmation Email Error"
+            )
 
-    def _create_customer_reply_notification(self, message: str, communication_name: str):
+    def _create_customer_reply_notification(
+        self, message: str, communication_name: str
+    ):
         """Create an in-app notification for the customer when an agent replies."""
         try:
             customer_email = self.raised_by
@@ -619,29 +695,44 @@ class HDTicket(Document):
             if agent == customer_email:
                 return
             from bs4 import BeautifulSoup
-            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(" ", strip=True)[:300]
+
+            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(
+                " ", strip=True
+            )[:300]
             agent_name = frappe.db.get_value("User", agent, "full_name") or agent
-            frappe.get_doc({
-                "doctype": "HD Notification",
-                "user_from": agent,
-                "user_to": customer_email,
-                "notification_type": "Ticket Reply",
-                "reference_ticket": self.name,
-                "message": plain_preview,
-                "read": 0,
-            }).insert(ignore_permissions=True)
+            frappe.get_doc(
+                {
+                    "doctype": "HD Notification",
+                    "user_from": agent,
+                    "user_to": customer_email,
+                    "notification_type": "Ticket Reply",
+                    "reference_ticket": self.name,
+                    "message": plain_preview,
+                    "read": 0,
+                }
+            ).insert(ignore_permissions=True)
         except Exception:
-            frappe.log_error(frappe.get_traceback(), "Customer reply notification error")
+            frappe.log_error(
+                frappe.get_traceback(), "Customer reply notification error"
+            )
 
     def _notify_agents_of_customer_reply(self, message: str):
         """Create in-app bell notifications for assigned agents when customer replies."""
         try:
             assigned_agents = self.get_assigned_agents() or []
             customer = frappe.session.user
-            customer_name = frappe.db.get_value("User", customer, "full_name") or customer
+            customer_name = (
+                frappe.db.get_value("User", customer, "full_name") or customer
+            )
             from bs4 import BeautifulSoup
-            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(" ", strip=True)[:300]
-            from helpdesk.helpdesk.doctype.hd_notification.utils import create_notification
+
+            plain_preview = BeautifulSoup(message or "", "html.parser").get_text(
+                " ", strip=True
+            )[:300]
+            from helpdesk.helpdesk.doctype.hd_notification.utils import (
+                create_notification,
+            )
+
             for agent in assigned_agents:
                 agent_email = agent.get("name")
                 if not agent_email or agent_email == customer:
@@ -665,17 +756,21 @@ class HDTicket(Document):
             changer = frappe.session.user
             if changer == customer_email:
                 return
-            frappe.get_doc({
-                "doctype": "HD Notification",
-                "user_from": changer,
-                "user_to": customer_email,
-                "notification_type": "Ticket Status Change",
-                "reference_ticket": self.name,
-                "message": f"Your ticket #{self.name} status changed to {new_status}",
-                "read": 0,
-            }).insert(ignore_permissions=True)
+            frappe.get_doc(
+                {
+                    "doctype": "HD Notification",
+                    "user_from": changer,
+                    "user_to": customer_email,
+                    "notification_type": "Ticket Status Change",
+                    "reference_ticket": self.name,
+                    "message": f"Your ticket #{self.name} status changed to {new_status}",
+                    "read": 0,
+                }
+            ).insert(ignore_permissions=True)
         except Exception:
-            frappe.log_error(frappe.get_traceback(), "Customer status in-app notification error")
+            frappe.log_error(
+                frappe.get_traceback(), "Customer status in-app notification error"
+            )
 
     def set_ticket_type(self):
         if self.ticket_type:
@@ -1010,7 +1105,8 @@ class HDTicket(Document):
     def new_internal_note(self, content: str, attachments: list[str] = []):
         if not is_agent():
             frappe.throw(
-                _("You are not permitted to add an internal note"), frappe.PermissionError
+                _("You are not permitted to add an internal note"),
+                frappe.PermissionError,
             )
         c = frappe.new_doc("HD Ticket Comment")
         c.commented_by = frappe.session.user
@@ -1715,10 +1811,9 @@ class HDTicket(Document):
                 fields.remove(f)
         return fields
 
-
-# Check if `user` has access to this specific ticket (`doc`). This implements extra
-# permission checks which is not possible with standard permission system. This function
-# is being called from hooks. `doc` is the ticket to check against
+    # Check if `user` has access to this specific ticket (`doc`). This implements extra
+    # permission checks which is not possible with standard permission system. This function
+    # is being called from hooks. `doc` is the ticket to check against
     def _set_priority_from_keywords(self):
         """Auto-set priority based on keywords in subject/description.
 
@@ -1731,38 +1826,60 @@ class HDTicket(Document):
 
         # Urgent keywords
         urgent_keywords = [
-            'urgent', 'critical', 'emergency', 'asap', 'immediately',
-            'outage', 'down', 'broken', 'not working', 'crashed',
-            'production', 'security breach', 'data loss'
+            "urgent",
+            "critical",
+            "emergency",
+            "asap",
+            "immediately",
+            "outage",
+            "down",
+            "broken",
+            "not working",
+            "crashed",
+            "production",
+            "security breach",
+            "data loss",
         ]
 
         # High priority keywords
         high_keywords = [
-            'important', 'high priority', 'soon', 'blocking',
-            'severe', 'major', 'escalated', 'vip'
+            "important",
+            "high priority",
+            "soon",
+            "blocking",
+            "severe",
+            "major",
+            "escalated",
+            "vip",
         ]
 
         # Low priority keywords
         low_keywords = [
-            'minor', 'cosmetic', 'enhancement', 'feature request',
-            'question', 'inquiry', 'feedback', 'suggestion'
+            "minor",
+            "cosmetic",
+            "enhancement",
+            "feature request",
+            "question",
+            "inquiry",
+            "feedback",
+            "suggestion",
         ]
 
         # Combine subject and description for checking
-        text_to_check = (self.subject or '').lower()
+        text_to_check = (self.subject or "").lower()
         if self.description:
             # Extract text from HTML description
-            soup = BeautifulSoup(self.description, 'html.parser')
-            text_to_check += ' ' + soup.get_text().lower()
+            soup = BeautifulSoup(self.description, "html.parser")
+            text_to_check += " " + soup.get_text().lower()
 
         # Check for urgent keywords
         if any(keyword in text_to_check for keyword in urgent_keywords):
             # Get highest priority (lowest integer_value)
             priorities = frappe.get_all(
-                'HD Ticket Priority',
-                fields=['name'],
-                order_by='integer_value asc',
-                limit=1
+                "HD Ticket Priority",
+                fields=["name"],
+                order_by="integer_value asc",
+                limit=1,
             )
             if priorities:
                 self.priority = priorities[0].name
@@ -1772,10 +1889,10 @@ class HDTicket(Document):
         if any(keyword in text_to_check for keyword in high_keywords):
             # Get second highest priority
             priorities = frappe.get_all(
-                'HD Ticket Priority',
-                fields=['name'],
-                order_by='integer_value asc',
-                limit=2
+                "HD Ticket Priority",
+                fields=["name"],
+                order_by="integer_value asc",
+                limit=2,
             )
             if len(priorities) >= 2:
                 self.priority = priorities[1].name
@@ -1788,10 +1905,10 @@ class HDTicket(Document):
         if any(keyword in text_to_check for keyword in low_keywords):
             # Get lowest priority (highest integer_value)
             priorities = frappe.get_all(
-                'HD Ticket Priority',
-                fields=['name'],
-                order_by='integer_value desc',
-                limit=1
+                "HD Ticket Priority",
+                fields=["name"],
+                order_by="integer_value desc",
+                limit=1,
             )
             if priorities:
                 self.priority = priorities[0].name
@@ -1806,23 +1923,21 @@ class HDTicket(Document):
         Story: Priority Workflow - Add priority escalation after X hours.
         Escalates ticket priority if it's been open for too long without progress.
         """
-        if self.status_category in ('Resolved', 'Closed'):
+        if self.status_category in ("Resolved", "Closed"):
             # Don't escalate resolved/closed tickets
             return
 
         # Get escalation settings
         escalation_enabled = frappe.db.get_single_value(
-            'HD Settings',
-            'enable_priority_escalation'
+            "HD Settings", "enable_priority_escalation"
         )
 
         if not escalation_enabled:
             return
 
-        escalation_hours = frappe.db.get_single_value(
-            'HD Settings',
-            'priority_escalation_hours'
-        ) or 24
+        escalation_hours = (
+            frappe.db.get_single_value("HD Settings", "priority_escalation_hours") or 24
+        )
 
         # Calculate ticket age in hours
         ticket_age = now_datetime() - self.creation
@@ -1833,15 +1948,15 @@ class HDTicket(Document):
             return
 
         # Get current priority details
-        current_priority = frappe.get_cached_doc('HD Ticket Priority', self.priority)
+        current_priority = frappe.get_cached_doc("HD Ticket Priority", self.priority)
 
         # Find next higher priority (lower integer_value)
         results = frappe.db.get_list(
-            'HD Ticket Priority',
-            filters=[['integer_value', '<', current_priority.integer_value]],
-            fields=['name'],
-            order_by='integer_value desc',
-            limit=1
+            "HD Ticket Priority",
+            filters=[["integer_value", "<", current_priority.integer_value]],
+            fields=["name"],
+            order_by="integer_value desc",
+            limit=1,
         )
         next_priority = results[0].name if results else None
 
@@ -1850,21 +1965,35 @@ class HDTicket(Document):
             self.priority = next_priority
 
             # Log the escalation
-            comment = frappe.get_doc({
-                'doctype': 'Comment',
-                'comment_type': 'Info',
-                'reference_doctype': 'HD Ticket',
-                'reference_name': self.name,
-                'content': f'Priority auto-escalated from {old_priority} to {next_priority} after {int(ticket_age_hours)} hours'
-            })
+            comment = frappe.get_doc(
+                {
+                    "doctype": "Comment",
+                    "comment_type": "Info",
+                    "reference_doctype": "HD Ticket",
+                    "reference_name": self.name,
+                    "content": f"Priority auto-escalated from {old_priority} to {next_priority} after {int(ticket_age_hours)} hours",
+                }
+            )
             comment.insert(ignore_permissions=True)
 
             frappe.msgprint(
-                _('Ticket priority escalated from {0} to {1} due to age').format(
+                _("Ticket priority escalated from {0} to {1} due to age").format(
                     old_priority, next_priority
                 ),
-                alert=True
+                alert=True,
             )
+
+
+CAREVERSE_BRAND = "Careverse"
+CAREVERSE_CARE_TEAM = "Careverse Care Team"
+
+
+def _is_careverse_viewer(user):
+    return bool(
+        frappe.db.exists(
+            "HD Team Member", {"parent": CAREVERSE_CARE_TEAM, "user": user}
+        )
+    )
 
 
 def has_permission(doc, user=None):
@@ -1894,6 +2023,9 @@ def has_permission(doc, user=None):
     if show_tickets_without_team and not doc.get("agent_group"):
         return True
 
+    if doc.get("brand") == CAREVERSE_BRAND and _is_careverse_viewer(user):
+        return True
+
     if doc.get("_assign", None):
         try:
             assignees = json.loads(doc._assign)
@@ -1903,7 +2035,7 @@ def has_permission(doc, user=None):
             pass
 
     # Use the same hierarchical scope logic as permission_query
-    from .team_hierarchy import get_scoped_teams_for_agent, _LEGACY_FALLBACK
+    from .team_hierarchy import _LEGACY_FALLBACK, get_scoped_teams_for_agent
 
     scoped = get_scoped_teams_for_agent(user)
 
@@ -1965,6 +2097,11 @@ def permission_query(user):
         "HD Settings", "do_not_restrict_tickets_without_an_agent_group"
     )
 
+    if _is_careverse_viewer(user):
+        query += " OR (`tabHD Ticket`.brand = {b})".format(
+            b=frappe.db.escape(CAREVERSE_BRAND)
+        )
+
     teams = get_agents_team()
 
     if show_tickets_without_team:
@@ -2000,10 +2137,8 @@ def permission_query(user):
 
     if scoped is not _LEGACY_FALLBACK:
         # Hierarchical mode: restrict to the computed team scope
-        query += (
-            " OR (JSON_SEARCH(`tabHD Ticket`._assign, 'all', {user}) IS NOT NULL)".format(
-                user=frappe.db.escape(user)
-            )
+        query += " OR (JSON_SEARCH(`tabHD Ticket`._assign, 'all', {user}) IS NOT NULL)".format(
+            user=frappe.db.escape(user)
         )
         if not scoped:
             # Agent is in no teams — no additional team-based tickets
@@ -2030,6 +2165,7 @@ def permission_query(user):
         team_names=team_names
     )
     return query
+
 
 def set_guest_ticket_creation_permission():
     doctype = "HD Ticket"
@@ -2162,7 +2298,11 @@ def escalate_ticket_priorities():
     settings = frappe.db.get_value(
         "HD Settings",
         "HD Settings",
-        ["enable_priority_escalation", "priority_escalation_hours", "priority_escalation_repeat_hours"],
+        [
+            "enable_priority_escalation",
+            "priority_escalation_hours",
+            "priority_escalation_repeat_hours",
+        ],
         as_dict=True,
     )
     if not settings or not settings.get("enable_priority_escalation"):
@@ -2182,7 +2322,14 @@ def escalate_ticket_priorities():
             ["last_agent_response", "<", cutoff],
             ["last_agent_response", "is", "not set"],
         ],
-        fields=["name", "priority", "assigned_to", "subject", "last_agent_response", "creation"],
+        fields=[
+            "name",
+            "priority",
+            "assigned_to",
+            "subject",
+            "last_agent_response",
+            "creation",
+        ],
     )
 
     escalated = 0
@@ -2200,7 +2347,9 @@ def escalate_ticket_priorities():
         frappe.logger().info(f"Auto-priority escalation: {escalated} tickets processed")
 
 
-def _maybe_escalate_priority(ticket_data, inactivity_hours: int, repeat_hours: int, cutoff) -> None:
+def _maybe_escalate_priority(
+    ticket_data, inactivity_hours: int, repeat_hours: int, cutoff
+) -> None:
     """Attempt to escalate a single ticket's priority. No-ops if already at top or recently fired."""
     if not ticket_data.priority:
         return
@@ -2244,14 +2393,16 @@ def _maybe_escalate_priority(ticket_data, inactivity_hours: int, repeat_hours: i
         "Priority auto-escalated from <strong>{0}</strong> to <strong>{1}</strong> "
         "after {2} hours of inactivity (no agent response)."
     ).format(old_priority, next_priority, inactive_hours)
-    frappe.get_doc({
-        "doctype": "HD Ticket Comment",
-        "reference_ticket": ticket_data.name,
-        "commented_by": "Administrator",
-        "content": note_content,
-        "is_internal": 1,
-        "is_pinned": 0,
-    }).insert(ignore_permissions=True)
+    frappe.get_doc(
+        {
+            "doctype": "HD Ticket Comment",
+            "reference_ticket": ticket_data.name,
+            "commented_by": "Administrator",
+            "content": note_content,
+            "is_internal": 1,
+            "is_pinned": 0,
+        }
+    ).insert(ignore_permissions=True)
 
     # Realtime notification to assigned agent
     if ticket_data.assigned_to:
@@ -2340,33 +2491,60 @@ def close_tickets_after_n_days():
 
 COUNTY_TEAM_MAP = {
     # Coast Region
-    "Mombasa": "Coast Region", "Kwale": "Coast Region", "Kilifi": "Coast Region",
-    "Tana River": "Coast Region", "Lamu": "Coast Region", "Taita-Taveta": "Coast Region",
+    "Mombasa": "Coast Region",
+    "Kwale": "Coast Region",
+    "Kilifi": "Coast Region",
+    "Tana River": "Coast Region",
+    "Lamu": "Coast Region",
+    "Taita-Taveta": "Coast Region",
     # Central Region
-    "Nyandarua": "Central Region", "Nyeri": "Central Region", "Kirinyaga": "Central Region",
-    "Murang'a": "Central Region", "Kiambu": "Central Region",
+    "Nyandarua": "Central Region",
+    "Nyeri": "Central Region",
+    "Kirinyaga": "Central Region",
+    "Murang'a": "Central Region",
+    "Kiambu": "Central Region",
     # Nairobi
     "Nairobi": "Nairobi Metropolitan",
     # Eastern Region
-    "Meru": "Eastern Region", "Tharaka-Nithi": "Eastern Region", "Embu": "Eastern Region",
-    "Kitui": "Eastern Region", "Machakos": "Eastern Region", "Makueni": "Eastern Region",
-    "Garissa": "Eastern Region", "Wajir": "Eastern Region", "Mandera": "Eastern Region",
-    "Marsabit": "Eastern Region", "Isiolo": "Eastern Region",
+    "Meru": "Eastern Region",
+    "Tharaka-Nithi": "Eastern Region",
+    "Embu": "Eastern Region",
+    "Kitui": "Eastern Region",
+    "Machakos": "Eastern Region",
+    "Makueni": "Eastern Region",
+    "Garissa": "Eastern Region",
+    "Wajir": "Eastern Region",
+    "Mandera": "Eastern Region",
+    "Marsabit": "Eastern Region",
+    "Isiolo": "Eastern Region",
     # Western Region
-    "Kakamega": "Western Region", "Vihiga": "Western Region",
-    "Bungoma": "Western Region", "Busia": "Western Region",
+    "Kakamega": "Western Region",
+    "Vihiga": "Western Region",
+    "Bungoma": "Western Region",
+    "Busia": "Western Region",
     # Nyanza Region
-    "Siaya": "Nyanza Region", "Kisumu": "Nyanza Region", "Homa Bay": "Nyanza Region",
-    "Migori": "Nyanza Region", "Kisii": "Nyanza Region", "Nyamira": "Nyanza Region",
+    "Siaya": "Nyanza Region",
+    "Kisumu": "Nyanza Region",
+    "Homa Bay": "Nyanza Region",
+    "Migori": "Nyanza Region",
+    "Kisii": "Nyanza Region",
+    "Nyamira": "Nyanza Region",
     # Rift Valley North
-    "Turkana": "Rift Valley North", "West Pokot": "Rift Valley North",
-    "Samburu": "Rift Valley North", "Trans-Nzoia": "Rift Valley North",
-    "Uasin Gishu": "Rift Valley North", "Elgeyo-Marakwet": "Rift Valley North",
+    "Turkana": "Rift Valley North",
+    "West Pokot": "Rift Valley North",
+    "Samburu": "Rift Valley North",
+    "Trans-Nzoia": "Rift Valley North",
+    "Uasin Gishu": "Rift Valley North",
+    "Elgeyo-Marakwet": "Rift Valley North",
     "Baringo": "Rift Valley North",
     # Rift Valley South
-    "Nandi": "Rift Valley South", "Laikipia": "Rift Valley South", "Nakuru": "Rift Valley South",
-    "Narok": "Rift Valley South", "Kajiado": "Rift Valley South",
-    "Kericho": "Rift Valley South", "Bomet": "Rift Valley South",
+    "Nandi": "Rift Valley South",
+    "Laikipia": "Rift Valley South",
+    "Nakuru": "Rift Valley South",
+    "Narok": "Rift Valley South",
+    "Kajiado": "Rift Valley South",
+    "Kericho": "Rift Valley South",
+    "Bomet": "Rift Valley South",
 }
 
 

@@ -3,10 +3,10 @@ External API Integration for HMIS and other third-party systems
 Create tickets from external systems via authenticated API calls
 """
 
+from typing import Optional
+
 import frappe
 from frappe import _
-from frappe.utils import now_datetime, get_datetime
-from typing import Optional
 
 
 @frappe.whitelist(allow_guest=True)
@@ -26,7 +26,8 @@ def create_ticket_from_hmis(
     custom_phone: Optional[str] = None,
     custom_section: Optional[str] = None,
     api_key: Optional[str] = None,
-    api_secret: Optional[str] = None
+    api_secret: Optional[str] = None,
+    source: Optional[str] = None,
 ):
     """
     Create a helpdesk ticket from HMIS system
@@ -73,21 +74,23 @@ def create_ticket_from_hmis(
     if not _authenticate_external_request(api_key, api_secret):
         frappe.throw(
             _("Invalid API credentials. Please check your API key and secret."),
-            frappe.AuthenticationError
+            frappe.AuthenticationError,
         )
 
     # Step 2: Validate required fields
     if not subject or not description or not raised_by_email:
         frappe.throw(
-            _("Missing required fields: subject, description, and raised_by_email are mandatory"),
-            frappe.MandatoryError
+            _(
+                "Missing required fields: subject, description, and raised_by_email are mandatory"
+            ),
+            frappe.MandatoryError,
         )
 
     valid_priorities = ["Low", "Medium", "High", "Urgent"]
     if not priority or priority not in valid_priorities:
         frappe.throw(
             _("priority is required. Must be one of: Low, Medium, High, Urgent"),
-            frappe.MandatoryError
+            frappe.MandatoryError,
         )
 
     # Step 3: Get or create contact for the user
@@ -95,10 +98,7 @@ def create_ticket_from_hmis(
 
     # Step 4: Build ticket description with HMIS context
     full_description = _build_ticket_description(
-        description,
-        external_reference_id,
-        hmis_module,
-        hmis_url
+        description, external_reference_id, hmis_module, hmis_url
     )
 
     # Step 5: Prepare ticket data
@@ -122,7 +122,9 @@ def create_ticket_from_hmis(
 
     # Add custom fields if provided
     if custom_fields and isinstance(custom_fields, dict):
-        ticket_data.update(custom_fields)
+        ticket_data.update(
+            {k: v for k, v in custom_fields.items() if str(k).startswith("custom_")}
+        )
 
     # Store HMIS reference in custom field if it exists
     if external_reference_id:
@@ -137,14 +139,14 @@ def create_ticket_from_hmis(
             "HD Facility",
             {"facility_code": facility},
             ["name", "county", "subcounty"],
-            as_dict=True
+            as_dict=True,
         )
         if not facility_doc:
             facility_doc = frappe.db.get_value(
                 "HD Facility",
                 {"name": facility},
                 ["name", "county", "subcounty"],
-                as_dict=True
+                as_dict=True,
             )
         if facility_doc:
             ticket_data["facility"] = facility_doc.name
@@ -159,6 +161,10 @@ def create_ticket_from_hmis(
     if custom_section:
         ticket_data["custom_section"] = custom_section
 
+    if source in ("F360", "P360", "Admin Central"):
+        ticket_data["brand"] = source
+        ticket_data["source"] = source
+
     # Step 6: Create the ticket
     try:
         # Set system user context to bypass permissions for external API
@@ -171,7 +177,9 @@ def create_ticket_from_hmis(
 
         # Step 7: Create initial comment with HMIS context
         if external_reference_id or hmis_url:
-            _add_hmis_reference_comment(ticket_doc.name, external_reference_id, hmis_url)
+            _add_hmis_reference_comment(
+                ticket_doc.name, external_reference_id, hmis_url
+            )
 
         # Step 8: Return ticket details
         ticket_url = frappe.utils.get_url(f"/helpdesk/tickets/{ticket_doc.name}")
@@ -185,17 +193,15 @@ def create_ticket_from_hmis(
             "ticket_status": ticket_doc.status,
             "ticket_priority": ticket_doc.priority,
             "created_on": ticket_doc.creation,
-            "message": f"Ticket {ticket_doc.name} created successfully"
+            "message": f"Ticket {ticket_doc.name} created successfully",
         }
 
     except Exception as e:
         frappe.log_error(
-            title="HMIS Ticket Creation Failed",
-            message=frappe.get_traceback()
+            title="HMIS Ticket Creation Failed", message=frappe.get_traceback()
         )
         frappe.throw(
-            _("Failed to create ticket: {0}").format(str(e)),
-            frappe.ValidationError
+            _("Failed to create ticket: {0}").format(str(e)), frappe.ValidationError
         )
 
 
@@ -206,7 +212,7 @@ def update_ticket_from_hmis(
     status: Optional[str] = None,
     priority: Optional[str] = None,
     api_key: Optional[str] = None,
-    api_secret: Optional[str] = None
+    api_secret: Optional[str] = None,
 ):
     """
     Update an existing ticket from HMIS system
@@ -232,7 +238,9 @@ def update_ticket_from_hmis(
 
     # Validate ticket exists
     if not frappe.db.exists("HD Ticket", ticket_id):
-        frappe.throw(_("Ticket {0} not found").format(ticket_id), frappe.DoesNotExistError)
+        frappe.throw(
+            _("Ticket {0} not found").format(ticket_id), frappe.DoesNotExistError
+        )
 
     # Get ticket
     ticket_doc = frappe.get_doc("HD Ticket", ticket_id)
@@ -263,15 +271,13 @@ def update_ticket_from_hmis(
         "ticket_id": ticket_doc.name,
         "ticket_status": ticket_doc.status,
         "ticket_priority": ticket_doc.priority,
-        "message": f"Ticket {ticket_doc.name} updated successfully"
+        "message": f"Ticket {ticket_doc.name} updated successfully",
     }
 
 
 @frappe.whitelist(allow_guest=True)
 def get_ticket_status(
-    ticket_id: str,
-    api_key: Optional[str] = None,
-    api_secret: Optional[str] = None
+    ticket_id: str, api_key: Optional[str] = None, api_secret: Optional[str] = None
 ):
     """
     Get current status of a ticket from HMIS
@@ -294,7 +300,9 @@ def get_ticket_status(
 
     # Validate ticket exists
     if not frappe.db.exists("HD Ticket", ticket_id):
-        frappe.throw(_("Ticket {0} not found").format(ticket_id), frappe.DoesNotExistError)
+        frappe.throw(
+            _("Ticket {0} not found").format(ticket_id), frappe.DoesNotExistError
+        )
 
     # Get ticket
     ticket = frappe.get_doc("HD Ticket", ticket_id)
@@ -319,6 +327,7 @@ def get_ticket_status(
 # HELPER FUNCTIONS (Private)
 # ============================================================================
 
+
 def _authenticate_external_request(api_key: str, api_secret: str) -> bool:
     """
     Authenticate external API request using API key and secret
@@ -336,7 +345,7 @@ def _authenticate_external_request(api_key: str, api_secret: str) -> bool:
     if not settings.get("enable_external_api"):
         frappe.log_error(
             title="External API Disabled",
-            message="External API integration is disabled in HD Settings"
+            message="External API integration is disabled in HD Settings",
         )
         return False
 
@@ -347,7 +356,7 @@ def _authenticate_external_request(api_key: str, api_secret: str) -> bool:
     if not stored_api_key or not stored_api_secret:
         frappe.log_error(
             title="API Credentials Not Configured",
-            message="External API credentials not set in HD Settings"
+            message="External API credentials not set in HD Settings",
         )
         return False
 
@@ -370,19 +379,21 @@ def _get_or_create_contact(email: str, full_name: Optional[str] = None):
         "Contact",
         {"email_id": email},
         ["name", "first_name", "last_name"],
-        as_dict=True
+        as_dict=True,
     )
 
     if contact:
         return frappe.get_doc("Contact", contact.name)
 
     # Create new contact
-    contact_doc = frappe.get_doc({
-        "doctype": "Contact",
-        "email_id": email,
-        "first_name": full_name or email.split("@")[0],
-        "status": "Passive"
-    })
+    contact_doc = frappe.get_doc(
+        {
+            "doctype": "Contact",
+            "email_id": email,
+            "first_name": full_name or email.split("@")[0],
+            "status": "Passive",
+        }
+    )
 
     contact_doc.flags.ignore_permissions = True
     contact_doc.insert()
@@ -394,7 +405,7 @@ def _build_ticket_description(
     description: str,
     external_reference_id: Optional[str],
     hmis_module: Optional[str],
-    hmis_url: Optional[str]
+    hmis_url: Optional[str],
 ) -> str:
     """
     Build enhanced ticket description with HMIS context
@@ -412,7 +423,9 @@ def _build_ticket_description(
             parts.append(f"- **Module:** {hmis_module}")
 
         if hmis_url:
-            parts.append(f"- **HMIS Link:** [{external_reference_id or 'View Issue'}]({hmis_url})")
+            parts.append(
+                f"- **HMIS Link:** [{external_reference_id or 'View Issue'}]({hmis_url})"
+            )
 
     return "\n".join(parts)
 
@@ -436,6 +449,7 @@ def _add_hmis_reference_comment(ticket_name: str, reference_id: str, hmis_url: s
 # ============================================================================
 # WEBHOOK ENDPOINTS (Optional - for HMIS to push updates)
 # ============================================================================
+
 
 @frappe.whitelist(allow_guest=True)
 def hmis_webhook(data: dict):
@@ -484,7 +498,7 @@ def hmis_webhook(data: dict):
             hmis_module=payload.get("module"),
             hmis_url=payload.get("url"),
             api_key=api_key,
-            api_secret=api_secret
+            api_secret=api_secret,
         )
 
     elif event == "issue_updated":
@@ -493,7 +507,7 @@ def hmis_webhook(data: dict):
             comment=payload.get("comment"),
             status=payload.get("status"),
             api_key=api_key,
-            api_secret=api_secret
+            api_secret=api_secret,
         )
 
     else:
